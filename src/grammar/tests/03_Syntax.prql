@@ -1,0 +1,41 @@
+
+# Pipes
+# https://prql-lang.org/book/queries/syntax.html#pipes
+from employees
+filter department == "Product"
+select [first_name, last_name]
+
+from employees | filter department == "Product" | select [first_name, last_name]
+
+
+# Parentheses
+# https://prql-lang.org/book/queries/syntax.html#parentheses
+from employees
+group [title, country] (
+  aggregate [
+    average salary,
+    ct = count
+  ]
+)
+
+
+# Comments
+# https://prql-lang.org/book/queries/syntax.html#comments
+from employees  # Comment 1
+# Comment 2
+aggregate [average salary]
+
+
+# Backticks
+# https://prql-lang.org/book/queries/syntax.html#backticks
+# prql dialect:mysql
+# from employees
+# select `first name`
+
+# prql dialect:postgres
+# from employees
+# select `first name`
+
+# prql dialect:bigquery
+# from `project-foo.dataset.table`
+# join `project-bar.dataset.table` [col_bax]
