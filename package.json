@@ -10,18 +10,13 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:prqlvs.HelloPRQL",
-    "onCommand:prqlvs.RunPRQL"
+    "onCommand:prqlvs.Run"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "prqlvs.HelloPRQL",
-        "title": "Hello PRQL"
-      },
-      {
-        "command": "prqlvs.RunPRQL",
+        "command": "prqlvs.Run",
         "title": "Run PRQL"
       }
     ]
