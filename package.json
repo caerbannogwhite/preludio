@@ -49,6 +49,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "antlr4": "^4.10.1",
     "arquero": "^5.1.0"
   }
 }
