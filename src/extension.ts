@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import runPrqljs from "./prqljs/prql.js";
+import runPrqljs from "./prqljs/listener.js";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,9 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 			let selectedText = textEditor.document.lineAt(firstLine).text.slice(textEditor.selection.start.character) + endOfLine;
 			for (let i = firstLine + 1; i < lastLine; ++i) {
-				selectedText += textEditor.document.lineAt(i).text;
+				selectedText += textEditor.document.lineAt(i).text + endOfLine;
 			}
-			selectedText += textEditor.document.lineAt(lastLine).text.slice(0, textEditor.selection.end.character) + endOfLine;
+			selectedText += textEditor.document.lineAt(lastLine).text.slice(0, textEditor.selection.end.character);
 
 			console.log("<begin>");
 			console.log(selectedText);

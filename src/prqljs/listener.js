@@ -7,19 +7,14 @@ import prqlParser from "../grammar/prqlParser.js";
 export class Prqljs extends prqlListener {
   constructor() {
     super();
-    this.outputSASCode = "";
-  }
 
-  getSASCode() {
-    return this.outputSASCode;
+    this.funcDefParams = {};
   }
 
   enterQuery(ctx) {
-    this.outputSASCode += "enter <query>\n";
   }
 
   exitQuery(ctx) {
-    this.outputSASCode += "exit <query>\n";
   }
 
   // Enter a parse tree produced by prqlParser#query_def.
@@ -41,7 +36,9 @@ export class Prqljs extends prqlListener {
   exitFunc_def_name(ctx) { }
 
   // Enter a parse tree produced by prqlParser#func_def_params.
-  enterFunc_def_params(ctx) { }
+  enterFunc_def_params(ctx) {
+    this.funcDefParams = {};
+  }
 
   // Exit a parse tree produced by prqlParser#func_def_params.
   exitFunc_def_params(ctx) { }
@@ -50,7 +47,11 @@ export class Prqljs extends prqlListener {
   enterFunc_def_param(ctx) { }
 
   // Exit a parse tree produced by prqlParser#func_def_param.
-  exitFunc_def_param(ctx) { }
+  exitFunc_def_param(ctx) {
+    if (ctx.IDENT()) {
+
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#type_def.
   enterType_def(ctx) { }
@@ -102,39 +103,35 @@ export class Prqljs extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#func_call.
   enterFunc_call(ctx) {
-    this.outputSASCode += "enter <funcCall>\n";
+
   }
 
   // Exit a parse tree produced by prqlParser#func_call.
   exitFunc_call(ctx) {
-    this.outputSASCode += "exit <funcCall>\n";
 
-    console.log(ctx.IDENT());
+    // console.log(ctx.IDENT());
 
     const funcName = ctx.IDENT().getText().toLowerCase();
     switch (funcName) {
       case "average":
-        console.log("function <average>");
         break;
 
       case "aggregate":
-        console.log("function <aggregate>");
         break;
 
       case "from":
-        console.log("function <from>");
         break;
 
       case "derive":
-        console.log("function <derive>");
         break;
 
       case "group":
-        console.log("function <group>");
+        break;
+
+      case "import":
         break;
 
       case "sort":
-        console.log("function <sort>");
         break;
 
       default:
@@ -213,7 +210,9 @@ export class Prqljs extends prqlListener {
   enterLiteral(ctx) { }
 
   // Exit a parse tree produced by prqlParser#literal.
-  exitLiteral(ctx) { }
+  exitLiteral(ctx) {
+    console.log(ctx);
+  }
 
   // Enter a parse tree produced by prqlParser#list.
   enterList(ctx) { }
@@ -318,6 +317,4 @@ export default function runPrqljs(source) {
   var tree = parser.query();
   var transpiler = new Prqljs();
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(transpiler, tree);
-
-  return transpiler.getSASCode();
 }
