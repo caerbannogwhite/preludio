@@ -123,13 +123,13 @@ term:
 	| nested_pipeline;
 
 // expr_unary is for sorting.
-expr_unary: operator_unary (nested_pipeline | IDENT);
+expr_unary: operator_unary (nested_pipeline | literal | IDENT);
 literal:
 	interval
 	| NUMBER
 	| BOOLEAN
 	| NULL_
-	| string; // | timestamp | date | time
+	| STRING; // | timestamp | date | time
 
 list:
 	LBRACKET (
@@ -156,7 +156,7 @@ multi_quote: '"""' | '\'\'\'';
 // opening_quote: PUSH (multi_quote) | PUSH (single_quote); PEEK refers to the opening quote; either
 // `"` or `'`. string_inner: ( PEEK ANY)+; Either > 3 quotes, or just one. Currently both of those
 // can be multiline.
-string: '"' . '"';
+STRING: '"' ~('"')* '"';
 
 // We need `literal` separate from `term_simple` for things like range edges, which would infinitely
 // recurse otherwise, since it'll keep trying to parse the whole span, not just the part before

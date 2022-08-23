@@ -1,0 +1,6 @@
+
+table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv")
+
+from a
+select Car
+
