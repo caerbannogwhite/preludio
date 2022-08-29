@@ -9,23 +9,44 @@ grammar prql;
 FUNC: 'func';
 PRQL: 'prql';
 TABLE: 'table';
+ARROW: '->';
+ASSIGN: '=';
 
 PLUS: '+';
 MINUS: '-';
-EQUAL: '=';
+STAR: '*';
+DIV: '/';
+MOD: '%';
+
+EQ: '==';
+NE: '!=';
+LE: '<=';
+GE: '>=';
 
 BAR: '|';
+COLON: ':';
 COMMA: ',';
 DOT: '.';
 DOLLAR: '$';
-UNDERSCORE: '_';
+RANGE: '..';
 LANG: '<';
 RANG: '>';
 LBRACKET: '[';
 RBRACKET: ']';
 LPAREN: '(';
 RPAREN: ')';
+UNDERSCORE: '_';
 
+BACKTICK: '`';
+DOUBLE_QUOTE: '"';
+SINGLE_QUOTE: '\'';
+TRIPLE_DOUBLE_QUOTE: '"""';
+TRIPLE_SINGLE_QUOTE: '\'\'\'';
+
+AND: 'and';
+OR: 'or';
+NOT: '!';
+COALESCE: '??';
 NULL_: 'null';
 BOOLEAN: 'true' | 'false';
 
@@ -44,7 +65,7 @@ IDENT_START: (LETTER | DOLLAR | UNDERSCORE) (
 		| DIGIT
 		| UNDERSCORE
 	)*;
-IDENT_NEXT: IDENT_START | '*';
+IDENT_NEXT: IDENT_START | STAR;
 
 WHITESPACE: (' ' | '\t') -> skip;
 NEWLINE: '\r'? '\n';
@@ -59,7 +80,7 @@ query:
 
 query_def: PRQL named_arg* nl;
 
-func_def: FUNC func_def_name func_def_params '->' expr;
+func_def: FUNC func_def_name func_def_params ARROW expr;
 
 func_def_name: IDENT type_def?;
 func_def_params: func_def_param*;
@@ -67,7 +88,7 @@ func_def_param: (named_arg | IDENT) type_def?;
 type_def: LANG type_term BAR type_term* RANG;
 type_term: IDENT type_def?;
 
-table: TABLE IDENT EQUAL nested_pipeline;
+table: TABLE IDENT ASSIGN nested_pipeline;
 
 pipe: nl | BAR;
 pipeline: expr_call (pipe expr_call)*;
@@ -80,7 +101,8 @@ pipeline: expr_call (pipe expr_call)*;
 // backticks. ident_start: ( (ASCII_ALPHA | DOLLAR | UNDERSCORE) ~ ( ASCII_ALPHANUMERIC | DOLLAR )*
 // ) | ident_backticks+; // We allow `e.*`, but not just `*`, since it might conflict with multiply
 // in some cases. ident_next: ident_start | '*'; Anything surrounded by backticks, we pass through.
-ident_backticks: '`' (nl '`' .)* '`';
+ident_backticks: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
+
 // For sorting
 signed_ident: (PLUS | MINUS) IDENT;
 keyword: PRQL | TABLE | FUNC;
@@ -98,9 +120,9 @@ keyword: PRQL | TABLE | FUNC;
 // `a` & `-b`.
 func_call: IDENT (named_arg | assign | expr)+;
 
-named_arg: IDENT ':' (assign | expr);
-assign: IDENT '=' expr;
-assign_call: IDENT '=' expr_call;
+named_arg: IDENT COLON (assign | expr);
+assign: IDENT ASSIGN expr;
+assign_call: IDENT ASSIGN expr_call;
 
 expr_call: func_call | expr;
 
@@ -118,8 +140,9 @@ term:
 	range
 	| literal
 	| IDENT
+	| ident_backticks
 	| expr_unary
-	| list // | jinja
+	| list
 	| nested_pipeline;
 
 // expr_unary is for sorting.
@@ -129,7 +152,7 @@ literal:
 	| NUMBER
 	| BOOLEAN
 	| NULL_
-	| STRING; // | timestamp | date | time
+	| string; // | timestamp | date | time
 
 list:
 	LBRACKET (
@@ -151,17 +174,17 @@ nested_pipeline: LPAREN nl* pipeline nl* RPAREN;
 // inner spaces are included without an atomic operator (or with `ANY`), but prceeding & trailing
 // spaces require both `ANY` _and_ an atomic operator. We have some rudimentary tests for these.
 
-single_quote: '"' | '\'';
-multi_quote: '"""' | '\'\'\'';
-// opening_quote: PUSH (multi_quote) | PUSH (single_quote); PEEK refers to the opening quote; either
-// `"` or `'`. string_inner: ( PEEK ANY)+; Either > 3 quotes, or just one. Currently both of those
-// can be multiline.
-STRING: '"' ~('"')* '"';
+// single_quote: '"' | '\''; multi_quote: '"""' | '\'\'\''; opening_quote: PUSH (multi_quote) | PUSH
+// (single_quote); PEEK refers to the opening quote; either `"` or `'`. string_inner: ( PEEK ANY)+;
+// Either > 3 quotes, or just one. Currently both of those can be multiline.
+string:
+	SINGLE_QUOTE ~(NEWLINE | SINGLE_QUOTE)* SINGLE_QUOTE
+	| DOUBLE_QUOTE ~(NEWLINE | DOUBLE_QUOTE)* DOUBLE_QUOTE;
 
 // We need `literal` separate from `term_simple` for things like range edges, which would infinitely
 // recurse otherwise, since it'll keep trying to parse the whole span, not just the part before
 // `..`.
-range: literal '..' literal;
+range: literal RANGE literal;
 
 operator:
 	operator_unary
@@ -171,12 +194,12 @@ operator:
 	| operator_logical
 	| operator_coalesce;
 
-operator_unary: '-' | '+' | '!';
-operator_mul: '*' | '/' | '%';
-operator_add: '+' | '-';
-operator_compare: '==' | '!=' | '>=' | '<=' | '>' | '<';
-operator_logical: 'and' | 'or';
-operator_coalesce: '??';
+operator_unary: MINUS | PLUS | NOT;
+operator_mul: STAR | DIV | MOD;
+operator_add: MINUS | PLUS;
+operator_compare: EQ | NE | GE | LE | LANG | RANG;
+operator_logical: AND | OR;
+operator_coalesce: COALESCE;
 
 // s_string: 's' opening_quote ( interpolate_string_inner | ( '{' expr_call '}') )* POP; f_string:
 // 'f' opening_quote ( interpolate_string_inner | ( '{' expr_call '}') )* POP;
@@ -207,6 +230,3 @@ interval: NUMBER interval_kind;
 // like a time `@20-01` `-` (minus) `0`. (Not sure whether `..` should be here or in the items that
 // allow it; feel free to demote it to those items if `end_expr` is used somewhere where it's not
 // supported) end_expr: ',' | ')' | ']' | nl | '..';
-
-// We pass text between `{{` and `}}` through, so dbt can use Jinja. jinja = { ("{{" ~ (!"}}" ~
-// ANY)* ~ "}}") }

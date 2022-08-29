@@ -239,21 +239,12 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
 	}
 
 
-	// Enter a parse tree produced by prqlParser#single_quote.
-	enterSingle_quote(ctx) {
+	// Enter a parse tree produced by prqlParser#string.
+	enterString(ctx) {
 	}
 
-	// Exit a parse tree produced by prqlParser#single_quote.
-	exitSingle_quote(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#multi_quote.
-	enterMulti_quote(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#multi_quote.
-	exitMulti_quote(ctx) {
+	// Exit a parse tree produced by prqlParser#string.
+	exitString(ctx) {
 	}
 
 
