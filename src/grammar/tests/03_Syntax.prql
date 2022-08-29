@@ -24,18 +24,3 @@ group [title, country] (
 from employees  # Comment 1
 # Comment 2
 aggregate [average salary]
-
-
-# Backticks
-# https://prql-lang.org/book/queries/syntax.html#backticks
-# prql dialect:mysql
-# from employees
-# select `first name`
-
-# prql dialect:postgres
-# from employees
-# select `first name`
-
-# prql dialect:bigquery
-# from `project-foo.dataset.table`
-# join `project-bar.dataset.table` [col_bax]
