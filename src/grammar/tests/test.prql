@@ -2,5 +2,6 @@
 table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv")
 
 from a
-select Car
+derive d = (disp / 2) * hp + 1
+select [cyl, hp]
 

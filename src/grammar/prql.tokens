@@ -52,6 +52,7 @@ IDENT_NEXT=51
 WHITESPACE=52
 NEWLINE=53
 COMMENT=54
+STRING=55
 'microseconds'=1
 'milliseconds'=2
 'seconds'=3

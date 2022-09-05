@@ -1,342 +1,222 @@
-// Generated from .\prql.g4 by ANTLR 4.9.2
+// Generated from .\prql.g4 by ANTLR 4.9.3
 // jshint ignore: start
-import antlr4 from 'antlr4';
+import antlr4 from "antlr4";
 
 // This class defines a complete listener for a parse tree produced by prqlParser.
 export default class prqlListener extends antlr4.tree.ParseTreeListener {
+  // Enter a parse tree produced by prqlParser#nl.
+  enterNl(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#nl.
-	enterNl(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#nl.
+  exitNl(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#nl.
-	exitNl(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#query.
+  enterQuery(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#query.
+  exitQuery(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#query.
-	enterQuery(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#queryDef.
+  enterQueryDef(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#query.
-	exitQuery(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#queryDef.
+  exitQueryDef(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#funcDef.
+  enterFuncDef(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#query_def.
-	enterQuery_def(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#funcDef.
+  exitFuncDef(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#query_def.
-	exitQuery_def(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#funcDefName.
+  enterFuncDefName(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#funcDefName.
+  exitFuncDefName(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#func_def.
-	enterFunc_def(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#funcDefParams.
+  enterFuncDefParams(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#func_def.
-	exitFunc_def(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#funcDefParams.
+  exitFuncDefParams(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#funcDefParam.
+  enterFuncDefParam(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#func_def_name.
-	enterFunc_def_name(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#funcDefParam.
+  exitFuncDefParam(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#func_def_name.
-	exitFunc_def_name(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#typeDef.
+  enterTypeDef(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#typeDef.
+  exitTypeDef(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#func_def_params.
-	enterFunc_def_params(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#typeTerm.
+  enterTypeTerm(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#func_def_params.
-	exitFunc_def_params(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#typeTerm.
+  exitTypeTerm(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#table.
+  enterTable(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#func_def_param.
-	enterFunc_def_param(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#table.
+  exitTable(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#func_def_param.
-	exitFunc_def_param(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#pipe.
+  enterPipe(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#pipe.
+  exitPipe(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#type_def.
-	enterType_def(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#pipeline.
+  enterPipeline(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#type_def.
-	exitType_def(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#pipeline.
+  exitPipeline(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#identBackticks.
+  enterIdentBackticks(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#type_term.
-	enterType_term(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#identBackticks.
+  exitIdentBackticks(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#type_term.
-	exitType_term(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#signedIdent.
+  enterSignedIdent(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#signedIdent.
+  exitSignedIdent(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#table.
-	enterTable(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#keyword.
+  enterKeyword(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#table.
-	exitTable(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#keyword.
+  exitKeyword(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#funcCall.
+  enterFuncCall(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#pipe.
-	enterPipe(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#funcCall.
+  exitFuncCall(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#pipe.
-	exitPipe(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#namedArg.
+  enterNamedArg(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#namedArg.
+  exitNamedArg(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#pipeline.
-	enterPipeline(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#assign.
+  enterAssign(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#pipeline.
-	exitPipeline(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#assign.
+  exitAssign(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#assignCall.
+  enterAssignCall(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#ident_backticks.
-	enterIdent_backticks(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#assignCall.
+  exitAssignCall(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#ident_backticks.
-	exitIdent_backticks(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#exprCall.
+  enterExprCall(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#exprCall.
+  exitExprCall(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#signed_ident.
-	enterSigned_ident(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#expr.
+  enterExpr(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#signed_ident.
-	exitSigned_ident(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#expr.
+  exitExpr(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#term.
+  enterTerm(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#keyword.
-	enterKeyword(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#term.
+  exitTerm(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#keyword.
-	exitKeyword(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#exprUnary.
+  enterExprUnary(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#exprUnary.
+  exitExprUnary(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#func_call.
-	enterFunc_call(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#literal.
+  enterLiteral(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#func_call.
-	exitFunc_call(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#literal.
+  exitLiteral(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#list.
+  enterList(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#named_arg.
-	enterNamed_arg(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#list.
+  exitList(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#named_arg.
-	exitNamed_arg(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#nestedPipeline.
+  enterNestedPipeline(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#nestedPipeline.
+  exitNestedPipeline(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#assign.
-	enterAssign(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#range.
+  enterRange(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#assign.
-	exitAssign(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#range.
+  exitRange(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#operator.
+  enterOperator(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#assign_call.
-	enterAssign_call(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#operator.
+  exitOperator(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#assign_call.
-	exitAssign_call(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#operatorUnary.
+  enterOperatorUnary(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#operatorUnary.
+  exitOperatorUnary(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#expr_call.
-	enterExpr_call(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#operatorMul.
+  enterOperatorMul(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#expr_call.
-	exitExpr_call(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#operatorMul.
+  exitOperatorMul(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#operatorAdd.
+  enterOperatorAdd(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#expr.
-	enterExpr(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#operatorAdd.
+  exitOperatorAdd(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#expr.
-	exitExpr(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#operatorCompare.
+  enterOperatorCompare(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#operatorCompare.
+  exitOperatorCompare(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#term.
-	enterTerm(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#operatorLogical.
+  enterOperatorLogical(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#term.
-	exitTerm(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#operatorLogical.
+  exitOperatorLogical(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#operatorCoalesce.
+  enterOperatorCoalesce(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#expr_unary.
-	enterExpr_unary(ctx) {
-	}
+  // Exit a parse tree produced by prqlParser#operatorCoalesce.
+  exitOperatorCoalesce(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#expr_unary.
-	exitExpr_unary(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#intervalKind.
+  enterIntervalKind(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#intervalKind.
+  exitIntervalKind(ctx) {}
 
-	// Enter a parse tree produced by prqlParser#literal.
-	enterLiteral(ctx) {
-	}
+  // Enter a parse tree produced by prqlParser#interval.
+  enterInterval(ctx) {}
 
-	// Exit a parse tree produced by prqlParser#literal.
-	exitLiteral(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#list.
-	enterList(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#list.
-	exitList(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#nested_pipeline.
-	enterNested_pipeline(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#nested_pipeline.
-	exitNested_pipeline(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#string.
-	enterString(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#string.
-	exitString(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#range.
-	enterRange(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#range.
-	exitRange(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator.
-	enterOperator(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator.
-	exitOperator(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_unary.
-	enterOperator_unary(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_unary.
-	exitOperator_unary(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_mul.
-	enterOperator_mul(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_mul.
-	exitOperator_mul(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_add.
-	enterOperator_add(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_add.
-	exitOperator_add(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_compare.
-	enterOperator_compare(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_compare.
-	exitOperator_compare(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_logical.
-	enterOperator_logical(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_logical.
-	exitOperator_logical(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#operator_coalesce.
-	enterOperator_coalesce(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#operator_coalesce.
-	exitOperator_coalesce(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#interval_kind.
-	enterInterval_kind(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#interval_kind.
-	exitInterval_kind(ctx) {
-	}
-
-
-	// Enter a parse tree produced by prqlParser#interval.
-	enterInterval(ctx) {
-	}
-
-	// Exit a parse tree produced by prqlParser#interval.
-	exitInterval(ctx) {
-	}
-
-
-
+  // Exit a parse tree produced by prqlParser#interval.
+  exitInterval(ctx) {}
 }

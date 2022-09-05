@@ -76,22 +76,22 @@ COMMENT: '#' ~('\r' | '\n')* NEWLINE;
 nl: NEWLINE | COMMENT;
 
 query:
-	nl* query_def? nl* ((func_def | table | pipeline) nl*)* EOF;
+	nl* queryDef? nl* ((funcDef | table | pipeline) nl*)* EOF;
 
-query_def: PRQL named_arg* nl;
+queryDef: PRQL namedArg* nl;
 
-func_def: FUNC func_def_name func_def_params ARROW expr;
+funcDef: FUNC funcDefName funcDefParams ARROW expr;
 
-func_def_name: IDENT type_def?;
-func_def_params: func_def_param*;
-func_def_param: (named_arg | IDENT) type_def?;
-type_def: LANG type_term BAR type_term* RANG;
-type_term: IDENT type_def?;
+funcDefName: IDENT typeDef?;
+funcDefParams: funcDefParam*;
+funcDefParam: (namedArg | IDENT) typeDef?;
+typeDef: LANG typeTerm BAR typeTerm* RANG;
+typeTerm: IDENT typeDef?;
 
-table: TABLE IDENT ASSIGN nested_pipeline;
+table: TABLE IDENT ASSIGN nestedPipeline;
 
 pipe: nl | BAR;
-pipeline: expr_call (pipe expr_call)*;
+pipeline: exprCall (pipe exprCall)*;
 
 // We include backticks because some DBs use them (e.g. BigQuery) and we don't, so we pass anything
 // within them directly through, including otherwise invalid idents, like those with hyphens.
@@ -99,12 +99,12 @@ pipeline: expr_call (pipe expr_call)*;
 // as we see more cases. ident: operator (keyword WHITESPACE) ident_start (DOT ident_next)*; //
 // Either a normal ident (starting with a letter, `$` or `_`), or any string surrounded by //
 // backticks. ident_start: ( (ASCII_ALPHA | DOLLAR | UNDERSCORE) ~ ( ASCII_ALPHANUMERIC | DOLLAR )*
-// ) | ident_backticks+; // We allow `e.*`, but not just `*`, since it might conflict with multiply
+// ) | identBackticks+; // We allow `e.*`, but not just `*`, since it might conflict with multiply
 // in some cases. ident_next: ident_start | '*'; Anything surrounded by backticks, we pass through.
-ident_backticks: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
+identBackticks: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
 // For sorting
-signed_ident: (PLUS | MINUS) IDENT;
+signedIdent: (PLUS | MINUS) IDENT;
 keyword: PRQL | TABLE | FUNC;
 
 // A central issue around the terms vs expr is that we want to be able to parse: [foo bar + 1, 2]
@@ -118,20 +118,20 @@ keyword: PRQL | TABLE | FUNC;
 
 // whitespace is required to prevent matching s"string". Forbid `operator` so `a - b` can't parse as
 // `a` & `-b`.
-func_call: IDENT (named_arg | assign | expr)+;
+funcCall: IDENT (namedArg | assign | expr)+;
 
-named_arg: IDENT COLON (assign | expr);
+namedArg: IDENT COLON (assign | expr);
 assign: IDENT ASSIGN expr;
-assign_call: IDENT ASSIGN expr_call;
+assignCall: IDENT ASSIGN exprCall;
 
-expr_call: func_call | expr;
+exprCall: funcCall | expr;
 
 expr:
-	expr operator_mul expr
-	| expr operator_add expr
-	| expr operator_compare expr
-	| expr operator_coalesce expr
-	| expr operator_logical expr
+	expr operatorMul expr
+	| expr operatorAdd expr
+	| expr operatorCompare expr
+	| expr operatorCoalesce expr
+	| expr operatorLogical expr
 	| LPAREN expr RPAREN
 	| term;
 
@@ -140,28 +140,28 @@ term:
 	range
 	| literal
 	| IDENT
-	| ident_backticks
-	| expr_unary
+	| identBackticks
+	| exprUnary
 	| list
-	| nested_pipeline;
+	| nestedPipeline;
 
-// expr_unary is for sorting.
-expr_unary: operator_unary (nested_pipeline | literal | IDENT);
+// exprUnary is for sorting.
+exprUnary: operatorUnary (nestedPipeline | literal | IDENT);
 literal:
 	interval
 	| NUMBER
 	| BOOLEAN
 	| NULL_
-	| string; // | timestamp | date | time
+	| STRING; // | timestamp | date | time
 
 list:
 	LBRACKET (
-		nl* (assign_call | expr_call) (
-			COMMA nl* (assign_call | expr_call)
+		nl* (assignCall | exprCall) (
+			COMMA nl* (assignCall | exprCall)
 		)* COMMA? nl?
 	)? RBRACKET;
 
-nested_pipeline: LPAREN nl* pipeline nl* RPAREN;
+nestedPipeline: LPAREN nl* pipeline nl* RPAREN;
 
 // We haven't implemented escapes — I think we can mostly pass those through to SQL, but there may
 // be things we're missing. https://pest.rs/book/examples/rust/literals.html
@@ -174,12 +174,26 @@ nested_pipeline: LPAREN nl* pipeline nl* RPAREN;
 // inner spaces are included without an atomic operator (or with `ANY`), but prceeding & trailing
 // spaces require both `ANY` _and_ an atomic operator. We have some rudimentary tests for these.
 
-// single_quote: '"' | '\''; multi_quote: '"""' | '\'\'\''; opening_quote: PUSH (multi_quote) | PUSH
-// (single_quote); PEEK refers to the opening quote; either `"` or `'`. string_inner: ( PEEK ANY)+;
-// Either > 3 quotes, or just one. Currently both of those can be multiline.
-string:
-	SINGLE_QUOTE ~(NEWLINE | SINGLE_QUOTE)* SINGLE_QUOTE
-	| DOUBLE_QUOTE ~(NEWLINE | DOUBLE_QUOTE)* DOUBLE_QUOTE;
+STRING: '"' (ESC | ~[\\"])*? '"' | '\'' (ESC | ~[\\'])*? '\'';
+
+fragment ESC:
+	'\\' [abtnfrv"'\\]
+	| UNICODE_ESCAPE
+	| HEX_ESCAPE
+	| OCTAL_ESCAPE;
+
+fragment UNICODE_ESCAPE:
+	'\\' 'u' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT
+	| '\\' 'u' '{' HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT '}';
+
+fragment OCTAL_ESCAPE:
+	'\\' [0-3] [0-7] [0-7]
+	| '\\' [0-7] [0-7]
+	| '\\' [0-7];
+
+fragment HEX_ESCAPE: '\\' HEXDIGIT HEXDIGIT?;
+
+fragment HEXDIGIT: ('0' ..'9' | 'a' ..'f' | 'A' ..'F');
 
 // We need `literal` separate from `term_simple` for things like range edges, which would infinitely
 // recurse otherwise, since it'll keep trying to parse the whole span, not just the part before
@@ -187,25 +201,21 @@ string:
 range: literal RANGE literal;
 
 operator:
-	operator_unary
-	| operator_mul
-	| operator_add
-	| operator_compare
-	| operator_logical
-	| operator_coalesce;
+	operatorUnary
+	| operatorMul
+	| operatorAdd
+	| operatorCompare
+	| operatorLogical
+	| operatorCoalesce;
 
-operator_unary: MINUS | PLUS | NOT;
-operator_mul: STAR | DIV | MOD;
-operator_add: MINUS | PLUS;
-operator_compare: EQ | NE | GE | LE | LANG | RANG;
-operator_logical: AND | OR;
-operator_coalesce: COALESCE;
+operatorUnary: MINUS | PLUS | NOT;
+operatorMul: STAR | DIV | MOD;
+operatorAdd: MINUS | PLUS;
+operatorCompare: EQ | NE | GE | LE | LANG | RANG;
+operatorLogical: AND | OR;
+operatorCoalesce: COALESCE;
 
-// s_string: 's' opening_quote ( interpolate_string_inner | ( '{' expr_call '}') )* POP; f_string:
-// 'f' opening_quote ( interpolate_string_inner | ( '{' expr_call '}') )* POP;
-// interpolate_string_inner: ( ( PEEK | '{') ~ ANY)+;
-
-interval_kind:
+intervalKind:
 	'microseconds'
 	| 'milliseconds'
 	| 'seconds'
@@ -215,7 +225,7 @@ interval_kind:
 	| 'weeks'
 	| 'months'
 	| 'years';
-interval: NUMBER interval_kind;
+interval: NUMBER intervalKind;
 
 // date: '@' date_inner end_expr; time: '@' time_inner end_expr; timestamp: '@' timestamp_inner
 // end_expr;
