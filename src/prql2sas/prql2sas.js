@@ -4,381 +4,318 @@ import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 
-class SASProc {
-  // constructor(procType, procParams = []) {
-  //   this.procType = procType;
-  //   this.procParams = procParams;
-  // }
-
-  toString() {
-    return `proc ${this.procType};
-    run;`;
-  }
-}
-
-class SASProcSQL extends SASProc {
-  constructor(procStmts = [], procParams = []) {
-    // super("")
-    this.procStmts = procStmts;
-    this.procParams = procParams;
-  }
-
-  toString() {
-    let code = "";
-
-    return `proc sql;
-    quit;`
-  }
-}
-
-class SQLQuery {
+class FuncCall {
   constructor() {
-    this.selectParams = [];
-    this.fromParams = [];
-    this.whereParams = [];
-    this.groupByParams = [];
+    this.name = "";
+    this.params = [];
   }
 }
 
+class Pipeline {
+  constructor() {
+    this.funcCallStack = [];
+    this.currFuncCall = null;
+  }
+
+  addFuncCall(funcCall) {
+    if (this.currFuncCall !== null) {
+      this.funcCallStack.push(this.currFuncCall);
+    }
+    this.currFuncCall = funcCall;
+  }
+
+  removeFuncCall() {
+    if (this.funcCallStack.length > 0) {
+      this.currFuncCall = this.funcCallStack.pop();
+    } else {
+      this.currFuncCall = null;
+    }
+  }
+}
+
+class ExprTree {
+  constructor() {}
+  resolve() {}
+}
+
+class Term {}
 
 export default class Prql2SASTranspiler extends prqlListener {
-  // Enter a parse tree produced by prqlParser#nl.
-  enterNl(ctx) {
+  constructor() {
+    super();
+    this.currTempTableId = 0;
+
+    this.pipelineStack = [];
+    this.currPipeline = null;
+
+    this.currExprTree = null;
+
+    this.variableStack = [];
   }
+
+  getSASCode() {
+    return "";
+  }
+
+  // Enter a parse tree produced by prqlParser#nl.
+  enterNl(ctx) {}
 
   // Exit a parse tree produced by prqlParser#nl.
-  exitNl(ctx) {
-  }
-
+  exitNl(ctx) {}
 
   // Enter a parse tree produced by prqlParser#query.
   enterQuery(ctx) {
+    if (this.currPipeline !== null) {
+      this.pipelineStack.push(this.currPipeline);
+    }
+    this.currPipeline = new Pipeline();
   }
 
   // Exit a parse tree produced by prqlParser#query.
   exitQuery(ctx) {
+    if (this.pipelineStack.length > 0) {
+      this.currPipeline = this.pipelineStack.pop();
+    } else {
+      this.currPipeline = null;
+    }
   }
 
+  // Enter a parse tree produced by prqlParser#queryDef.
+  enterQueryDef(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#query_def.
-  enterQuery_def(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#queryDef.
+  exitQueryDef(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#query_def.
-  exitQuery_def(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#funcDef.
+  enterFuncDef(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#funcDef.
+  exitFuncDef(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#func_def.
-  enterFunc_def(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#funcDefName.
+  enterFuncDefName(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#func_def.
-  exitFunc_def(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#funcDefName.
+  exitFuncDefName(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#funcDefParams.
+  enterFuncDefParams(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#func_def_name.
-  enterFunc_def_name(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#funcDefParams.
+  exitFuncDefParams(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#func_def_name.
-  exitFunc_def_name(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#funcDefParam.
+  enterFuncDefParam(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#funcDefParam.
+  exitFuncDefParam(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#func_def_params.
-  enterFunc_def_params(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#typeDef.
+  enterTypeDef(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#func_def_params.
-  exitFunc_def_params(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#typeDef.
+  exitTypeDef(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#typeTerm.
+  enterTypeTerm(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#func_def_param.
-  enterFunc_def_param(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#func_def_param.
-  exitFunc_def_param(ctx) {
-  }
-
-
-  // Enter a parse tree produced by prqlParser#type_def.
-  enterType_def(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#type_def.
-  exitType_def(ctx) {
-  }
-
-
-  // Enter a parse tree produced by prqlParser#type_term.
-  enterType_term(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#type_term.
-  exitType_term(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#typeTerm.
+  exitTypeTerm(ctx) {}
 
   // Enter a parse tree produced by prqlParser#table.
-  enterTable(ctx) {
-  }
+  enterTable(ctx) {}
 
   // Exit a parse tree produced by prqlParser#table.
-  exitTable(ctx) {
-  }
-
+  exitTable(ctx) {}
 
   // Enter a parse tree produced by prqlParser#pipe.
-  enterPipe(ctx) {
-  }
+  enterPipe(ctx) {}
 
   // Exit a parse tree produced by prqlParser#pipe.
-  exitPipe(ctx) {
-  }
-
+  exitPipe(ctx) {}
 
   // Enter a parse tree produced by prqlParser#pipeline.
-  enterPipeline(ctx) {
-  }
+  enterPipeline(ctx) {}
 
   // Exit a parse tree produced by prqlParser#pipeline.
-  exitPipeline(ctx) {
-  }
+  exitPipeline(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#identBackticks.
+  enterIdentBackticks(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#ident_backticks.
-  enterIdent_backticks(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#identBackticks.
+  exitIdentBackticks(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#ident_backticks.
-  exitIdent_backticks(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#signedIdent.
+  enterSignedIdent(ctx) {}
 
-
-  // Enter a parse tree produced by prqlParser#signed_ident.
-  enterSigned_ident(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#signed_ident.
-  exitSigned_ident(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#signedIdent.
+  exitSignedIdent(ctx) {}
 
   // Enter a parse tree produced by prqlParser#keyword.
-  enterKeyword(ctx) {
-  }
+  enterKeyword(ctx) {}
 
   // Exit a parse tree produced by prqlParser#keyword.
-  exitKeyword(ctx) {
+  exitKeyword(ctx) {}
+
+  // Enter a parse tree produced by prqlParser#funcCall.
+  enterFuncCall(ctx) {
+    this.currPipeline.addFuncCall(new FuncCall());
   }
 
-
-  // Enter a parse tree produced by prqlParser#func_call.
-  enterFunc_call(ctx) {
+  // Exit a parse tree produced by prqlParser#funcCall.
+  exitFuncCall(ctx) {
+    const name = ctx.IDENT().symbol.text;
+    console.log("func name:", name);
   }
 
-  // Exit a parse tree produced by prqlParser#func_call.
-  exitFunc_call(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#namedArg.
+  enterNamedArg(ctx) {}
 
-
-  // Enter a parse tree produced by prqlParser#named_arg.
-  enterNamed_arg(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#named_arg.
-  exitNamed_arg(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#namedArg.
+  exitNamedArg(ctx) {}
 
   // Enter a parse tree produced by prqlParser#assign.
-  enterAssign(ctx) {
-  }
+  enterAssign(ctx) {}
 
   // Exit a parse tree produced by prqlParser#assign.
-  exitAssign(ctx) {
-  }
+  exitAssign(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#assignCall.
+  enterAssignCall(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#assign_call.
-  enterAssign_call(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#assignCall.
+  exitAssignCall(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#assign_call.
-  exitAssign_call(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#exprCall.
+  enterExprCall(ctx) {}
 
-
-  // Enter a parse tree produced by prqlParser#expr_call.
-  enterExpr_call(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#expr_call.
-  exitExpr_call(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#exprCall.
+  exitExprCall(ctx) {}
 
   // Enter a parse tree produced by prqlParser#expr.
   enterExpr(ctx) {
+    if (this.currExprTree === null) {
+      this.currExprTree = new ExprTree();
+    }
   }
 
   // Exit a parse tree produced by prqlParser#expr.
   exitExpr(ctx) {
-  }
+    // term
+    if (ctx.children.length === 1) {
+    } else {
+      console.log(ctx.children[1]);
 
+      switch (typeof ctx.children[1]) {
+        case prqlParser.OperatorAddContext:
+          break;
+        case prqlParser.OperatorCoalesceContext:
+          break;
+        case prqlParser.OperatorCompareContext:
+          break;
+        case prqlParser.OperatorLogicalContext:
+          break;
+        case prqlParser.OperatorMulContext:
+          break;
+      }
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#term.
-  enterTerm(ctx) {
-  }
+  enterTerm(ctx) {}
 
   // Exit a parse tree produced by prqlParser#term.
-  exitTerm(ctx) {
-  }
+  exitTerm(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#exprUnary.
+  enterExprUnary(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#expr_unary.
-  enterExpr_unary(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#expr_unary.
-  exitExpr_unary(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#exprUnary.
+  exitExprUnary(ctx) {}
 
   // Enter a parse tree produced by prqlParser#literal.
-  enterLiteral(ctx) {
-  }
+  enterLiteral(ctx) {}
 
   // Exit a parse tree produced by prqlParser#literal.
-  exitLiteral(ctx) {
-  }
-
+  exitLiteral(ctx) {}
 
   // Enter a parse tree produced by prqlParser#list.
-  enterList(ctx) {
-  }
+  enterList(ctx) {}
 
   // Exit a parse tree produced by prqlParser#list.
-  exitList(ctx) {
-  }
+  exitList(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#nestedPipeline.
+  enterNestedPipeline(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#nested_pipeline.
-  enterNested_pipeline(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#nested_pipeline.
-  exitNested_pipeline(ctx) {
-  }
-
-
-  // Enter a parse tree produced by prqlParser#string.
-  enterString(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#string.
-  exitString(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#nestedPipeline.
+  exitNestedPipeline(ctx) {}
 
   // Enter a parse tree produced by prqlParser#range.
-  enterRange(ctx) {
-  }
+  enterRange(ctx) {}
 
   // Exit a parse tree produced by prqlParser#range.
-  exitRange(ctx) {
-  }
-
+  exitRange(ctx) {}
 
   // Enter a parse tree produced by prqlParser#operator.
-  enterOperator(ctx) {
-  }
+  enterOperator(ctx) {}
 
   // Exit a parse tree produced by prqlParser#operator.
-  exitOperator(ctx) {
-  }
+  exitOperator(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#operatorUnary.
+  enterOperatorUnary(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator_unary.
-  enterOperator_unary(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#operatorUnary.
+  exitOperatorUnary(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#operator_unary.
-  exitOperator_unary(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#operatorMul.
+  enterOperatorMul(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#operatorMul.
+  exitOperatorMul(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator_mul.
-  enterOperator_mul(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#operatorAdd.
+  enterOperatorAdd(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#operator_mul.
-  exitOperator_mul(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#operatorAdd.
+  exitOperatorAdd(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#operatorCompare.
+  enterOperatorCompare(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator_add.
-  enterOperator_add(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#operatorCompare.
+  exitOperatorCompare(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#operator_add.
-  exitOperator_add(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#operatorLogical.
+  enterOperatorLogical(ctx) {}
 
+  // Exit a parse tree produced by prqlParser#operatorLogical.
+  exitOperatorLogical(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator_compare.
-  enterOperator_compare(ctx) {
-  }
+  // Enter a parse tree produced by prqlParser#operatorCoalesce.
+  enterOperatorCoalesce(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#operator_compare.
-  exitOperator_compare(ctx) {
-  }
+  // Exit a parse tree produced by prqlParser#operatorCoalesce.
+  exitOperatorCoalesce(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#intervalKind.
+  enterIntervalKind(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator_logical.
-  enterOperator_logical(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#operator_logical.
-  exitOperator_logical(ctx) {
-  }
-
-
-  // Enter a parse tree produced by prqlParser#operator_coalesce.
-  enterOperator_coalesce(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#operator_coalesce.
-  exitOperator_coalesce(ctx) {
-  }
-
-
-  // Enter a parse tree produced by prqlParser#interval_kind.
-  enterInterval_kind(ctx) {
-  }
-
-  // Exit a parse tree produced by prqlParser#interval_kind.
-  exitInterval_kind(ctx) {
-  }
-
+  // Exit a parse tree produced by prqlParser#intervalKind.
+  exitIntervalKind(ctx) {}
 
   // Enter a parse tree produced by prqlParser#interval.
-  enterInterval(ctx) {
-  }
+  enterInterval(ctx) {}
 
   // Exit a parse tree produced by prqlParser#interval.
-  exitInterval(ctx) {
-  }
+  exitInterval(ctx) {}
 }
 
-export function transpilePrql2SAS(source) {
+export function transpile(source) {
   const { CommonTokenStream, InputStream } = antlr4;
 
-  console.log(source);
   var chars = new InputStream(source, true);
   var lexer = new prqlLexer(chars);
   var tokens = new CommonTokenStream(lexer);
