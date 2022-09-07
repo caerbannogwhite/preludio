@@ -3,6 +3,7 @@ import antlr4 from "antlr4";
 import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
+import { PRQL_ENVIRONMENT } from "./env.js";
 
 class FuncCall {
   constructor() {
@@ -41,8 +42,10 @@ class ExprTree {
 class Term {}
 
 export default class Prql2SASTranspiler extends prqlListener {
-  constructor() {
+  constructor(env) {
     super();
+    this.currentEnv = env;
+
     this.currTempTableId = 0;
 
     this.pipelineStack = [];
@@ -202,23 +205,30 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#expr.
   exitExpr(ctx) {
-    // term
-    if (ctx.children.length === 1) {
-    } else {
-      console.log(ctx.children[1]);
+    switch (ctx.children.length) {
+      // term
+      case 1:
+        break;
 
-      switch (typeof ctx.children[1]) {
-        case prqlParser.OperatorAddContext:
-          break;
-        case prqlParser.OperatorCoalesceContext:
-          break;
-        case prqlParser.OperatorCompareContext:
-          break;
-        case prqlParser.OperatorLogicalContext:
-          break;
-        case prqlParser.OperatorMulContext:
-          break;
-      }
+      // operation or nested expression
+      case 3:
+        switch (typeof ctx.children[1]) {
+          case prqlParser.OperatorAddContext:
+            break;
+          case prqlParser.OperatorCoalesceContext:
+            break;
+          case prqlParser.OperatorCompareContext:
+            break;
+          case prqlParser.OperatorLogicalContext:
+            break;
+          case prqlParser.OperatorMulContext:
+            break;
+        }
+        break;
+
+      default:
+        console.error("expr: wrong number of children:", ctx.children.length);
+        break;
     }
   }
 
@@ -316,14 +326,14 @@ export default class Prql2SASTranspiler extends prqlListener {
 export function transpile(source) {
   const { CommonTokenStream, InputStream } = antlr4;
 
-  var chars = new InputStream(source, true);
-  var lexer = new prqlLexer(chars);
-  var tokens = new CommonTokenStream(lexer);
-  var parser = new prqlParser(tokens);
+  const chars = new InputStream(source, true);
+  const lexer = new prqlLexer(chars);
+  const tokens = new CommonTokenStream(lexer);
+  const parser = new prqlParser(tokens);
 
   parser.buildParseTrees = true;
-  var tree = parser.query();
-  var transpiler = new Prql2SASTranspiler();
+  const tree = parser.query();
+  const transpiler = new Prql2SASTranspiler(PRQL_ENVIRONMENT);
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(transpiler, tree);
 
   return transpiler.getSASCode();

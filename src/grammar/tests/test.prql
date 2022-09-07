@@ -1,5 +1,5 @@
 
-table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv")
+table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv" type:"csv")
 
 from a
 derive d = (disp / 2) * hp + 1
