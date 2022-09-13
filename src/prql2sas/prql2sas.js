@@ -34,8 +34,15 @@ class Pipeline {
   }
 }
 
-class ExprTree {
-  constructor() {}
+class PrqlExpression {
+  constructor() {
+    this.stack = [];
+  }
+
+  push(t) {
+    this.stack.push(t);
+  }
+
   resolve() {}
 }
 
@@ -51,7 +58,7 @@ export default class Prql2SASTranspiler extends prqlListener {
     this.pipelineStack = [];
     this.currPipeline = null;
 
-    this.currExprTree = null;
+    this.currExpr = null;
 
     this.variableStack = [];
   }
@@ -169,7 +176,7 @@ export default class Prql2SASTranspiler extends prqlListener {
   // Exit a parse tree produced by prqlParser#funcCall.
   exitFuncCall(ctx) {
     const name = ctx.IDENT().symbol.text;
-    console.log("func name:", name);
+    // console.log("func name:", name);
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
@@ -198,45 +205,32 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#expr.
   enterExpr(ctx) {
-    if (this.currExprTree === null) {
-      this.currExprTree = new ExprTree();
+    if (this.currExpr === null) {
+      this.currExpr = new PrqlExpression();
     }
   }
 
   // Exit a parse tree produced by prqlParser#expr.
   exitExpr(ctx) {
-    switch (ctx.children.length) {
-      // term
-      case 1:
-        break;
-
-      // operation or nested expression
-      case 3:
-        switch (typeof ctx.children[1]) {
-          case prqlParser.OperatorAddContext:
-            break;
-          case prqlParser.OperatorCoalesceContext:
-            break;
-          case prqlParser.OperatorCompareContext:
-            break;
-          case prqlParser.OperatorLogicalContext:
-            break;
-          case prqlParser.OperatorMulContext:
-            break;
-        }
-        break;
-
-      default:
-        console.error("expr: wrong number of children:", ctx.children.length);
-        break;
+    // operation or nested expression
+    if (ctx.children.length === 3) {
+      console.log(ctx.children[0].getText(), ctx.children[0].LPAREN());
+      if (ctx.children[0].LPAREN()) {
+      } else {
+        this.currExpr.push(ctx.children[1].getText());
+      }
     }
+
+    // console.log(this.currExpr.stack);
   }
 
   // Enter a parse tree produced by prqlParser#term.
   enterTerm(ctx) {}
 
   // Exit a parse tree produced by prqlParser#term.
-  exitTerm(ctx) {}
+  exitTerm(ctx) {
+    this.currExpr.push(ctx.getText());
+  }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
   enterExprUnary(ctx) {}
@@ -261,66 +255,6 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#nestedPipeline.
   exitNestedPipeline(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#range.
-  enterRange(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#range.
-  exitRange(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operator.
-  enterOperator(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operator.
-  exitOperator(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorUnary.
-  enterOperatorUnary(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorUnary.
-  exitOperatorUnary(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorMul.
-  enterOperatorMul(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorMul.
-  exitOperatorMul(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorAdd.
-  enterOperatorAdd(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorAdd.
-  exitOperatorAdd(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorCompare.
-  enterOperatorCompare(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorCompare.
-  exitOperatorCompare(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorLogical.
-  enterOperatorLogical(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorLogical.
-  exitOperatorLogical(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorCoalesce.
-  enterOperatorCoalesce(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorCoalesce.
-  exitOperatorCoalesce(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#intervalKind.
-  enterIntervalKind(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#intervalKind.
-  exitIntervalKind(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#interval.
-  enterInterval(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#interval.
-  exitInterval(ctx) {}
 }
 
 export function transpile(source) {

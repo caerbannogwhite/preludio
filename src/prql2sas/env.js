@@ -1,18 +1,4 @@
-import { aq, op } from "@uwdata/arquero";
-
-export const PRQL_ENVIRONMENT = {
-  variables: {
-    currentDirectory: "",
-    currentTable: null,
-  },
-  functions: {
-    derive: funcDerive,
-    filter: funcFilter,
-    from: funcFrom,
-    import: funcImport,
-    select: funcSelect,
-  },
-};
+import { fromCSV, loadJSON } from "arquero";
 
 const funcDerive = {
   name: "derive",
@@ -51,11 +37,11 @@ const funcImport = {
     const filePath = params[1].value;
     switch (fileType) {
       case "csv":
-        env.currentTable = aq.fromCSV(FileAttachment(filePath).text());
+        env.currentTable = fromCSV(FileAttachment(filePath).text());
         break;
 
       case "json":
-        env.currentTable = aq.loadJSON(filePath);
+        env.currentTable = loadJSON(filePath);
         break;
 
       default:
@@ -68,4 +54,18 @@ const funcImport = {
 const funcSelect = {
   name: "select",
   implementation: function (env, params) {},
+};
+
+export const PRQL_ENVIRONMENT = {
+  variables: {
+    currentDirectory: "",
+    currentTable: null,
+  },
+  functions: {
+    derive: funcDerive,
+    filter: funcFilter,
+    from: funcFrom,
+    import: funcImport,
+    select: funcSelect,
+  },
 };
