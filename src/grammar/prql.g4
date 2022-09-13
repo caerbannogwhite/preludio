@@ -137,7 +137,7 @@ expr:
 
 term:
 	// s_string | f_string |
-	range
+	literal RANGE literal
 	| literal
 	| IDENT
 	| identBackticks
@@ -152,11 +152,22 @@ exprUnary: (MINUS | PLUS | NOT) (
 		| IDENT
 	);
 literal:
-	interval
+	NUMBER INTERVAL_KIND
 	| NUMBER
 	| BOOLEAN
 	| NULL_
 	| STRING; // | timestamp | date | time
+
+INTERVAL_KIND:
+	'microseconds'
+	| 'milliseconds'
+	| 'seconds'
+	| 'minutes'
+	| 'hours'
+	| 'days'
+	| 'weeks'
+	| 'months'
+	| 'years';
 
 list:
 	LBRACKET (
@@ -198,23 +209,6 @@ fragment OCTAL_ESCAPE:
 fragment HEX_ESCAPE: '\\' HEXDIGIT HEXDIGIT?;
 
 fragment HEXDIGIT: ('0' ..'9' | 'a' ..'f' | 'A' ..'F');
-
-// We need `literal` separate from `term_simple` for things like range edges, which would infinitely
-// recurse otherwise, since it'll keep trying to parse the whole span, not just the part before
-// `..`.
-range: literal RANGE literal;
-
-intervalKind:
-	'microseconds'
-	| 'milliseconds'
-	| 'seconds'
-	| 'minutes'
-	| 'hours'
-	| 'days'
-	| 'weeks'
-	| 'months'
-	| 'years';
-interval: NUMBER intervalKind;
 
 // date: '@' date_inner end_expr; time: '@' time_inner end_expr; timestamp: '@' timestamp_inner
 // end_expr;

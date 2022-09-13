@@ -159,22 +159,4 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
 
   // Exit a parse tree produced by prqlParser#nestedPipeline.
   exitNestedPipeline(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#range.
-  enterRange(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#range.
-  exitRange(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#intervalKind.
-  enterIntervalKind(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#intervalKind.
-  exitIntervalKind(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#interval.
-  enterInterval(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#interval.
-  exitInterval(ctx) {}
 }
