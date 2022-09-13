@@ -166,48 +166,6 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
   // Exit a parse tree produced by prqlParser#range.
   exitRange(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#operator.
-  enterOperator(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operator.
-  exitOperator(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorUnary.
-  enterOperatorUnary(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorUnary.
-  exitOperatorUnary(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorMul.
-  enterOperatorMul(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorMul.
-  exitOperatorMul(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorAdd.
-  enterOperatorAdd(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorAdd.
-  exitOperatorAdd(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorCompare.
-  enterOperatorCompare(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorCompare.
-  exitOperatorCompare(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorLogical.
-  enterOperatorLogical(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorLogical.
-  exitOperatorLogical(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#operatorCoalesce.
-  enterOperatorCoalesce(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#operatorCoalesce.
-  exitOperatorCoalesce(ctx) {}
-
   // Enter a parse tree produced by prqlParser#intervalKind.
   enterIntervalKind(ctx) {}
 

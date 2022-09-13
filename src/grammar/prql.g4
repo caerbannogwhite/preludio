@@ -127,11 +127,11 @@ assignCall: IDENT ASSIGN exprCall;
 exprCall: funcCall | expr;
 
 expr:
-	expr operatorMul expr
-	| expr operatorAdd expr
-	| expr operatorCompare expr
-	| expr operatorCoalesce expr
-	| expr operatorLogical expr
+	expr (STAR | DIV | MOD) expr
+	| expr (MINUS | PLUS) expr
+	| expr (EQ | NE | GE | LE | LANG | RANG) expr
+	| expr COALESCE expr
+	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
 	| term;
 
@@ -146,7 +146,11 @@ term:
 	| nestedPipeline;
 
 // exprUnary is for sorting.
-exprUnary: operatorUnary (nestedPipeline | literal | IDENT);
+exprUnary: (MINUS | PLUS | NOT) (
+		nestedPipeline
+		| literal
+		| IDENT
+	);
 literal:
 	interval
 	| NUMBER
@@ -199,21 +203,6 @@ fragment HEXDIGIT: ('0' ..'9' | 'a' ..'f' | 'A' ..'F');
 // recurse otherwise, since it'll keep trying to parse the whole span, not just the part before
 // `..`.
 range: literal RANGE literal;
-
-operator:
-	operatorUnary
-	| operatorMul
-	| operatorAdd
-	| operatorCompare
-	| operatorLogical
-	| operatorCoalesce;
-
-operatorUnary: MINUS | PLUS | NOT;
-operatorMul: STAR | DIV | MOD;
-operatorAdd: MINUS | PLUS;
-operatorCompare: EQ | NE | GE | LE | LANG | RANG;
-operatorLogical: AND | OR;
-operatorCoalesce: COALESCE;
 
 intervalKind:
 	'microseconds'
