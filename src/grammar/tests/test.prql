@@ -2,6 +2,6 @@
 table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv" type:"csv")
 
 from a
-derive d = (disp / 2) * hp + 1
+derive d = 7*4 + ((2+3) - hp * (disp / 2) + 1)
 select [cyl, hp]
 

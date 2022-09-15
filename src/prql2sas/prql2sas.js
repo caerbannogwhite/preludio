@@ -214,14 +214,14 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitExpr(ctx) {
     // operation or nested expression
     if (ctx.children.length === 3) {
-      console.log(ctx.children[0].getText(), ctx.children[0].LPAREN());
-      if (ctx.children[0].LPAREN()) {
+      if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
+        // console.log(ctx.children[0].symbol.text);
       } else {
         this.currExpr.push(ctx.children[1].getText());
       }
     }
 
-    // console.log(this.currExpr.stack);
+    console.log(this.currExpr.stack);
   }
 
   // Enter a parse tree produced by prqlParser#term.
@@ -242,7 +242,17 @@ export default class Prql2SASTranspiler extends prqlListener {
   enterLiteral(ctx) {}
 
   // Exit a parse tree produced by prqlParser#literal.
-  exitLiteral(ctx) {}
+  exitLiteral(ctx) {
+    if (ctx.children[0].NUMBER()) {
+      if (ctx.children.length === 2) {
+      } else {
+      }
+    } else if (ctx.children[0].BOOLEAN()) {
+    } else if (ctx.children[0].NULL_()) {
+    } else if (ctx.children[0].STRING()) {
+    } else {
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#list.
   enterList(ctx) {}
