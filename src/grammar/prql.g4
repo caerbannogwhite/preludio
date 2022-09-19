@@ -101,7 +101,7 @@ pipeline: exprCall (pipe exprCall)*;
 // backticks. ident_start: ( (ASCII_ALPHA | DOLLAR | UNDERSCORE) ~ ( ASCII_ALPHANUMERIC | DOLLAR )*
 // ) | identBackticks+; // We allow `e.*`, but not just `*`, since it might conflict with multiply
 // in some cases. ident_next: ident_start | '*'; Anything surrounded by backticks, we pass through.
-identBackticks: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
+identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
 // For sorting
 signedIdent: (PLUS | MINUS) IDENT;
@@ -136,11 +136,8 @@ expr:
 	| term;
 
 term:
-	// s_string | f_string |
-	literal RANGE literal
-	| literal
-	| IDENT
-	| identBackticks
+	literal
+	| identBacktick
 	| exprUnary
 	| list
 	| nestedPipeline;
@@ -151,12 +148,15 @@ exprUnary: (MINUS | PLUS | NOT) (
 		| literal
 		| IDENT
 	);
+
 literal:
-	NUMBER INTERVAL_KIND
-	| NUMBER
+	NULL_
 	| BOOLEAN
-	| NULL_
-	| STRING; // | timestamp | date | time
+	| NUMBER
+	| STRING // | timestamp | date | time | s_string | f_string |
+	| IDENT
+	| NUMBER INTERVAL_KIND
+	| (NUMBER | IDENT) RANGE (NUMBER | IDENT);
 
 INTERVAL_KIND:
 	'microseconds'
