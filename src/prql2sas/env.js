@@ -1,5 +1,15 @@
 import { fromCSV, loadJSON } from "arquero";
 
+export const TYPE_NULL = 0;
+export const TYPE_BOOL = 1;
+export const TYPE_NUMERIC = 2;
+export const TYPE_STRING = 3;
+export const TYPE_IDENT = 4;
+export const TYPE_INTERVAL = 5;
+export const TYPE_RANGE = 6;
+export const TYPE_LIST = 7;
+export const TYPE_PIPELINE = 8;
+
 const funcDerive = {
   name: "derive",
   implementation: function (env, params) {},

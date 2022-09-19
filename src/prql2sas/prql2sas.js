@@ -3,7 +3,15 @@ import antlr4 from "antlr4";
 import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
-import { PRQL_ENVIRONMENT } from "./env.js";
+import {
+  PRQL_ENVIRONMENT,
+  TYPE_IDENT,
+  TYPE_INTERVAL,
+  TYPE_LIST,
+  TYPE_NUMERIC,
+  TYPE_RANGE,
+  TYPE_STRING,
+} from "./env.js";
 
 class FuncCall {
   constructor() {
@@ -59,6 +67,7 @@ export default class Prql2SASTranspiler extends prqlListener {
     this.currPipeline = null;
 
     this.currExpr = null;
+    this.currTerm = null;
 
     this.variableStack = [];
   }
@@ -154,7 +163,12 @@ export default class Prql2SASTranspiler extends prqlListener {
   enterIdentBackticks(ctx) {}
 
   // Exit a parse tree produced by prqlParser#identBackticks.
-  exitIdentBackticks(ctx) {}
+  exitIdentBackticks(ctx) {
+    this.currTerm = {
+      type: TYPE_IDENT,
+      value: ctx.children[0].getText(),
+    };
+  }
 
   // Enter a parse tree produced by prqlParser#signedIdent.
   enterSignedIdent(ctx) {}
@@ -221,7 +235,7 @@ export default class Prql2SASTranspiler extends prqlListener {
       }
     }
 
-    console.log(this.currExpr.stack);
+    // console.log(this.currExpr.stack);
   }
 
   // Enter a parse tree produced by prqlParser#term.
@@ -229,7 +243,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
-    this.currExpr.push(ctx.getText());
+    // console.log(this.currTerm);
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
@@ -243,14 +257,53 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#literal.
   exitLiteral(ctx) {
-    if (ctx.children[0].NUMBER()) {
-      if (ctx.children.length === 2) {
-      } else {
-      }
-    } else if (ctx.children[0].BOOLEAN()) {
-    } else if (ctx.children[0].NULL_()) {
-    } else if (ctx.children[0].STRING()) {
-    } else {
+    console.log(ctx, ctx.NUMBER(), ctx.IDENT(), ctx.getText());
+
+    switch (ctx.children.length) {
+      case 1:
+        if (ctx.NULL_()) {
+          this.currTerm = { type: TYPE_NULL };
+        } else if (ctx.BOOLEAN()) {
+          this.currTerm = { type: TYPE_BOOL, value: ctx.getText() };
+        } else if (ctx.NUMBER()) {
+          this.currTerm = {
+            type: TYPE_NUMERIC,
+            value: ctx.getText(),
+          };
+        } else if (ctx.STRING()) {
+          this.currTerm = {
+            type: TYPE_STRING,
+            value: ctx.getText(),
+          };
+        } else if (ctx.IDENT()) {
+          this.currTerm = {
+            type: TYPE_IDENT,
+            value: ctx.getText(),
+          };
+        }
+        break;
+
+      // time interval
+      case 2:
+        this.currTerm = {
+          type: TYPE_INTERVAL,
+          value: {
+            num: ctx.children[0].getText(),
+            kind: ctx.children[1].getText(),
+          },
+        };
+        break;
+
+      // range
+      case 3:
+        this.currTerm = {
+          type: TYPE_RANGE,
+          value: {
+            start: ctx.children[0].getText(),
+            end: ctx.children[1].getText(),
+          },
+        };
+        break;
     }
   }
 
@@ -258,7 +311,12 @@ export default class Prql2SASTranspiler extends prqlListener {
   enterList(ctx) {}
 
   // Exit a parse tree produced by prqlParser#list.
-  exitList(ctx) {}
+  exitList(ctx) {
+    this.currTerm = {
+      type: TYPE_LIST,
+      value: null,
+    };
+  }
 
   // Enter a parse tree produced by prqlParser#nestedPipeline.
   enterNestedPipeline(ctx) {}
