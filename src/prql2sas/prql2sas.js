@@ -266,17 +266,17 @@ export default class Prql2SASTranspiler extends prqlListener {
         } else if (ctx.BOOLEAN() !== null) {
           this.currTerm = {
             type: TYPE_BOOL,
-            value: ctx.BOOLEAN().getText(),
+            value: ctx.BOOLEAN().getText() === "true",
           };
         } else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
           this.currTerm = {
             type: TYPE_NUMERIC,
-            value: ctx.NUMBER()[0].getText(),
+            value: parseFloat(ctx.NUMBER()[0].getText()),
           };
         } else if (ctx.STRING() !== null) {
           this.currTerm = {
             type: TYPE_STRING,
-            value: ctx.STRING().getText(),
+            value: ctx.STRING().getText().replace(/['"]+/g, ''),
           };
         } else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
           this.currTerm = {
@@ -291,7 +291,7 @@ export default class Prql2SASTranspiler extends prqlListener {
         this.currTerm = {
           type: TYPE_INTERVAL,
           value: {
-            num: ctx.children[0].getText(),
+            num: parseFloat(ctx.children[0].getText()),
             kind: ctx.children[1].getText(),
           },
         };
@@ -299,11 +299,25 @@ export default class Prql2SASTranspiler extends prqlListener {
 
       // range
       case 3:
+        const s = ctx.children[0].getText();
+        if (s === NaN) {
+          const start = { type: TYPE_IDENT, value: ctx.children[0].getText() };
+        } else {
+          const start = { type: TYPE_NUMERIC, value: s };
+        }
+
+        const e = ctx.children[2].getText();
+        if (end === NaN) {
+          const end = { type: TYPE_IDENT, value: ctx.children[2].getText() };
+        } else {
+          const end = { type: TYPE_NUMERIC, value: e };
+        }
+
         this.currTerm = {
           type: TYPE_RANGE,
           value: {
-            start: ctx.children[0].getText(),
-            end: ctx.children[2].getText(),
+            start: start,
+            end: end,
           },
         };
         break;
