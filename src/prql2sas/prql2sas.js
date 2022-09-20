@@ -5,9 +5,11 @@ import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
   PRQL_ENVIRONMENT,
+  TYPE_BOOL,
   TYPE_IDENT,
   TYPE_INTERVAL,
   TYPE_LIST,
+  TYPE_NULL,
   TYPE_NUMERIC,
   TYPE_RANGE,
   TYPE_STRING,
@@ -243,7 +245,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
-    // console.log(this.currTerm);
+    console.log(this.currTerm);
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
@@ -257,28 +259,29 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#literal.
   exitLiteral(ctx) {
-    console.log(ctx, ctx.NUMBER(), ctx.IDENT(), ctx.getText());
-
     switch (ctx.children.length) {
       case 1:
-        if (ctx.NULL_()) {
+        if (ctx.NULL_() !== null) {
           this.currTerm = { type: TYPE_NULL };
-        } else if (ctx.BOOLEAN()) {
-          this.currTerm = { type: TYPE_BOOL, value: ctx.getText() };
-        } else if (ctx.NUMBER()) {
+        } else if (ctx.BOOLEAN() !== null) {
+          this.currTerm = {
+            type: TYPE_BOOL,
+            value: ctx.BOOLEAN().getText(),
+          };
+        } else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
           this.currTerm = {
             type: TYPE_NUMERIC,
-            value: ctx.getText(),
+            value: ctx.NUMBER()[0].getText(),
           };
-        } else if (ctx.STRING()) {
+        } else if (ctx.STRING() !== null) {
           this.currTerm = {
             type: TYPE_STRING,
-            value: ctx.getText(),
+            value: ctx.STRING().getText(),
           };
-        } else if (ctx.IDENT()) {
+        } else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
           this.currTerm = {
             type: TYPE_IDENT,
-            value: ctx.getText(),
+            value: ctx.IDENT()[0].getText(),
           };
         }
         break;
@@ -300,7 +303,7 @@ export default class Prql2SASTranspiler extends prqlListener {
           type: TYPE_RANGE,
           value: {
             start: ctx.children[0].getText(),
-            end: ctx.children[1].getText(),
+            end: ctx.children[2].getText(),
           },
         };
         break;
