@@ -150,11 +150,11 @@ exprUnary: (MINUS | PLUS | NOT) (
 	);
 
 literal:
-	NULL_
+	IDENT
+	| NULL_
 	| BOOLEAN
-	| NUMBER
 	| STRING // | timestamp | date | time | s_string | f_string |
-	| IDENT
+	| NUMBER
 	| NUMBER INTERVAL_KIND
 	| (NUMBER | IDENT) RANGE (NUMBER | IDENT);
 

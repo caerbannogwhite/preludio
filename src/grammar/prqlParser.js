@@ -1,4 +1,4 @@
-// Generated from .\prql.g4 by ANTLR 4.9.3
+// Generated from .\prql.g4 by ANTLR 4.9.2
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import prqlListener from './prqlListener.js';
@@ -162,9 +162,9 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0002\u00e6\u00ea\u00054\u001b\u0002\u00e7\u00ea\u00050\u0019\u0002",
     "\u00e8\u00ea\u0007*\u0002\u0002\u00e9\u00e6\u0003\u0002\u0002\u0002",
     "\u00e9\u00e7\u0003\u0002\u0002\u0002\u00e9\u00e8\u0003\u0002\u0002\u0002",
-    "\u00ea/\u0003\u0002\u0002\u0002\u00eb\u00f6\u0007\'\u0002\u0002\u00ec",
-    "\u00f6\u0007(\u0002\u0002\u00ed\u00f6\u0007)\u0002\u0002\u00ee\u00f6",
-    "\u00071\u0002\u0002\u00ef\u00f6\u0007*\u0002\u0002\u00f0\u00f1\u0007",
+    "\u00ea/\u0003\u0002\u0002\u0002\u00eb\u00f6\u0007*\u0002\u0002\u00ec",
+    "\u00f6\u0007\'\u0002\u0002\u00ed\u00f6\u0007(\u0002\u0002\u00ee\u00f6",
+    "\u00071\u0002\u0002\u00ef\u00f6\u0007)\u0002\u0002\u00f0\u00f1\u0007",
     ")\u0002\u0002\u00f1\u00f6\u00070\u0002\u0002\u00f2\u00f3\t\n\u0002\u0002",
     "\u00f3\u00f4\u0007\u0016\u0002\u0002\u00f4\u00f6\t\n\u0002\u0002\u00f5",
     "\u00eb\u0003\u0002\u0002\u0002\u00f5\u00ec\u0003\u0002\u0002\u0002\u00f5",
@@ -1341,19 +1341,19 @@ export default class prqlParser extends antlr4.Parser {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 233;
-	            this.match(prqlParser.NULL_);
+	            this.match(prqlParser.IDENT);
 	            break;
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 234;
-	            this.match(prqlParser.BOOLEAN);
+	            this.match(prqlParser.NULL_);
 	            break;
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 235;
-	            this.match(prqlParser.NUMBER);
+	            this.match(prqlParser.BOOLEAN);
 	            break;
 
 	        case 4:
@@ -1365,7 +1365,7 @@ export default class prqlParser extends antlr4.Parser {
 	        case 5:
 	            this.enterOuterAlt(localctx, 5);
 	            this.state = 237;
-	            this.match(prqlParser.IDENT);
+	            this.match(prqlParser.NUMBER);
 	            break;
 
 	        case 6:
@@ -2843,12 +2843,28 @@ class LiteralContext extends antlr4.ParserRuleContext {
         this.ruleIndex = prqlParser.RULE_literal;
     }
 
+	IDENT = function(i) {
+		if(i===undefined) {
+			i = null;
+		}
+	    if(i===null) {
+	        return this.getTokens(prqlParser.IDENT);
+	    } else {
+	        return this.getToken(prqlParser.IDENT, i);
+	    }
+	};
+
+
 	NULL_() {
 	    return this.getToken(prqlParser.NULL_, 0);
 	};
 
 	BOOLEAN() {
 	    return this.getToken(prqlParser.BOOLEAN, 0);
+	};
+
+	STRING() {
+	    return this.getToken(prqlParser.STRING, 0);
 	};
 
 	NUMBER = function(i) {
@@ -2859,22 +2875,6 @@ class LiteralContext extends antlr4.ParserRuleContext {
 	        return this.getTokens(prqlParser.NUMBER);
 	    } else {
 	        return this.getToken(prqlParser.NUMBER, i);
-	    }
-	};
-
-
-	STRING() {
-	    return this.getToken(prqlParser.STRING, 0);
-	};
-
-	IDENT = function(i) {
-		if(i===undefined) {
-			i = null;
-		}
-	    if(i===null) {
-	        return this.getTokens(prqlParser.IDENT);
-	    } else {
-	        return this.getToken(prqlParser.IDENT, i);
 	    }
 	};
 
