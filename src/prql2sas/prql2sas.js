@@ -4,6 +4,16 @@ import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
+  BINARY_OP_DIV,
+  BINARY_OP_EQ,
+  BINARY_OP_GE,
+  BINARY_OP_GT,
+  BINARY_OP_LT,
+  BINARY_OP_MINUS,
+  BINARY_OP_MOD,
+  BINARY_OP_MUL,
+  BINARY_OP_NE,
+  BINARY_OP_PLUS,
   PRQL_ENVIRONMENT,
   TYPE_BOOL,
   TYPE_IDENT,
@@ -233,11 +243,45 @@ export default class Prql2SASTranspiler extends prqlListener {
       if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
         // console.log(ctx.children[0].symbol.text);
       } else {
-        this.currExpr.push(ctx.children[1].getText());
+        switch (ctx.children[1].getText()) {
+          case "*":
+            this.currExpr.push({ type: BINARY_OP_MUL });
+            break;
+          case "/":
+            this.currExpr.push({ type: BINARY_OP_DIV });
+            break;
+          case "%":
+            this.currExpr.push({ type: BINARY_OP_MOD });
+            break;
+          case "+":
+            this.currExpr.push({ type: BINARY_OP_PLUS });
+            break;
+          case "-":
+            this.currExpr.push({ type: BINARY_OP_MINUS });
+            break;
+          case "==":
+            this.currExpr.push({ type: BINARY_OP_EQ });
+            break;
+          case "!=":
+            this.currExpr.push({ type: BINARY_OP_NE });
+            break;
+          case ">=":
+            this.currExpr.push({ type: BINARY_OP_GE });
+            break;
+          case "<=":
+            this.currExpr.push({ type: BINARY_OP_LE });
+            break;
+          case ">":
+            this.currExpr.push({ type: BINARY_OP_GT });
+            break;
+          case "<":
+            this.currExpr.push({ type: BINARY_OP_LT });
+            break;
+        }
       }
     }
 
-    // console.log(this.currExpr.stack);
+    console.log(this.currExpr.stack);
   }
 
   // Enter a parse tree produced by prqlParser#term.
@@ -245,7 +289,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
-    console.log(this.currTerm);
+    this.currExpr.push(this.currTerm);
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
@@ -276,7 +320,7 @@ export default class Prql2SASTranspiler extends prqlListener {
         } else if (ctx.STRING() !== null) {
           this.currTerm = {
             type: TYPE_STRING,
-            value: ctx.STRING().getText().replace(/['"]+/g, ''),
+            value: ctx.STRING().getText().replace(/['"]+/g, ""),
           };
         } else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
           this.currTerm = {

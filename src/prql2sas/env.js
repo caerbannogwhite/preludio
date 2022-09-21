@@ -10,61 +10,63 @@ export const TYPE_RANGE = 6;
 export const TYPE_LIST = 7;
 export const TYPE_PIPELINE = 8;
 
-const funcDerive = {
-  name: "derive",
-  implementation: function (env, params) {},
-};
+export const BINARY_OP_MUL = 100;
+export const BINARY_OP_DIV = 101;
+export const BINARY_OP_MOD = 102;
+export const BINARY_OP_PLUS = 103;
+export const BINARY_OP_MINUS = 104;
 
-const funcFilter = {
-  name: "filter",
-  implementation: function (env, params) {},
-};
+export const BINARY_OP_EQ = 110;
+export const BINARY_OP_NE = 111;
+export const BINARY_OP_GE = 112;
+export const BINARY_OP_LE = 113;
+export const BINARY_OP_GT = 114;
+export const BINARY_OP_LT = 115;
 
-const funcFrom = {
-  name: "from",
-  implementation: function (env, params) {},
-};
+export const BINARY_OP_AND = 120;
+export const BINARY_OP_OR = 121;
+export const BINARY_OP_COALESCE = 122;
+
+const __std_derive__ = (env, params) => {};
+
+const __std_filter__ = (env, params) => {};
+
+const __std_from__ = (env, params) => {};
 
 // params:
 //  - file path
 //  - [type]: "csv", "json"
-const funcImport = {
-  name: "import",
-  implementation: function (env, params) {
-    if (params.length < 1) {
-      console.error("function import: expecting at least one parameter.");
-      return;
+const __std_import__ = (env, params) => {
+  if (params.length < 1) {
+    console.error("function import: expecting at least one parameter.");
+    return;
+  }
+
+  let fileType = "csv";
+  for (let p of params) {
+    if (p.name === "type") {
+      fileType = p.value;
     }
+  }
 
-    let fileType = "csv";
-    for (let p of params) {
-      if (p.name === "type") {
-        fileType = p.value;
-      }
-    }
+  // file path
+  const filePath = params[1].value;
+  switch (fileType) {
+    case "csv":
+      env.currentTable = fromCSV(FileAttachment(filePath).text());
+      break;
 
-    // file path
-    const filePath = params[1].value;
-    switch (fileType) {
-      case "csv":
-        env.currentTable = fromCSV(FileAttachment(filePath).text());
-        break;
+    case "json":
+      env.currentTable = loadJSON(filePath);
+      break;
 
-      case "json":
-        env.currentTable = loadJSON(filePath);
-        break;
-
-      default:
-        console.error(`function import: file type not supported (${fileType})`);
-        break;
-    }
-  },
+    default:
+      console.error(`function import: file type not supported (${fileType})`);
+      break;
+  }
 };
 
-const funcSelect = {
-  name: "select",
-  implementation: function (env, params) {},
-};
+const __std_select__ = (env, params) => {};
 
 export const PRQL_ENVIRONMENT = {
   variables: {
@@ -72,10 +74,10 @@ export const PRQL_ENVIRONMENT = {
     currentTable: null,
   },
   functions: {
-    derive: funcDerive,
-    filter: funcFilter,
-    from: funcFrom,
-    import: funcImport,
-    select: funcSelect,
+    derive: __std_derive__,
+    filter: __std_filter__,
+    from: __std_from__,
+    import: __std_import__,
+    select: __std_select__,
   },
 };

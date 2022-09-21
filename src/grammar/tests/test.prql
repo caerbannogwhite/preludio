@@ -2,6 +2,6 @@
 table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv" type:"csv")
 
 from a
-derive d = 7*null + ((true+3) - hp * (disp / 2) + "hello")
+derive d = 7*true + ((null+3) - hp * (disp / 2-false) + "hello")
 select [cyl, hp]
 
