@@ -27,6 +27,15 @@ export const BINARY_OP_AND = 120;
 export const BINARY_OP_OR = 121;
 export const BINARY_OP_COALESCE = 122;
 
+export const LANG_QUERY = 500;
+export const LANG_PIPELINE = 501;
+export const LANG_EXPR_CALL = 502;
+export const LANG_FUNC_CALL = 503;
+export const LANG_EXPR = 504;
+export const LANG_ASSIGN = 505;
+export const LANG_ASSIGN_CALL = 506;
+export const LANG_NAMED_ARG = 507;
+
 const __std_derive__ = (env, params) => {};
 
 const __std_filter__ = (env, params) => {};

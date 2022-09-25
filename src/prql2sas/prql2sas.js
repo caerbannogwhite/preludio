@@ -14,6 +14,8 @@ import {
   BINARY_OP_MUL,
   BINARY_OP_NE,
   BINARY_OP_PLUS,
+  LANG_ASSIGN,
+  LANG_EXPR,
   PRQL_ENVIRONMENT,
   TYPE_BOOL,
   TYPE_IDENT,
@@ -25,49 +27,6 @@ import {
   TYPE_STRING,
 } from "./env.js";
 
-class FuncCall {
-  constructor() {
-    this.name = "";
-    this.params = [];
-  }
-}
-
-class Pipeline {
-  constructor() {
-    this.funcCallStack = [];
-    this.currFuncCall = null;
-  }
-
-  addFuncCall(funcCall) {
-    if (this.currFuncCall !== null) {
-      this.funcCallStack.push(this.currFuncCall);
-    }
-    this.currFuncCall = funcCall;
-  }
-
-  removeFuncCall() {
-    if (this.funcCallStack.length > 0) {
-      this.currFuncCall = this.funcCallStack.pop();
-    } else {
-      this.currFuncCall = null;
-    }
-  }
-}
-
-class PrqlExpression {
-  constructor() {
-    this.stack = [];
-  }
-
-  push(t) {
-    this.stack.push(t);
-  }
-
-  resolve() {}
-}
-
-class Term {}
-
 export default class Prql2SASTranspiler extends prqlListener {
   constructor(env) {
     super();
@@ -78,8 +37,10 @@ export default class Prql2SASTranspiler extends prqlListener {
     this.pipelineStack = [];
     this.currPipeline = null;
 
-    this.currExpr = null;
-    this.currTerm = null;
+    this.funcCallParams = null;
+
+    this.expr = null;
+    this.term = null;
 
     this.variableStack = [];
   }
@@ -95,21 +56,10 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitNl(ctx) {}
 
   // Enter a parse tree produced by prqlParser#query.
-  enterQuery(ctx) {
-    if (this.currPipeline !== null) {
-      this.pipelineStack.push(this.currPipeline);
-    }
-    this.currPipeline = new Pipeline();
-  }
+  enterQuery(ctx) {}
 
   // Exit a parse tree produced by prqlParser#query.
-  exitQuery(ctx) {
-    if (this.pipelineStack.length > 0) {
-      this.currPipeline = this.pipelineStack.pop();
-    } else {
-      this.currPipeline = null;
-    }
-  }
+  exitQuery(ctx) {}
 
   // Enter a parse tree produced by prqlParser#queryDef.
   enterQueryDef(ctx) {}
@@ -166,7 +116,9 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitPipe(ctx) {}
 
   // Enter a parse tree produced by prqlParser#pipeline.
-  enterPipeline(ctx) {}
+  enterPipeline(ctx) {
+    this.currPipeline = [];
+  }
 
   // Exit a parse tree produced by prqlParser#pipeline.
   exitPipeline(ctx) {}
@@ -176,7 +128,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#identBackticks.
   exitIdentBackticks(ctx) {
-    this.currTerm = {
+    this.term = {
       type: TYPE_IDENT,
       value: ctx.children[0].getText(),
     };
@@ -196,26 +148,51 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#funcCall.
   enterFuncCall(ctx) {
-    this.currPipeline.addFuncCall(new FuncCall());
+    this.funcCallParams = [];
   }
 
   // Exit a parse tree produced by prqlParser#funcCall.
   exitFuncCall(ctx) {
-    const name = ctx.IDENT().symbol.text;
-    // console.log("func name:", name);
+    this.funcCall = {
+      name: ctx.IDENT().symbol.text,
+      params: this.funcCallParams,
+    };
+    this.funcCallParams = null;
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
   enterNamedArg(ctx) {}
 
   // Exit a parse tree produced by prqlParser#namedArg.
-  exitNamedArg(ctx) {}
+  exitNamedArg(ctx) {
+    if (this.expr === null) {
+      this.namedArg = {
+        type: LANG_ASSIGN,
+        name: ctx.IDENT().symbol.text,
+        value: this.assign,
+      };
+      this.assign = null;
+    } else {
+      this.namedArg = {
+        type: LANG_EXPR,
+        name: ctx.IDENT().symbol.text,
+        value: this.expr,
+      };
+      this.expr = null;
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#assign.
   enterAssign(ctx) {}
 
   // Exit a parse tree produced by prqlParser#assign.
-  exitAssign(ctx) {}
+  exitAssign(ctx) {
+    this.assign = {
+      ident: ctx.IDENT().symbol.text,
+      expr: this.expr,
+    };
+    this.expr = null;
+  }
 
   // Enter a parse tree produced by prqlParser#assignCall.
   enterAssignCall(ctx) {}
@@ -231,8 +208,8 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#expr.
   enterExpr(ctx) {
-    if (this.currExpr === null) {
-      this.currExpr = new PrqlExpression();
+    if (this.expr === null) {
+      this.expr = [];
     }
   }
 
@@ -245,43 +222,41 @@ export default class Prql2SASTranspiler extends prqlListener {
       } else {
         switch (ctx.children[1].getText()) {
           case "*":
-            this.currExpr.push({ type: BINARY_OP_MUL });
+            this.expr.push({ type: BINARY_OP_MUL });
             break;
           case "/":
-            this.currExpr.push({ type: BINARY_OP_DIV });
+            this.expr.push({ type: BINARY_OP_DIV });
             break;
           case "%":
-            this.currExpr.push({ type: BINARY_OP_MOD });
+            this.expr.push({ type: BINARY_OP_MOD });
             break;
           case "+":
-            this.currExpr.push({ type: BINARY_OP_PLUS });
+            this.expr.push({ type: BINARY_OP_PLUS });
             break;
           case "-":
-            this.currExpr.push({ type: BINARY_OP_MINUS });
+            this.expr.push({ type: BINARY_OP_MINUS });
             break;
           case "==":
-            this.currExpr.push({ type: BINARY_OP_EQ });
+            this.expr.push({ type: BINARY_OP_EQ });
             break;
           case "!=":
-            this.currExpr.push({ type: BINARY_OP_NE });
+            this.expr.push({ type: BINARY_OP_NE });
             break;
           case ">=":
-            this.currExpr.push({ type: BINARY_OP_GE });
+            this.expr.push({ type: BINARY_OP_GE });
             break;
           case "<=":
-            this.currExpr.push({ type: BINARY_OP_LE });
+            this.expr.push({ type: BINARY_OP_LE });
             break;
           case ">":
-            this.currExpr.push({ type: BINARY_OP_GT });
+            this.expr.push({ type: BINARY_OP_GT });
             break;
           case "<":
-            this.currExpr.push({ type: BINARY_OP_LT });
+            this.expr.push({ type: BINARY_OP_LT });
             break;
         }
       }
     }
-
-    console.log(this.currExpr.stack);
   }
 
   // Enter a parse tree produced by prqlParser#term.
@@ -289,7 +264,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
-    this.currExpr.push(this.currTerm);
+    this.expr.push(this.term);
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
@@ -306,24 +281,24 @@ export default class Prql2SASTranspiler extends prqlListener {
     switch (ctx.children.length) {
       case 1:
         if (ctx.NULL_() !== null) {
-          this.currTerm = { type: TYPE_NULL };
+          this.term = { type: TYPE_NULL };
         } else if (ctx.BOOLEAN() !== null) {
-          this.currTerm = {
+          this.term = {
             type: TYPE_BOOL,
             value: ctx.BOOLEAN().getText() === "true",
           };
         } else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
-          this.currTerm = {
+          this.term = {
             type: TYPE_NUMERIC,
             value: parseFloat(ctx.NUMBER()[0].getText()),
           };
         } else if (ctx.STRING() !== null) {
-          this.currTerm = {
+          this.term = {
             type: TYPE_STRING,
             value: ctx.STRING().getText().replace(/['"]+/g, ""),
           };
         } else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
-          this.currTerm = {
+          this.term = {
             type: TYPE_IDENT,
             value: ctx.IDENT()[0].getText(),
           };
@@ -332,7 +307,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
       // time interval
       case 2:
-        this.currTerm = {
+        this.term = {
           type: TYPE_INTERVAL,
           value: {
             num: parseFloat(ctx.children[0].getText()),
@@ -357,7 +332,7 @@ export default class Prql2SASTranspiler extends prqlListener {
           const end = { type: TYPE_NUMERIC, value: e };
         }
 
-        this.currTerm = {
+        this.term = {
           type: TYPE_RANGE,
           value: {
             start: start,
@@ -373,7 +348,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#list.
   exitList(ctx) {
-    this.currTerm = {
+    this.term = {
       type: TYPE_LIST,
       value: null,
     };
