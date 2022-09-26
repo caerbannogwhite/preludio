@@ -16,6 +16,8 @@ import {
   BINARY_OP_PLUS,
   LANG_ASSIGN,
   LANG_EXPR,
+  LANG_FUNC_CALL,
+  LANG_PIPELINE,
   PRQL_ENVIRONMENT,
   TYPE_BOOL,
   TYPE_IDENT,
@@ -32,13 +34,14 @@ export default class Prql2SASTranspiler extends prqlListener {
     super();
     this.currentEnv = env;
 
-    this.currTempTableId = 0;
+    this.query = null;
+    this.pipeline = null;
 
-    this.pipelineStack = [];
-    this.currPipeline = null;
-
+    this.funcCall = null;
     this.funcCallParams = null;
 
+    this.namedArg = null;
+    this.assign = null;
     this.expr = null;
     this.term = null;
 
@@ -56,10 +59,14 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitNl(ctx) {}
 
   // Enter a parse tree produced by prqlParser#query.
-  enterQuery(ctx) {}
+  enterQuery(ctx) {
+    this.query = [];
+  }
 
   // Exit a parse tree produced by prqlParser#query.
-  exitQuery(ctx) {}
+  exitQuery(ctx) {
+    this.query = null;
+  }
 
   // Enter a parse tree produced by prqlParser#queryDef.
   enterQueryDef(ctx) {}
@@ -117,11 +124,32 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#pipeline.
   enterPipeline(ctx) {
-    this.currPipeline = [];
+    this.pipeline = [];
   }
 
   // Exit a parse tree produced by prqlParser#pipeline.
-  exitPipeline(ctx) {}
+  exitPipeline(ctx) {
+    this.query.push({ type: LANG_PIPELINE, value: this.pipeline });
+
+    // execute pipeline
+    for (let p of this.pipeline) {
+      switch (p.type) {
+        case LANG_EXPR:
+          console.log("expression");
+          break;
+        case LANG_FUNC_CALL:
+          console.log("calling:", p.name);
+          break;
+        default:
+          console.error(
+            "exitPipeline: no func call nor expression in pipeline"
+          );
+          break;
+      }
+    }
+
+    this.pipeline = null;
+  }
 
   // Enter a parse tree produced by prqlParser#identBackticks.
   enterIdentBackticks(ctx) {}
@@ -164,7 +192,24 @@ export default class Prql2SASTranspiler extends prqlListener {
   enterFuncCallParam(ctx) {}
 
   // Exit a parse tree produced by prqlParser#funcCallParam.
-  exitFuncCallParam(ctx) {}
+  exitFuncCallParam(ctx) {
+    // console.log(this.namedArg, this.assign, this.expr);
+    if (this.namedArg !== null) {
+      this.funcCallParams.push(this.namedArg);
+      this.namedArg = null;
+    } else if (this.assign !== null) {
+      this.funcCallParams.push(this.assign);
+      this.assign = null;
+    } else if (this.expr !== null) {
+      this.funcCallParams.push({
+        type: LANG_EXPR,
+        value: this.expr,
+      });
+      this.expr = null;
+    } else {
+      console.error("exitFuncCallParam: no valid parameter found.");
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#namedArg.
   enterNamedArg(ctx) {}
@@ -210,7 +255,24 @@ export default class Prql2SASTranspiler extends prqlListener {
   enterExprCall(ctx) {}
 
   // Exit a parse tree produced by prqlParser#exprCall.
-  exitExprCall(ctx) {}
+  exitExprCall(ctx) {
+    if (this.funcCall !== null) {
+      this.pipeline.push({
+        type: LANG_FUNC_CALL,
+        name: this.funcCall.name,
+        params: this.funcCall.params,
+      });
+      this.funcCall = null;
+    } else if (this.expr !== null) {
+      this.pipeline.push({
+        type: LANG_EXPR,
+        value: this.expr,
+      });
+      this.expr = null;
+    } else {
+      console.error("exitExprCall: no func call nor expression available.");
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#expr.
   enterExpr(ctx) {

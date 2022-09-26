@@ -5,3 +5,9 @@ from a
 derive d = 7*true + ((null+3) - hp * (disp / 2-false) + "hello")
 select [cyl, hp]
 
+from students
+derive [
+  sat_proportion_1 = (sat_score | interp 1600),
+  sat_proportion_2 = (sat_score | interp lower:0 1600),
+]
+
