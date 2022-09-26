@@ -100,6 +100,12 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
   // Exit a parse tree produced by prqlParser#funcCall.
   exitFuncCall(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#funcCallParam.
+  enterFuncCallParam(ctx) {}
+
+  // Exit a parse tree produced by prqlParser#funcCallParam.
+  exitFuncCallParam(ctx) {}
+
   // Enter a parse tree produced by prqlParser#namedArg.
   enterNamedArg(ctx) {}
 

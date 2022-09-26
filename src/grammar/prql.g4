@@ -118,8 +118,9 @@ keyword: PRQL | TABLE | FUNC;
 
 // whitespace is required to prevent matching s"string". Forbid `operator` so `a - b` can't parse as
 // `a` & `-b`.
-funcCall: IDENT (namedArg | assign | expr)+;
+funcCall: IDENT funcCallParam+;
 
+funcCallParam: namedArg | assign | expr;
 namedArg: IDENT COLON (assign | expr);
 assign: IDENT ASSIGN expr;
 assignCall: IDENT ASSIGN exprCall;

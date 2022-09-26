@@ -160,6 +160,12 @@ export default class Prql2SASTranspiler extends prqlListener {
     this.funcCallParams = null;
   }
 
+  // Enter a parse tree produced by prqlParser#funcCallParam.
+  enterFuncCallParam(ctx) {}
+
+  // Exit a parse tree produced by prqlParser#funcCallParam.
+  exitFuncCallParam(ctx) {}
+
   // Enter a parse tree produced by prqlParser#namedArg.
   enterNamedArg(ctx) {}
 
