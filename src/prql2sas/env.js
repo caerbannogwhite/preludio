@@ -36,7 +36,9 @@ export const LANG_ASSIGN = 505;
 export const LANG_ASSIGN_CALL = 506;
 export const LANG_NAMED_ARG = 507;
 
-const __std_derive__ = (env, params) => {};
+const __std_derive__ = (env, params) => {
+  const evaluatedParams = evaluateParams(env, params);
+};
 
 const __std_filter__ = (env, params) => {};
 
@@ -47,30 +49,34 @@ const __std_from__ = (env, params) => {};
 //  - [type]: "csv", "json"
 const __std_import__ = (env, params) => {
   if (params.length < 1) {
-    console.error("function import: expecting at least one parameter.");
+    console.error(`[import] 🧐 Expecting at least one parameter.`);
     return;
   }
 
+  const evaluatedParams = evaluateParams(env, params);
+
   let fileType = "csv";
-  for (let p of params) {
+  for (let p of evaluatedParams) {
     if (p.name === "type") {
       fileType = p.value;
     }
   }
 
   // file path
-  const filePath = params[1].value;
+  const filePath = evaluatedParams[1].value;
   switch (fileType) {
     case "csv":
-      env.currentTable = fromCSV(FileAttachment(filePath).text());
+      env.__current_table__ = fromCSV(FileAttachment(filePath).text());
       break;
 
     case "json":
-      env.currentTable = loadJSON(filePath);
+      env.__current_table__ = loadJSON(filePath);
       break;
 
     default:
-      console.error(`function import: file type not supported (${fileType})`);
+      console.error(
+        `[import] 😣 File type not supported (entered type: "${fileType}").`
+      );
       break;
   }
 };
@@ -79,8 +85,8 @@ const __std_select__ = (env, params) => {};
 
 export const PRQL_ENVIRONMENT = {
   variables: {
-    currentDirectory: "",
-    currentTable: null,
+    __current_directory__: "",
+    __current_table__: null,
   },
   functions: {
     derive: __std_derive__,
@@ -89,4 +95,36 @@ export const PRQL_ENVIRONMENT = {
     import: __std_import__,
     select: __std_select__,
   },
+};
+
+const evaluateParams = (env, params) => {
+  const evaluatedParams = [];
+  for (let p of params) {
+    let v = null;
+    switch (p.type) {
+      //
+      // Expression
+      case LANG_EXPR:
+        if (p.value.length === undefined) {
+          // do nothing ?
+        } else if (p.value.length === 0) {
+          // do nothing ?
+        } else if (p.value.length === 1) {
+          v = p.value[0].value;
+        } else {
+          const left = [];
+          for (let e of p.value) {
+          }
+        }
+        break;
+
+      // Default
+      default:
+        console.error(`[PRQL] Parameter type unknown: ${p.type}.`);
+        break;
+    }
+    evaluatedParams.push({ name: p.name, value: v });
+  }
+
+  return evaluateParams;
 };

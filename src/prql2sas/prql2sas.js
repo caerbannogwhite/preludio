@@ -32,7 +32,7 @@ import {
 export default class Prql2SASTranspiler extends prqlListener {
   constructor(env) {
     super();
-    this.currentEnv = env;
+    this.env = env;
 
     this.query = null;
     this.pipeline = null;
@@ -139,6 +139,14 @@ export default class Prql2SASTranspiler extends prqlListener {
           break;
         case LANG_FUNC_CALL:
           console.log("calling:", p.name);
+          console.log(p.params);
+
+          if (Object.keys(this.env.functions).indexOf(p.name) !== -1) {
+            this.env.functions[p.name](this.env, p.params);
+          } else {
+            console.error(`function ${p.name} not found`);
+          }
+
           break;
         default:
           console.error(
