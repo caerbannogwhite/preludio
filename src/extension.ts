@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
         .text.slice(0, textEditor.selection.end.character);
 
       console.log("<SAS Code start>");
-      console.log(transpile(selectedText));
+      transpile(selectedText);
       console.log("<SAS Code end>");
     }
 

@@ -18,7 +18,13 @@ import {
   LANG_EXPR,
   LANG_FUNC_CALL,
   LANG_PIPELINE,
-  PRQL_ENVIRONMENT,
+  OP_BEGIN_FUNC_CALL,
+  OP_BEGIN_LIST,
+  OP_BEGIN_PIPELINE,
+  OP_END_FUNC_CALL,
+  OP_END_LIST,
+  OP_END_PIPELINE,
+  PrqlVM,
   TYPE_BOOL,
   TYPE_IDENT,
   TYPE_INTERVAL,
@@ -27,15 +33,11 @@ import {
   TYPE_NUMERIC,
   TYPE_RANGE,
   TYPE_STRING,
-} from "./env.js";
+} from "./vm.js";
 
 export default class Prql2SASTranspiler extends prqlListener {
-  constructor(env) {
+  constructor() {
     super();
-    this.env = env;
-
-    this.query = null;
-    this.pipeline = null;
 
     this.funcCall = null;
     this.funcCallParams = null;
@@ -46,9 +48,12 @@ export default class Prql2SASTranspiler extends prqlListener {
     this.term = null;
 
     this.variableStack = [];
+
+    this.vm = new PrqlVM(20);
   }
 
   getSASCode() {
+    this.vm.printByteCode();
     return "";
   }
 
@@ -59,14 +64,10 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitNl(ctx) {}
 
   // Enter a parse tree produced by prqlParser#query.
-  enterQuery(ctx) {
-    this.query = [];
-  }
+  enterQuery(ctx) {}
 
   // Exit a parse tree produced by prqlParser#query.
-  exitQuery(ctx) {
-    this.query = null;
-  }
+  exitQuery(ctx) {}
 
   // Enter a parse tree produced by prqlParser#queryDef.
   enterQueryDef(ctx) {}
@@ -124,39 +125,12 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#pipeline.
   enterPipeline(ctx) {
-    this.pipeline = [];
+    this.vm.push(OP_BEGIN_PIPELINE, null, null);
   }
 
   // Exit a parse tree produced by prqlParser#pipeline.
   exitPipeline(ctx) {
-    this.query.push({ type: LANG_PIPELINE, value: this.pipeline });
-
-    // execute pipeline
-    for (let p of this.pipeline) {
-      switch (p.type) {
-        case LANG_EXPR:
-          console.log("expression");
-          break;
-        case LANG_FUNC_CALL:
-          console.log("calling:", p.name);
-          console.log(p.params);
-
-          if (Object.keys(this.env.functions).indexOf(p.name) !== -1) {
-            this.env.functions[p.name](this.env, p.params);
-          } else {
-            console.error(`function ${p.name} not found`);
-          }
-
-          break;
-        default:
-          console.error(
-            "exitPipeline: no func call nor expression in pipeline"
-          );
-          break;
-      }
-    }
-
-    this.pipeline = null;
+    this.vm.push(OP_END_PIPELINE, null, null);
   }
 
   // Enter a parse tree produced by prqlParser#identBackticks.
@@ -185,6 +159,8 @@ export default class Prql2SASTranspiler extends prqlListener {
   // Enter a parse tree produced by prqlParser#funcCall.
   enterFuncCall(ctx) {
     this.funcCallParams = [];
+
+    this.vm.push(OP_BEGIN_FUNC_CALL, ctx.IDENT().symbol.text, null);
   }
 
   // Exit a parse tree produced by prqlParser#funcCall.
@@ -194,6 +170,8 @@ export default class Prql2SASTranspiler extends prqlListener {
       params: this.funcCallParams,
     };
     this.funcCallParams = null;
+
+    this.vm.push(OP_END_FUNC_CALL, null, null);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
@@ -202,21 +180,21 @@ export default class Prql2SASTranspiler extends prqlListener {
   // Exit a parse tree produced by prqlParser#funcCallParam.
   exitFuncCallParam(ctx) {
     // console.log(this.namedArg, this.assign, this.expr);
-    if (this.namedArg !== null) {
-      this.funcCallParams.push(this.namedArg);
-      this.namedArg = null;
-    } else if (this.assign !== null) {
-      this.funcCallParams.push(this.assign);
-      this.assign = null;
-    } else if (this.expr !== null) {
-      this.funcCallParams.push({
-        type: LANG_EXPR,
-        value: this.expr,
-      });
-      this.expr = null;
-    } else {
-      console.error("exitFuncCallParam: no valid parameter found.");
-    }
+    // if (this.namedArg !== null) {
+    //   this.funcCallParams.push(this.namedArg);
+    //   this.namedArg = null;
+    // } else if (this.assign !== null) {
+    //   this.funcCallParams.push(this.assign);
+    //   this.assign = null;
+    // } else if (this.expr !== null) {
+    //   this.funcCallParams.push({
+    //     type: LANG_EXPR,
+    //     value: this.expr,
+    //   });
+    //   this.expr = null;
+    // } else {
+    //   console.error("exitFuncCallParam: no valid parameter found.");
+    // }
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
@@ -247,6 +225,7 @@ export default class Prql2SASTranspiler extends prqlListener {
   // Exit a parse tree produced by prqlParser#assign.
   exitAssign(ctx) {
     this.assign = {
+      type: LANG_ASSIGN,
       ident: ctx.IDENT().symbol.text,
       expr: this.expr,
     };
@@ -264,22 +243,22 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#exprCall.
   exitExprCall(ctx) {
-    if (this.funcCall !== null) {
-      this.pipeline.push({
-        type: LANG_FUNC_CALL,
-        name: this.funcCall.name,
-        params: this.funcCall.params,
-      });
-      this.funcCall = null;
-    } else if (this.expr !== null) {
-      this.pipeline.push({
-        type: LANG_EXPR,
-        value: this.expr,
-      });
-      this.expr = null;
-    } else {
-      console.error("exitExprCall: no func call nor expression available.");
-    }
+    // if (this.funcCall !== null) {
+    //   this.pipeline.push({
+    //     type: LANG_FUNC_CALL,
+    //     name: this.funcCall.name,
+    //     params: this.funcCall.params,
+    //   });
+    //   this.funcCall = null;
+    // } else if (this.expr !== null) {
+    //   this.pipeline.push({
+    //     type: LANG_EXPR,
+    //     value: this.expr,
+    //   });
+    //   this.expr = null;
+    // } else {
+    //   console.error("exitExprCall: no func call nor expression available.");
+    // }
   }
 
   // Enter a parse tree produced by prqlParser#expr.
@@ -292,47 +271,47 @@ export default class Prql2SASTranspiler extends prqlListener {
   // Exit a parse tree produced by prqlParser#expr.
   exitExpr(ctx) {
     // operation or nested expression
-    if (ctx.children.length === 3) {
-      if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
-        // console.log(ctx.children[0].symbol.text);
-      } else {
-        switch (ctx.children[1].getText()) {
-          case "*":
-            this.expr.push({ type: BINARY_OP_MUL });
-            break;
-          case "/":
-            this.expr.push({ type: BINARY_OP_DIV });
-            break;
-          case "%":
-            this.expr.push({ type: BINARY_OP_MOD });
-            break;
-          case "+":
-            this.expr.push({ type: BINARY_OP_PLUS });
-            break;
-          case "-":
-            this.expr.push({ type: BINARY_OP_MINUS });
-            break;
-          case "==":
-            this.expr.push({ type: BINARY_OP_EQ });
-            break;
-          case "!=":
-            this.expr.push({ type: BINARY_OP_NE });
-            break;
-          case ">=":
-            this.expr.push({ type: BINARY_OP_GE });
-            break;
-          case "<=":
-            this.expr.push({ type: BINARY_OP_LE });
-            break;
-          case ">":
-            this.expr.push({ type: BINARY_OP_GT });
-            break;
-          case "<":
-            this.expr.push({ type: BINARY_OP_LT });
-            break;
-        }
-      }
-    }
+    // if (ctx.children.length === 3) {
+    //   if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
+    //     // console.log(ctx.children[0].symbol.text);
+    //   } else {
+    //     switch (ctx.children[1].getText()) {
+    //       case "*":
+    //         this.expr.push({ type: BINARY_OP_MUL });
+    //         break;
+    //       case "/":
+    //         this.expr.push({ type: BINARY_OP_DIV });
+    //         break;
+    //       case "%":
+    //         this.expr.push({ type: BINARY_OP_MOD });
+    //         break;
+    //       case "+":
+    //         this.expr.push({ type: BINARY_OP_PLUS });
+    //         break;
+    //       case "-":
+    //         this.expr.push({ type: BINARY_OP_MINUS });
+    //         break;
+    //       case "==":
+    //         this.expr.push({ type: BINARY_OP_EQ });
+    //         break;
+    //       case "!=":
+    //         this.expr.push({ type: BINARY_OP_NE });
+    //         break;
+    //       case ">=":
+    //         this.expr.push({ type: BINARY_OP_GE });
+    //         break;
+    //       case "<=":
+    //         this.expr.push({ type: BINARY_OP_LE });
+    //         break;
+    //       case ">":
+    //         this.expr.push({ type: BINARY_OP_GT });
+    //         break;
+    //       case "<":
+    //         this.expr.push({ type: BINARY_OP_LT });
+    //         break;
+    //     }
+    //   }
+    // }
   }
 
   // Enter a parse tree produced by prqlParser#term.
@@ -340,7 +319,7 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
-    this.expr.push(this.term);
+    // this.expr.push(this.term);
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
@@ -420,10 +399,14 @@ export default class Prql2SASTranspiler extends prqlListener {
   }
 
   // Enter a parse tree produced by prqlParser#list.
-  enterList(ctx) {}
+  enterList(ctx) {
+    this.vm.push(OP_BEGIN_LIST);
+  }
 
   // Exit a parse tree produced by prqlParser#list.
   exitList(ctx) {
+    this.vm.push(OP_END_LIST);
+
     this.term = {
       type: TYPE_LIST,
       value: null,
@@ -447,7 +430,7 @@ export function transpile(source) {
 
   parser.buildParseTrees = true;
   const tree = parser.query();
-  const transpiler = new Prql2SASTranspiler(PRQL_ENVIRONMENT);
+  const transpiler = new Prql2SASTranspiler();
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(transpiler, tree);
 
   return transpiler.getSASCode();
