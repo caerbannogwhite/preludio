@@ -44,12 +44,14 @@ export const LANG_NAMED_ARG = 507;
 
 export const OP_BEGIN_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
-export const OP_BEGIN_FUNC_CALL = 2;
-export const OP_END_FUNC_CALL = 3;
+// export const OP_BEGIN_FUNC_CALL = 2;
+// export const OP_END_FUNC_CALL = 3;
 export const OP_BEGIN_LIST = 4;
 export const OP_END_LIST = 5;
-export const OP_BEGIN_EXPR = 6;
-export const OP_END_EXPR = 7;
+export const OP_ADD_FUNC_PARAM = 6;
+export const OP_CALL_FUNC = 8;
+// export const OP_BEGIN_EXPR = 6;
+// export const OP_END_EXPR = 7;
 
 const STATUS_INIT = 0;
 const STATUS_READING_EXPR = 1;
@@ -75,18 +77,18 @@ export class PrqlVM {
     this.__stacks__ = [];
   }
 
-  push(opCode, param1, param2) {
+  push(opCode, param1 = null, param2 = null, param3 = null) {
     switch (opCode) {
       case OP_BEGIN_PIPELINE:
         if (this.__debug_level__ > 10) {
-          console.log("OP_BEGIN_PIPELINE");
+          console.log(`OP_BEGIN_PIPELINE`);
         }
         this.__stacks__.unshift([]);
         break;
 
       case OP_END_PIPELINE:
         if (this.__debug_level__ > 10) {
-          console.log("OP_END_PIPELINE");
+          console.log(`OP_END_PIPELINE`);
         }
         this.__stack_pointer__++;
         break;
@@ -104,7 +106,7 @@ export class PrqlVM {
 
       case OP_END_FUNC_CALL:
         if (this.__debug_level__ > 10) {
-          console.log("OP_END_FUNC_CALL");
+          console.log(`OP_END_FUNC_CALL`);
         }
         this.__stacks__[this.__stack_pointer__].push([OP_END_FUNC_CALL]);
         break;
@@ -119,9 +121,22 @@ export class PrqlVM {
 
       case OP_END_LIST:
         if (this.__debug_level__ > 10) {
-          console.log("OP_END_LIST");
+          console.log(`OP_END_LIST`);
         }
         this.__stacks__[this.__stack_pointer__].push([OP_END_LIST]);
+        break;
+
+      // ADD FUNC PARAM: param name, assign ident, expr
+      case OP_ADD_FUNC_PARAM:
+        if (this.__debug_level__ > 10) {
+          console.log(`OP_ADD_FUNC_PARAM, ${param1}, ${param2}, ${param3}`);
+        }
+        this.__stacks__[this.__stack_pointer__].push([
+          OP_ADD_FUNC_PARAM,
+          param1,
+          param2,
+          param3,
+        ]);
         break;
     }
   }
