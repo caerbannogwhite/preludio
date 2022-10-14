@@ -19,13 +19,9 @@ import {
   LANG_FUNC_CALL,
   LANG_PIPELINE,
   OP_ADD_FUNC_PARAM,
-  OP_ADD_PARAM,
-  OP_ADD_PARAM_ASSIGN,
-  OP_BEGIN_FUNC_CALL,
   OP_BEGIN_LIST,
   OP_BEGIN_PIPELINE,
   OP_CALL_FUNC,
-  OP_END_FUNC_CALL,
   OP_END_LIST,
   OP_END_PIPELINE,
   PrqlVM,
@@ -39,18 +35,39 @@ import {
   TYPE_STRING,
 } from "./vm.js";
 
-export default class Prql2SASTranspiler extends prqlListener {
-  constructor() {
+export default class PrqlFrontEnd extends prqlListener {
+  constructor(params) {
     super();
+
+    let debugLevel = 0;
+    let verbose = false;
+    if (params && params.debugLevel) {
+      debugLevel = params.debugLevel;
+    }
+    if (params && params.verbose) {
+      verbose = params.verbose;
+    }
+
+    this.__debug_level__ = params.debugLevel;
+    this.__verbose__ = params.verbose;
+
+    this.__rec_depth__ = 0;
+    this.__indent__ = "  ";
+
+    if (this.__verbose__) {
+      console.log(`  ****  PRQL Listener  ****  `);
+      console.log(`    Debug Level: ${this.__debug_level__}`);
+      console.log(`    Verbose:     ${this.__verbose__}`);
+    }
 
     this.term = null;
     this.param = null;
-    this.vm = new PrqlVM(20);
+
+    this.vm = new PrqlVM({ debugLevel: this.__debug_level__ });
   }
 
-  getSASCode() {
+  printByteCode() {
     this.vm.printByteCode();
-    return "";
   }
 
   // Enter a parse tree produced by prqlParser#nl.
@@ -121,11 +138,20 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#pipeline.
   enterPipeline(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Pipeline`);
+    }
     this.vm.push(OP_BEGIN_PIPELINE);
+
+    this.__rec_depth__++;
   }
 
   // Exit a parse tree produced by prqlParser#pipeline.
   exitPipeline(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Pipeline`);
+    }
     this.vm.push(OP_END_PIPELINE);
   }
 
@@ -153,20 +179,52 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitKeyword(ctx) {}
 
   // Enter a parse tree produced by prqlParser#funcCall.
-  enterFuncCall(ctx) {}
+  enterFuncCall(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) +
+          `-> FuncCall: ${ctx.IDENT().symbol.text}`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#funcCall.
   exitFuncCall(ctx) {
-    this.vm.push(OP_CALL_FUNC, ctx.IDENT().symbol.text);
+    this.__rec_depth__--;
+    const funcName = ctx.IDENT().symbol.text;
+    if (this.__debug_level__ > 10) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) + `<- FuncCall: ${funcName}`
+      );
+    }
+
+    this.vm.push(OP_CALL_FUNC, funcName);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
   enterFuncCallParam(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) + `-> FuncCallParam`
+      );
+    }
+
     this.param = { name: null, ident: null, expr: [] };
+
+    this.__rec_depth__++;
   }
 
   // Exit a parse tree produced by prqlParser#funcCallParam.
   exitFuncCallParam(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) + `<- FuncCallParam`
+      );
+    }
+
     this.vm.push(
       OP_ADD_FUNC_PARAM,
       this.param.name,
@@ -177,20 +235,42 @@ export default class Prql2SASTranspiler extends prqlListener {
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
-  enterNamedArg(ctx) {}
+  enterNamedArg(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> NamedArg`);
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#namedArg.
   exitNamedArg(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- NamedArg`);
+    }
+
     if (this.param !== null) {
       this.param.name = ctx.IDENT().symbol.text;
     }
   }
 
   // Enter a parse tree produced by prqlParser#assign.
-  enterAssign(ctx) {}
+  enterAssign(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Assign`);
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#assign.
   exitAssign(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Assign`);
+    }
+
     if (this.param !== null) {
       this.param.ident = ctx.IDENT().symbol.text;
     }
@@ -226,65 +306,87 @@ export default class Prql2SASTranspiler extends prqlListener {
   }
 
   // Enter a parse tree produced by prqlParser#expr.
-  enterExpr(ctx) {}
+  enterExpr(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Expr`);
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#expr.
   exitExpr(ctx) {
-    if (this.param === null) {
-      return;
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Expr`);
     }
 
-    // operation or nested expression
-    if (ctx.children.length === 3) {
-      if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
-        // console.log(ctx.children[0].symbol.text);
-      } else {
-        switch (ctx.children[1].getText()) {
-          case "*":
-            this.param.expr.push({ type: BINARY_OP_MUL });
-            break;
-          case "/":
-            this.param.expr.push({ type: BINARY_OP_DIV });
-            break;
-          case "%":
-            this.param.expr.push({ type: BINARY_OP_MOD });
-            break;
-          case "+":
-            this.param.expr.push({ type: BINARY_OP_PLUS });
-            break;
-          case "-":
-            this.param.expr.push({ type: BINARY_OP_MINUS });
-            break;
-          case "==":
-            this.param.expr.push({ type: BINARY_OP_EQ });
-            break;
-          case "!=":
-            this.param.expr.push({ type: BINARY_OP_NE });
-            break;
-          case ">=":
-            this.param.expr.push({ type: BINARY_OP_GE });
-            break;
-          case "<=":
-            this.param.expr.push({ type: BINARY_OP_LE });
-            break;
-          case ">":
-            this.param.expr.push({ type: BINARY_OP_GT });
-            break;
-          case "<":
-            this.param.expr.push({ type: BINARY_OP_LT });
-            break;
+    if (this.param !== null) {
+      // operation or nested expression
+      if (ctx.children.length === 3) {
+        if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
+          // console.log(ctx.children[0].symbol.text);
+        } else {
+          switch (ctx.children[1].getText()) {
+            case "*":
+              this.param.expr.push({ type: BINARY_OP_MUL });
+              break;
+            case "/":
+              this.param.expr.push({ type: BINARY_OP_DIV });
+              break;
+            case "%":
+              this.param.expr.push({ type: BINARY_OP_MOD });
+              break;
+            case "+":
+              this.param.expr.push({ type: BINARY_OP_PLUS });
+              break;
+            case "-":
+              this.param.expr.push({ type: BINARY_OP_MINUS });
+              break;
+            case "==":
+              this.param.expr.push({ type: BINARY_OP_EQ });
+              break;
+            case "!=":
+              this.param.expr.push({ type: BINARY_OP_NE });
+              break;
+            case ">=":
+              this.param.expr.push({ type: BINARY_OP_GE });
+              break;
+            case "<=":
+              this.param.expr.push({ type: BINARY_OP_LE });
+              break;
+            case ">":
+              this.param.expr.push({ type: BINARY_OP_GT });
+              break;
+            case "<":
+              this.param.expr.push({ type: BINARY_OP_LT });
+              break;
+          }
         }
       }
     }
   }
 
   // Enter a parse tree produced by prqlParser#term.
-  enterTerm(ctx) {}
+  enterTerm(ctx) {
+    if (this.__debug_level__ > 15) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) + `-> Term: ${ctx.getText()}`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#term.
   exitTerm(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 15) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Term`);
+    }
+
     if (this.param !== null) {
-      this.expr.push(this.term);
+      this.param.expr.push(this.term);
     }
   }
 
@@ -295,10 +397,24 @@ export default class Prql2SASTranspiler extends prqlListener {
   exitExprUnary(ctx) {}
 
   // Enter a parse tree produced by prqlParser#literal.
-  enterLiteral(ctx) {}
+  enterLiteral(ctx) {
+    if (this.__debug_level__ > 15) {
+      console.log(
+        this.__indent__.repeat(this.__rec_depth__) +
+          `-> Literal: ${ctx.getText()}`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#literal.
   exitLiteral(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 15) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Literal`);
+    }
+
     switch (ctx.children.length) {
       case 1:
         if (ctx.NULL_() !== null) {
@@ -362,11 +478,22 @@ export default class Prql2SASTranspiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#list.
   enterList(ctx) {
+    if (this.__debug_level__ > 15) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> List`);
+    }
+
     this.vm.push(OP_BEGIN_LIST);
+
+    this.__rec_depth__++;
   }
 
   // Exit a parse tree produced by prqlParser#list.
   exitList(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 15) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- List`);
+    }
+
     this.vm.push(OP_END_LIST);
   }
 
@@ -387,8 +514,8 @@ export function transpile(source) {
 
   parser.buildParseTrees = true;
   const tree = parser.query();
-  const transpiler = new Prql2SASTranspiler();
-  antlr4.tree.ParseTreeWalker.DEFAULT.walk(transpiler, tree);
+  const fontend = new PrqlFrontEnd({ debugLevel: 20, verbose: true });
+  antlr4.tree.ParseTreeWalker.DEFAULT.walk(fontend, tree);
 
-  return transpiler.getSASCode();
+  fontend.printByteCode();
 }

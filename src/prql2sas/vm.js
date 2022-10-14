@@ -44,8 +44,6 @@ export const LANG_NAMED_ARG = 507;
 
 export const OP_BEGIN_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
-// export const OP_BEGIN_FUNC_CALL = 2;
-// export const OP_END_FUNC_CALL = 3;
 export const OP_BEGIN_LIST = 4;
 export const OP_END_LIST = 5;
 export const OP_ADD_FUNC_PARAM = 6;
@@ -57,8 +55,14 @@ const STATUS_INIT = 0;
 const STATUS_READING_EXPR = 1;
 
 export class PrqlVM {
-  constructor(debugLevel = 0) {
+  constructor(params) {
+    let debugLevel = 0;
+    if (params && params.debugLevel) {
+      debugLevel = params.debugLevel;
+    }
+
     this.__debug_level__ = debugLevel;
+
     this.__current_directory__ = "";
     this.__current_table__ = null;
     this.__current_tables_list__ = [];
@@ -93,26 +97,8 @@ export class PrqlVM {
         this.__stack_pointer__++;
         break;
 
-      case OP_BEGIN_FUNC_CALL:
-        if (this.__debug_level__ > 10) {
-          console.log(`OP_BEGIN_FUNC_CALL, ${param1}`);
-        }
-        this.__current_function_name__ = param1;
-        this.__stacks__[this.__stack_pointer__].push([
-          OP_BEGIN_FUNC_CALL,
-          param1,
-        ]);
-        break;
-
-      case OP_END_FUNC_CALL:
-        if (this.__debug_level__ > 10) {
-          console.log(`OP_END_FUNC_CALL`);
-        }
-        this.__stacks__[this.__stack_pointer__].push([OP_END_FUNC_CALL]);
-        break;
-
       case OP_BEGIN_LIST:
-        if (this.__debug_level__ > 10) {
+        if (this.__debug_level__ > 15) {
           console.log(`OP_BEGIN_LIST`);
         }
         this.__current_function_name__ = param1;
@@ -120,7 +106,7 @@ export class PrqlVM {
         break;
 
       case OP_END_LIST:
-        if (this.__debug_level__ > 10) {
+        if (this.__debug_level__ > 15) {
           console.log(`OP_END_LIST`);
         }
         this.__stacks__[this.__stack_pointer__].push([OP_END_LIST]);
@@ -128,8 +114,8 @@ export class PrqlVM {
 
       // ADD FUNC PARAM: param name, assign ident, expr
       case OP_ADD_FUNC_PARAM:
-        if (this.__debug_level__ > 10) {
-          console.log(`OP_ADD_FUNC_PARAM, ${param1}, ${param2}, ${param3}`);
+        if (this.__debug_level__ > 15) {
+          console.log(`OP_ADD_FUNC_PARAM: ${param1}, ${param2}, ${param3}`);
         }
         this.__stacks__[this.__stack_pointer__].push([
           OP_ADD_FUNC_PARAM,
@@ -137,6 +123,13 @@ export class PrqlVM {
           param2,
           param3,
         ]);
+        break;
+
+      case OP_CALL_FUNC:
+        if (this.__debug_level__ > 10) {
+          console.log(`OP_CALL_FUNC: ${param1}`);
+        }
+        this.__stacks__[this.__stack_pointer__].push([OP_CALL_FUNC, param1]);
         break;
     }
   }

@@ -27,9 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
         .lineAt(lastLine)
         .text.slice(0, textEditor.selection.end.character);
 
-      console.log("<SAS Code start>");
       transpile(selectedText);
-      console.log("<SAS Code end>");
     }
 
     vscode.window.showInformationMessage("PRQL code succesfully executed.");
