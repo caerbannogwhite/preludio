@@ -47,9 +47,11 @@ export const OP_END_PIPELINE = 1;
 export const OP_BEGIN_LIST = 4;
 export const OP_END_LIST = 5;
 export const OP_ADD_FUNC_PARAM = 6;
+export const OP_ADD_EXPR_TERM = 7;
 export const OP_CALL_FUNC = 8;
 // export const OP_BEGIN_EXPR = 6;
 // export const OP_END_EXPR = 7;
+export const OP_GOTO = 50;
 
 const STATUS_INIT = 0;
 const STATUS_READING_EXPR = 1;
@@ -101,15 +103,18 @@ export class PrqlVM {
         if (this.__debug_level__ > 15) {
           console.log(`OP_BEGIN_LIST`);
         }
-        this.__current_function_name__ = param1;
-        this.__stacks__[this.__stack_pointer__].push([OP_BEGIN_LIST, param1]);
         break;
 
       case OP_END_LIST:
         if (this.__debug_level__ > 15) {
           console.log(`OP_END_LIST`);
         }
-        this.__stacks__[this.__stack_pointer__].push([OP_END_LIST]);
+        break;
+
+      case OP_ADD_EXPR_TERM:
+        if (this.__debug_level__ > 15) {
+          console.log(`OP_ADD_EXPR_TERM: ${param1}, ${param2}, ${param3}`);
+        }
         break;
 
       // ADD FUNC PARAM: param name, assign ident, expr
@@ -117,21 +122,20 @@ export class PrqlVM {
         if (this.__debug_level__ > 15) {
           console.log(`OP_ADD_FUNC_PARAM: ${param1}, ${param2}, ${param3}`);
         }
-        this.__stacks__[this.__stack_pointer__].push([
-          OP_ADD_FUNC_PARAM,
-          param1,
-          param2,
-          param3,
-        ]);
         break;
 
       case OP_CALL_FUNC:
         if (this.__debug_level__ > 10) {
-          console.log(`OP_CALL_FUNC: ${param1}`);
+          console.log(`OP_CALL_FUNC: ${param3}`);
         }
-        this.__stacks__[this.__stack_pointer__].push([OP_CALL_FUNC, param1]);
         break;
     }
+    this.__stacks__[this.__stack_pointer__].push([
+      opCode,
+      param1,
+      param2,
+      param3,
+    ]);
   }
 
   printByteCode() {

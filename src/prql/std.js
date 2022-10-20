@@ -1,4 +1,5 @@
 import { loadCSV, loadJSON } from "arquero";
+import { readCSV } from "nodejs-polars";
 
 export const __std_derive__ = (env, params) => {
   const evaluatedParams = evaluateParams(env, params);
@@ -30,11 +31,13 @@ export const __std_import__ = async (env, params) => {
   const filePath = evaluatedParams[0].value;
   switch (fileType) {
     case "csv":
-      env.__current_table__ = loadCSV(filePath);
+      // env.__current_table__ = loadCSV(filePath);
+      env.__current_table__ = readCSV(filePath);
       break;
 
     case "json":
-      env.__current_table__ = loadJSON(filePath);
+      // env.__current_table__ = loadJSON(filePath);
+      env.__current_table__ = readJSON(filePath);
       break;
 
     default:

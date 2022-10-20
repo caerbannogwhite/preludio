@@ -34,8 +34,10 @@ import {
   TYPE_RANGE,
   TYPE_STRING,
 } from "./vm.js";
+import { Blob } from "buffer";
+import { TextEncoder } from "util";
 
-export default class PrqlFrontEnd extends prqlListener {
+export default class PrqlCompiler extends prqlListener {
   constructor(params) {
     super();
 
@@ -54,6 +56,9 @@ export default class PrqlFrontEnd extends prqlListener {
     this.__rec_depth__ = 0;
     this.__indent__ = "  ";
 
+    this.__symbol_table__ = [];
+    this.__instructions__ = [];
+
     if (this.__verbose__) {
       console.log(`  ****  PRQL Listener  ****  `);
       console.log(`    Debug Level: ${this.__debug_level__}`);
@@ -64,6 +69,40 @@ export default class PrqlFrontEnd extends prqlListener {
     this.param = null;
 
     this.vm = new PrqlVM({ debugLevel: this.__debug_level__ });
+  }
+
+  saveData = (function () {
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+    return function (data, fileName) {
+      var url = window.URL.createObjectURL(data);
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    };
+  })();
+
+  getByteCode() {
+    const encoder = new TextEncoder();
+    const symb = [];
+    for (let s of this.__symbol_table__) {
+      const v = enc.encode(s);
+      symb.push(new Uint32Array([v.length]), v);
+    }
+
+    return new Blob([
+      // incipit: 4 bytes mark and the number of elements in the symbol table
+      new Uint32Array([0x11011993, this.__symbol_table__.length]),
+
+      // for each element in the symbol table, get the lenght of
+      // the encoded string and the uint8 encoded array
+      symb,
+
+      // instructions as int 32 array
+      new Uint32Array(this.__instructions__),
+    ]);
   }
 
   printByteCode() {
@@ -142,6 +181,7 @@ export default class PrqlFrontEnd extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Pipeline`);
     }
     this.vm.push(OP_BEGIN_PIPELINE);
+    this.__instructions__.push(OP_BEGIN_PIPELINE, 0, 0, 0);
 
     this.__rec_depth__++;
   }
@@ -153,6 +193,7 @@ export default class PrqlFrontEnd extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Pipeline`);
     }
     this.vm.push(OP_END_PIPELINE);
+    this.__instructions__.push(OP_END_PIPELINE, 0, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#identBackticks.
@@ -200,7 +241,14 @@ export default class PrqlFrontEnd extends prqlListener {
       );
     }
 
+    let pos = this.__symbol_table__.indexOf(funcName);
+    if (pos === -1) {
+      pos = this.__symbol_table__.length;
+      this.__symbol_table__.push(funcName);
+    }
+
     this.vm.push(OP_CALL_FUNC, funcName);
+    this.__instructions__.push(OP_CALL_FUNC, pos, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
@@ -514,8 +562,8 @@ export function transpile(source) {
 
   parser.buildParseTrees = true;
   const tree = parser.query();
-  const fontend = new PrqlFrontEnd({ debugLevel: 20, verbose: true });
-  antlr4.tree.ParseTreeWalker.DEFAULT.walk(fontend, tree);
+  const compiler = new PrqlCompiler({ debugLevel: 20, verbose: true });
+  antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
-  fontend.printByteCode();
+  compiler.printByteCode();
 }
