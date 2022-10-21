@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "antlr4": "^4.10.1",
-    "arquero": "^5.1.0"
+    "arquero": "^5.1.0",
+    "nodejs-polars": "^0.6.0"
   }
 }
