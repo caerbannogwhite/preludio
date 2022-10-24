@@ -16,32 +16,6 @@ export const TYPE_RANGE = 6;
 export const TYPE_LIST = 7;
 export const TYPE_PIPELINE = 8;
 
-export const BINARY_OP_MUL = 100;
-export const BINARY_OP_DIV = 101;
-export const BINARY_OP_MOD = 102;
-export const BINARY_OP_PLUS = 103;
-export const BINARY_OP_MINUS = 104;
-
-export const BINARY_OP_EQ = 110;
-export const BINARY_OP_NE = 111;
-export const BINARY_OP_GE = 112;
-export const BINARY_OP_LE = 113;
-export const BINARY_OP_GT = 114;
-export const BINARY_OP_LT = 115;
-
-export const BINARY_OP_AND = 120;
-export const BINARY_OP_OR = 121;
-export const BINARY_OP_COALESCE = 122;
-
-export const LANG_QUERY = 500;
-export const LANG_PIPELINE = 501;
-export const LANG_EXPR_CALL = 502;
-export const LANG_FUNC_CALL = 503;
-export const LANG_EXPR = 504;
-export const LANG_ASSIGN = 505;
-export const LANG_ASSIGN_CALL = 506;
-export const LANG_NAMED_ARG = 507;
-
 export const OP_BEGIN_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
 export const OP_BEGIN_LIST = 4;
@@ -49,9 +23,27 @@ export const OP_END_LIST = 5;
 export const OP_ADD_FUNC_PARAM = 6;
 export const OP_ADD_EXPR_TERM = 7;
 export const OP_CALL_FUNC = 8;
-// export const OP_BEGIN_EXPR = 6;
-// export const OP_END_EXPR = 7;
+export const OP_PUSH_NAMED_PARAM = 9;
+export const OP_PUSH_ASSIGN_IDENT = 10;
+export const OP_PUSH_TERM = 11;
 export const OP_GOTO = 50;
+
+export const OP_BINARY_MUL = 100;
+export const OP_BINARY_DIV = 101;
+export const OP_BINARY_MOD = 102;
+export const OP_BINARY_PLUS = 103;
+export const OP_BINARY_MINUS = 104;
+
+export const OP_BINARY_EQ = 110;
+export const OP_BINARY_NE = 111;
+export const OP_BINARY_GE = 112;
+export const OP_BINARY_LE = 113;
+export const OP_BINARY_GT = 114;
+export const OP_BINARY_LT = 115;
+
+export const OP_BINARY_AND = 120;
+export const OP_BINARY_OR = 121;
+export const OP_BINARY_COALESCE = 122;
 
 const STATUS_INIT = 0;
 const STATUS_READING_EXPR = 1;

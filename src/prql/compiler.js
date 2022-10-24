@@ -4,16 +4,6 @@ import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
-  BINARY_OP_DIV,
-  BINARY_OP_EQ,
-  BINARY_OP_GE,
-  BINARY_OP_GT,
-  BINARY_OP_LT,
-  BINARY_OP_MINUS,
-  BINARY_OP_MOD,
-  BINARY_OP_MUL,
-  BINARY_OP_NE,
-  BINARY_OP_PLUS,
   LANG_ASSIGN,
   LANG_EXPR,
   LANG_FUNC_CALL,
@@ -24,6 +14,9 @@ import {
   OP_CALL_FUNC,
   OP_END_LIST,
   OP_END_PIPELINE,
+  OP_PUSH_ASSIGN_IDENT,
+  OP_PUSH_NAMED_PARAM,
+  OP_PUSH_TERM,
   PrqlVM,
   TYPE_BOOL,
   TYPE_IDENT,
@@ -50,8 +43,8 @@ export default class PrqlCompiler extends prqlListener {
       verbose = params.verbose;
     }
 
-    this.__debug_level__ = params.debugLevel;
-    this.__verbose__ = params.verbose;
+    this.__debug_level__ = debugLevel;
+    this.__verbose__ = verbose;
 
     this.__rec_depth__ = 0;
     this.__indent__ = "  ";
@@ -65,8 +58,7 @@ export default class PrqlCompiler extends prqlListener {
       console.log(`    Verbose:     ${this.__verbose__}`);
     }
 
-    this.term = null;
-    this.param = null;
+    this.terms = [];
 
     this.vm = new PrqlVM({ debugLevel: this.__debug_level__ });
   }
@@ -89,19 +81,20 @@ export default class PrqlCompiler extends prqlListener {
     const symb = [];
     for (let s of this.__symbol_table__) {
       const v = enc.encode(s);
-      symb.push(new Uint32Array([v.length]), v);
+      symb.push(new BigUint64Array([v.length]), v);
     }
 
     return new Blob([
-      // incipit: 4 bytes mark and the number of elements in the symbol table
-      new Uint32Array([0x11011993, this.__symbol_table__.length]),
+      // incipit: 4 bytes mark, 4 empty bytes
+      // and the number of elements in the symbol table
+      new BigUint64Array([0x1101199300000000, this.__symbol_table__.length]),
 
       // for each element in the symbol table, get the lenght of
       // the encoded string and the uint8 encoded array
       symb,
 
-      // instructions as int 32 array
-      new Uint32Array(this.__instructions__),
+      // instructions as uint 64 array
+      new BigUint64Array(this.__instructions__),
     ]);
   }
 
@@ -180,8 +173,8 @@ export default class PrqlCompiler extends prqlListener {
     if (this.__debug_level__ > 10) {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Pipeline`);
     }
-    this.vm.push(OP_BEGIN_PIPELINE);
-    this.__instructions__.push(OP_BEGIN_PIPELINE, 0, 0, 0);
+
+    this.__instructions__.push(OP_BEGIN_PIPELINE, 0, 0);
 
     this.__rec_depth__++;
   }
@@ -192,8 +185,8 @@ export default class PrqlCompiler extends prqlListener {
     if (this.__debug_level__ > 10) {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Pipeline`);
     }
-    this.vm.push(OP_END_PIPELINE);
-    this.__instructions__.push(OP_END_PIPELINE, 0, 0, 0);
+
+    this.__instructions__.push(OP_END_PIPELINE, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#identBackticks.
@@ -247,8 +240,7 @@ export default class PrqlCompiler extends prqlListener {
       this.__symbol_table__.push(funcName);
     }
 
-    this.vm.push(OP_CALL_FUNC, funcName);
-    this.__instructions__.push(OP_CALL_FUNC, pos, 0, 0);
+    this.__instructions__.push(OP_CALL_FUNC, pos, 0);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
@@ -258,8 +250,6 @@ export default class PrqlCompiler extends prqlListener {
         this.__indent__.repeat(this.__rec_depth__) + `-> FuncCallParam`
       );
     }
-
-    this.param = { name: null, ident: null, expr: [] };
 
     this.__rec_depth__++;
   }
@@ -272,14 +262,6 @@ export default class PrqlCompiler extends prqlListener {
         this.__indent__.repeat(this.__rec_depth__) + `<- FuncCallParam`
       );
     }
-
-    this.vm.push(
-      OP_ADD_FUNC_PARAM,
-      this.param.name,
-      this.param.ident,
-      this.param.expr
-    );
-    this.param = null;
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
@@ -298,9 +280,14 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- NamedArg`);
     }
 
-    if (this.param !== null) {
-      this.param.name = ctx.IDENT().symbol.text;
+    const paramName = ctx.IDENT().symbol.text;
+    let pos = this.__symbol_table__.indexOf(paramName);
+    if (pos === -1) {
+      pos = this.__symbol_table__.length;
+      this.__symbol_table__.push(paramName);
     }
+
+    this.__instructions__.push(OP_PUSH_NAMED_PARAM, pos, 0);
   }
 
   // Enter a parse tree produced by prqlParser#assign.
@@ -319,9 +306,14 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Assign`);
     }
 
-    if (this.param !== null) {
-      this.param.ident = ctx.IDENT().symbol.text;
+    const identName = ctx.IDENT().symbol.text;
+    let pos = this.__symbol_table__.indexOf(identName);
+    if (pos === -1) {
+      pos = this.__symbol_table__.length;
+      this.__symbol_table__.push(identName);
     }
+
+    this.__instructions__.push(OP_PUSH_ASSIGN_IDENT, pos, 0);
   }
 
   // Enter a parse tree produced by prqlParser#assignCall.
@@ -369,47 +361,45 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Expr`);
     }
 
-    if (this.param !== null) {
-      // operation or nested expression
-      if (ctx.children.length === 3) {
-        if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
-          // console.log(ctx.children[0].symbol.text);
-        } else {
-          switch (ctx.children[1].getText()) {
-            case "*":
-              this.param.expr.push({ type: BINARY_OP_MUL });
-              break;
-            case "/":
-              this.param.expr.push({ type: BINARY_OP_DIV });
-              break;
-            case "%":
-              this.param.expr.push({ type: BINARY_OP_MOD });
-              break;
-            case "+":
-              this.param.expr.push({ type: BINARY_OP_PLUS });
-              break;
-            case "-":
-              this.param.expr.push({ type: BINARY_OP_MINUS });
-              break;
-            case "==":
-              this.param.expr.push({ type: BINARY_OP_EQ });
-              break;
-            case "!=":
-              this.param.expr.push({ type: BINARY_OP_NE });
-              break;
-            case ">=":
-              this.param.expr.push({ type: BINARY_OP_GE });
-              break;
-            case "<=":
-              this.param.expr.push({ type: BINARY_OP_LE });
-              break;
-            case ">":
-              this.param.expr.push({ type: BINARY_OP_GT });
-              break;
-            case "<":
-              this.param.expr.push({ type: BINARY_OP_LT });
-              break;
-          }
+    // operation or nested expression
+    if (ctx.children.length === 3) {
+      if (ctx.children[0].symbol && ctx.children[0].symbol.text === "(") {
+        // console.log(ctx.children[0].symbol.text);
+      } else {
+        switch (ctx.children[1].getText()) {
+          case "*":
+            this.__instructions__.push(BINARY_OP_MUL, 0, 0);
+            break;
+          case "/":
+            this.__instructions__.push(BINARY_OP_DIV, 0, 0);
+            break;
+          case "%":
+            this.__instructions__.push(BINARY_OP_MOD, 0, 0);
+            break;
+          case "+":
+            this.__instructions__.push(BINARY_OP_PLUS, 0, 0);
+            break;
+          case "-":
+            this.__instructions__.push(BINARY_OP_MINUS, 0, 0);
+            break;
+          case "==":
+            this.__instructions__.push(BINARY_OP_EQ, 0, 0);
+            break;
+          case "!=":
+            this.__instructions__.push(BINARY_OP_NE, 0, 0);
+            break;
+          case ">=":
+            this.__instructions__.push(BINARY_OP_GE, 0, 0);
+            break;
+          case "<=":
+            this.__instructions__.push(BINARY_OP_LE, 0, 0);
+            break;
+          case ">":
+            this.__instructions__.push(BINARY_OP_GT, 0, 0);
+            break;
+          case "<":
+            this.__instructions__.push(BINARY_OP_LT, 0, 0);
+            break;
         }
       }
     }
@@ -431,10 +421,6 @@ export default class PrqlCompiler extends prqlListener {
     this.__rec_depth__--;
     if (this.__debug_level__ > 15) {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Term`);
-    }
-
-    if (this.param !== null) {
-      this.param.expr.push(this.term);
     }
   }
 
@@ -467,16 +453,22 @@ export default class PrqlCompiler extends prqlListener {
       case 1:
         if (ctx.NULL_() !== null) {
           this.term = { type: TYPE_NULL };
+          this.__instructions__.push(OP_PUSH_TERM, TYPE_NULL, 0);
         } else if (ctx.BOOLEAN() !== null) {
-          this.term = {
-            type: TYPE_BOOL,
-            value: ctx.BOOLEAN().getText() === "true",
-          };
+          this.__instructions__.push(
+            OP_PUSH_TERM,
+            TYPE_BOOL,
+            ctx.BOOLEAN().getText() === "true" ? 1 : 0
+          );
         } else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
-          this.term = {
-            type: TYPE_NUMERIC,
-            value: parseFloat(ctx.NUMBER()[0].getText()),
-          };
+          const num = ctx.NUMBER()[0].getText();
+          let pos = this.__symbol_table__.indexOf(num);
+          if (pos === -1) {
+            pos = this.__symbol_table__.length;
+            this.__symbol_table__.push(num);
+          }
+
+          this.__instructions__.push(OP_PUSH_TERM, TYPE_NUMERIC, pos);
         } else if (ctx.STRING() !== null) {
           this.term = {
             type: TYPE_STRING,
