@@ -63,19 +63,6 @@ export default class PrqlCompiler extends prqlListener {
     this.vm = new PrqlVM({ debugLevel: this.__debug_level__ });
   }
 
-  saveData = (function () {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function (data, fileName) {
-      var url = window.URL.createObjectURL(data);
-      a.href = url;
-      a.download = fileName;
-      a.click();
-      window.URL.revokeObjectURL(url);
-    };
-  })();
-
   getByteCode() {
     const encoder = new TextEncoder();
     const symb = [];
@@ -96,10 +83,6 @@ export default class PrqlCompiler extends prqlListener {
       // instructions as uint 64 array
       new BigUint64Array(this.__instructions__),
     ]);
-  }
-
-  printByteCode() {
-    this.vm.printByteCode();
   }
 
   // Enter a parse tree produced by prqlParser#nl.
@@ -451,16 +434,23 @@ export default class PrqlCompiler extends prqlListener {
 
     switch (ctx.children.length) {
       case 1:
+        // NULL
         if (ctx.NULL_() !== null) {
           this.term = { type: TYPE_NULL };
           this.__instructions__.push(OP_PUSH_TERM, TYPE_NULL, 0);
-        } else if (ctx.BOOLEAN() !== null) {
+        }
+
+        // BOOLEAN
+        else if (ctx.BOOLEAN() !== null) {
           this.__instructions__.push(
             OP_PUSH_TERM,
             TYPE_BOOL,
             ctx.BOOLEAN().getText() === "true" ? 1 : 0
           );
-        } else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
+        }
+
+        // NUMBER
+        else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
           const num = ctx.NUMBER()[0].getText();
           let pos = this.__symbol_table__.indexOf(num);
           if (pos === -1) {
@@ -469,49 +459,63 @@ export default class PrqlCompiler extends prqlListener {
           }
 
           this.__instructions__.push(OP_PUSH_TERM, TYPE_NUMERIC, pos);
-        } else if (ctx.STRING() !== null) {
-          this.term = {
-            type: TYPE_STRING,
-            value: ctx.STRING().getText().replace(/['"]+/g, ""),
-          };
-        } else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
-          this.term = {
-            type: TYPE_IDENT,
-            value: ctx.IDENT()[0].getText(),
-          };
+        }
+
+        // STRING
+        else if (ctx.STRING() !== null) {
+          const str = ctx.STRING().getText().replace(/['"]+/g, "");
+          let pos = this.__symbol_table__.indexOf(str);
+          if (pos === -1) {
+            pos = this.__symbol_table__.length;
+            this.__symbol_table__.push(str);
+          }
+
+          this.__instructions__.push(OP_PUSH_TERM, TYPE_STRING, pos);
+        }
+
+        // IDENT
+        else if (ctx.IDENT() !== null && ctx.IDENT().length > 0) {
+          const id = ctx.IDENT()[0].getText();
+          let pos = this.__symbol_table__.indexOf(id);
+          if (pos === -1) {
+            pos = this.__symbol_table__.length;
+            this.__symbol_table__.push(id);
+          }
+
+          this.__instructions__.push(OP_PUSH_TERM, TYPE_IDENT, pos);
         }
         break;
 
       // time interval
       case 2:
-        this.term = {
-          type: TYPE_INTERVAL,
-          num: parseFloat(ctx.children[0].getText()),
-          kind: ctx.children[1].getText(),
-        };
+        // this.term = {
+        //   type: TYPE_INTERVAL,
+        //   num: parseFloat(ctx.children[0].getText()),
+        //   kind: ctx.children[1].getText(),
+        // };
         break;
 
       // range
       case 3:
-        const s = ctx.children[0].getText();
-        if (s === NaN) {
-          const start = { type: TYPE_IDENT, value: ctx.children[0].getText() };
-        } else {
-          const start = { type: TYPE_NUMERIC, value: s };
-        }
+        // const s = ctx.children[0].getText();
+        // if (s === NaN) {
+        //   const start = { type: TYPE_IDENT, value: ctx.children[0].getText() };
+        // } else {
+        //   const start = { type: TYPE_NUMERIC, value: s };
+        // }
 
-        const e = ctx.children[2].getText();
-        if (end === NaN) {
-          const end = { type: TYPE_IDENT, value: ctx.children[2].getText() };
-        } else {
-          const end = { type: TYPE_NUMERIC, value: e };
-        }
+        // const e = ctx.children[2].getText();
+        // if (end === NaN) {
+        //   const end = { type: TYPE_IDENT, value: ctx.children[2].getText() };
+        // } else {
+        //   const end = { type: TYPE_NUMERIC, value: e };
+        // }
 
-        this.term = {
-          type: TYPE_RANGE,
-          start: start,
-          end: end,
-        };
+        // this.term = {
+        //   type: TYPE_RANGE,
+        //   start: start,
+        //   end: end,
+        // };
         break;
     }
   }
@@ -522,7 +526,7 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `-> List`);
     }
 
-    this.vm.push(OP_BEGIN_LIST);
+    this.__instructions__.push(OP_BEGIN_LIST);
 
     this.__rec_depth__++;
   }
@@ -534,7 +538,7 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `<- List`);
     }
 
-    this.vm.push(OP_END_LIST);
+    this.__instructions__.push(OP_END_LIST, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#nestedPipeline.
@@ -544,7 +548,7 @@ export default class PrqlCompiler extends prqlListener {
   exitNestedPipeline(ctx) {}
 }
 
-export function transpile(source) {
+export function getByteCode(source) {
   const { CommonTokenStream, InputStream } = antlr4;
 
   const chars = new InputStream(source, true);
@@ -557,5 +561,5 @@ export function transpile(source) {
   const compiler = new PrqlCompiler({ debugLevel: 20, verbose: true });
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
-  compiler.printByteCode();
+  return compiler.getByteCode();
 }
