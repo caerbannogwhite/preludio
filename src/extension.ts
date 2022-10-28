@@ -29,14 +29,21 @@ export function activate(context: vscode.ExtensionContext) {
         .lineAt(lastLine)
         .text.slice(0, textEditor.selection.end.character);
 
-      async function saveFile() {
+      const writeBytecode = async () => {
         const buffer = Buffer.from(
           await getByteCode(selectedText).arrayBuffer()
         );
-        fs.writeFile("bytecode", buffer, "ascii", () => console.log("done"));
-      }
 
-      saveFile();
+        fs.writeFile("bytecode", buffer, () => {});
+      };
+
+      writeBytecode()
+        .then(() => {
+          console.log("bytecode exported");
+        })
+        .catch((err) => {
+          console.log(`error: ${err}`);
+        });
     }
 
     vscode.window.showInformationMessage("PRQL code succesfully executed.");

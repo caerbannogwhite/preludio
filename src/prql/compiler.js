@@ -4,13 +4,19 @@ import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
-  LANG_ASSIGN,
-  LANG_EXPR,
-  LANG_FUNC_CALL,
-  LANG_PIPELINE,
-  OP_ADD_FUNC_PARAM,
   OP_BEGIN_LIST,
   OP_BEGIN_PIPELINE,
+  OP_BINARY_DIV,
+  OP_BINARY_EQ,
+  OP_BINARY_GE,
+  OP_BINARY_GT,
+  OP_BINARY_LE,
+  OP_BINARY_LT,
+  OP_BINARY_MINUS,
+  OP_BINARY_MOD,
+  OP_BINARY_MUL,
+  OP_BINARY_NE,
+  OP_BINARY_PLUS,
   OP_CALL_FUNC,
   OP_END_LIST,
   OP_END_PIPELINE,
@@ -20,11 +26,8 @@ import {
   PrqlVM,
   TYPE_BOOL,
   TYPE_IDENT,
-  TYPE_INTERVAL,
-  TYPE_LIST,
   TYPE_NULL,
   TYPE_NUMERIC,
-  TYPE_RANGE,
   TYPE_STRING,
 } from "./vm.js";
 import { Blob } from "buffer";
@@ -53,9 +56,10 @@ export default class PrqlCompiler extends prqlListener {
     this.__instructions__ = [];
 
     if (this.__verbose__) {
-      console.log(`  ****  PRQL Listener  ****  `);
+      console.log(`  ****  PRQL Compiler  ****`);
       console.log(`    Debug Level: ${this.__debug_level__}`);
       console.log(`    Verbose:     ${this.__verbose__}`);
+      console.log(`  ****                 ****\n`);
     }
 
     this.terms = [];
@@ -65,23 +69,30 @@ export default class PrqlCompiler extends prqlListener {
 
   getByteCode() {
     const encoder = new TextEncoder();
-    const symb = [];
+    const symbols = [];
     for (let s of this.__symbol_table__) {
-      const v = enc.encode(s);
-      symb.push(new BigUint64Array([v.length]), v);
+      const v = encoder.encode(s);
+      symbols.push(new BigUint64Array([BigInt(v.length)]), ...v);
     }
+
+    console.log(symbols);
+
+    const instructions = this.__instructions__.map((i) => BigInt(i));
 
     return new Blob([
       // incipit: 4 bytes mark, 4 empty bytes
       // and the number of elements in the symbol table
-      new BigUint64Array([0x1101199300000000, this.__symbol_table__.length]),
+      new BigUint64Array([
+        BigInt(0x1101199300000000),
+        BigInt(this.__symbol_table__.length),
+      ]),
 
       // for each element in the symbol table, get the lenght of
       // the encoded string and the uint8 encoded array
-      symb,
+      new Uint8Array(symbols),
 
       // instructions as uint 64 array
-      new BigUint64Array(this.__instructions__),
+      new BigUint64Array(instructions),
     ]);
   }
 
@@ -351,37 +362,37 @@ export default class PrqlCompiler extends prqlListener {
       } else {
         switch (ctx.children[1].getText()) {
           case "*":
-            this.__instructions__.push(BINARY_OP_MUL, 0, 0);
+            this.__instructions__.push(OP_BINARY_MUL, 0, 0);
             break;
           case "/":
-            this.__instructions__.push(BINARY_OP_DIV, 0, 0);
+            this.__instructions__.push(OP_BINARY_DIV, 0, 0);
             break;
           case "%":
-            this.__instructions__.push(BINARY_OP_MOD, 0, 0);
+            this.__instructions__.push(OP_BINARY_MOD, 0, 0);
             break;
           case "+":
-            this.__instructions__.push(BINARY_OP_PLUS, 0, 0);
+            this.__instructions__.push(OP_BINARY_PLUS, 0, 0);
             break;
           case "-":
-            this.__instructions__.push(BINARY_OP_MINUS, 0, 0);
+            this.__instructions__.push(OP_BINARY_MINUS, 0, 0);
             break;
           case "==":
-            this.__instructions__.push(BINARY_OP_EQ, 0, 0);
+            this.__instructions__.push(OP_BINARY_EQ, 0, 0);
             break;
           case "!=":
-            this.__instructions__.push(BINARY_OP_NE, 0, 0);
+            this.__instructions__.push(OP_BINARY_NE, 0, 0);
             break;
           case ">=":
-            this.__instructions__.push(BINARY_OP_GE, 0, 0);
+            this.__instructions__.push(OP_BINARY_GE, 0, 0);
             break;
           case "<=":
-            this.__instructions__.push(BINARY_OP_LE, 0, 0);
+            this.__instructions__.push(OP_BINARY_LE, 0, 0);
             break;
           case ">":
-            this.__instructions__.push(BINARY_OP_GT, 0, 0);
+            this.__instructions__.push(OP_BINARY_GT, 0, 0);
             break;
           case "<":
-            this.__instructions__.push(BINARY_OP_LT, 0, 0);
+            this.__instructions__.push(OP_BINARY_LT, 0, 0);
             break;
         }
       }
@@ -558,7 +569,7 @@ export function getByteCode(source) {
 
   parser.buildParseTrees = true;
   const tree = parser.query();
-  const compiler = new PrqlCompiler({ debugLevel: 20, verbose: true });
+  const compiler = new PrqlCompiler({ debugLevel: 5, verbose: true });
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
   return compiler.getByteCode();
