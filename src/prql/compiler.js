@@ -68,32 +68,47 @@ export default class PrqlCompiler extends prqlListener {
   }
 
   getByteCode() {
+    const toByteArray8 = (n) => {
+      const b = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+      let i = 1;
+      while (i < 8) {
+        let r = n % 256 ** i;
+        n -= r;
+        b[8 - i] = Math.floor(r / 256 ** (i - 1));
+        i++;
+      }
+      return b;
+    };
+
     const encoder = new TextEncoder();
     const symbols = [];
     for (let s of this.__symbol_table__) {
       const v = encoder.encode(s);
-      symbols.push(new BigUint64Array([BigInt(v.length)]), ...v);
+      symbols.push(...toByteArray8(v.length), ...v);
     }
 
-    console.log(symbols);
-
-    const instructions = this.__instructions__.map((i) => BigInt(i));
-
-    return new Blob([
+    const a = new Uint8Array([
       // incipit: 4 bytes mark, 4 empty bytes
       // and the number of elements in the symbol table
-      new BigUint64Array([
-        BigInt(0x1101199300000000),
-        BigInt(this.__symbol_table__.length),
-      ]),
+      0x11,
+      0x01,
+      0x19,
+      0x93,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      ...toByteArray8(this.__symbol_table__.length),
 
       // for each element in the symbol table, get the lenght of
       // the encoded string and the uint8 encoded array
-      new Uint8Array(symbols),
+      ...symbols,
 
       // instructions as uint 64 array
-      new BigUint64Array(instructions),
+      ...this.__instructions__.map((i) => toByteArray8(i)).flat(),
     ]);
+
+    return new Blob([a]);
   }
 
   // Enter a parse tree produced by prqlParser#nl.
