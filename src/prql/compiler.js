@@ -4,6 +4,7 @@ import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
+  OP_ASSIGN_TABLE,
   OP_BEGIN_LIST,
   OP_BEGIN_PIPELINE,
   OP_BINARY_DIV,
@@ -18,6 +19,7 @@ import {
   OP_BINARY_NE,
   OP_BINARY_PLUS,
   OP_CALL_FUNC,
+  OP_END_FUNC_CALL_PARAM,
   OP_END_LIST,
   OP_END_PIPELINE,
   OP_PUSH_ASSIGN_IDENT,
@@ -166,10 +168,30 @@ export default class PrqlCompiler extends prqlListener {
   exitTypeTerm(ctx) {}
 
   // Enter a parse tree produced by prqlParser#table.
-  enterTable(ctx) {}
+  enterTable(ctx) {
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `-> Table`);
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#table.
-  exitTable(ctx) {}
+  exitTable(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level__ > 10) {
+      console.log(this.__indent__.repeat(this.__rec_depth__) + `<- Table`);
+    }
+
+    const identName = ctx.IDENT().symbol.text;
+    let pos = this.__symbol_table__.indexOf(identName);
+    if (pos === -1) {
+      pos = this.__symbol_table__.length;
+      this.__symbol_table__.push(identName);
+    }
+
+    this.__instructions__.push(OP_ASSIGN_TABLE, pos, 0);
+  }
 
   // Enter a parse tree produced by prqlParser#pipe.
   enterPipe(ctx) {}
@@ -271,6 +293,8 @@ export default class PrqlCompiler extends prqlListener {
         this.__indent__.repeat(this.__rec_depth__) + `<- FuncCallParam`
       );
     }
+
+    this.__instructions__.push(OP_END_FUNC_CALL_PARAM, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.

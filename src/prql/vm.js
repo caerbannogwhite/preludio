@@ -18,6 +18,7 @@ export const TYPE_PIPELINE = 8;
 
 export const OP_BEGIN_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
+export const OP_ASSIGN_TABLE = 2;
 export const OP_BEGIN_LIST = 4;
 export const OP_END_LIST = 5;
 export const OP_ADD_FUNC_PARAM = 6;
@@ -26,6 +27,7 @@ export const OP_CALL_FUNC = 8;
 export const OP_PUSH_NAMED_PARAM = 9;
 export const OP_PUSH_ASSIGN_IDENT = 10;
 export const OP_PUSH_TERM = 11;
+export const OP_END_FUNC_CALL_PARAM = 12;
 export const OP_GOTO = 50;
 
 export const OP_BINARY_MUL = 100;
