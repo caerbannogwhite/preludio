@@ -69,7 +69,7 @@ export default class PrqlCompiler extends prqlListener {
 
   getByteCode() {
     const toByteArray8 = (n) => {
-      const b = new Uint8Array([0, 0, 0, 0, 0, 0, 0, 0]);
+      const b = [0, 0, 0, 0, 0, 0, 0, 0];
       let i = 1;
       while (i < 8) {
         let r = n % 256 ** i;
