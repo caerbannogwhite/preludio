@@ -1,21 +1,18 @@
 use clap::Parser;
-use polars::{functions, prelude::*};
+use polars::prelude::*;
 use std::collections::HashMap;
-use std::env;
-use std::fs::File;
-use std::io::BufReader;
-use std::path::Path;
+use std::fs;
 use std::str;
 
-const TYPE_NULL: u64 = 0;
-const TYPE_BOOL: u64 = 1;
-const TYPE_NUMERIC: u64 = 2;
-const TYPE_STRING: u64 = 3;
-const TYPE_IDENT: u64 = 4;
-const TYPE_INTERVAL: u64 = 5;
-const TYPE_RANGE: u64 = 6;
-const TYPE_LIST: u64 = 7;
-const TYPE_PIPELINE: u64 = 8;
+// const TYPE_NULL: u64 = 0;
+// const TYPE_BOOL: u64 = 1;
+// const TYPE_NUMERIC: u64 = 2;
+// const TYPE_STRING: u64 = 3;
+// const TYPE_IDENT: u64 = 4;
+// const TYPE_INTERVAL: u64 = 5;
+// const TYPE_RANGE: u64 = 6;
+// const TYPE_LIST: u64 = 7;
+// const TYPE_PIPELINE: u64 = 8;
 
 const OP_BEGIN_PIPELINE: u64 = 0;
 const OP_END_PIPELINE: u64 = 1;
@@ -31,31 +28,34 @@ const OP_PUSH_TERM: u64 = 11;
 const OP_END_FUNC_CALL_PARAM: u64 = 12;
 const OP_GOTO: u64 = 50;
 
-const OP_BINARY_MUL: u64 = 100;
-const OP_BINARY_DIV: u64 = 101;
-const OP_BINARY_MOD: u64 = 102;
-const OP_BINARY_PLUS: u64 = 103;
-const OP_BINARY_MINUS: u64 = 104;
+// const OP_BINARY_MUL: u64 = 100;
+// const OP_BINARY_DIV: u64 = 101;
+// const OP_BINARY_MOD: u64 = 102;
+// const OP_BINARY_PLUS: u64 = 103;
+// const OP_BINARY_MINUS: u64 = 104;
 
-const OP_BINARY_EQ: u64 = 110;
-const OP_BINARY_NE: u64 = 111;
-const OP_BINARY_GE: u64 = 112;
-const OP_BINARY_LE: u64 = 113;
-const OP_BINARY_GT: u64 = 114;
-const OP_BINARY_LT: u64 = 115;
+// const OP_BINARY_EQ: u64 = 110;
+// const OP_BINARY_NE: u64 = 111;
+// const OP_BINARY_GE: u64 = 112;
+// const OP_BINARY_LE: u64 = 113;
+// const OP_BINARY_GT: u64 = 114;
+// const OP_BINARY_LT: u64 = 115;
 
-const OP_BINARY_AND: u64 = 120;
-const OP_BINARY_OR: u64 = 121;
-const OP_BINARY_COALESCE: u64 = 122;
+// const OP_BINARY_AND: u64 = 120;
+// const OP_BINARY_OR: u64 = 121;
+// const OP_BINARY_COALESCE: u64 = 122;
 
 #[derive(Parser)]
-#[command(author = "Massimo Meneghello", version, about, long_about = None)]
+#[command(name = "PRQL VM")]
+#[command(author = "Massimo Meneghello <massimo.meneghello93@gmail.com>")]
+#[command(version = "0.1.0")]
+#[command(about = "Execute PRQL bytecode", long_about = None)]
 struct Cli {
-    #[arg(short, long, action = clap::ArgAction::Count, default_value_t=0)]
+    #[arg(short, long, default_value_t = 0)]
     debug: u8,
-    #[arg(short, long, action = clap::ArgAction::Count, default_value_t=0)]
+    #[arg(short, long, default_value_t = 0)]
     verbosity: u8,
-    #[arg(short, long, default_value_t="")]
+    #[arg(short, long, default_value_t = String::new())]
     input_file: String,
 }
 
@@ -63,16 +63,24 @@ fn main() {
     let cli = Cli::parse();
 
     let mut vm = PRQLVirtualMachine::new();
-    vm.__debug_level__ = cli.verbose;
-    vm.__verbosity_level__ = cli.debug;
+    // vm.__debug_level__ = cli.debug;
+    // vm.__verbosity_level__ = cli.verbosity;
+    // vm.input_file = cli.input_file;
 
-    let args: Vec<String> = env::args().collect();
-    print!("{}", args[0]);
+    vm.__debug_level__ = 10;
+    vm.__verbosity_level__ = 10;
+    vm.input_file = String::from("C:\\Users\\massi\\source\\repos\\prqlvs\\bytecode");
 
-    let fp = File::open(Path::new(cli.input_file)).unwrap();
-    let file = BufReader::new(&fp);
+    if vm.__verbosity_level__ > 0 {
+        println!("PRQL VM");
+        println!("-------");
+        println!("Debug level:     {}", vm.__debug_level__);
+        println!("Verbosity level: {}", vm.__verbosity_level__);
+        println!("Input file:      {}", vm.input_file);
+    }
 
-    vm.read_prql_bytecode(file.buffer());
+    let input = fs::read(&vm.input_file).unwrap();
+    vm.read_prql_bytecode(&input);
 }
 
 pub struct PRQLVirtualMachine {
@@ -84,6 +92,8 @@ pub struct PRQLVirtualMachine {
     __symbol_table__: Vec<String>,
     __functions__: HashMap<String, fn(&mut PRQLVirtualMachine)>,
     __variables__: HashMap<String, DataFrame>,
+
+    input_file: String,
 }
 
 impl PRQLVirtualMachine {
@@ -97,6 +107,8 @@ impl PRQLVirtualMachine {
             __symbol_table__: Vec::new(),
             __functions__: HashMap::new(),
             __variables__: HashMap::new(),
+
+            input_file: String::new(),
         };
     }
 
@@ -114,14 +126,14 @@ impl PRQLVirtualMachine {
 
         let table_length: u64 = u64::from_be_bytes(buff);
         let mut offset: u64 = 16;
-        for i in 0..table_length {
+        for _ in 0..table_length {
             // copy length of string into the buffer
             for j in 0..8 {
                 buff[j] = bytes[(offset as usize) + j];
             }
 
             let symbol_length: u64 = u64::from_be_bytes(buff);
-            offset += 16;
+            offset += 8;
 
             // read symbol and insert into the symbol table
             let res = str::from_utf8(&bytes[(offset as usize)..(offset + symbol_length) as usize])
@@ -162,8 +174,8 @@ impl PRQLVirtualMachine {
             }
 
             OP_ASSIGN_TABLE => {}
-            // OP_BEGIN_LIST => {}
-            // OP_END_LIST => {}
+            OP_BEGIN_LIST => {}
+            OP_END_LIST => {}
             OP_ADD_FUNC_PARAM => {}
             OP_ADD_EXPR_TERM => {}
             OP_CALL_FUNC => {}
@@ -171,7 +183,7 @@ impl PRQLVirtualMachine {
             OP_PUSH_ASSIGN_IDENT => {}
             OP_PUSH_TERM => {}
             OP_END_FUNC_CALL_PARAM => {}
-            // OP_GOTO => {}
+            OP_GOTO => {}
             _ => println!("Unknown op code: {}", op_code),
         }
     }
@@ -182,5 +194,5 @@ fn prql_derive(vm: &mut PRQLVirtualMachine) {}
 fn prql_from(vm: &mut PRQLVirtualMachine) {}
 
 fn prql_import(vm: &mut PRQLVirtualMachine) {
-    vm.__current_table__ = CsvReader::from_path("iris_csv")
+    vm.__current_table__ = CsvReader::from_path("path.csv").unwrap().finish().unwrap();
 }

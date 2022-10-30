@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-polars = "0.24.3"
-clap = "4.0.18"
+clap = { version = "4.0.18", features = ["derive"] }
+polars = { version = "0.24.3", features = ["lazy"] }
