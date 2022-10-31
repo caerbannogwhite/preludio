@@ -5,6 +5,7 @@ import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
   OP_ASSIGN_TABLE,
+  OP_BEGIN_FUNC_CALL,
   OP_BEGIN_LIST,
   OP_BEGIN_PIPELINE,
   OP_BINARY_DIV,
@@ -18,7 +19,7 @@ import {
   OP_BINARY_MUL,
   OP_BINARY_NE,
   OP_BINARY_PLUS,
-  OP_CALL_FUNC,
+  OP_END_FUNC_CALL,
   OP_END_FUNC_CALL_PARAM,
   OP_END_LIST,
   OP_END_PIPELINE,
@@ -245,12 +246,21 @@ export default class PrqlCompiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#funcCall.
   enterFuncCall(ctx) {
+    const funcName = ctx.IDENT().symbol.text;
     if (this.__debug_level__ > 10) {
       console.log(
         this.__indent__.repeat(this.__rec_depth__) +
-          `-> FuncCall: ${ctx.IDENT().symbol.text}`
+          `-> FuncCall: ${funcName}`
       );
     }
+
+    let pos = this.__symbol_table__.indexOf(funcName);
+    if (pos === -1) {
+      pos = this.__symbol_table__.length;
+      this.__symbol_table__.push(funcName);
+    }
+
+    this.__instructions__.push(OP_BEGIN_FUNC_CALL, pos, 0);
 
     this.__rec_depth__++;
   }
@@ -265,13 +275,7 @@ export default class PrqlCompiler extends prqlListener {
       );
     }
 
-    let pos = this.__symbol_table__.indexOf(funcName);
-    if (pos === -1) {
-      pos = this.__symbol_table__.length;
-      this.__symbol_table__.push(funcName);
-    }
-
-    this.__instructions__.push(OP_CALL_FUNC, pos, 0);
+    this.__instructions__.push(OP_END_FUNC_CALL, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
@@ -486,7 +490,6 @@ export default class PrqlCompiler extends prqlListener {
       case 1:
         // NULL
         if (ctx.NULL_() !== null) {
-          this.term = { type: TYPE_NULL };
           this.__instructions__.push(OP_PUSH_TERM, TYPE_NULL, 0);
         }
 
@@ -576,7 +579,7 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent__.repeat(this.__rec_depth__) + `-> List`);
     }
 
-    this.__instructions__.push(OP_BEGIN_LIST);
+    this.__instructions__.push(OP_BEGIN_LIST, 0, 0);
 
     this.__rec_depth__++;
   }
