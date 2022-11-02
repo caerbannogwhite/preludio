@@ -1,4 +1,5 @@
 use clap::Parser;
+use polars::export::rayon::result;
 use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
@@ -32,11 +33,11 @@ const OP_PUSH_TERM: u64 = 11;
 const OP_END_FUNC_CALL_PARAM: u64 = 12;
 const OP_GOTO: u64 = 50;
 
-// const OP_BINARY_MUL: u64 = 100;
-// const OP_BINARY_DIV: u64 = 101;
-// const OP_BINARY_MOD: u64 = 102;
-// const OP_BINARY_PLUS: u64 = 103;
-// const OP_BINARY_MINUS: u64 = 104;
+const OP_BINARY_MUL: u64 = 100;
+const OP_BINARY_DIV: u64 = 101;
+const OP_BINARY_MOD: u64 = 102;
+const OP_BINARY_PLUS: u64 = 103;
+const OP_BINARY_MINUS: u64 = 104;
 
 // const OP_BINARY_EQ: u64 = 110;
 // const OP_BINARY_NE: u64 = 111;
@@ -87,6 +88,12 @@ fn main() {
     vm.read_prql_bytecode(&input);
 }
 
+pub struct Operation {
+    opcode: u64,
+    param1: u64,
+    param2: u64,
+}
+
 pub struct PRQLVirtualMachine {
     __verbosity_level: u8,
     __debug_level: u8,
@@ -94,6 +101,7 @@ pub struct PRQLVirtualMachine {
     __current_directory: String,
     __current_table: DataFrame,
     __symbol_table: Vec<String>,
+    __stack: Vec<Operation>,
     __functions: HashMap<String, fn(&mut PRQLVirtualMachine)>,
     __variables: HashMap<String, DataFrame>,
 
@@ -107,8 +115,11 @@ impl PRQLVirtualMachine {
             __debug_level: 0,
             __counter: 0,
             __current_directory: String::new(),
+
             __current_table: DataFrame::empty(),
+
             __symbol_table: Vec::new(),
+            __stack: Vec::new(),
             __functions: HashMap::new(),
             __variables: HashMap::new(),
 
@@ -179,12 +190,12 @@ impl PRQLVirtualMachine {
         }
 
         /////////////////////////////////////////////////////////////
-        ////                    INSTRUCTIONS
+        ////                    OPERATIONS
         while (offset as usize) < bytes.len() {
             for j in 0..8 {
                 buff[j] = bytes[(offset as usize) + j];
             }
-            let op_code: u64 = u64::from_be_bytes(buff);
+            let opcode: u64 = u64::from_be_bytes(buff);
             offset += 8;
 
             for j in 0..8 {
@@ -199,12 +210,12 @@ impl PRQLVirtualMachine {
             let param2: u64 = u64::from_be_bytes(buff);
             offset += 8;
 
-            self.read_instruction(op_code, param1, param2)
+            self.read_instruction(opcode, param1, param2)
         }
     }
 
-    pub fn read_instruction(&self, op_code: u64, param1: u64, param2: u64) {
-        match op_code {
+    pub fn read_instruction(&mut self, opcode: u64, param1: u64, param2: u64) {
+        match opcode {
             // PIPELINE
             OP_BEGIN_PIPELINE => {
                 if self.__debug_level > 10 {
@@ -251,41 +262,47 @@ impl PRQLVirtualMachine {
             OP_PUSH_ASSIGN_IDENT => {}
 
             OP_PUSH_TERM => {
-                let mut term_type_str = "UNKNOWN";
-                let mut term_val = "";
-                match param1 {
-                    TYPE_NULL => {
-                        term_type_str = "NULL";
-                    }
-                    TYPE_BOOL => {
-                        term_type_str = "BOOL";
-                        if param2 == 1 {
-                            term_val = "true";
-                        } else {
-                            term_val = "false";
-                        };
-                    }
-                    TYPE_NUMERIC => {
-                        term_type_str = "NUMERIC";
-                        term_val = &self.__symbol_table[(param2 as usize)];
-                    }
-                    TYPE_STRING => {
-                        term_type_str = "STRING";
-                        term_val = &self.__symbol_table[(param2 as usize)];
-                    }
-                    TYPE_IDENT => {
-                        term_type_str = "IDENT";
-                        term_val = &self.__symbol_table[(param2 as usize)];
-                    }
-                    _ => {}
-                }
-
                 if self.__debug_level > 10 {
+                    let mut term_type_str = "UNKNOWN";
+                    let mut term_val = "";
+                    match param1 {
+                        TYPE_NULL => {
+                            term_type_str = "NULL";
+                        }
+                        TYPE_BOOL => {
+                            term_type_str = "BOOL";
+                            if param2 == 1 {
+                                term_val = "true";
+                            } else {
+                                term_val = "false";
+                            };
+                        }
+                        TYPE_NUMERIC => {
+                            term_type_str = "NUMERIC";
+                            term_val = &self.__symbol_table[(param2 as usize)];
+                        }
+                        TYPE_STRING => {
+                            term_type_str = "STRING";
+                            term_val = &self.__symbol_table[(param2 as usize)];
+                        }
+                        TYPE_IDENT => {
+                            term_type_str = "IDENT";
+                            term_val = &self.__symbol_table[(param2 as usize)];
+                        }
+                        _ => {}
+                    }
+
                     println!(
                         "{:<20} | {:<20} | {:<20}",
                         "OP_PUSH_TERM", term_type_str, term_val
                     );
                 }
+
+                self.__stack.push(Operation {
+                    opcode: opcode,
+                    param1: param1,
+                    param2: param2,
+                })
             }
 
             OP_END_FUNC_CALL_PARAM => {
@@ -295,7 +312,36 @@ impl PRQLVirtualMachine {
             }
 
             OP_GOTO => {}
-            _ => println!("Unknown op code: {}", op_code),
+
+            OP_BINARY_MUL => {
+                let term2 = self.__stack.pop().unwrap();
+                let term1 = self.__stack.pop().unwrap();
+
+                let mut result = Operation {
+                    opcode: OP_PUSH_TERM,
+                    param1: 0,
+                    param2: 0,
+                };
+
+                match term1.param1 {
+                    TYPE_NULL => match term2.param2 {
+                        TYPE_NULL => result.param1 = TYPE_NULL,
+                        TYPE_BOOL => {}
+                        _ => {}
+                    },
+                    TYPE_BOOL => {}
+                    TYPE_NUMERIC => {}
+                    TYPE_IDENT => {}
+                    _ => {}
+                }
+            }
+
+            OP_BINARY_DIV => {}
+            OP_BINARY_MOD => {}
+            OP_BINARY_PLUS => {}
+            OP_BINARY_MINUS => {}
+
+            _ => println!("Unknown op code: {}", opcode),
         }
     }
 }
