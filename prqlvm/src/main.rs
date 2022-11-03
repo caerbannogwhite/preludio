@@ -1,8 +1,9 @@
 use clap::Parser;
-use polars::export::rayon::result;
+use polars::export::num::ToPrimitive;
 use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
+use std::ops::Index;
 use std::str;
 
 mod prql_std;
@@ -100,7 +101,8 @@ pub struct PRQLVirtualMachine {
     __counter: u64,
     __current_directory: String,
     __current_table: DataFrame,
-    __symbol_table: Vec<String>,
+    __num_symbol_table: Vec<f64>,
+    __str_symbol_table: Vec<String>,
     __stack: Vec<Operation>,
     __functions: HashMap<String, fn(&mut PRQLVirtualMachine)>,
     __variables: HashMap<String, DataFrame>,
@@ -118,7 +120,8 @@ impl PRQLVirtualMachine {
 
             __current_table: DataFrame::empty(),
 
-            __symbol_table: Vec::new(),
+            __num_symbol_table: Vec::new(),
+            __str_symbol_table: Vec::new(),
             __stack: Vec::new(),
             __functions: HashMap::new(),
             __variables: HashMap::new(),
@@ -137,6 +140,7 @@ impl PRQLVirtualMachine {
     pub fn read_prql_bytecode(&mut self, bytes: &[u8]) {
         /////////////////////////////////////////////////////////////
         ////                    PREAMBLE
+
         // check signature
         if bytes[0] != 0x11 || bytes[1] != 0x01 || bytes[2] != 0x19 || bytes[3] != 0x93 {
             panic!("Wrong bytecode format.")
@@ -149,10 +153,27 @@ impl PRQLVirtualMachine {
         ];
 
         /////////////////////////////////////////////////////////////
-        ////                    SYMBLE TABLE
-        let table_length: u64 = u64::from_be_bytes(buff);
+        ////                    NUM SYMBOL TABLE
+        let num_table_length: u64 = u64::from_be_bytes(buff);
         let mut offset: u64 = 16;
-        for _ in 0..table_length {
+        for _ in 0..num_table_length {
+            // copy length of string into the buffer
+            for j in 0..8 {
+                buff[j] = bytes[(offset as usize) + j];
+            }
+
+            self.__num_symbol_table.push(f64::from_ne_bytes(buff));
+            offset += 8;
+        }
+
+        /////////////////////////////////////////////////////////////
+        ////                    STR SYMBOL TABLE
+        for j in 0..8 {
+            buff[j] = bytes[(offset as usize) + j];
+        }
+        let str_table_length: u64 = u64::from_be_bytes(buff);
+        offset += 8;
+        for _ in 0..str_table_length {
             // copy length of string into the buffer
             for j in 0..8 {
                 buff[j] = bytes[(offset as usize) + j];
@@ -164,7 +185,7 @@ impl PRQLVirtualMachine {
             // read symbol and insert into the symbol table
             let res = str::from_utf8(&bytes[(offset as usize)..(offset + symbol_length) as usize])
                 .unwrap();
-            self.__symbol_table.push(res.to_string());
+            self.__str_symbol_table.push(res.to_string());
 
             offset += symbol_length;
         }
@@ -176,11 +197,20 @@ impl PRQLVirtualMachine {
                 "BYTE MARK:       0x{:x} 0x{:x} 0x{:x} 0x{:x}",
                 bytes[0], bytes[1], bytes[2], bytes[3]
             );
-            println!("SYMBOL NUM: {}\n", table_length);
+            println!("NUMERIC SYMBOL NUM: {}\n", num_table_length);
 
-            println!("SYMBOLS");
-            println!("-------");
-            for symb in self.__symbol_table.iter() {
+            println!("NUMERIC SYMBOLS");
+            println!("---------------");
+            for symb in self.__num_symbol_table.iter() {
+                println!("{}", symb)
+            }
+            println!();
+
+            println!("STRING SYMBOL NUM: {}\n", str_table_length);
+
+            println!("STRING SYMBOLS");
+            println!("--------------");
+            for symb in self.__str_symbol_table.iter() {
                 println!("{}", symb)
             }
             println!();
@@ -219,23 +249,23 @@ impl PRQLVirtualMachine {
             // PIPELINE
             OP_BEGIN_PIPELINE => {
                 if self.__debug_level > 10 {
-                    println!("{:<20} | {:<20} | {:<20}", "OP_BEGIN_PIPELINE", "", "");
+                    println!("{:<25} | {:<20} | {:<20}", "OP_BEGIN_PIPELINE", "", "");
                 }
             }
 
             OP_END_PIPELINE => {
                 if self.__debug_level > 10 {
-                    println!("{:<20} | {:<20} | {:<20}", "OP_END_PIPELINE", "", "");
+                    println!("{:<25} | {:<20} | {:<20}", "OP_END_PIPELINE", "", "");
                 }
             }
 
             OP_ASSIGN_TABLE => {}
 
             OP_BEGIN_FUNC_CALL => {
-                let function_name = &self.__symbol_table[(param1 as usize)];
+                let function_name = &self.__str_symbol_table[(param1 as usize)];
                 if self.__debug_level > 10 {
                     println!(
-                        "{:<20} | {:<20} | {:<20}",
+                        "{:<25} | {:<20} | {:<20}",
                         "OP_BEGIN_FUNC_CALL", function_name, ""
                     );
                 }
@@ -243,7 +273,7 @@ impl PRQLVirtualMachine {
 
             OP_END_FUNC_CALL => {
                 if self.__debug_level > 10 {
-                    println!("{:<20} | {:<20} | {:<20}", "OP_END_FUNC_CALL", "", "");
+                    println!("{:<25} | {:<20} | {:<20}", "OP_END_FUNC_CALL", "", "");
                 }
             }
 
@@ -255,7 +285,7 @@ impl PRQLVirtualMachine {
 
             OP_PUSH_NAMED_PARAM => {
                 if self.__debug_level > 10 {
-                    println!("{:<20} | {:<20} | {:<20}", "OP_PUSH_NAMED_PARAM", "", "");
+                    println!("{:<25} | {:<20} | {:<20}", "OP_PUSH_NAMED_PARAM", "", "");
                 }
             }
 
@@ -279,21 +309,21 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_NUMERIC => {
                             term_type_str = "NUMERIC";
-                            term_val = &self.__symbol_table[(param2 as usize)];
+                            // term_val = &self.__num_symbol_table[(param2 as usize)].to_string();
                         }
                         TYPE_STRING => {
                             term_type_str = "STRING";
-                            term_val = &self.__symbol_table[(param2 as usize)];
+                            term_val = &self.__str_symbol_table[(param2 as usize)];
                         }
                         TYPE_IDENT => {
                             term_type_str = "IDENT";
-                            term_val = &self.__symbol_table[(param2 as usize)];
+                            term_val = &self.__str_symbol_table[(param2 as usize)];
                         }
                         _ => {}
                     }
 
                     println!(
-                        "{:<20} | {:<20} | {:<20}",
+                        "{:<25} | {:<20} | {:<20}",
                         "OP_PUSH_TERM", term_type_str, term_val
                     );
                 }
@@ -307,7 +337,7 @@ impl PRQLVirtualMachine {
 
             OP_END_FUNC_CALL_PARAM => {
                 if self.__debug_level > 10 {
-                    println!("{:<20} | {:<20} | {:<20}", "OP_END_FUNC_CALL_PARAM", "", "");
+                    println!("{:<25} | {:<20} | {:<20}", "OP_END_FUNC_CALL_PARAM", "", "");
                 }
             }
 
@@ -326,14 +356,61 @@ impl PRQLVirtualMachine {
                 match term1.param1 {
                     TYPE_NULL => match term2.param2 {
                         TYPE_NULL => result.param1 = TYPE_NULL,
-                        TYPE_BOOL => {}
+                        TYPE_BOOL => {
+                            result.param1 = TYPE_BOOL;
+                            result.param2 = 0;
+                        }
+                        TYPE_NUMERIC => {
+                            result.param1 = TYPE_NUMERIC;
+
+                            result.param2 = 0;
+                        }
+                        TYPE_STRING => result.param1 = TYPE_NULL,
+                        TYPE_IDENT => result.param1 = TYPE_NULL,
                         _ => {}
                     },
-                    TYPE_BOOL => {}
-                    TYPE_NUMERIC => {}
-                    TYPE_IDENT => {}
+                    TYPE_BOOL => match term2.param2 {
+                        TYPE_NULL => result.param1 = TYPE_NULL,
+                        TYPE_BOOL => {
+                            result.param1 = TYPE_BOOL;
+                            result.param2 = term1.param2 * term2.param2;
+                        }
+                        TYPE_NUMERIC => {}
+                        TYPE_STRING => {}
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_NUMERIC => match term2.param2 {
+                        TYPE_NULL => result.param1 = TYPE_NULL,
+                        TYPE_BOOL => {}
+                        TYPE_NUMERIC => {}
+                        TYPE_STRING => {}
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_STRING => match term2.param2 {
+                        TYPE_NULL => {
+                            result.param1 = TYPE_STRING;
+                            result.param2 = self.insert_string_symbol(String::from(""))
+                        }
+                        TYPE_BOOL => {}
+                        TYPE_NUMERIC => {}
+                        TYPE_STRING => {}
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_IDENT => match term2.param2 {
+                        TYPE_NULL => {},
+                        TYPE_BOOL => {}
+                        TYPE_NUMERIC => {}
+                        TYPE_STRING => {}
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
                     _ => {}
                 }
+
+                self.__stack.push(result);
             }
 
             OP_BINARY_DIV => {}
@@ -343,6 +420,18 @@ impl PRQLVirtualMachine {
 
             _ => println!("Unknown op code: {}", opcode),
         }
+    }
+
+    fn insert_string_symbol(&mut self, symb: String) -> u64 {
+        let res = self.__str_symbol_table.iter().position(|r| r == &symb);
+        if res.is_some() {
+            return res.unwrap().to_u64().unwrap();
+        }
+
+        let l = self.__str_symbol_table.len();
+        self.__str_symbol_table.push(symb);
+        return l.to_u64().unwrap();
+
     }
 }
 
