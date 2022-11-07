@@ -1,9 +1,10 @@
 use clap::Parser;
 use polars::export::num::ToPrimitive;
 use polars::prelude::*;
+use std::any::Any;
+use std::any::TypeId;
 use std::collections::HashMap;
 use std::fs;
-use std::ops::Index;
 use std::str;
 
 mod prql_std;
@@ -18,6 +19,11 @@ const TYPE_INTERVAL: u64 = 5;
 const TYPE_RANGE: u64 = 6;
 const TYPE_LIST: u64 = 7;
 const TYPE_PIPELINE: u64 = 8;
+
+const TYPE_COLUMN_NULL: u64 = 20;
+const TYPE_COLUMN_BOOL: u64 = 21;
+const TYPE_COLUMN_NUMERIC: u64 = 22;
+const TYPE_COLUMN_STRING: u64 = 23;
 
 const OP_BEGIN_PIPELINE: u64 = 0;
 const OP_END_PIPELINE: u64 = 1;
@@ -266,31 +272,31 @@ impl PRQLVirtualMachine {
 
             OP_PUSH_TERM => {
                 if self.__debug_level > 10 {
-                    let mut term_type_str = "UNKNOWN";
-                    let mut term_val = "";
+                    let mut term_type_str = String::from("UNKNOWN");
+                    let mut term_val = String::from("");
                     match param1 {
                         TYPE_NULL => {
-                            term_type_str = "NULL";
+                            term_type_str = String::from("NULL");
                         }
                         TYPE_BOOL => {
-                            term_type_str = "BOOL";
+                            term_type_str = String::from("BOOL");
                             if param2 == 1 {
-                                term_val = "true";
+                                term_val = String::from("true");
                             } else {
-                                term_val = "false";
+                                term_val = String::from("false");
                             };
                         }
                         TYPE_NUMERIC => {
-                            term_type_str = "NUMERIC";
-                            let tmp = Self::__param_to_float(param2).to_string();
+                            term_type_str = String::from("NUMERIC");
+                            term_val = Self::__param_to_float(param2).to_string();
                         }
                         TYPE_STRING => {
-                            term_type_str = "STRING";
-                            term_val = &self.__symbol_table[(param2 as usize)];
+                            term_type_str = String::from("STRING");
+                            term_val = self.__symbol_table[(param2 as usize)].clone();
                         }
                         TYPE_IDENT => {
-                            term_type_str = "IDENT";
-                            term_val = &self.__symbol_table[(param2 as usize)];
+                            term_type_str = String::from("IDENT");
+                            term_val = self.__symbol_table[(param2 as usize)].clone();
                         }
                         _ => {}
                     }
@@ -336,7 +342,7 @@ impl PRQLVirtualMachine {
                 };
 
                 match term1.param1 {
-                    TYPE_NULL => match term2.param2 {
+                    TYPE_NULL => match term2.param1 {
                         TYPE_NULL => result.param1 = TYPE_NULL,
                         TYPE_BOOL => result.param1 = TYPE_BOOL,
                         TYPE_NUMERIC => result.param1 = TYPE_NUMERIC,
@@ -344,7 +350,26 @@ impl PRQLVirtualMachine {
                             result.param1 = TYPE_STRING;
                             result.param2 = self.__insert_symbol(String::from(""));
                         }
-                        TYPE_IDENT => {}
+                        TYPE_IDENT => {
+                            let tmp = self
+                                .__current_table
+                                .column(self.__symbol_table[(term2.param2 as usize)].as_str())
+                                .unwrap();
+
+                            if tmp.is_logical() {
+                            } else if tmp.is_numeric_physical() {
+                            }
+                            // self.__current_table.lazy().with_column(
+                            //     col(self.__symbol_table[(term2.param2 as usize)])
+                            //         // apply a custom closure Series => Result<Series>
+                            //         .map(
+                            //             |_s| Ok(Series::new("", &[6.0f32, 6.0, 6.0, 6.0, 6.0])),
+                            //             // return type of the closure
+                            //             GetOutput::from_type(DataType::Float64),
+                            //         )
+                            //         .alias("new_column"),
+                            // )
+                        }
                         _ => {}
                     },
                     TYPE_BOOL => match term2.param2 {
@@ -437,9 +462,20 @@ impl PRQLVirtualMachine {
                 self.__stack.push(result);
             }
 
+            /////////////////////////////////////////////////////////
+            ////                DIVISION
             OP_BINARY_DIV => {}
+
+            /////////////////////////////////////////////////////////
+            ////                MODULUS
             OP_BINARY_MOD => {}
+
+            /////////////////////////////////////////////////////////
+            ////                ADDITION
             OP_BINARY_PLUS => {}
+
+            /////////////////////////////////////////////////////////
+            ////                SUBTRACTION
             OP_BINARY_MINUS => {}
 
             _ => println!("Unknown op code: {}", opcode),
