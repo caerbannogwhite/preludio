@@ -98,7 +98,10 @@ export default class PrqlCompiler extends prqlListener {
         instructions.push(
           ...this._toByteArray8(this.__instructions[i]),
           ...this._toByteArray8(this.__instructions[i + 1]),
-          ...new Uint8Array(new Float64Array(this.__instructions[i + 2]).buffer)
+          ...new Uint8Array(
+            new Float64Array([this.__instructions[i + 2]]).buffer
+          )
+          // ...this._toByteArray8(this.__instructions[i + 2])
         );
       } else {
         instructions.push(
