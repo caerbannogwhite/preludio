@@ -69,6 +69,18 @@ export default class PrqlCompiler extends prqlListener {
     this.vm = new PrqlVM({ debugLevel: this.__debug_level });
   }
 
+  _toByteArray2(n) {
+    const b = [0, 0];
+    let i = 1;
+    while (i < 2) {
+      let r = n % 256 ** i;
+      n -= r;
+      b[2 - i] = Math.floor(r / 256 ** (i - 1));
+      i++;
+    }
+    return b;
+  }
+
   _toByteArray8(n) {
     const b = [0, 0, 0, 0, 0, 0, 0, 0];
     let i = 1;
@@ -96,17 +108,16 @@ export default class PrqlCompiler extends prqlListener {
         this.__instructions[i + 1] === TYPE_NUMERIC
       ) {
         instructions.push(
-          ...this._toByteArray8(this.__instructions[i]),
-          ...this._toByteArray8(this.__instructions[i + 1]),
+          ...this._toByteArray2(this.__instructions[i]),
+          ...this._toByteArray2(this.__instructions[i + 1]),
           ...new Uint8Array(
             new Float64Array([this.__instructions[i + 2]]).buffer
           )
-          // ...this._toByteArray8(this.__instructions[i + 2])
         );
       } else {
         instructions.push(
-          ...this._toByteArray8(this.__instructions[i]),
-          ...this._toByteArray8(this.__instructions[i + 1]),
+          ...this._toByteArray2(this.__instructions[i]),
+          ...this._toByteArray2(this.__instructions[i + 1]),
           ...this._toByteArray8(this.__instructions[i + 2])
         );
       }

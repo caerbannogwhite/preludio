@@ -41,12 +41,12 @@ def read_bytecode(bytes_):
     operations = []
     while offset < len(bytes_):
         ops = []
-        for _ in range(3):
+        for l in [2, 2, 8]:
             ops.append(int.from_bytes(
-                bytes_[offset:offset+8], byteorder="big"))
-            offset += 8
+                bytes_[offset:offset+l], byteorder="big"))
+            offset += l
         operations.append(ops)
-        print(f"{ops[0]:4} {ops[1]:4} {ops[2]:4}")
+        print(f"{ops[0]:4} {ops[1]:4} {ops[2]:8}")
 
     return symbols, operations
 
