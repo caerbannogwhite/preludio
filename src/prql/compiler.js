@@ -361,7 +361,7 @@ export default class PrqlCompiler extends prqlListener {
       this.__symbol_table_str.push(paramName);
     }
 
-    this.__instructions.push(OP_PUSH_NAMED_PARAM, pos, 0);
+    this.__instructions.push(OP_PUSH_NAMED_PARAM, 0, pos);
   }
 
   // Enter a parse tree produced by prqlParser#assign.
@@ -391,7 +391,7 @@ export default class PrqlCompiler extends prqlListener {
       this.__symbol_table_str.push(identName);
     }
 
-    this.__instructions.push(OP_PUSH_ASSIGN_IDENT, pos, 0);
+    this.__instructions.push(OP_PUSH_ASSIGN_IDENT, 0, pos);
   }
 
   // Enter a parse tree produced by prqlParser#assignCall.
