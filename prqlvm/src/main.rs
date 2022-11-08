@@ -1,8 +1,6 @@
 use clap::Parser;
 use polars::export::num::ToPrimitive;
 use polars::prelude::*;
-use std::any::Any;
-use std::any::TypeId;
 use std::collections::HashMap;
 use std::fs;
 use std::str;
@@ -10,52 +8,52 @@ use std::str;
 mod prql_std;
 mod prql_vm;
 
-const TYPE_NULL: u64 = 0;
-const TYPE_BOOL: u64 = 1;
-const TYPE_NUMERIC: u64 = 2;
-const TYPE_STRING: u64 = 3;
-const TYPE_IDENT: u64 = 4;
-const TYPE_INTERVAL: u64 = 5;
-const TYPE_RANGE: u64 = 6;
-const TYPE_LIST: u64 = 7;
-const TYPE_PIPELINE: u64 = 8;
+const TYPE_NULL: u16 = 0;
+const TYPE_BOOL: u16 = 1;
+const TYPE_NUMERIC: u16 = 2;
+const TYPE_STRING: u16 = 3;
+const TYPE_IDENT: u16 = 4;
+const TYPE_INTERVAL: u16 = 5;
+const TYPE_RANGE: u16 = 6;
+const TYPE_LIST: u16 = 7;
+const TYPE_PIPELINE: u16 = 8;
 
-const TYPE_COLUMN_NULL: u64 = 20;
-const TYPE_COLUMN_BOOL: u64 = 21;
-const TYPE_COLUMN_NUMERIC: u64 = 22;
-const TYPE_COLUMN_STRING: u64 = 23;
+const TYPE_COLUMN_NULL: u16 = 20;
+const TYPE_COLUMN_BOOL: u16 = 21;
+const TYPE_COLUMN_NUMERIC: u16 = 22;
+const TYPE_COLUMN_STRING: u16 = 23;
 
-const OP_BEGIN_PIPELINE: u64 = 0;
-const OP_END_PIPELINE: u64 = 1;
-const OP_ASSIGN_TABLE: u64 = 2;
-const OP_BEGIN_FUNC_CALL: u64 = 3;
-const OP_END_FUNC_CALL: u64 = 4;
-const OP_BEGIN_LIST: u64 = 5;
-const OP_END_LIST: u64 = 6;
-const OP_ADD_FUNC_PARAM: u64 = 7;
-const OP_ADD_EXPR_TERM: u64 = 8;
-const OP_PUSH_NAMED_PARAM: u64 = 9;
-const OP_PUSH_ASSIGN_IDENT: u64 = 10;
-const OP_PUSH_TERM: u64 = 11;
-const OP_END_FUNC_CALL_PARAM: u64 = 12;
-const OP_GOTO: u64 = 50;
+const OP_BEGIN_PIPELINE: u16 = 0;
+const OP_END_PIPELINE: u16 = 1;
+const OP_ASSIGN_TABLE: u16 = 2;
+const OP_BEGIN_FUNC_CALL: u16 = 3;
+const OP_END_FUNC_CALL: u16 = 4;
+const OP_BEGIN_LIST: u16 = 5;
+const OP_END_LIST: u16 = 6;
+const OP_ADD_FUNC_PARAM: u16 = 7;
+const OP_ADD_EXPR_TERM: u16 = 8;
+const OP_PUSH_NAMED_PARAM: u16 = 9;
+const OP_PUSH_ASSIGN_IDENT: u16 = 10;
+const OP_PUSH_TERM: u16 = 11;
+const OP_END_FUNC_CALL_PARAM: u16 = 12;
+const OP_GOTO: u16 = 50;
 
-const OP_BINARY_MUL: u64 = 100;
-const OP_BINARY_DIV: u64 = 101;
-const OP_BINARY_MOD: u64 = 102;
-const OP_BINARY_PLUS: u64 = 103;
-const OP_BINARY_MINUS: u64 = 104;
+const OP_BINARY_MUL: u16 = 100;
+const OP_BINARY_DIV: u16 = 101;
+const OP_BINARY_MOD: u16 = 102;
+const OP_BINARY_PLUS: u16 = 103;
+const OP_BINARY_MINUS: u16 = 104;
 
-// const OP_BINARY_EQ: u64 = 110;
-// const OP_BINARY_NE: u64 = 111;
-// const OP_BINARY_GE: u64 = 112;
-// const OP_BINARY_LE: u64 = 113;
-// const OP_BINARY_GT: u64 = 114;
-// const OP_BINARY_LT: u64 = 115;
+// const OP_BINARY_EQ: u16 = 110;
+// const OP_BINARY_NE: u16 = 111;
+// const OP_BINARY_GE: u16 = 112;
+// const OP_BINARY_LE: u16 = 113;
+// const OP_BINARY_GT: u16 = 114;
+// const OP_BINARY_LT: u16 = 115;
 
-// const OP_BINARY_AND: u64 = 120;
-// const OP_BINARY_OR: u64 = 121;
-// const OP_BINARY_COALESCE: u64 = 122;
+// const OP_BINARY_AND: u16 = 120;
+// const OP_BINARY_OR: u16 = 121;
+// const OP_BINARY_COALESCE: u16 = 122;
 
 #[derive(Parser)]
 #[command(name = "PRQL VM")]
@@ -96,10 +94,9 @@ fn main() {
 }
 
 pub struct Operation {
-    opcode: u64,
-    param1: u64,
-    param2: u64,
-    num: f64,
+    opcode: u16,
+    param1: u16,
+    param2: [u8; 8],
 }
 
 pub struct PRQLVirtualMachine {
@@ -153,21 +150,21 @@ impl PRQLVirtualMachine {
 
         // skip bytes 4 to 8 and read the number of elements
         // in the symbol table
-        let mut buff = [
+        let mut buff_8 = [
             bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
         ];
 
         /////////////////////////////////////////////////////////////
         ////                    SYMBOL TABLE
-        let table_length: u64 = u64::from_be_bytes(buff);
+        let table_length: u64 = u64::from_be_bytes(buff_8);
         let mut offset: u64 = 16;
         for _ in 0..table_length {
             // copy length of string into the buffer
             for j in 0..8 {
-                buff[j] = bytes[(offset as usize) + j];
+                buff_8[j] = bytes[(offset as usize) + j];
             }
 
-            let symbol_length: u64 = u64::from_be_bytes(buff);
+            let symbol_length: u64 = u64::from_be_bytes(buff_8);
             offset += 8;
 
             // read symbol and insert into the symbol table
@@ -200,30 +197,30 @@ impl PRQLVirtualMachine {
 
         /////////////////////////////////////////////////////////////
         ////                    OPERATIONS
+        let mut buff_2 = [0, 0];
         while (offset as usize) < bytes.len() {
-            for j in 0..8 {
-                buff[j] = bytes[(offset as usize) + j];
+            for j in 0..2 {
+                buff_2[j] = bytes[(offset as usize) + j];
             }
-            let opcode: u64 = u64::from_be_bytes(buff);
-            offset += 8;
+            let opcode: u16 = u16::from_be_bytes(buff_2);
+            offset += 2;
+
+            for j in 0..2 {
+                buff_2[j] = bytes[(offset as usize) + j];
+            }
+            let param1: u16 = u16::from_be_bytes(buff_2);
+            offset += 2;
 
             for j in 0..8 {
-                buff[j] = bytes[(offset as usize) + j];
+                buff_8[j] = bytes[(offset as usize) + j];
             }
-            let param1: u64 = u64::from_be_bytes(buff);
             offset += 8;
 
-            for j in 0..8 {
-                buff[j] = bytes[(offset as usize) + j];
-            }
-            let param2: u64 = u64::from_be_bytes(buff);
-            offset += 8;
-
-            self.read_instruction(opcode, param1, param2)
+            self.read_instruction(opcode, param1, buff_8)
         }
     }
 
-    pub fn read_instruction(&mut self, opcode: u64, param1: u64, param2: u64) {
+    pub fn read_instruction(&mut self, opcode: u16, param1: u16, param2: [u8; 8]) {
         match opcode {
             // PIPELINE
             OP_BEGIN_PIPELINE => {
@@ -280,7 +277,7 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_BOOL => {
                             term_type_str = String::from("BOOL");
-                            if param2 == 1 {
+                            if param2[7] == 1 {
                                 term_val = String::from("true");
                             } else {
                                 term_val = String::from("false");
@@ -288,15 +285,17 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_NUMERIC => {
                             term_type_str = String::from("NUMERIC");
-                            term_val = Self::__param_to_float(param2).to_string();
+                            term_val = f64::from_ne_bytes(param2).to_string();
                         }
                         TYPE_STRING => {
                             term_type_str = String::from("STRING");
-                            term_val = self.__symbol_table[(param2 as usize)].clone();
+                            term_val =
+                                self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                         }
                         TYPE_IDENT => {
                             term_type_str = String::from("IDENT");
-                            term_val = self.__symbol_table[(param2 as usize)].clone();
+                            term_val =
+                                self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                         }
                         _ => {}
                     }
@@ -307,16 +306,10 @@ impl PRQLVirtualMachine {
                     );
                 }
 
-                let mut num = 0.0;
-                if param1 == TYPE_NUMERIC {
-                    num = Self::__param_to_float(param2);
-                }
-
                 self.__stack.push(Operation {
                     opcode: opcode,
                     param1: param1,
                     param2: param2,
-                    num: num,
                 })
             }
 
@@ -337,8 +330,7 @@ impl PRQLVirtualMachine {
                 let mut result = Operation {
                     opcode: OP_PUSH_TERM,
                     param1: 0,
-                    param2: 0,
-                    num: 0.0,
+                    param2: [0, 0, 0, 0, 0, 0, 0, 0],
                 };
 
                 match term1.param1 {
@@ -348,12 +340,17 @@ impl PRQLVirtualMachine {
                         TYPE_NUMERIC => result.param1 = TYPE_NUMERIC,
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = self.__insert_symbol(String::from(""));
+                            result.param2 =
+                                u64::to_be_bytes(self.__insert_symbol(String::from("")));
                         }
                         TYPE_IDENT => {
                             let tmp = self
                                 .__current_table
-                                .column(self.__symbol_table[(term2.param2 as usize)].as_str())
+                                .column(
+                                    self.__symbol_table
+                                        [(u64::from_be_bytes(term2.param2) as usize)]
+                                        .as_str(),
+                                )
                                 .unwrap();
 
                             if tmp.is_logical() {
@@ -372,83 +369,87 @@ impl PRQLVirtualMachine {
                         }
                         _ => {}
                     },
-                    TYPE_BOOL => match term2.param2 {
+                    TYPE_BOOL => match term2.param1 {
                         TYPE_NULL => result.param1 = TYPE_BOOL,
                         TYPE_BOOL => {
                             result.param1 = TYPE_BOOL;
-                            result.param2 = term1.param2 * term2.param2;
+                            result.param2[7] = term1.param2[7] * term2.param2[7];
                         }
                         TYPE_NUMERIC => {
                             result.param1 = TYPE_NUMERIC;
-                            if term1.param2 == 1 {
-                                result.num = term2.num;
-                            } else {
-                                result.num = 0.0;
-                            }
-                        }
-                        TYPE_STRING => {
-                            result.param1 = TYPE_STRING;
-                            if term1.param2 == 1 {
+                            if term1.param2[7] == 1 {
                                 result.param2 = term2.param2;
                             } else {
-                                result.param2 = self.__insert_symbol(String::from(""));
+                                result.param2 = f64::to_ne_bytes(0.0);
                             }
-                        }
-                        TYPE_IDENT => {}
-                        _ => {}
-                    },
-                    TYPE_NUMERIC => match term2.param2 {
-                        TYPE_NULL => {
-                            result.param1 = TYPE_NUMERIC;
-                            result.num = 0.0;
-                        }
-                        TYPE_BOOL => {
-                            result.param1 = TYPE_NUMERIC;
-                            if term2.param2 == 1 {
-                                result.num = term1.num;
-                            } else {
-                                result.num = 0.0;
-                            }
-                        }
-                        TYPE_NUMERIC => {
-                            result.param1 = TYPE_NUMERIC;
-                            result.num = term1.num * term2.num;
                         }
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = self.__insert_symbol(
-                                self.__symbol_table[(term2.param2 as usize)]
-                                    .repeat(term1.num.to_usize().unwrap()),
-                            );
+                            if term1.param2[7] == 1 {
+                                result.param2 = term2.param2;
+                            } else {
+                                result.param2 =
+                                    u64::to_be_bytes(self.__insert_symbol(String::from("")));
+                            }
                         }
                         TYPE_IDENT => {}
                         _ => {}
                     },
-                    TYPE_STRING => match term2.param2 {
+                    TYPE_NUMERIC => match term2.param1 {
+                        TYPE_NULL => {
+                            result.param1 = TYPE_NUMERIC;
+                            result.param2 = f64::to_ne_bytes(0.0);
+                        }
+                        TYPE_BOOL => {
+                            result.param1 = TYPE_NUMERIC;
+                            if term2.param2[7] == 1 {
+                                result.param2 = term1.param2;
+                            } else {
+                                result.param2 = f64::to_ne_bytes(0.0);
+                            }
+                        }
+                        TYPE_NUMERIC => {
+                            result.param1 = TYPE_NUMERIC;
+                            result.param2 = f64::to_ne_bytes(
+                                f64::from_ne_bytes(term1.param2) * f64::from_ne_bytes(term2.param2),
+                            );
+                        }
+                        TYPE_STRING => {
+                            result.param1 = TYPE_STRING;
+                            // result.param2 = self.__insert_symbol(
+                            //     self.__symbol_table[(term2.param2 as usize)]
+                            //         .repeat(term1.num.to_usize().unwrap()),
+                            // );
+                        }
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_STRING => match term2.param1 {
                         TYPE_NULL => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = self.__insert_symbol(String::from(""))
+                            result.param2 = u64::to_be_bytes(self.__insert_symbol(String::from("")))
                         }
                         TYPE_BOOL => {
                             result.param1 = TYPE_STRING;
-                            if term2.param2 == 1 {
+                            if term2.param2[7] == 1 {
                                 result.param2 = term1.param2;
                             } else {
-                                result.param2 = self.__insert_symbol(String::from(""));
+                                result.param2 =
+                                    u64::to_be_bytes(self.__insert_symbol(String::from("")));
                             }
                         }
                         TYPE_NUMERIC => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = self.__insert_symbol(
-                                self.__symbol_table[(term1.param2 as usize)]
-                                    .repeat(term2.num.to_usize().unwrap()),
-                            );
+                            // result.param2 = self.__insert_symbol(
+                            //     self.__symbol_table[(term1.param2 as usize)]
+                            //         .repeat(term2.num.to_usize().unwrap()),
+                            // );
                         }
                         TYPE_STRING => {}
                         TYPE_IDENT => {}
                         _ => {}
                     },
-                    TYPE_IDENT => match term2.param2 {
+                    TYPE_IDENT => match term2.param1 {
                         TYPE_NULL => {}
                         TYPE_BOOL => {}
                         TYPE_NUMERIC => {}
