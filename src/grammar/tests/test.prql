@@ -1,5 +1,5 @@
 
-table a = (import "C:\\Users\\massi\\Downloads\\Cars.csv" type:"csv")
+table a = (import "C:\\Users\\massi" + "\\Downloads\\Cars.csv" type:"csv" header:true)
 
 from a
 derive d = 7*true + ((null+3) - hp * (disp / 2-false)) + 1
