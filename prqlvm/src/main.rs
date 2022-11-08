@@ -285,7 +285,7 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_NUMERIC => {
                             term_type_str = String::from("NUMERIC");
-                            term_val = f64::from_ne_bytes(param2).to_string();
+                            term_val = f64::from_le_bytes(param2).to_string();
                         }
                         TYPE_STRING => {
                             term_type_str = String::from("STRING");
@@ -337,7 +337,10 @@ impl PRQLVirtualMachine {
                     TYPE_NULL => match term2.param1 {
                         TYPE_NULL => result.param1 = TYPE_NULL,
                         TYPE_BOOL => result.param1 = TYPE_BOOL,
-                        TYPE_NUMERIC => result.param1 = TYPE_NUMERIC,
+                        TYPE_NUMERIC => {
+                            result.param1 = TYPE_NUMERIC;
+                            result.param2 = f64::to_le_bytes(0.0);
+                        }
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
                             result.param2 =
@@ -380,7 +383,7 @@ impl PRQLVirtualMachine {
                             if term1.param2[7] == 1 {
                                 result.param2 = term2.param2;
                             } else {
-                                result.param2 = f64::to_ne_bytes(0.0);
+                                result.param2 = f64::to_le_bytes(0.0);
                             }
                         }
                         TYPE_STRING => {
@@ -398,20 +401,20 @@ impl PRQLVirtualMachine {
                     TYPE_NUMERIC => match term2.param1 {
                         TYPE_NULL => {
                             result.param1 = TYPE_NUMERIC;
-                            result.param2 = f64::to_ne_bytes(0.0);
+                            result.param2 = f64::to_le_bytes(0.0);
                         }
                         TYPE_BOOL => {
                             result.param1 = TYPE_NUMERIC;
                             if term2.param2[7] == 1 {
                                 result.param2 = term1.param2;
                             } else {
-                                result.param2 = f64::to_ne_bytes(0.0);
+                                result.param2 = f64::to_le_bytes(0.0);
                             }
                         }
                         TYPE_NUMERIC => {
                             result.param1 = TYPE_NUMERIC;
-                            result.param2 = f64::to_ne_bytes(
-                                f64::from_ne_bytes(term1.param2) * f64::from_ne_bytes(term2.param2),
+                            result.param2 = f64::to_le_bytes(
+                                f64::from_le_bytes(term1.param2) * f64::from_le_bytes(term2.param2),
                             );
                         }
                         TYPE_STRING => {
@@ -421,7 +424,7 @@ impl PRQLVirtualMachine {
                                     self.__symbol_table
                                         [(u64::from_be_bytes(term2.param2) as usize)]
                                         .repeat(
-                                            f64::from_ne_bytes(term1.param2).to_usize().unwrap(),
+                                            f64::from_le_bytes(term1.param2).to_usize().unwrap(),
                                         ),
                                 ),
                             );
@@ -450,7 +453,7 @@ impl PRQLVirtualMachine {
                                     self.__symbol_table
                                         [(u64::from_be_bytes(term1.param2) as usize)]
                                         .repeat(
-                                            f64::from_ne_bytes(term2.param2).to_usize().unwrap(),
+                                            f64::from_le_bytes(term2.param2).to_usize().unwrap(),
                                         ),
                                 ),
                             );
@@ -500,7 +503,7 @@ impl PRQLVirtualMachine {
 
     pub fn __param_to_float(p: u64) -> f64 {
         let bytes = p.to_be_bytes();
-        f64::from_bits(u64::from_ne_bytes(bytes))
+        f64::from_bits(u64::from_be_bytes(bytes))
     }
 
     fn __insert_symbol(&mut self, symb: String) -> u64 {
