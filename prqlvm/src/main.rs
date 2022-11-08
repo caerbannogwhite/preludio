@@ -416,10 +416,15 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
-                            // result.param2 = self.__insert_symbol(
-                            //     self.__symbol_table[(term2.param2 as usize)]
-                            //         .repeat(term1.num.to_usize().unwrap()),
-                            // );
+                            result.param2 = u64::to_be_bytes(
+                                self.__insert_symbol(
+                                    self.__symbol_table
+                                        [(u64::from_be_bytes(term2.param2) as usize)]
+                                        .repeat(
+                                            f64::from_ne_bytes(term1.param2).to_usize().unwrap(),
+                                        ),
+                                ),
+                            );
                         }
                         TYPE_IDENT => {}
                         _ => {}
@@ -440,10 +445,15 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_NUMERIC => {
                             result.param1 = TYPE_STRING;
-                            // result.param2 = self.__insert_symbol(
-                            //     self.__symbol_table[(term1.param2 as usize)]
-                            //         .repeat(term2.num.to_usize().unwrap()),
-                            // );
+                            result.param2 = u64::to_be_bytes(
+                                self.__insert_symbol(
+                                    self.__symbol_table
+                                        [(u64::from_be_bytes(term1.param2) as usize)]
+                                        .repeat(
+                                            f64::from_ne_bytes(term2.param2).to_usize().unwrap(),
+                                        ),
+                                ),
+                            );
                         }
                         TYPE_STRING => {}
                         TYPE_IDENT => {}
