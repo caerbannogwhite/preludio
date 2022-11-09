@@ -93,6 +93,11 @@ fn main() {
     vm.read_prql_bytecode(&input);
 }
 
+pub struct FunctionParam {
+    type_: u16,
+    value: [u8; 8],
+}
+
 pub struct Operation {
     opcode: u16,
     param1: u16,
@@ -258,6 +263,8 @@ impl PRQLVirtualMachine {
                 } else {
                     println!("[😞] Error - Function {} not found.", function_name);
                 }
+
+                self.__function_num_params = 0;
             }
 
             OP_BEGIN_LIST => {}
@@ -592,24 +599,72 @@ impl PRQLVirtualMachine {
         return u64::to_be_bytes(l.to_u64().unwrap());
     }
 
-    fn __read_params(&mut self) {}
+    fn __read_params(
+        &mut self,
+        position_params: &mut Vec<FunctionParam>,
+        named_params: &mut HashMap<String, FunctionParam>,
+    ) {
+        let mut counter: u64 = 0;
+        while counter < self.__function_num_params {
+            let op = self.__stack.pop().unwrap();
+            match op.opcode {
+                OP_PUSH_TERM => {
+                    position_params.push(FunctionParam {
+                        type_: op.param1,
+                        value: op.param2,
+                    });
+                    counter += 1;
+                }
+                OP_PUSH_NAMED_PARAM => {
+                    let term = self.__stack.pop().unwrap();
+                    named_params.insert(
+                        self.__symbol_table[u64::from_be_bytes(op.param2) as usize].clone(),
+                        FunctionParam {
+                            type_: term.param1,
+                            value: term.param2,
+                        },
+                    );
+                    counter += 1;
+                }
+                _ => {}
+            }
+        }
+    }
 }
 
 pub fn prql_derive(vm: &mut PRQLVirtualMachine) {
-    if (vm.__debug_level > 5) {
+    if vm.__debug_level > 5 {
         println!("CALLING derive");
     }
 }
 
 pub fn prql_from(vm: &mut PRQLVirtualMachine) {
-    if (vm.__debug_level > 5) {
+    if vm.__debug_level > 5 {
         println!("CALLING from");
     }
 }
 
 pub fn prql_import(vm: &mut PRQLVirtualMachine) {
-    if (vm.__debug_level > 5) {
+    if vm.__debug_level > 5 {
         println!("CALLING import");
     }
-    // vm.__current_table = CsvReader::from_path("path.csv").unwrap().finish().unwrap();
+
+    let mut position_params: Vec<FunctionParam> = Vec::new();
+    let mut named_params: HashMap<String, FunctionParam> = HashMap::new();
+
+    vm.__read_params(&mut position_params, &mut named_params);
+
+    let path = vm.__symbol_table[u64::from_be_bytes(position_params[0].value) as usize].as_str();
+    let input_file_type =
+        vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].as_str();
+
+    match input_file_type {
+        "csv" => {
+            vm.__current_table = CsvReader::from_path(path).unwrap().finish().unwrap();
+        }
+        "json" => {}
+        _ => {}
+    }
+
+    println!("{}", vm.__current_table);
 }
