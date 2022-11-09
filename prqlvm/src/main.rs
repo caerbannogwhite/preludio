@@ -3,6 +3,7 @@ use polars::export::num::ToPrimitive;
 use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
+use std::ptr::null;
 use std::str;
 
 mod prql_std;
@@ -109,12 +110,12 @@ pub struct PRQLVirtualMachine {
     __debug_level: u8,
     __counter: u64,
     __current_directory: String,
-    __current_table: DataFrame,
+    __current_table: LazyFrame,
     __symbol_table: Vec<String>,
     __stack: Vec<Operation>,
     __function_num_params: u64,
     __functions: HashMap<String, fn(&mut PRQLVirtualMachine)>,
-    __variables: HashMap<String, DataFrame>,
+    __variables: HashMap<String, LazyFrame>,
 
     input_file: String,
 }
@@ -127,7 +128,7 @@ impl PRQLVirtualMachine {
             __counter: 0,
             __current_directory: String::new(),
 
-            __current_table: DataFrame::empty(),
+            __current_table: LazyFrame::default(),
 
             __symbol_table: Vec::new(),
             __stack: Vec::new(),
@@ -387,18 +388,18 @@ impl PRQLVirtualMachine {
                             result.param2 = self.__insert_symbol(String::from(""));
                         }
                         TYPE_IDENT => {
-                            let tmp = self
-                                .__current_table
-                                .column(
-                                    self.__symbol_table
-                                        [(u64::from_be_bytes(term2.param2) as usize)]
-                                        .as_str(),
-                                )
-                                .unwrap();
+                            // let tmp = self
+                            //     .__current_table
+                            //     .column(
+                            //         self.__symbol_table
+                            //             [(u64::from_be_bytes(term2.param2) as usize)]
+                            //             .as_str(),
+                            //     )
+                            //     .unwrap();
 
-                            if tmp.is_logical() {
-                            } else if tmp.is_numeric_physical() {
-                            }
+                            // if tmp.is_logical() {
+                            // } else if tmp.is_numeric_physical() {
+                            // }
                             // self.__current_table.lazy().with_column(
                             //     col(self.__symbol_table[(term2.param2 as usize)])
                             //         // apply a custom closure Series => Result<Series>
@@ -649,22 +650,75 @@ pub fn prql_import(vm: &mut PRQLVirtualMachine) {
         println!("CALLING import");
     }
 
+    let help_message = "
+    import function
+    ===============
+
+    (path)    - the path of the input file
+    
+    enc       - [ Utf8 | LossyUtf8 ]
+
+    type      - [ csv | json ]
+                  ^^^
+    delimiter - \",\" the file delimiter
+                  ^
+    skip      - 0 number of rows to skip
+                ^  
+    ";
+
     let mut position_params: Vec<FunctionParam> = Vec::new();
     let mut named_params: HashMap<String, FunctionParam> = HashMap::new();
 
     vm.__read_params(&mut position_params, &mut named_params);
 
     let path = vm.__symbol_table[u64::from_be_bytes(position_params[0].value) as usize].as_str();
-    let input_file_type =
-        vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].as_str();
 
-    match input_file_type {
+    let mut input_file_type = String::from("csv");
+    if named_params.contains_key("type") {
+        input_file_type =
+            vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].clone();
+    }
+
+    let mut delimiter: u8 = ',' as u8;
+    if named_params.contains_key("delimiter") {
+        delimiter = vm.__symbol_table[u64::from_be_bytes(named_params["delimiter"].value) as usize]
+            .as_bytes()[0];
+    }
+
+    let mut enc_str = String::from("utf8");
+    if named_params.contains_key("enc") {
+        enc_str = vm.__symbol_table[u64::from_be_bytes(named_params["enc"].value) as usize]
+            .to_lowercase();
+    }
+
+    let mut skip_rows = 0;
+    if named_params.contains_key("skip") {
+        skip_rows = f64::from_ne_bytes(named_params["enc"].value) as usize
+    }
+
+    match input_file_type.as_str() {
         "csv" => {
-            vm.__current_table = CsvReader::from_path(path).unwrap().finish().unwrap();
+            let mut enc = CsvEncoding::Utf8;
+            match enc_str.as_str() {
+                "lossyutf8" => enc = CsvEncoding::LossyUtf8,
+                _ => {}
+            }
+
+            vm.__current_table = LazyCsvReader::new(path)
+                .with_delimiter(delimiter)
+                .with_encoding(enc)
+                .with_skip_rows(skip_rows)
+                .finish()
+                .unwrap();
         }
-        "json" => {}
+        "json" => {
+            // vm.__current_table = LazyJsonLineReader::new()
+        }
         _ => {}
     }
 
-    println!("{}", vm.__current_table);
+    let data = vm.__current_table.clone().collect().unwrap();
+    for col in data.get_columns().iter() {
+        println!("{}", col);
+    }
 }
