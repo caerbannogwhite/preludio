@@ -3,7 +3,7 @@ use polars::export::num::ToPrimitive;
 use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
-use std::ptr::null;
+use std::fs::File;
 use std::str;
 
 mod prql_std;
@@ -143,6 +143,8 @@ impl PRQLVirtualMachine {
         vm.__functions.insert(String::from("derive"), prql_derive);
         vm.__functions.insert(String::from("from"), prql_from);
         vm.__functions.insert(String::from("import"), prql_import);
+        vm.__functions.insert(String::from("output"), prql_output);
+        vm.__functions.insert(String::from("select"), prql_select);
 
         return vm;
     }
@@ -718,7 +720,68 @@ pub fn prql_import(vm: &mut PRQLVirtualMachine) {
     }
 
     let data = vm.__current_table.clone().collect().unwrap();
-    for col in data.get_columns().iter() {
+    for col in data.get_column_names() {
         println!("{}", col);
     }
+}
+
+pub fn prql_output(vm: &mut PRQLVirtualMachine) {
+    if vm.__debug_level > 5 {
+        println!("CALLING output");
+    }
+
+    let help_message = "
+    output function
+    ===============
+
+    (path)    - the path of the input file
+    
+    type      - [ csv | json ]
+                  ^^^
+    delimiter - \",\" the file delimiter
+                  ^
+    ";
+
+    let mut position_params: Vec<FunctionParam> = Vec::new();
+    let mut named_params: HashMap<String, FunctionParam> = HashMap::new();
+
+    vm.__read_params(&mut position_params, &mut named_params);
+
+    let path = vm.__symbol_table[u64::from_be_bytes(position_params[0].value) as usize].as_str();
+
+    let mut input_file_type = String::from("csv");
+    if named_params.contains_key("type") {
+        input_file_type =
+            vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].clone();
+    }
+
+    let mut delimiter: u8 = ',' as u8;
+    if named_params.contains_key("delimiter") {
+        delimiter = vm.__symbol_table[u64::from_be_bytes(named_params["delimiter"].value) as usize]
+            .as_bytes()[0];
+    }
+
+    let mut dataframe = vm.__current_table.clone().collect().unwrap().clone();
+
+    match input_file_type.as_str() {
+        "csv" => {
+            CsvWriter::new(File::create(path).unwrap())
+                .with_delimiter(delimiter)
+                .finish(&mut dataframe)
+                .unwrap();
+        }
+        "json" => {}
+        _ => {}
+    }
+}
+
+pub fn prql_select(vm: &mut PRQLVirtualMachine) {
+    if vm.__debug_level > 5 {
+        println!("CALLING select");
+    }
+
+    let help_message = "
+    select function
+    ===============
+    ";
 }
