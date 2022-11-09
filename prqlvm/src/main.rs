@@ -26,8 +26,8 @@ const TYPE_COLUMN_STRING: u16 = 23;
 const OP_BEGIN_PIPELINE: u16 = 0;
 const OP_END_PIPELINE: u16 = 1;
 const OP_ASSIGN_TABLE: u16 = 2;
-const OP_BEGIN_FUNC_CALL: u16 = 3;
-const OP_END_FUNC_CALL: u16 = 4;
+// const OP_BEGIN_FUNC_CALL: u16 = 3;
+const OP_MAKE_FUNC_CALL: u16 = 4;
 const OP_BEGIN_LIST: u16 = 5;
 const OP_END_LIST: u16 = 6;
 const OP_ADD_FUNC_PARAM: u16 = 7;
@@ -83,7 +83,7 @@ fn main() {
 
     if vm.__verbosity_level > 0 {
         println!("PRQL VM");
-        println!("-------");
+        println!("=======");
         println!("Debug level:     {}", vm.__debug_level);
         println!("Verbosity level: {}", vm.__verbosity_level);
         println!("Input file:      {}\n", vm.input_file);
@@ -107,6 +107,7 @@ pub struct PRQLVirtualMachine {
     __current_table: DataFrame,
     __symbol_table: Vec<String>,
     __stack: Vec<Operation>,
+    __function_num_params: u64,
     __functions: HashMap<String, fn(&mut PRQLVirtualMachine)>,
     __variables: HashMap<String, DataFrame>,
 
@@ -125,6 +126,7 @@ impl PRQLVirtualMachine {
 
             __symbol_table: Vec::new(),
             __stack: Vec::new(),
+            __function_num_params: 0,
             __functions: HashMap::new(),
             __variables: HashMap::new(),
 
@@ -177,7 +179,7 @@ impl PRQLVirtualMachine {
 
         if self.__debug_level > 5 {
             println!("BYTECODE");
-            println!("--------");
+            println!("========");
             println!(
                 "BYTE MARK:       0x{:x} 0x{:x} 0x{:x} 0x{:x}",
                 bytes[0], bytes[1], bytes[2], bytes[3]
@@ -185,14 +187,14 @@ impl PRQLVirtualMachine {
             println!("STRING SYMBOL NUM: {}\n", table_length);
 
             println!("STRING SYMBOLS");
-            println!("--------------");
+            println!("==============");
             for symb in self.__symbol_table.iter() {
                 println!("{}", symb)
             }
             println!();
 
             println!("OPERATIONS");
-            println!("----------");
+            println!("==========");
         }
 
         /////////////////////////////////////////////////////////////
@@ -237,19 +239,24 @@ impl PRQLVirtualMachine {
 
             OP_ASSIGN_TABLE => {}
 
-            OP_BEGIN_FUNC_CALL => {
-                let function_name = &self.__symbol_table[(param1 as usize)];
+            // OP_BEGIN_FUNC_CALL => {
+            //     if self.__debug_level > 10 {
+            //         println!("{:<25} | {:<20} | {:<20}", "OP_BEGIN_FUNC_CALL", "", "");
+            //     }
+            // }
+            OP_MAKE_FUNC_CALL => {
+                let function_name = &self.__symbol_table[(u64::from_be_bytes(param2) as usize)];
                 if self.__debug_level > 10 {
                     println!(
                         "{:<25} | {:<20} | {:<20}",
-                        "OP_BEGIN_FUNC_CALL", function_name, ""
+                        "OP_MAKE_FUNC_CALL", "", function_name
                     );
                 }
-            }
 
-            OP_END_FUNC_CALL => {
-                if self.__debug_level > 10 {
-                    println!("{:<25} | {:<20} | {:<20}", "OP_END_FUNC_CALL", "", "");
+                if self.__functions.contains_key(function_name) {
+                    self.__functions[function_name](self);
+                } else {
+                    println!("[😞] Error - Function {} not found.", function_name);
                 }
             }
 
@@ -261,11 +268,37 @@ impl PRQLVirtualMachine {
 
             OP_PUSH_NAMED_PARAM => {
                 if self.__debug_level > 10 {
-                    println!("{:<25} | {:<20} | {:<20}", "OP_PUSH_NAMED_PARAM", "", "");
+                    let param_name =
+                        self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
+                    println!(
+                        "{:<25} | {:<20} | {:<20}",
+                        "OP_PUSH_NAMED_PARAM", "", param_name
+                    );
                 }
+
+                self.__stack.push(Operation {
+                    opcode: OP_PUSH_NAMED_PARAM,
+                    param1: 0,
+                    param2: param2,
+                });
             }
 
-            OP_PUSH_ASSIGN_IDENT => {}
+            OP_PUSH_ASSIGN_IDENT => {
+                if self.__debug_level > 10 {
+                    let param_name =
+                        self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
+                    println!(
+                        "{:<25} | {:<20} | {:<20}",
+                        "OP_PUSH_ASSIGN_IDENT", "", param_name
+                    );
+                }
+
+                self.__stack.push(Operation {
+                    opcode: OP_PUSH_ASSIGN_IDENT,
+                    param1: 0,
+                    param2: param2,
+                });
+            }
 
             OP_PUSH_TERM => {
                 if self.__debug_level > 10 {
@@ -317,6 +350,7 @@ impl PRQLVirtualMachine {
                 if self.__debug_level > 10 {
                     println!("{:<25} | {:<20} | {:<20}", "OP_END_FUNC_CALL_PARAM", "", "");
                 }
+                self.__function_num_params += 1;
             }
 
             OP_GOTO => {}
@@ -343,8 +377,7 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
-                            result.param2 =
-                                u64::to_be_bytes(self.__insert_symbol(String::from("")));
+                            result.param2 = self.__insert_symbol(String::from(""));
                         }
                         TYPE_IDENT => {
                             let tmp = self
@@ -391,8 +424,7 @@ impl PRQLVirtualMachine {
                             if term1.param2[7] == 1 {
                                 result.param2 = term2.param2;
                             } else {
-                                result.param2 =
-                                    u64::to_be_bytes(self.__insert_symbol(String::from("")));
+                                result.param2 = self.__insert_symbol(String::from(""));
                             }
                         }
                         TYPE_IDENT => {}
@@ -419,14 +451,9 @@ impl PRQLVirtualMachine {
                         }
                         TYPE_STRING => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = u64::to_be_bytes(
-                                self.__insert_symbol(
-                                    self.__symbol_table
-                                        [(u64::from_be_bytes(term2.param2) as usize)]
-                                        .repeat(
-                                            f64::from_le_bytes(term1.param2).to_usize().unwrap(),
-                                        ),
-                                ),
+                            result.param2 = self.__insert_symbol(
+                                self.__symbol_table[(u64::from_be_bytes(term2.param2) as usize)]
+                                    .repeat(f64::from_le_bytes(term1.param2).to_usize().unwrap()),
                             );
                         }
                         TYPE_IDENT => {}
@@ -435,27 +462,21 @@ impl PRQLVirtualMachine {
                     TYPE_STRING => match term2.param1 {
                         TYPE_NULL => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = u64::to_be_bytes(self.__insert_symbol(String::from("")))
+                            result.param2 = self.__insert_symbol(String::from(""));
                         }
                         TYPE_BOOL => {
                             result.param1 = TYPE_STRING;
                             if term2.param2[7] == 1 {
                                 result.param2 = term1.param2;
                             } else {
-                                result.param2 =
-                                    u64::to_be_bytes(self.__insert_symbol(String::from("")));
+                                result.param2 = self.__insert_symbol(String::from(""));
                             }
                         }
                         TYPE_NUMERIC => {
                             result.param1 = TYPE_STRING;
-                            result.param2 = u64::to_be_bytes(
-                                self.__insert_symbol(
-                                    self.__symbol_table
-                                        [(u64::from_be_bytes(term1.param2) as usize)]
-                                        .repeat(
-                                            f64::from_le_bytes(term2.param2).to_usize().unwrap(),
-                                        ),
-                                ),
+                            result.param2 = self.__insert_symbol(
+                                self.__symbol_table[(u64::from_be_bytes(term1.param2) as usize)]
+                                    .repeat(f64::from_le_bytes(term2.param2).to_usize().unwrap()),
                             );
                         }
                         TYPE_STRING => {}
@@ -486,13 +507,67 @@ impl PRQLVirtualMachine {
 
             /////////////////////////////////////////////////////////
             ////                ADDITION
-            OP_BINARY_PLUS => {}
+            OP_BINARY_PLUS => {
+                let term2 = self.__stack.pop().unwrap();
+                let term1 = self.__stack.pop().unwrap();
+
+                let mut result = Operation {
+                    opcode: OP_PUSH_TERM,
+                    param1: 0,
+                    param2: [0, 0, 0, 0, 0, 0, 0, 0],
+                };
+
+                match term1.param1 {
+                    TYPE_NULL => match term2.param1 {
+                        TYPE_NULL => result.param1 = TYPE_NULL,
+                        TYPE_BOOL => {
+                            result.param1 = TYPE_BOOL;
+                            result.param2 = term2.param2;
+                        }
+                        TYPE_NUMERIC => {
+                            result.param1 = TYPE_NUMERIC;
+                            result.param2 = term2.param2;
+                        }
+                        TYPE_STRING => {
+                            result.param1 = TYPE_STRING;
+                            result.param2 = term2.param2;
+                        }
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_BOOL => {}
+                    TYPE_NUMERIC => {}
+                    TYPE_STRING => match term2.param1 {
+                        TYPE_NULL => {
+                            result.param1 = TYPE_STRING;
+                            result.param2 = term1.param2;
+                        }
+                        TYPE_BOOL => {}
+                        TYPE_NUMERIC => {}
+                        TYPE_STRING => {
+                            result.param1 = TYPE_STRING;
+                            result.param2 = self.__insert_symbol(
+                                self.__symbol_table[(u64::from_be_bytes(term1.param2) as usize)]
+                                    .clone()
+                                    + &self.__symbol_table
+                                        [(u64::from_be_bytes(term2.param2) as usize)],
+                            );
+                        }
+                        TYPE_IDENT => {}
+                        _ => {}
+                    },
+                    TYPE_IDENT => {}
+                    _ => {}
+                }
+
+                self.__stack.push(result);
+            }
 
             /////////////////////////////////////////////////////////
             ////                SUBTRACTION
             OP_BINARY_MINUS => {}
 
-            _ => println!("Unknown op code: {}", opcode),
+            _ => println!("[💣] Byte-Code Error - Unknown op code: {}", opcode),
         }
     }
 
@@ -506,22 +581,35 @@ impl PRQLVirtualMachine {
         f64::from_bits(u64::from_be_bytes(bytes))
     }
 
-    fn __insert_symbol(&mut self, symb: String) -> u64 {
+    fn __insert_symbol(&mut self, symb: String) -> [u8; 8] {
         let res = self.__symbol_table.iter().position(|r| r == &symb);
         if res.is_some() {
-            return res.unwrap().to_u64().unwrap();
+            return u64::to_be_bytes(res.unwrap().to_u64().unwrap());
         }
 
         let l = self.__symbol_table.len();
         self.__symbol_table.push(symb);
-        return l.to_u64().unwrap();
+        return u64::to_be_bytes(l.to_u64().unwrap());
+    }
+
+    fn __read_params(&mut self) {}
+}
+
+pub fn prql_derive(vm: &mut PRQLVirtualMachine) {
+    if (vm.__debug_level > 5) {
+        println!("CALLING derive");
     }
 }
 
-pub fn prql_derive(vm: &mut PRQLVirtualMachine) {}
-
-pub fn prql_from(vm: &mut PRQLVirtualMachine) {}
+pub fn prql_from(vm: &mut PRQLVirtualMachine) {
+    if (vm.__debug_level > 5) {
+        println!("CALLING from");
+    }
+}
 
 pub fn prql_import(vm: &mut PRQLVirtualMachine) {
-    vm.__current_table = CsvReader::from_path("path.csv").unwrap().finish().unwrap();
+    if (vm.__debug_level > 5) {
+        println!("CALLING import");
+    }
+    // vm.__current_table = CsvReader::from_path("path.csv").unwrap().finish().unwrap();
 }
