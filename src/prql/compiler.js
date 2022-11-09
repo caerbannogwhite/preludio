@@ -5,7 +5,6 @@ import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
 import {
   OP_ASSIGN_TABLE,
-  OP_BEGIN_FUNC_CALL,
   OP_BEGIN_LIST,
   OP_BEGIN_PIPELINE,
   OP_BINARY_DIV,
@@ -19,10 +18,10 @@ import {
   OP_BINARY_MUL,
   OP_BINARY_NE,
   OP_BINARY_PLUS,
-  OP_END_FUNC_CALL,
   OP_END_FUNC_CALL_PARAM,
   OP_END_LIST,
   OP_END_PIPELINE,
+  OP_MAKE_FUNC_CALL,
   OP_PUSH_ASSIGN_IDENT,
   OP_PUSH_NAMED_PARAM,
   OP_PUSH_TERM,
@@ -278,21 +277,15 @@ export default class PrqlCompiler extends prqlListener {
 
   // Enter a parse tree produced by prqlParser#funcCall.
   enterFuncCall(ctx) {
-    const funcName = ctx.IDENT().symbol.text;
     if (this.__debug_level > 10) {
+      const funcName = ctx.IDENT().symbol.text;
       console.log(
         this.__indent_symbol.repeat(this.__rec_depth__) +
           `-> FuncCall: ${funcName}`
       );
     }
 
-    let pos = this.__symbol_table_str.indexOf(funcName);
-    if (pos === -1) {
-      pos = this.__symbol_table_str.length;
-      this.__symbol_table_str.push(funcName);
-    }
-
-    this.__instructions.push(OP_BEGIN_FUNC_CALL, pos, 0);
+    // this.__instructions.push(OP_BEGIN_FUNC_CALL, 0, 0);
 
     this.__rec_depth__++;
   }
@@ -308,7 +301,13 @@ export default class PrqlCompiler extends prqlListener {
       );
     }
 
-    this.__instructions.push(OP_END_FUNC_CALL, 0, 0);
+    let pos = this.__symbol_table_str.indexOf(funcName);
+    if (pos === -1) {
+      pos = this.__symbol_table_str.length;
+      this.__symbol_table_str.push(funcName);
+    }
+
+    this.__instructions.push(OP_MAKE_FUNC_CALL, 0, pos);
   }
 
   // Enter a parse tree produced by prqlParser#funcCallParam.
