@@ -1,9 +1,21 @@
 
-table a = (import "C:\\Users\\massi" + "\\Downloads\\Cars.csv" type:"csv" header:true)
+let a = (
+  import "C:\\Users\\massi" + "\\Downloads\\Cars.csv" type:"csv" delimiter:";" header:true
+  derive v = Cylinders * 2
+  select [Cylinders, v]
+  output "C:\\Users\\massi\\Downloads\\Cars_out.csv" type:"csv" delimiter:"\t"
+  )
+
+let b = (new col1 = [1, 2, 3, 4] col2 = ["A", "B", "C", "D"])
+
+let s = "hello"
+
+
 
 from a
-derive d = 7*true + ((null+3) - hp * (disp / 2-false)) + 1
-select [cyl, hp]
+derive d = 7*true + ((null+3) - Cylinders * (Weight / 2-false)) + 1
+select [Cylinders, Weight]
+output "C:\\Users\\massi\\Downloads\\Cars_out.csv" type:"csv" delimiter:"\t"
 
 
 from a

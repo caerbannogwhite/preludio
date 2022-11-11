@@ -8,7 +8,7 @@ grammar prql;
 
 FUNC: 'func';
 PRQL: 'prql';
-TABLE: 'table';
+LET: 'let';
 ARROW: '->';
 ASSIGN: '=';
 
@@ -75,10 +75,10 @@ COMMENT: '#' ~('\r' | '\n')* NEWLINE;
 
 nl: NEWLINE | COMMENT;
 
-query:
-	nl* queryDef? nl* ((funcDef | table | pipeline) nl*)* EOF;
+program:
+	nl* programIntro? nl* ((funcDef | stmt | pipeline) nl*)* EOF;
 
-queryDef: PRQL namedArg* nl;
+programIntro: PRQL namedArg* nl;
 
 funcDef: FUNC funcDefName funcDefParams ARROW expr;
 
@@ -88,7 +88,8 @@ funcDefParam: (namedArg | IDENT) typeDef?;
 typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
-table: TABLE IDENT ASSIGN nestedPipeline;
+stmt: assignStmt;
+assignStmt: LET IDENT ASSIGN expr;
 
 pipe: nl | BAR;
 pipeline: exprCall (pipe exprCall)*;
@@ -105,7 +106,6 @@ identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
 // For sorting
 signedIdent: (PLUS | MINUS) IDENT;
-keyword: PRQL | TABLE | FUNC;
 
 // A central issue around the terms vs expr is that we want to be able to parse: [foo bar + 1, 2]
 // as: - foo bar + 1 - foo bar - foo - bar - + - 1 - 2 So this requires two non-silent rules: - A

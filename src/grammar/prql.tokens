@@ -1,6 +1,6 @@
 FUNC=1
 PRQL=2
-TABLE=3
+LET=3
 ARROW=4
 ASSIGN=5
 PLUS=6
@@ -47,7 +47,7 @@ INTERVAL_KIND=46
 STRING=47
 'func'=1
 'prql'=2
-'table'=3
+'let'=3
 '->'=4
 '='=5
 '+'=6

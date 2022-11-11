@@ -23,114 +23,114 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0003\u0007\u0007\u0007p\n\u0007\f\u0007\u000e\u0007s\u000b\u0007\u0003",
     "\b\u0003\b\u0005\bw\n\b\u0003\b\u0005\bz\n\b\u0003\t\u0003\t\u0003\t",
     "\u0003\t\u0007\t\u0080\n\t\f\t\u000e\t\u0083\u000b\t\u0003\t\u0003\t",
-    "\u0003\n\u0003\n\u0005\n\u0089\n\n\u0003\u000b\u0003\u000b\u0003\u000b",
-    "\u0003\u000b\u0003\u000b\u0003\f\u0003\f\u0005\f\u0092\n\f\u0003\r\u0003",
-    "\r\u0003\r\u0003\r\u0007\r\u0098\n\r\f\r\u000e\r\u009b\u000b\r\u0003",
-    "\u000e\u0003\u000e\u0007\u000e\u009f\n\u000e\f\u000e\u000e\u000e\u00a2",
-    "\u000b\u000e\u0003\u000e\u0003\u000e\u0003\u000f\u0003\u000f\u0003\u000f",
-    "\u0003\u0010\u0003\u0010\u0003\u0011\u0003\u0011\u0006\u0011\u00ad\n",
-    "\u0011\r\u0011\u000e\u0011\u00ae\u0003\u0012\u0003\u0012\u0003\u0012",
-    "\u0005\u0012\u00b4\n\u0012\u0003\u0013\u0003\u0013\u0003\u0013\u0003",
-    "\u0013\u0005\u0013\u00ba\n\u0013\u0003\u0014\u0003\u0014\u0003\u0014",
-    "\u0003\u0014\u0003\u0015\u0003\u0015\u0003\u0015\u0003\u0015\u0003\u0016",
-    "\u0003\u0016\u0005\u0016\u00c6\n\u0016\u0003\u0017\u0003\u0017\u0003",
-    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0005\u0017\u00ce\n\u0017",
-    "\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017",
-    "\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017",
-    "\u0003\u0017\u0003\u0017\u0003\u0017\u0007\u0017\u00df\n\u0017\f\u0017",
-    "\u000e\u0017\u00e2\u000b\u0017\u0003\u0018\u0003\u0018\u0003\u0018\u0003",
-    "\u0018\u0003\u0018\u0005\u0018\u00e9\n\u0018\u0003\u0019\u0003\u0019",
-    "\u0003\u0019\u0003\u0019\u0005\u0019\u00ef\n\u0019\u0003\u001a\u0003",
+    "\u0003\n\u0003\n\u0005\n\u0089\n\n\u0003\u000b\u0003\u000b\u0003\f\u0003",
+    "\f\u0003\f\u0003\f\u0003\f\u0003\r\u0003\r\u0005\r\u0094\n\r\u0003\u000e",
+    "\u0003\u000e\u0003\u000e\u0003\u000e\u0007\u000e\u009a\n\u000e\f\u000e",
+    "\u000e\u000e\u009d\u000b\u000e\u0003\u000f\u0003\u000f\u0007\u000f\u00a1",
+    "\n\u000f\f\u000f\u000e\u000f\u00a4\u000b\u000f\u0003\u000f\u0003\u000f",
+    "\u0003\u0010\u0003\u0010\u0003\u0010\u0003\u0011\u0003\u0011\u0006\u0011",
+    "\u00ad\n\u0011\r\u0011\u000e\u0011\u00ae\u0003\u0012\u0003\u0012\u0003",
+    "\u0012\u0005\u0012\u00b4\n\u0012\u0003\u0013\u0003\u0013\u0003\u0013",
+    "\u0003\u0013\u0005\u0013\u00ba\n\u0013\u0003\u0014\u0003\u0014\u0003",
+    "\u0014\u0003\u0014\u0003\u0015\u0003\u0015\u0003\u0015\u0003\u0015\u0003",
+    "\u0016\u0003\u0016\u0005\u0016\u00c6\n\u0016\u0003\u0017\u0003\u0017",
+    "\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0005\u0017\u00ce\n",
+    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003",
+    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003",
+    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0007\u0017\u00df\n\u0017",
+    "\f\u0017\u000e\u0017\u00e2\u000b\u0017\u0003\u0018\u0003\u0018\u0003",
+    "\u0018\u0003\u0018\u0003\u0018\u0005\u0018\u00e9\n\u0018\u0003\u0019",
+    "\u0003\u0019\u0003\u0019\u0003\u0019\u0005\u0019\u00ef\n\u0019\u0003",
     "\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003",
-    "\u001a\u0003\u001a\u0003\u001a\u0005\u001a\u00fb\n\u001a\u0003\u001b",
-    "\u0003\u001b\u0007\u001b\u00ff\n\u001b\f\u001b\u000e\u001b\u0102\u000b",
-    "\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0106\n\u001b\u0003\u001b",
-    "\u0003\u001b\u0007\u001b\u010a\n\u001b\f\u001b\u000e\u001b\u010d\u000b",
-    "\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0111\n\u001b\u0007\u001b",
-    "\u0113\n\u001b\f\u001b\u000e\u001b\u0116\u000b\u001b\u0003\u001b\u0005",
-    "\u001b\u0119\n\u001b\u0003\u001b\u0005\u001b\u011c\n\u001b\u0005\u001b",
-    "\u011e\n\u001b\u0003\u001b\u0003\u001b\u0003\u001c\u0003\u001c\u0007",
-    "\u001c\u0124\n\u001c\f\u001c\u000e\u001c\u0127\u000b\u001c\u0003\u001c",
-    "\u0003\u001c\u0007\u001c\u012b\n\u001c\f\u001c\u000e\u001c\u012e\u000b",
-    "\u001c\u0003\u001c\u0003\u001c\u0003\u001c\u0002\u0003,\u001d\u0002",
-    "\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c\u001e",
-    " \"$&(*,.0246\u0002\u000b\u0003\u0002./\u0004\u0002\u001e\u001e..\u0003",
-    "\u0002\b\t\u0003\u0002\u0003\u0005\u0003\u0002\n\f\u0004\u0002\r\u0010",
-    "\u0017\u0018\u0003\u0002#$\u0004\u0002\b\t%%\u0003\u0002)*\u0002\u0148",
-    "\u00028\u0003\u0002\u0002\u0002\u0004=\u0003\u0002\u0002\u0002\u0006",
-    "[\u0003\u0002\u0002\u0002\bd\u0003\u0002\u0002\u0002\nj\u0003\u0002",
-    "\u0002\u0002\fq\u0003\u0002\u0002\u0002\u000ev\u0003\u0002\u0002\u0002",
-    "\u0010{\u0003\u0002\u0002\u0002\u0012\u0086\u0003\u0002\u0002\u0002",
-    "\u0014\u008a\u0003\u0002\u0002\u0002\u0016\u0091\u0003\u0002\u0002\u0002",
-    "\u0018\u0093\u0003\u0002\u0002\u0002\u001a\u009c\u0003\u0002\u0002\u0002",
-    "\u001c\u00a5\u0003\u0002\u0002\u0002\u001e\u00a8\u0003\u0002\u0002\u0002",
-    " \u00aa\u0003\u0002\u0002\u0002\"\u00b3\u0003\u0002\u0002\u0002$\u00b5",
-    "\u0003\u0002\u0002\u0002&\u00bb\u0003\u0002\u0002\u0002(\u00bf\u0003",
-    "\u0002\u0002\u0002*\u00c5\u0003\u0002\u0002\u0002,\u00cd\u0003\u0002",
-    "\u0002\u0002.\u00e8\u0003\u0002\u0002\u00020\u00ea\u0003\u0002\u0002",
-    "\u00022\u00fa\u0003\u0002\u0002\u00024\u00fc\u0003\u0002\u0002\u0002",
-    "6\u0121\u0003\u0002\u0002\u000289\t\u0002\u0002\u00029\u0003\u0003\u0002",
-    "\u0002\u0002:<\u0005\u0002\u0002\u0002;:\u0003\u0002\u0002\u0002<?\u0003",
-    "\u0002\u0002\u0002=;\u0003\u0002\u0002\u0002=>\u0003\u0002\u0002\u0002",
-    ">A\u0003\u0002\u0002\u0002?=\u0003\u0002\u0002\u0002@B\u0005\u0006\u0004",
-    "\u0002A@\u0003\u0002\u0002\u0002AB\u0003\u0002\u0002\u0002BF\u0003\u0002",
-    "\u0002\u0002CE\u0005\u0002\u0002\u0002DC\u0003\u0002\u0002\u0002EH\u0003",
-    "\u0002\u0002\u0002FD\u0003\u0002\u0002\u0002FG\u0003\u0002\u0002\u0002",
-    "GV\u0003\u0002\u0002\u0002HF\u0003\u0002\u0002\u0002IM\u0005\b\u0005",
-    "\u0002JM\u0005\u0014\u000b\u0002KM\u0005\u0018\r\u0002LI\u0003\u0002",
-    "\u0002\u0002LJ\u0003\u0002\u0002\u0002LK\u0003\u0002\u0002\u0002MQ\u0003",
-    "\u0002\u0002\u0002NP\u0005\u0002\u0002\u0002ON\u0003\u0002\u0002\u0002",
-    "PS\u0003\u0002\u0002\u0002QO\u0003\u0002\u0002\u0002QR\u0003\u0002\u0002",
-    "\u0002RU\u0003\u0002\u0002\u0002SQ\u0003\u0002\u0002\u0002TL\u0003\u0002",
-    "\u0002\u0002UX\u0003\u0002\u0002\u0002VT\u0003\u0002\u0002\u0002VW\u0003",
-    "\u0002\u0002\u0002WY\u0003\u0002\u0002\u0002XV\u0003\u0002\u0002\u0002",
-    "YZ\u0007\u0002\u0002\u0003Z\u0005\u0003\u0002\u0002\u0002[_\u0007\u0004",
-    "\u0002\u0002\\^\u0005$\u0013\u0002]\\\u0003\u0002\u0002\u0002^a\u0003",
-    "\u0002\u0002\u0002_]\u0003\u0002\u0002\u0002_`\u0003\u0002\u0002\u0002",
-    "`b\u0003\u0002\u0002\u0002a_\u0003\u0002\u0002\u0002bc\u0005\u0002\u0002",
-    "\u0002c\u0007\u0003\u0002\u0002\u0002de\u0007\u0003\u0002\u0002ef\u0005",
-    "\n\u0006\u0002fg\u0005\f\u0007\u0002gh\u0007\u0006\u0002\u0002hi\u0005",
-    ",\u0017\u0002i\t\u0003\u0002\u0002\u0002jl\u0007*\u0002\u0002km\u0005",
-    "\u0010\t\u0002lk\u0003\u0002\u0002\u0002lm\u0003\u0002\u0002\u0002m",
-    "\u000b\u0003\u0002\u0002\u0002np\u0005\u000e\b\u0002on\u0003\u0002\u0002",
-    "\u0002ps\u0003\u0002\u0002\u0002qo\u0003\u0002\u0002\u0002qr\u0003\u0002",
-    "\u0002\u0002r\r\u0003\u0002\u0002\u0002sq\u0003\u0002\u0002\u0002tw",
-    "\u0005$\u0013\u0002uw\u0007*\u0002\u0002vt\u0003\u0002\u0002\u0002v",
-    "u\u0003\u0002\u0002\u0002wy\u0003\u0002\u0002\u0002xz\u0005\u0010\t",
-    "\u0002yx\u0003\u0002\u0002\u0002yz\u0003\u0002\u0002\u0002z\u000f\u0003",
-    "\u0002\u0002\u0002{|\u0007\u0017\u0002\u0002|}\u0005\u0012\n\u0002}",
-    "\u0081\u0007\u0011\u0002\u0002~\u0080\u0005\u0012\n\u0002\u007f~\u0003",
-    "\u0002\u0002\u0002\u0080\u0083\u0003\u0002\u0002\u0002\u0081\u007f\u0003",
-    "\u0002\u0002\u0002\u0081\u0082\u0003\u0002\u0002\u0002\u0082\u0084\u0003",
-    "\u0002\u0002\u0002\u0083\u0081\u0003\u0002\u0002\u0002\u0084\u0085\u0007",
-    "\u0018\u0002\u0002\u0085\u0011\u0003\u0002\u0002\u0002\u0086\u0088\u0007",
-    "*\u0002\u0002\u0087\u0089\u0005\u0010\t\u0002\u0088\u0087\u0003\u0002",
-    "\u0002\u0002\u0088\u0089\u0003\u0002\u0002\u0002\u0089\u0013\u0003\u0002",
-    "\u0002\u0002\u008a\u008b\u0007\u0005\u0002\u0002\u008b\u008c\u0007*",
-    "\u0002\u0002\u008c\u008d\u0007\u0007\u0002\u0002\u008d\u008e\u00056",
-    "\u001c\u0002\u008e\u0015\u0003\u0002\u0002\u0002\u008f\u0092\u0005\u0002",
-    "\u0002\u0002\u0090\u0092\u0007\u0011\u0002\u0002\u0091\u008f\u0003\u0002",
-    "\u0002\u0002\u0091\u0090\u0003\u0002\u0002\u0002\u0092\u0017\u0003\u0002",
-    "\u0002\u0002\u0093\u0099\u0005*\u0016\u0002\u0094\u0095\u0005\u0016",
-    "\f\u0002\u0095\u0096\u0005*\u0016\u0002\u0096\u0098\u0003\u0002\u0002",
-    "\u0002\u0097\u0094\u0003\u0002\u0002\u0002\u0098\u009b\u0003\u0002\u0002",
-    "\u0002\u0099\u0097\u0003\u0002\u0002\u0002\u0099\u009a\u0003\u0002\u0002",
-    "\u0002\u009a\u0019\u0003\u0002\u0002\u0002\u009b\u0099\u0003\u0002\u0002",
-    "\u0002\u009c\u00a0\u0007\u001e\u0002\u0002\u009d\u009f\n\u0003\u0002",
-    "\u0002\u009e\u009d\u0003\u0002\u0002\u0002\u009f\u00a2\u0003\u0002\u0002",
-    "\u0002\u00a0\u009e\u0003\u0002\u0002\u0002\u00a0\u00a1\u0003\u0002\u0002",
-    "\u0002\u00a1\u00a3\u0003\u0002\u0002\u0002\u00a2\u00a0\u0003\u0002\u0002",
-    "\u0002\u00a3\u00a4\u0007\u001e\u0002\u0002\u00a4\u001b\u0003\u0002\u0002",
-    "\u0002\u00a5\u00a6\t\u0004\u0002\u0002\u00a6\u00a7\u0007*\u0002\u0002",
-    "\u00a7\u001d\u0003\u0002\u0002\u0002\u00a8\u00a9\t\u0005\u0002\u0002",
-    "\u00a9\u001f\u0003\u0002\u0002\u0002\u00aa\u00ac\u0007*\u0002\u0002",
-    "\u00ab\u00ad\u0005\"\u0012\u0002\u00ac\u00ab\u0003\u0002\u0002\u0002",
-    "\u00ad\u00ae\u0003\u0002\u0002\u0002\u00ae\u00ac\u0003\u0002\u0002\u0002",
-    "\u00ae\u00af\u0003\u0002\u0002\u0002\u00af!\u0003\u0002\u0002\u0002",
-    "\u00b0\u00b4\u0005$\u0013\u0002\u00b1\u00b4\u0005&\u0014\u0002\u00b2",
-    "\u00b4\u0005,\u0017\u0002\u00b3\u00b0\u0003\u0002\u0002\u0002\u00b3",
-    "\u00b1\u0003\u0002\u0002\u0002\u00b3\u00b2\u0003\u0002\u0002\u0002\u00b4",
-    "#\u0003\u0002\u0002\u0002\u00b5\u00b6\u0007*\u0002\u0002\u00b6\u00b9",
+    "\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0005\u001a\u00fb\n\u001a",
+    "\u0003\u001b\u0003\u001b\u0007\u001b\u00ff\n\u001b\f\u001b\u000e\u001b",
+    "\u0102\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0106\n\u001b",
+    "\u0003\u001b\u0003\u001b\u0007\u001b\u010a\n\u001b\f\u001b\u000e\u001b",
+    "\u010d\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0111\n\u001b",
+    "\u0007\u001b\u0113\n\u001b\f\u001b\u000e\u001b\u0116\u000b\u001b\u0003",
+    "\u001b\u0005\u001b\u0119\n\u001b\u0003\u001b\u0005\u001b\u011c\n\u001b",
+    "\u0005\u001b\u011e\n\u001b\u0003\u001b\u0003\u001b\u0003\u001c\u0003",
+    "\u001c\u0007\u001c\u0124\n\u001c\f\u001c\u000e\u001c\u0127\u000b\u001c",
+    "\u0003\u001c\u0003\u001c\u0007\u001c\u012b\n\u001c\f\u001c\u000e\u001c",
+    "\u012e\u000b\u001c\u0003\u001c\u0003\u001c\u0003\u001c\u0002\u0003,",
+    "\u001d\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a",
+    "\u001c\u001e \"$&(*,.0246\u0002\n\u0003\u0002./\u0004\u0002\u001e\u001e",
+    "..\u0003\u0002\b\t\u0003\u0002\n\f\u0004\u0002\r\u0010\u0017\u0018\u0003",
+    "\u0002#$\u0004\u0002\b\t%%\u0003\u0002)*\u0002\u0148\u00028\u0003\u0002",
+    "\u0002\u0002\u0004=\u0003\u0002\u0002\u0002\u0006[\u0003\u0002\u0002",
+    "\u0002\bd\u0003\u0002\u0002\u0002\nj\u0003\u0002\u0002\u0002\fq\u0003",
+    "\u0002\u0002\u0002\u000ev\u0003\u0002\u0002\u0002\u0010{\u0003\u0002",
+    "\u0002\u0002\u0012\u0086\u0003\u0002\u0002\u0002\u0014\u008a\u0003\u0002",
+    "\u0002\u0002\u0016\u008c\u0003\u0002\u0002\u0002\u0018\u0093\u0003\u0002",
+    "\u0002\u0002\u001a\u0095\u0003\u0002\u0002\u0002\u001c\u009e\u0003\u0002",
+    "\u0002\u0002\u001e\u00a7\u0003\u0002\u0002\u0002 \u00aa\u0003\u0002",
+    "\u0002\u0002\"\u00b3\u0003\u0002\u0002\u0002$\u00b5\u0003\u0002\u0002",
+    "\u0002&\u00bb\u0003\u0002\u0002\u0002(\u00bf\u0003\u0002\u0002\u0002",
+    "*\u00c5\u0003\u0002\u0002\u0002,\u00cd\u0003\u0002\u0002\u0002.\u00e8",
+    "\u0003\u0002\u0002\u00020\u00ea\u0003\u0002\u0002\u00022\u00fa\u0003",
+    "\u0002\u0002\u00024\u00fc\u0003\u0002\u0002\u00026\u0121\u0003\u0002",
+    "\u0002\u000289\t\u0002\u0002\u00029\u0003\u0003\u0002\u0002\u0002:<",
+    "\u0005\u0002\u0002\u0002;:\u0003\u0002\u0002\u0002<?\u0003\u0002\u0002",
+    "\u0002=;\u0003\u0002\u0002\u0002=>\u0003\u0002\u0002\u0002>A\u0003\u0002",
+    "\u0002\u0002?=\u0003\u0002\u0002\u0002@B\u0005\u0006\u0004\u0002A@\u0003",
+    "\u0002\u0002\u0002AB\u0003\u0002\u0002\u0002BF\u0003\u0002\u0002\u0002",
+    "CE\u0005\u0002\u0002\u0002DC\u0003\u0002\u0002\u0002EH\u0003\u0002\u0002",
+    "\u0002FD\u0003\u0002\u0002\u0002FG\u0003\u0002\u0002\u0002GV\u0003\u0002",
+    "\u0002\u0002HF\u0003\u0002\u0002\u0002IM\u0005\b\u0005\u0002JM\u0005",
+    "\u0014\u000b\u0002KM\u0005\u001a\u000e\u0002LI\u0003\u0002\u0002\u0002",
+    "LJ\u0003\u0002\u0002\u0002LK\u0003\u0002\u0002\u0002MQ\u0003\u0002\u0002",
+    "\u0002NP\u0005\u0002\u0002\u0002ON\u0003\u0002\u0002\u0002PS\u0003\u0002",
+    "\u0002\u0002QO\u0003\u0002\u0002\u0002QR\u0003\u0002\u0002\u0002RU\u0003",
+    "\u0002\u0002\u0002SQ\u0003\u0002\u0002\u0002TL\u0003\u0002\u0002\u0002",
+    "UX\u0003\u0002\u0002\u0002VT\u0003\u0002\u0002\u0002VW\u0003\u0002\u0002",
+    "\u0002WY\u0003\u0002\u0002\u0002XV\u0003\u0002\u0002\u0002YZ\u0007\u0002",
+    "\u0002\u0003Z\u0005\u0003\u0002\u0002\u0002[_\u0007\u0004\u0002\u0002",
+    "\\^\u0005$\u0013\u0002]\\\u0003\u0002\u0002\u0002^a\u0003\u0002\u0002",
+    "\u0002_]\u0003\u0002\u0002\u0002_`\u0003\u0002\u0002\u0002`b\u0003\u0002",
+    "\u0002\u0002a_\u0003\u0002\u0002\u0002bc\u0005\u0002\u0002\u0002c\u0007",
+    "\u0003\u0002\u0002\u0002de\u0007\u0003\u0002\u0002ef\u0005\n\u0006\u0002",
+    "fg\u0005\f\u0007\u0002gh\u0007\u0006\u0002\u0002hi\u0005,\u0017\u0002",
+    "i\t\u0003\u0002\u0002\u0002jl\u0007*\u0002\u0002km\u0005\u0010\t\u0002",
+    "lk\u0003\u0002\u0002\u0002lm\u0003\u0002\u0002\u0002m\u000b\u0003\u0002",
+    "\u0002\u0002np\u0005\u000e\b\u0002on\u0003\u0002\u0002\u0002ps\u0003",
+    "\u0002\u0002\u0002qo\u0003\u0002\u0002\u0002qr\u0003\u0002\u0002\u0002",
+    "r\r\u0003\u0002\u0002\u0002sq\u0003\u0002\u0002\u0002tw\u0005$\u0013",
+    "\u0002uw\u0007*\u0002\u0002vt\u0003\u0002\u0002\u0002vu\u0003\u0002",
+    "\u0002\u0002wy\u0003\u0002\u0002\u0002xz\u0005\u0010\t\u0002yx\u0003",
+    "\u0002\u0002\u0002yz\u0003\u0002\u0002\u0002z\u000f\u0003\u0002\u0002",
+    "\u0002{|\u0007\u0017\u0002\u0002|}\u0005\u0012\n\u0002}\u0081\u0007",
+    "\u0011\u0002\u0002~\u0080\u0005\u0012\n\u0002\u007f~\u0003\u0002\u0002",
+    "\u0002\u0080\u0083\u0003\u0002\u0002\u0002\u0081\u007f\u0003\u0002\u0002",
+    "\u0002\u0081\u0082\u0003\u0002\u0002\u0002\u0082\u0084\u0003\u0002\u0002",
+    "\u0002\u0083\u0081\u0003\u0002\u0002\u0002\u0084\u0085\u0007\u0018\u0002",
+    "\u0002\u0085\u0011\u0003\u0002\u0002\u0002\u0086\u0088\u0007*\u0002",
+    "\u0002\u0087\u0089\u0005\u0010\t\u0002\u0088\u0087\u0003\u0002\u0002",
+    "\u0002\u0088\u0089\u0003\u0002\u0002\u0002\u0089\u0013\u0003\u0002\u0002",
+    "\u0002\u008a\u008b\u0005\u0016\f\u0002\u008b\u0015\u0003\u0002\u0002",
+    "\u0002\u008c\u008d\u0007\u0005\u0002\u0002\u008d\u008e\u0007*\u0002",
+    "\u0002\u008e\u008f\u0007\u0007\u0002\u0002\u008f\u0090\u0005,\u0017",
+    "\u0002\u0090\u0017\u0003\u0002\u0002\u0002\u0091\u0094\u0005\u0002\u0002",
+    "\u0002\u0092\u0094\u0007\u0011\u0002\u0002\u0093\u0091\u0003\u0002\u0002",
+    "\u0002\u0093\u0092\u0003\u0002\u0002\u0002\u0094\u0019\u0003\u0002\u0002",
+    "\u0002\u0095\u009b\u0005*\u0016\u0002\u0096\u0097\u0005\u0018\r\u0002",
+    "\u0097\u0098\u0005*\u0016\u0002\u0098\u009a\u0003\u0002\u0002\u0002",
+    "\u0099\u0096\u0003\u0002\u0002\u0002\u009a\u009d\u0003\u0002\u0002\u0002",
+    "\u009b\u0099\u0003\u0002\u0002\u0002\u009b\u009c\u0003\u0002\u0002\u0002",
+    "\u009c\u001b\u0003\u0002\u0002\u0002\u009d\u009b\u0003\u0002\u0002\u0002",
+    "\u009e\u00a2\u0007\u001e\u0002\u0002\u009f\u00a1\n\u0003\u0002\u0002",
+    "\u00a0\u009f\u0003\u0002\u0002\u0002\u00a1\u00a4\u0003\u0002\u0002\u0002",
+    "\u00a2\u00a0\u0003\u0002\u0002\u0002\u00a2\u00a3\u0003\u0002\u0002\u0002",
+    "\u00a3\u00a5\u0003\u0002\u0002\u0002\u00a4\u00a2\u0003\u0002\u0002\u0002",
+    "\u00a5\u00a6\u0007\u001e\u0002\u0002\u00a6\u001d\u0003\u0002\u0002\u0002",
+    "\u00a7\u00a8\t\u0004\u0002\u0002\u00a8\u00a9\u0007*\u0002\u0002\u00a9",
+    "\u001f\u0003\u0002\u0002\u0002\u00aa\u00ac\u0007*\u0002\u0002\u00ab",
+    "\u00ad\u0005\"\u0012\u0002\u00ac\u00ab\u0003\u0002\u0002\u0002\u00ad",
+    "\u00ae\u0003\u0002\u0002\u0002\u00ae\u00ac\u0003\u0002\u0002\u0002\u00ae",
+    "\u00af\u0003\u0002\u0002\u0002\u00af!\u0003\u0002\u0002\u0002\u00b0",
+    "\u00b4\u0005$\u0013\u0002\u00b1\u00b4\u0005&\u0014\u0002\u00b2\u00b4",
+    "\u0005,\u0017\u0002\u00b3\u00b0\u0003\u0002\u0002\u0002\u00b3\u00b1",
+    "\u0003\u0002\u0002\u0002\u00b3\u00b2\u0003\u0002\u0002\u0002\u00b4#",
+    "\u0003\u0002\u0002\u0002\u00b5\u00b6\u0007*\u0002\u0002\u00b6\u00b9",
     "\u0007\u0012\u0002\u0002\u00b7\u00ba\u0005&\u0014\u0002\u00b8\u00ba",
     "\u0005,\u0017\u0002\u00b9\u00b7\u0003\u0002\u0002\u0002\u00b9\u00b8",
     "\u0003\u0002\u0002\u0002\u00ba%\u0003\u0002\u0002\u0002\u00bb\u00bc",
@@ -145,69 +145,69 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0002\u00cb\u00ce\u0003\u0002\u0002\u0002\u00cc\u00ce\u0005.\u0018",
     "\u0002\u00cd\u00c7\u0003\u0002\u0002\u0002\u00cd\u00cc\u0003\u0002\u0002",
     "\u0002\u00ce\u00e0\u0003\u0002\u0002\u0002\u00cf\u00d0\f\t\u0002\u0002",
-    "\u00d0\u00d1\t\u0006\u0002\u0002\u00d1\u00df\u0005,\u0017\n\u00d2\u00d3",
+    "\u00d0\u00d1\t\u0005\u0002\u0002\u00d1\u00df\u0005,\u0017\n\u00d2\u00d3",
     "\f\b\u0002\u0002\u00d3\u00d4\t\u0004\u0002\u0002\u00d4\u00df\u0005,",
-    "\u0017\t\u00d5\u00d6\f\u0007\u0002\u0002\u00d6\u00d7\t\u0007\u0002\u0002",
+    "\u0017\t\u00d5\u00d6\f\u0007\u0002\u0002\u00d6\u00d7\t\u0006\u0002\u0002",
     "\u00d7\u00df\u0005,\u0017\b\u00d8\u00d9\f\u0006\u0002\u0002\u00d9\u00da",
     "\u0007&\u0002\u0002\u00da\u00df\u0005,\u0017\u0007\u00db\u00dc\f\u0005",
-    "\u0002\u0002\u00dc\u00dd\t\b\u0002\u0002\u00dd\u00df\u0005,\u0017\u0006",
-    "\u00de\u00cf\u0003\u0002\u0002\u0002\u00de\u00d2\u0003\u0002\u0002\u0002",
-    "\u00de\u00d5\u0003\u0002\u0002\u0002\u00de\u00d8\u0003\u0002\u0002\u0002",
-    "\u00de\u00db\u0003\u0002\u0002\u0002\u00df\u00e2\u0003\u0002\u0002\u0002",
-    "\u00e0\u00de\u0003\u0002\u0002\u0002\u00e0\u00e1\u0003\u0002\u0002\u0002",
-    "\u00e1-\u0003\u0002\u0002\u0002\u00e2\u00e0\u0003\u0002\u0002\u0002",
-    "\u00e3\u00e9\u00052\u001a\u0002\u00e4\u00e9\u0005\u001a\u000e\u0002",
-    "\u00e5\u00e9\u00050\u0019\u0002\u00e6\u00e9\u00054\u001b\u0002\u00e7",
-    "\u00e9\u00056\u001c\u0002\u00e8\u00e3\u0003\u0002\u0002\u0002\u00e8",
-    "\u00e4\u0003\u0002\u0002\u0002\u00e8\u00e5\u0003\u0002\u0002\u0002\u00e8",
-    "\u00e6\u0003\u0002\u0002\u0002\u00e8\u00e7\u0003\u0002\u0002\u0002\u00e9",
-    "/\u0003\u0002\u0002\u0002\u00ea\u00ee\t\t\u0002\u0002\u00eb\u00ef\u0005",
-    "6\u001c\u0002\u00ec\u00ef\u00052\u001a\u0002\u00ed\u00ef\u0007*\u0002",
-    "\u0002\u00ee\u00eb\u0003\u0002\u0002\u0002\u00ee\u00ec\u0003\u0002\u0002",
-    "\u0002\u00ee\u00ed\u0003\u0002\u0002\u0002\u00ef1\u0003\u0002\u0002",
-    "\u0002\u00f0\u00fb\u0007*\u0002\u0002\u00f1\u00fb\u0007\'\u0002\u0002",
-    "\u00f2\u00fb\u0007(\u0002\u0002\u00f3\u00fb\u00071\u0002\u0002\u00f4",
-    "\u00fb\u0007)\u0002\u0002\u00f5\u00f6\u0007)\u0002\u0002\u00f6\u00fb",
-    "\u00070\u0002\u0002\u00f7\u00f8\t\n\u0002\u0002\u00f8\u00f9\u0007\u0016",
-    "\u0002\u0002\u00f9\u00fb\t\n\u0002\u0002\u00fa\u00f0\u0003\u0002\u0002",
-    "\u0002\u00fa\u00f1\u0003\u0002\u0002\u0002\u00fa\u00f2\u0003\u0002\u0002",
-    "\u0002\u00fa\u00f3\u0003\u0002\u0002\u0002\u00fa\u00f4\u0003\u0002\u0002",
-    "\u0002\u00fa\u00f5\u0003\u0002\u0002\u0002\u00fa\u00f7\u0003\u0002\u0002",
-    "\u0002\u00fb3\u0003\u0002\u0002\u0002\u00fc\u011d\u0007\u0019\u0002",
-    "\u0002\u00fd\u00ff\u0005\u0002\u0002\u0002\u00fe\u00fd\u0003\u0002\u0002",
-    "\u0002\u00ff\u0102\u0003\u0002\u0002\u0002\u0100\u00fe\u0003\u0002\u0002",
-    "\u0002\u0100\u0101\u0003\u0002\u0002\u0002\u0101\u0105\u0003\u0002\u0002",
-    "\u0002\u0102\u0100\u0003\u0002\u0002\u0002\u0103\u0106\u0005(\u0015",
-    "\u0002\u0104\u0106\u0005*\u0016\u0002\u0105\u0103\u0003\u0002\u0002",
-    "\u0002\u0105\u0104\u0003\u0002\u0002\u0002\u0106\u0114\u0003\u0002\u0002",
-    "\u0002\u0107\u010b\u0007\u0013\u0002\u0002\u0108\u010a\u0005\u0002\u0002",
-    "\u0002\u0109\u0108\u0003\u0002\u0002\u0002\u010a\u010d\u0003\u0002\u0002",
-    "\u0002\u010b\u0109\u0003\u0002\u0002\u0002\u010b\u010c\u0003\u0002\u0002",
-    "\u0002\u010c\u0110\u0003\u0002\u0002\u0002\u010d\u010b\u0003\u0002\u0002",
-    "\u0002\u010e\u0111\u0005(\u0015\u0002\u010f\u0111\u0005*\u0016\u0002",
-    "\u0110\u010e\u0003\u0002\u0002\u0002\u0110\u010f\u0003\u0002\u0002\u0002",
-    "\u0111\u0113\u0003\u0002\u0002\u0002\u0112\u0107\u0003\u0002\u0002\u0002",
-    "\u0113\u0116\u0003\u0002\u0002\u0002\u0114\u0112\u0003\u0002\u0002\u0002",
-    "\u0114\u0115\u0003\u0002\u0002\u0002\u0115\u0118\u0003\u0002\u0002\u0002",
-    "\u0116\u0114\u0003\u0002\u0002\u0002\u0117\u0119\u0007\u0013\u0002\u0002",
-    "\u0118\u0117\u0003\u0002\u0002\u0002\u0118\u0119\u0003\u0002\u0002\u0002",
-    "\u0119\u011b\u0003\u0002\u0002\u0002\u011a\u011c\u0005\u0002\u0002\u0002",
-    "\u011b\u011a\u0003\u0002\u0002\u0002\u011b\u011c\u0003\u0002\u0002\u0002",
-    "\u011c\u011e\u0003\u0002\u0002\u0002\u011d\u0100\u0003\u0002\u0002\u0002",
-    "\u011d\u011e\u0003\u0002\u0002\u0002\u011e\u011f\u0003\u0002\u0002\u0002",
-    "\u011f\u0120\u0007\u001a\u0002\u0002\u01205\u0003\u0002\u0002\u0002",
-    "\u0121\u0125\u0007\u001b\u0002\u0002\u0122\u0124\u0005\u0002\u0002\u0002",
-    "\u0123\u0122\u0003\u0002\u0002\u0002\u0124\u0127\u0003\u0002\u0002\u0002",
-    "\u0125\u0123\u0003\u0002\u0002\u0002\u0125\u0126\u0003\u0002\u0002\u0002",
-    "\u0126\u0128\u0003\u0002\u0002\u0002\u0127\u0125\u0003\u0002\u0002\u0002",
-    "\u0128\u012c\u0005\u0018\r\u0002\u0129\u012b\u0005\u0002\u0002\u0002",
-    "\u012a\u0129\u0003\u0002\u0002\u0002\u012b\u012e\u0003\u0002\u0002\u0002",
-    "\u012c\u012a\u0003\u0002\u0002\u0002\u012c\u012d\u0003\u0002\u0002\u0002",
-    "\u012d\u012f\u0003\u0002\u0002\u0002\u012e\u012c\u0003\u0002\u0002\u0002",
-    "\u012f\u0130\u0007\u001c\u0002\u0002\u01307\u0003\u0002\u0002\u0002",
-    "&=AFLQV_lqvy\u0081\u0088\u0091\u0099\u00a0\u00ae\u00b3\u00b9\u00c5\u00cd",
-    "\u00de\u00e0\u00e8\u00ee\u00fa\u0100\u0105\u010b\u0110\u0114\u0118\u011b",
-    "\u011d\u0125\u012c"].join("");
+    "\u0002\u0002\u00dc\u00dd\t\u0007\u0002\u0002\u00dd\u00df\u0005,\u0017",
+    "\u0006\u00de\u00cf\u0003\u0002\u0002\u0002\u00de\u00d2\u0003\u0002\u0002",
+    "\u0002\u00de\u00d5\u0003\u0002\u0002\u0002\u00de\u00d8\u0003\u0002\u0002",
+    "\u0002\u00de\u00db\u0003\u0002\u0002\u0002\u00df\u00e2\u0003\u0002\u0002",
+    "\u0002\u00e0\u00de\u0003\u0002\u0002\u0002\u00e0\u00e1\u0003\u0002\u0002",
+    "\u0002\u00e1-\u0003\u0002\u0002\u0002\u00e2\u00e0\u0003\u0002\u0002",
+    "\u0002\u00e3\u00e9\u00052\u001a\u0002\u00e4\u00e9\u0005\u001c\u000f",
+    "\u0002\u00e5\u00e9\u00050\u0019\u0002\u00e6\u00e9\u00054\u001b\u0002",
+    "\u00e7\u00e9\u00056\u001c\u0002\u00e8\u00e3\u0003\u0002\u0002\u0002",
+    "\u00e8\u00e4\u0003\u0002\u0002\u0002\u00e8\u00e5\u0003\u0002\u0002\u0002",
+    "\u00e8\u00e6\u0003\u0002\u0002\u0002\u00e8\u00e7\u0003\u0002\u0002\u0002",
+    "\u00e9/\u0003\u0002\u0002\u0002\u00ea\u00ee\t\b\u0002\u0002\u00eb\u00ef",
+    "\u00056\u001c\u0002\u00ec\u00ef\u00052\u001a\u0002\u00ed\u00ef\u0007",
+    "*\u0002\u0002\u00ee\u00eb\u0003\u0002\u0002\u0002\u00ee\u00ec\u0003",
+    "\u0002\u0002\u0002\u00ee\u00ed\u0003\u0002\u0002\u0002\u00ef1\u0003",
+    "\u0002\u0002\u0002\u00f0\u00fb\u0007*\u0002\u0002\u00f1\u00fb\u0007",
+    "\'\u0002\u0002\u00f2\u00fb\u0007(\u0002\u0002\u00f3\u00fb\u00071\u0002",
+    "\u0002\u00f4\u00fb\u0007)\u0002\u0002\u00f5\u00f6\u0007)\u0002\u0002",
+    "\u00f6\u00fb\u00070\u0002\u0002\u00f7\u00f8\t\t\u0002\u0002\u00f8\u00f9",
+    "\u0007\u0016\u0002\u0002\u00f9\u00fb\t\t\u0002\u0002\u00fa\u00f0\u0003",
+    "\u0002\u0002\u0002\u00fa\u00f1\u0003\u0002\u0002\u0002\u00fa\u00f2\u0003",
+    "\u0002\u0002\u0002\u00fa\u00f3\u0003\u0002\u0002\u0002\u00fa\u00f4\u0003",
+    "\u0002\u0002\u0002\u00fa\u00f5\u0003\u0002\u0002\u0002\u00fa\u00f7\u0003",
+    "\u0002\u0002\u0002\u00fb3\u0003\u0002\u0002\u0002\u00fc\u011d\u0007",
+    "\u0019\u0002\u0002\u00fd\u00ff\u0005\u0002\u0002\u0002\u00fe\u00fd\u0003",
+    "\u0002\u0002\u0002\u00ff\u0102\u0003\u0002\u0002\u0002\u0100\u00fe\u0003",
+    "\u0002\u0002\u0002\u0100\u0101\u0003\u0002\u0002\u0002\u0101\u0105\u0003",
+    "\u0002\u0002\u0002\u0102\u0100\u0003\u0002\u0002\u0002\u0103\u0106\u0005",
+    "(\u0015\u0002\u0104\u0106\u0005*\u0016\u0002\u0105\u0103\u0003\u0002",
+    "\u0002\u0002\u0105\u0104\u0003\u0002\u0002\u0002\u0106\u0114\u0003\u0002",
+    "\u0002\u0002\u0107\u010b\u0007\u0013\u0002\u0002\u0108\u010a\u0005\u0002",
+    "\u0002\u0002\u0109\u0108\u0003\u0002\u0002\u0002\u010a\u010d\u0003\u0002",
+    "\u0002\u0002\u010b\u0109\u0003\u0002\u0002\u0002\u010b\u010c\u0003\u0002",
+    "\u0002\u0002\u010c\u0110\u0003\u0002\u0002\u0002\u010d\u010b\u0003\u0002",
+    "\u0002\u0002\u010e\u0111\u0005(\u0015\u0002\u010f\u0111\u0005*\u0016",
+    "\u0002\u0110\u010e\u0003\u0002\u0002\u0002\u0110\u010f\u0003\u0002\u0002",
+    "\u0002\u0111\u0113\u0003\u0002\u0002\u0002\u0112\u0107\u0003\u0002\u0002",
+    "\u0002\u0113\u0116\u0003\u0002\u0002\u0002\u0114\u0112\u0003\u0002\u0002",
+    "\u0002\u0114\u0115\u0003\u0002\u0002\u0002\u0115\u0118\u0003\u0002\u0002",
+    "\u0002\u0116\u0114\u0003\u0002\u0002\u0002\u0117\u0119\u0007\u0013\u0002",
+    "\u0002\u0118\u0117\u0003\u0002\u0002\u0002\u0118\u0119\u0003\u0002\u0002",
+    "\u0002\u0119\u011b\u0003\u0002\u0002\u0002\u011a\u011c\u0005\u0002\u0002",
+    "\u0002\u011b\u011a\u0003\u0002\u0002\u0002\u011b\u011c\u0003\u0002\u0002",
+    "\u0002\u011c\u011e\u0003\u0002\u0002\u0002\u011d\u0100\u0003\u0002\u0002",
+    "\u0002\u011d\u011e\u0003\u0002\u0002\u0002\u011e\u011f\u0003\u0002\u0002",
+    "\u0002\u011f\u0120\u0007\u001a\u0002\u0002\u01205\u0003\u0002\u0002",
+    "\u0002\u0121\u0125\u0007\u001b\u0002\u0002\u0122\u0124\u0005\u0002\u0002",
+    "\u0002\u0123\u0122\u0003\u0002\u0002\u0002\u0124\u0127\u0003\u0002\u0002",
+    "\u0002\u0125\u0123\u0003\u0002\u0002\u0002\u0125\u0126\u0003\u0002\u0002",
+    "\u0002\u0126\u0128\u0003\u0002\u0002\u0002\u0127\u0125\u0003\u0002\u0002",
+    "\u0002\u0128\u012c\u0005\u001a\u000e\u0002\u0129\u012b\u0005\u0002\u0002",
+    "\u0002\u012a\u0129\u0003\u0002\u0002\u0002\u012b\u012e\u0003\u0002\u0002",
+    "\u0002\u012c\u012a\u0003\u0002\u0002\u0002\u012c\u012d\u0003\u0002\u0002",
+    "\u0002\u012d\u012f\u0003\u0002\u0002\u0002\u012e\u012c\u0003\u0002\u0002",
+    "\u0002\u012f\u0130\u0007\u001c\u0002\u0002\u01307\u0003\u0002\u0002",
+    "\u0002&=AFLQV_lqvy\u0081\u0088\u0093\u009b\u00a2\u00ae\u00b3\u00b9\u00c5",
+    "\u00cd\u00de\u00e0\u00e8\u00ee\u00fa\u0100\u0105\u010b\u0110\u0114\u0118",
+    "\u011b\u011d\u0125\u012c"].join("");
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -219,13 +219,13 @@ const sharedContextCache = new antlr4.PredictionContextCache();
 export default class prqlParser extends antlr4.Parser {
 
     static grammarFileName = "prql.g4";
-    static literalNames = [ null, "'func'", "'prql'", "'table'", "'->'", 
-                            "'='", "'+'", "'-'", "'*'", "'/'", "'%'", "'=='", 
-                            "'!='", "'<='", "'>='", "'|'", "':'", "','", 
-                            "'.'", "'$'", "'..'", "'<'", "'>'", "'['", "']'", 
-                            "'('", "')'", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'", 
+    static literalNames = [ null, "'func'", "'prql'", "'let'", "'->'", "'='", 
+                            "'+'", "'-'", "'*'", "'/'", "'%'", "'=='", "'!='", 
+                            "'<='", "'>='", "'|'", "':'", "','", "'.'", 
+                            "'$'", "'..'", "'<'", "'>'", "'['", "']'", "'('", 
+                            "')'", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'", 
                             "'''''", "'and'", "'or'", "'!'", "'??'", "'null'" ];
-    static symbolicNames = [ null, "FUNC", "PRQL", "TABLE", "ARROW", "ASSIGN", 
+    static symbolicNames = [ null, "FUNC", "PRQL", "LET", "ARROW", "ASSIGN", 
                              "PLUS", "MINUS", "STAR", "DIV", "MOD", "EQ", 
                              "NE", "LE", "GE", "BAR", "COLON", "COMMA", 
                              "DOT", "DOLLAR", "RANGE", "LANG", "RANG", "LBRACKET", 
@@ -236,10 +236,10 @@ export default class prqlParser extends antlr4.Parser {
                              "NUMBER", "IDENT", "IDENT_START", "IDENT_NEXT", 
                              "WHITESPACE", "NEWLINE", "COMMENT", "INTERVAL_KIND", 
                              "STRING" ];
-    static ruleNames = [ "nl", "query", "queryDef", "funcDef", "funcDefName", 
+    static ruleNames = [ "nl", "program", "programIntro", "funcDef", "funcDefName", 
                          "funcDefParams", "funcDefParam", "typeDef", "typeTerm", 
-                         "table", "pipe", "pipeline", "identBacktick", "signedIdent", 
-                         "keyword", "funcCall", "funcCallParam", "namedArg", 
+                         "stmt", "assignStmt", "pipe", "pipeline", "identBacktick", 
+                         "signedIdent", "funcCall", "funcCallParam", "namedArg", 
                          "assign", "assignCall", "exprCall", "expr", "term", 
                          "exprUnary", "literal", "list", "nestedPipeline" ];
 
@@ -315,9 +315,9 @@ export default class prqlParser extends antlr4.Parser {
 
 
 
-	query() {
-	    let localctx = new QueryContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 2, prqlParser.RULE_query);
+	program() {
+	    let localctx = new ProgramContext(this, this._ctx, this.state);
+	    this.enterRule(localctx, 2, prqlParser.RULE_program);
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
@@ -339,7 +339,7 @@ export default class prqlParser extends antlr4.Parser {
 	        _la = this._input.LA(1);
 	        if(_la===prqlParser.PRQL) {
 	            this.state = 62;
-	            this.queryDef();
+	            this.programIntro();
 	        }
 
 	        this.state = 68;
@@ -355,7 +355,7 @@ export default class prqlParser extends antlr4.Parser {
 	        this.state = 84;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.TABLE) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.BACKTICK))) !== 0) || ((((_la - 35)) & ~0x1f) == 0 && ((1 << (_la - 35)) & ((1 << (prqlParser.NOT - 35)) | (1 << (prqlParser.NULL_ - 35)) | (1 << (prqlParser.BOOLEAN - 35)) | (1 << (prqlParser.NUMBER - 35)) | (1 << (prqlParser.IDENT - 35)) | (1 << (prqlParser.STRING - 35)))) !== 0)) {
+	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.LET) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.BACKTICK))) !== 0) || ((((_la - 35)) & ~0x1f) == 0 && ((1 << (_la - 35)) & ((1 << (prqlParser.NOT - 35)) | (1 << (prqlParser.NULL_ - 35)) | (1 << (prqlParser.BOOLEAN - 35)) | (1 << (prqlParser.NUMBER - 35)) | (1 << (prqlParser.IDENT - 35)) | (1 << (prqlParser.STRING - 35)))) !== 0)) {
 	            this.state = 74;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
@@ -363,9 +363,9 @@ export default class prqlParser extends antlr4.Parser {
 	                this.state = 71;
 	                this.funcDef();
 	                break;
-	            case prqlParser.TABLE:
+	            case prqlParser.LET:
 	                this.state = 72;
-	                this.table();
+	                this.stmt();
 	                break;
 	            case prqlParser.PLUS:
 	            case prqlParser.MINUS:
@@ -416,9 +416,9 @@ export default class prqlParser extends antlr4.Parser {
 
 
 
-	queryDef() {
-	    let localctx = new QueryDefContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 4, prqlParser.RULE_queryDef);
+	programIntro() {
+	    let localctx = new ProgramIntroContext(this, this._ctx, this.state);
+	    this.enterRule(localctx, 4, prqlParser.RULE_programIntro);
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
@@ -664,19 +664,42 @@ export default class prqlParser extends antlr4.Parser {
 
 
 
-	table() {
-	    let localctx = new TableContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 18, prqlParser.RULE_table);
+	stmt() {
+	    let localctx = new StmtContext(this, this._ctx, this.state);
+	    this.enterRule(localctx, 18, prqlParser.RULE_stmt);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 136;
-	        this.match(prqlParser.TABLE);
-	        this.state = 137;
-	        this.match(prqlParser.IDENT);
+	        this.assignStmt();
+	    } catch (re) {
+	    	if(re instanceof antlr4.error.RecognitionException) {
+		        localctx.exception = re;
+		        this._errHandler.reportError(this, re);
+		        this._errHandler.recover(this, re);
+		    } else {
+		    	throw re;
+		    }
+	    } finally {
+	        this.exitRule();
+	    }
+	    return localctx;
+	}
+
+
+
+	assignStmt() {
+	    let localctx = new AssignStmtContext(this, this._ctx, this.state);
+	    this.enterRule(localctx, 20, prqlParser.RULE_assignStmt);
+	    try {
+	        this.enterOuterAlt(localctx, 1);
 	        this.state = 138;
-	        this.match(prqlParser.ASSIGN);
+	        this.match(prqlParser.LET);
 	        this.state = 139;
-	        this.nestedPipeline();
+	        this.match(prqlParser.IDENT);
+	        this.state = 140;
+	        this.match(prqlParser.ASSIGN);
+	        this.state = 141;
+	        this.expr(0);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
 		        localctx.exception = re;
@@ -695,20 +718,20 @@ export default class prqlParser extends antlr4.Parser {
 
 	pipe() {
 	    let localctx = new PipeContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 20, prqlParser.RULE_pipe);
+	    this.enterRule(localctx, 22, prqlParser.RULE_pipe);
 	    try {
-	        this.state = 143;
+	        this.state = 145;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case prqlParser.NEWLINE:
 	        case prqlParser.COMMENT:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 141;
+	            this.state = 143;
 	            this.nl();
 	            break;
 	        case prqlParser.BAR:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 142;
+	            this.state = 144;
 	            this.match(prqlParser.BAR);
 	            break;
 	        default:
@@ -732,22 +755,22 @@ export default class prqlParser extends antlr4.Parser {
 
 	pipeline() {
 	    let localctx = new PipelineContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 22, prqlParser.RULE_pipeline);
+	    this.enterRule(localctx, 24, prqlParser.RULE_pipeline);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 145;
+	        this.state = 147;
 	        this.exprCall();
-	        this.state = 151;
+	        this.state = 153;
 	        this._errHandler.sync(this);
 	        var _alt = this._interp.adaptivePredict(this._input,14,this._ctx)
 	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	            if(_alt===1) {
-	                this.state = 146;
+	                this.state = 148;
 	                this.pipe();
-	                this.state = 147;
+	                this.state = 149;
 	                this.exprCall(); 
 	            }
-	            this.state = 153;
+	            this.state = 155;
 	            this._errHandler.sync(this);
 	            _alt = this._interp.adaptivePredict(this._input,14,this._ctx);
 	        }
@@ -770,17 +793,17 @@ export default class prqlParser extends antlr4.Parser {
 
 	identBacktick() {
 	    let localctx = new IdentBacktickContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 24, prqlParser.RULE_identBacktick);
+	    this.enterRule(localctx, 26, prqlParser.RULE_identBacktick);
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 154;
+	        this.state = 156;
 	        this.match(prqlParser.BACKTICK);
-	        this.state = 158;
+	        this.state = 160;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.PRQL) | (1 << prqlParser.TABLE) | (1 << prqlParser.ARROW) | (1 << prqlParser.ASSIGN) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.STAR) | (1 << prqlParser.DIV) | (1 << prqlParser.MOD) | (1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.GE) | (1 << prqlParser.BAR) | (1 << prqlParser.COLON) | (1 << prqlParser.COMMA) | (1 << prqlParser.DOT) | (1 << prqlParser.DOLLAR) | (1 << prqlParser.RANGE) | (1 << prqlParser.LANG) | (1 << prqlParser.RANG) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.RBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.RPAREN) | (1 << prqlParser.UNDERSCORE) | (1 << prqlParser.DOUBLE_QUOTE) | (1 << prqlParser.SINGLE_QUOTE) | (1 << prqlParser.TRIPLE_DOUBLE_QUOTE))) !== 0) || ((((_la - 32)) & ~0x1f) == 0 && ((1 << (_la - 32)) & ((1 << (prqlParser.TRIPLE_SINGLE_QUOTE - 32)) | (1 << (prqlParser.AND - 32)) | (1 << (prqlParser.OR - 32)) | (1 << (prqlParser.NOT - 32)) | (1 << (prqlParser.COALESCE - 32)) | (1 << (prqlParser.NULL_ - 32)) | (1 << (prqlParser.BOOLEAN - 32)) | (1 << (prqlParser.NUMBER - 32)) | (1 << (prqlParser.IDENT - 32)) | (1 << (prqlParser.IDENT_START - 32)) | (1 << (prqlParser.IDENT_NEXT - 32)) | (1 << (prqlParser.WHITESPACE - 32)) | (1 << (prqlParser.COMMENT - 32)) | (1 << (prqlParser.INTERVAL_KIND - 32)) | (1 << (prqlParser.STRING - 32)))) !== 0)) {
-	            this.state = 155;
+	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.PRQL) | (1 << prqlParser.LET) | (1 << prqlParser.ARROW) | (1 << prqlParser.ASSIGN) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.STAR) | (1 << prqlParser.DIV) | (1 << prqlParser.MOD) | (1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.GE) | (1 << prqlParser.BAR) | (1 << prqlParser.COLON) | (1 << prqlParser.COMMA) | (1 << prqlParser.DOT) | (1 << prqlParser.DOLLAR) | (1 << prqlParser.RANGE) | (1 << prqlParser.LANG) | (1 << prqlParser.RANG) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.RBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.RPAREN) | (1 << prqlParser.UNDERSCORE) | (1 << prqlParser.DOUBLE_QUOTE) | (1 << prqlParser.SINGLE_QUOTE) | (1 << prqlParser.TRIPLE_DOUBLE_QUOTE))) !== 0) || ((((_la - 32)) & ~0x1f) == 0 && ((1 << (_la - 32)) & ((1 << (prqlParser.TRIPLE_SINGLE_QUOTE - 32)) | (1 << (prqlParser.AND - 32)) | (1 << (prqlParser.OR - 32)) | (1 << (prqlParser.NOT - 32)) | (1 << (prqlParser.COALESCE - 32)) | (1 << (prqlParser.NULL_ - 32)) | (1 << (prqlParser.BOOLEAN - 32)) | (1 << (prqlParser.NUMBER - 32)) | (1 << (prqlParser.IDENT - 32)) | (1 << (prqlParser.IDENT_START - 32)) | (1 << (prqlParser.IDENT_NEXT - 32)) | (1 << (prqlParser.WHITESPACE - 32)) | (1 << (prqlParser.COMMENT - 32)) | (1 << (prqlParser.INTERVAL_KIND - 32)) | (1 << (prqlParser.STRING - 32)))) !== 0)) {
+	            this.state = 157;
 	            _la = this._input.LA(1);
 	            if(_la<=0 || _la===prqlParser.BACKTICK || _la===prqlParser.NEWLINE) {
 	            this._errHandler.recoverInline(this);
@@ -789,11 +812,11 @@ export default class prqlParser extends antlr4.Parser {
 	            	this._errHandler.reportMatch(this);
 	                this.consume();
 	            }
-	            this.state = 160;
+	            this.state = 162;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        }
-	        this.state = 161;
+	        this.state = 163;
 	        this.match(prqlParser.BACKTICK);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -813,11 +836,11 @@ export default class prqlParser extends antlr4.Parser {
 
 	signedIdent() {
 	    let localctx = new SignedIdentContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 26, prqlParser.RULE_signedIdent);
+	    this.enterRule(localctx, 28, prqlParser.RULE_signedIdent);
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 163;
+	        this.state = 165;
 	        _la = this._input.LA(1);
 	        if(!(_la===prqlParser.PLUS || _la===prqlParser.MINUS)) {
 	        this._errHandler.recoverInline(this);
@@ -826,39 +849,8 @@ export default class prqlParser extends antlr4.Parser {
 	        	this._errHandler.reportMatch(this);
 	            this.consume();
 	        }
-	        this.state = 164;
-	        this.match(prqlParser.IDENT);
-	    } catch (re) {
-	    	if(re instanceof antlr4.error.RecognitionException) {
-		        localctx.exception = re;
-		        this._errHandler.reportError(this, re);
-		        this._errHandler.recover(this, re);
-		    } else {
-		    	throw re;
-		    }
-	    } finally {
-	        this.exitRule();
-	    }
-	    return localctx;
-	}
-
-
-
-	keyword() {
-	    let localctx = new KeywordContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 28, prqlParser.RULE_keyword);
-	    var _la = 0; // Token type
-	    try {
-	        this.enterOuterAlt(localctx, 1);
 	        this.state = 166;
-	        _la = this._input.LA(1);
-	        if(!((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.PRQL) | (1 << prqlParser.TABLE))) !== 0))) {
-	        this._errHandler.recoverInline(this);
-	        }
-	        else {
-	        	this._errHandler.reportMatch(this);
-	            this.consume();
-	        }
+	        this.match(prqlParser.IDENT);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
 		        localctx.exception = re;
@@ -1608,7 +1600,7 @@ export default class prqlParser extends antlr4.Parser {
 prqlParser.EOF = antlr4.Token.EOF;
 prqlParser.FUNC = 1;
 prqlParser.PRQL = 2;
-prqlParser.TABLE = 3;
+prqlParser.LET = 3;
 prqlParser.ARROW = 4;
 prqlParser.ASSIGN = 5;
 prqlParser.PLUS = 6;
@@ -1655,20 +1647,20 @@ prqlParser.INTERVAL_KIND = 46;
 prqlParser.STRING = 47;
 
 prqlParser.RULE_nl = 0;
-prqlParser.RULE_query = 1;
-prqlParser.RULE_queryDef = 2;
+prqlParser.RULE_program = 1;
+prqlParser.RULE_programIntro = 2;
 prqlParser.RULE_funcDef = 3;
 prqlParser.RULE_funcDefName = 4;
 prqlParser.RULE_funcDefParams = 5;
 prqlParser.RULE_funcDefParam = 6;
 prqlParser.RULE_typeDef = 7;
 prqlParser.RULE_typeTerm = 8;
-prqlParser.RULE_table = 9;
-prqlParser.RULE_pipe = 10;
-prqlParser.RULE_pipeline = 11;
-prqlParser.RULE_identBacktick = 12;
-prqlParser.RULE_signedIdent = 13;
-prqlParser.RULE_keyword = 14;
+prqlParser.RULE_stmt = 9;
+prqlParser.RULE_assignStmt = 10;
+prqlParser.RULE_pipe = 11;
+prqlParser.RULE_pipeline = 12;
+prqlParser.RULE_identBacktick = 13;
+prqlParser.RULE_signedIdent = 14;
 prqlParser.RULE_funcCall = 15;
 prqlParser.RULE_funcCallParam = 16;
 prqlParser.RULE_namedArg = 17;
@@ -1721,7 +1713,7 @@ class NlContext extends antlr4.ParserRuleContext {
 
 
 
-class QueryContext extends antlr4.ParserRuleContext {
+class ProgramContext extends antlr4.ParserRuleContext {
 
     constructor(parser, parent, invokingState) {
         if(parent===undefined) {
@@ -1732,7 +1724,7 @@ class QueryContext extends antlr4.ParserRuleContext {
         }
         super(parent, invokingState);
         this.parser = parser;
-        this.ruleIndex = prqlParser.RULE_query;
+        this.ruleIndex = prqlParser.RULE_program;
     }
 
 	EOF() {
@@ -1750,8 +1742,8 @@ class QueryContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-	queryDef() {
-	    return this.getTypedRuleContext(QueryDefContext,0);
+	programIntro() {
+	    return this.getTypedRuleContext(ProgramIntroContext,0);
 	};
 
 	funcDef = function(i) {
@@ -1765,14 +1757,14 @@ class QueryContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-	table = function(i) {
+	stmt = function(i) {
 	    if(i===undefined) {
 	        i = null;
 	    }
 	    if(i===null) {
-	        return this.getTypedRuleContexts(TableContext);
+	        return this.getTypedRuleContexts(StmtContext);
 	    } else {
-	        return this.getTypedRuleContext(TableContext,i);
+	        return this.getTypedRuleContext(StmtContext,i);
 	    }
 	};
 
@@ -1789,13 +1781,13 @@ class QueryContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.enterQuery(this);
+	        listener.enterProgram(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.exitQuery(this);
+	        listener.exitProgram(this);
 		}
 	}
 
@@ -1804,7 +1796,7 @@ class QueryContext extends antlr4.ParserRuleContext {
 
 
 
-class QueryDefContext extends antlr4.ParserRuleContext {
+class ProgramIntroContext extends antlr4.ParserRuleContext {
 
     constructor(parser, parent, invokingState) {
         if(parent===undefined) {
@@ -1815,7 +1807,7 @@ class QueryDefContext extends antlr4.ParserRuleContext {
         }
         super(parent, invokingState);
         this.parser = parser;
-        this.ruleIndex = prqlParser.RULE_queryDef;
+        this.ruleIndex = prqlParser.RULE_programIntro;
     }
 
 	PRQL() {
@@ -1839,13 +1831,13 @@ class QueryDefContext extends antlr4.ParserRuleContext {
 
 	enterRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.enterQueryDef(this);
+	        listener.enterProgramIntro(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.exitQueryDef(this);
+	        listener.exitProgramIntro(this);
 		}
 	}
 
@@ -2122,7 +2114,7 @@ class TypeTermContext extends antlr4.ParserRuleContext {
 
 
 
-class TableContext extends antlr4.ParserRuleContext {
+class StmtContext extends antlr4.ParserRuleContext {
 
     constructor(parser, parent, invokingState) {
         if(parent===undefined) {
@@ -2133,11 +2125,46 @@ class TableContext extends antlr4.ParserRuleContext {
         }
         super(parent, invokingState);
         this.parser = parser;
-        this.ruleIndex = prqlParser.RULE_table;
+        this.ruleIndex = prqlParser.RULE_stmt;
     }
 
-	TABLE() {
-	    return this.getToken(prqlParser.TABLE, 0);
+	assignStmt() {
+	    return this.getTypedRuleContext(AssignStmtContext,0);
+	};
+
+	enterRule(listener) {
+	    if(listener instanceof prqlListener ) {
+	        listener.enterStmt(this);
+		}
+	}
+
+	exitRule(listener) {
+	    if(listener instanceof prqlListener ) {
+	        listener.exitStmt(this);
+		}
+	}
+
+
+}
+
+
+
+class AssignStmtContext extends antlr4.ParserRuleContext {
+
+    constructor(parser, parent, invokingState) {
+        if(parent===undefined) {
+            parent = null;
+        }
+        if(invokingState===undefined || invokingState===null) {
+            invokingState = -1;
+        }
+        super(parent, invokingState);
+        this.parser = parser;
+        this.ruleIndex = prqlParser.RULE_assignStmt;
+    }
+
+	LET() {
+	    return this.getToken(prqlParser.LET, 0);
 	};
 
 	IDENT() {
@@ -2148,19 +2175,19 @@ class TableContext extends antlr4.ParserRuleContext {
 	    return this.getToken(prqlParser.ASSIGN, 0);
 	};
 
-	nestedPipeline() {
-	    return this.getTypedRuleContext(NestedPipelineContext,0);
+	expr() {
+	    return this.getTypedRuleContext(ExprContext,0);
 	};
 
 	enterRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.enterTable(this);
+	        listener.enterAssignStmt(this);
 		}
 	}
 
 	exitRule(listener) {
 	    if(listener instanceof prqlListener ) {
-	        listener.exitTable(this);
+	        listener.exitAssignStmt(this);
 		}
 	}
 
@@ -2351,49 +2378,6 @@ class SignedIdentContext extends antlr4.ParserRuleContext {
 	exitRule(listener) {
 	    if(listener instanceof prqlListener ) {
 	        listener.exitSignedIdent(this);
-		}
-	}
-
-
-}
-
-
-
-class KeywordContext extends antlr4.ParserRuleContext {
-
-    constructor(parser, parent, invokingState) {
-        if(parent===undefined) {
-            parent = null;
-        }
-        if(invokingState===undefined || invokingState===null) {
-            invokingState = -1;
-        }
-        super(parent, invokingState);
-        this.parser = parser;
-        this.ruleIndex = prqlParser.RULE_keyword;
-    }
-
-	PRQL() {
-	    return this.getToken(prqlParser.PRQL, 0);
-	};
-
-	TABLE() {
-	    return this.getToken(prqlParser.TABLE, 0);
-	};
-
-	FUNC() {
-	    return this.getToken(prqlParser.FUNC, 0);
-	};
-
-	enterRule(listener) {
-	    if(listener instanceof prqlListener ) {
-	        listener.enterKeyword(this);
-		}
-	}
-
-	exitRule(listener) {
-	    if(listener instanceof prqlListener ) {
-	        listener.exitKeyword(this);
 		}
 	}
 
@@ -3094,20 +3078,20 @@ class NestedPipelineContext extends antlr4.ParserRuleContext {
 
 
 prqlParser.NlContext = NlContext; 
-prqlParser.QueryContext = QueryContext; 
-prqlParser.QueryDefContext = QueryDefContext; 
+prqlParser.ProgramContext = ProgramContext; 
+prqlParser.ProgramIntroContext = ProgramIntroContext; 
 prqlParser.FuncDefContext = FuncDefContext; 
 prqlParser.FuncDefNameContext = FuncDefNameContext; 
 prqlParser.FuncDefParamsContext = FuncDefParamsContext; 
 prqlParser.FuncDefParamContext = FuncDefParamContext; 
 prqlParser.TypeDefContext = TypeDefContext; 
 prqlParser.TypeTermContext = TypeTermContext; 
-prqlParser.TableContext = TableContext; 
+prqlParser.StmtContext = StmtContext; 
+prqlParser.AssignStmtContext = AssignStmtContext; 
 prqlParser.PipeContext = PipeContext; 
 prqlParser.PipelineContext = PipelineContext; 
 prqlParser.IdentBacktickContext = IdentBacktickContext; 
 prqlParser.SignedIdentContext = SignedIdentContext; 
-prqlParser.KeywordContext = KeywordContext; 
 prqlParser.FuncCallContext = FuncCallContext; 
 prqlParser.FuncCallParamContext = FuncCallParamContext; 
 prqlParser.NamedArgContext = NamedArgContext; 
