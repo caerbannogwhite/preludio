@@ -3,37 +3,50 @@ import antlr4 from "antlr4";
 import prqlListener from "../grammar/prqlListener.js";
 import prqlLexer from "../grammar/prqlLexer.js";
 import prqlParser from "../grammar/prqlParser.js";
-import {
-  OP_ASSIGN_TABLE,
-  OP_BEGIN_LIST,
-  OP_BEGIN_PIPELINE,
-  OP_BINARY_DIV,
-  OP_BINARY_EQ,
-  OP_BINARY_GE,
-  OP_BINARY_GT,
-  OP_BINARY_LE,
-  OP_BINARY_LT,
-  OP_BINARY_MINUS,
-  OP_BINARY_MOD,
-  OP_BINARY_MUL,
-  OP_BINARY_NE,
-  OP_BINARY_PLUS,
-  OP_END_FUNC_CALL_PARAM,
-  OP_END_LIST,
-  OP_END_PIPELINE,
-  OP_MAKE_FUNC_CALL,
-  OP_PUSH_ASSIGN_IDENT,
-  OP_PUSH_NAMED_PARAM,
-  OP_PUSH_TERM,
-  PrqlVM,
-  TYPE_BOOL,
-  TYPE_IDENT,
-  TYPE_NULL,
-  TYPE_NUMERIC,
-  TYPE_STRING,
-} from "./vm.js";
 import { Blob } from "buffer";
 import { TextEncoder } from "util";
+
+export const TYPE_NULL = 0;
+export const TYPE_BOOL = 1;
+export const TYPE_NUMERIC = 2;
+export const TYPE_STRING = 3;
+export const TYPE_INTERVAL = 5;
+export const TYPE_RANGE = 6;
+export const TYPE_LIST = 7;
+export const TYPE_PIPELINE = 8;
+export const TERM_IDENT = 10;
+
+export const OP_BEGIN_PIPELINE = 0;
+export const OP_END_PIPELINE = 1;
+export const OP_ASSIGN_STMT = 2;
+// export const OP_BEGIN_FUNC_CALL = 3;
+export const OP_MAKE_FUNC_CALL = 4;
+export const OP_BEGIN_LIST = 5;
+export const OP_END_LIST = 6;
+export const OP_ADD_FUNC_PARAM = 7;
+export const OP_ADD_EXPR_TERM = 8;
+export const OP_PUSH_NAMED_PARAM = 9;
+export const OP_PUSH_ASSIGN_IDENT = 10;
+export const OP_PUSH_TERM = 11;
+export const OP_END_FUNC_CALL_PARAM = 12;
+export const OP_GOTO = 50;
+
+export const OP_BINARY_MUL = 100;
+export const OP_BINARY_DIV = 101;
+export const OP_BINARY_MOD = 102;
+export const OP_BINARY_PLUS = 103;
+export const OP_BINARY_MINUS = 104;
+
+export const OP_BINARY_EQ = 110;
+export const OP_BINARY_NE = 111;
+export const OP_BINARY_GE = 112;
+export const OP_BINARY_LE = 113;
+export const OP_BINARY_GT = 114;
+export const OP_BINARY_LT = 115;
+
+export const OP_BINARY_AND = 120;
+export const OP_BINARY_OR = 121;
+export const OP_BINARY_COALESCE = 122;
 
 export default class PrqlCompiler extends prqlListener {
   constructor(params) {
@@ -64,8 +77,6 @@ export default class PrqlCompiler extends prqlListener {
     }
 
     this.terms = [];
-
-    this.vm = new PrqlVM({ debugLevel: this.__debug_level });
   }
 
   _toByteArray2(n) {
@@ -146,24 +157,6 @@ export default class PrqlCompiler extends prqlListener {
     ]);
   }
 
-  // Enter a parse tree produced by prqlParser#nl.
-  enterNl(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#nl.
-  exitNl(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#query.
-  enterQuery(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#query.
-  exitQuery(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#queryDef.
-  enterQueryDef(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#queryDef.
-  exitQueryDef(ctx) {}
-
   // Enter a parse tree produced by prqlParser#funcDef.
   enterFuncDef(ctx) {}
 
@@ -200,20 +193,24 @@ export default class PrqlCompiler extends prqlListener {
   // Exit a parse tree produced by prqlParser#typeTerm.
   exitTypeTerm(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#table.
-  enterTable(ctx) {
+  // Enter a parse tree produced by prqlParser#assignStmt.
+  enterAssignStmt(ctx) {
     if (this.__debug_level > 10) {
-      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Table`);
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignStmt`
+      );
     }
 
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#table.
-  exitTable(ctx) {
+  // Exit a parse tree produced by prqlParser#assignStmt.
+  exitAssignStmt(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- Table`);
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignStmt`
+      );
     }
 
     const identName = ctx.IDENT().symbol.text;
@@ -223,14 +220,8 @@ export default class PrqlCompiler extends prqlListener {
       this.__symbol_table_str.push(identName);
     }
 
-    this.__instructions.push(OP_ASSIGN_TABLE, pos, 0);
+    this.__instructions.push(OP_ASSIGN_STMT, 0, pos);
   }
-
-  // Enter a parse tree produced by prqlParser#pipe.
-  // enterPipe(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#pipe.
-  // exitPipe(ctx) {}
 
   // Enter a parse tree produced by prqlParser#pipeline.
   enterPipeline(ctx) {
@@ -558,7 +549,7 @@ export default class PrqlCompiler extends prqlListener {
             this.__symbol_table_str.push(id);
           }
 
-          this.__instructions.push(OP_PUSH_TERM, TYPE_IDENT, pos);
+          this.__instructions.push(OP_PUSH_TERM, TERM_IDENT, pos);
         }
         break;
 
@@ -575,14 +566,14 @@ export default class PrqlCompiler extends prqlListener {
       case 3:
         // const s = ctx.children[0].getText();
         // if (s === NaN) {
-        //   const start = { type: TYPE_IDENT, value: ctx.children[0].getText() };
+        //   const start = { type: TERM_IDENT, value: ctx.children[0].getText() };
         // } else {
         //   const start = { type: TYPE_NUMERIC, value: s };
         // }
 
         // const e = ctx.children[2].getText();
         // if (end === NaN) {
-        //   const end = { type: TYPE_IDENT, value: ctx.children[2].getText() };
+        //   const end = { type: TERM_IDENT, value: ctx.children[2].getText() };
         // } else {
         //   const end = { type: TYPE_NUMERIC, value: e };
         // }
@@ -633,7 +624,7 @@ export function getByteCode(source) {
   const parser = new prqlParser(tokens);
 
   parser.buildParseTrees = true;
-  const tree = parser.query();
+  const tree = parser.program();
   const compiler = new PrqlCompiler({ debugLevel: 5, verbosity: true });
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
