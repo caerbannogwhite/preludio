@@ -1,5 +1,6 @@
 use clap::Parser;
 use polars::export::num::ToPrimitive;
+use polars::export::rayon::vec;
 use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
@@ -13,11 +14,11 @@ const TYPE_NULL: u16 = 0;
 const TYPE_BOOL: u16 = 1;
 const TYPE_NUMERIC: u16 = 2;
 const TYPE_STRING: u16 = 3;
-const TYPE_IDENT: u16 = 4;
 const TYPE_INTERVAL: u16 = 5;
 const TYPE_RANGE: u16 = 6;
 const TYPE_LIST: u16 = 7;
 const TYPE_PIPELINE: u16 = 8;
+const IDENT_TERM: u16 = 10;
 
 const TYPE_COLUMN_NULL: u16 = 20;
 const TYPE_COLUMN_BOOL: u16 = 21;
@@ -111,6 +112,7 @@ pub struct PRQLVirtualMachine {
     __counter: u64,
     __current_directory: String,
     __current_table: LazyFrame,
+    __current_temp_column: String,
     __symbol_table: Vec<String>,
     __stack: Vec<Operation>,
     __function_num_params: u64,
@@ -129,6 +131,7 @@ impl PRQLVirtualMachine {
             __current_directory: String::new(),
 
             __current_table: LazyFrame::default(),
+            __current_temp_column: String::from(""),
 
             __symbol_table: Vec::new(),
             __stack: Vec::new(),
@@ -335,7 +338,7 @@ impl PRQLVirtualMachine {
                             term_val =
                                 self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                         }
-                        TYPE_IDENT => {
+                        IDENT_TERM => {
                             term_type_str = String::from("IDENT");
                             term_val =
                                 self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
@@ -389,29 +392,71 @@ impl PRQLVirtualMachine {
                             result.param1 = TYPE_STRING;
                             result.param2 = self.__insert_symbol(String::from(""));
                         }
-                        TYPE_IDENT => {
-                            // let tmp = self
-                            //     .__current_table
-                            //     .column(
-                            //         self.__symbol_table
-                            //             [(u64::from_be_bytes(term2.param2) as usize)]
-                            //             .as_str(),
-                            //     )
-                            //     .unwrap();
+                        IDENT_TERM => {
+                            let col_name = self.__symbol_table
+                                [(u64::from_be_bytes(term2.param2) as usize)]
+                                .clone();
 
-                            // if tmp.is_logical() {
-                            // } else if tmp.is_numeric_physical() {
-                            // }
-                            // self.__current_table.lazy().with_column(
-                            //     col(self.__symbol_table[(term2.param2 as usize)])
-                            //         // apply a custom closure Series => Result<Series>
-                            //         .map(
-                            //             |_s| Ok(Series::new("", &[6.0f32, 6.0, 6.0, 6.0, 6.0])),
-                            //             // return type of the closure
-                            //             GetOutput::from_type(DataType::Float64),
-                            //         )
-                            //         .alias("new_column"),
-                            // )
+                            let tmp_col_name = "tmp";
+                            result.param1 = IDENT_TERM;
+                            result.param2 = self.__insert_symbol(String::from(tmp_col_name));
+
+                            match self
+                                .__current_table
+                                .schema()
+                                .unwrap()
+                                .get(&col_name)
+                                .unwrap()
+                            {
+                                DataType::Null => {
+                                    self.__current_table =
+                                        self.__current_table.clone().with_column(
+                                            col(&col_name)
+                                                .map(
+                                                    |s| Ok(s),
+                                                    GetOutput::from_type(DataType::Null),
+                                                )
+                                                .alias(tmp_col_name),
+                                        );
+                                }
+                                DataType::Boolean => {
+                                    self.__current_table =
+                                        self.__current_table.clone().with_column(
+                                            col(&col_name)
+                                                .map(
+                                                    |s| Ok(s * 0),
+                                                    GetOutput::from_type(DataType::Boolean),
+                                                )
+                                                .alias(tmp_col_name),
+                                        );
+                                }
+                                DataType::Float64 => {
+                                    self.__current_table =
+                                        self.__current_table.clone().with_column(
+                                            col(&col_name)
+                                                .map(
+                                                    |s| Ok(s * 0),
+                                                    GetOutput::from_type(DataType::Float64),
+                                                )
+                                                .alias(tmp_col_name),
+                                        );
+                                }
+                                DataType::Utf8 => {
+                                    self.__current_table =
+                                        self.__current_table.clone().with_column(
+                                            col(&col_name)
+                                                .map(
+                                                    |s| {
+                                                        s.len();
+                                                        Ok(Series::new("", &[""]))
+                                                    },
+                                                    GetOutput::from_type(DataType::Utf8),
+                                                )
+                                                .alias(tmp_col_name),
+                                        );
+                                }
+                                _ => {}
+                            }
                         }
                         _ => {}
                     },
@@ -437,7 +482,7 @@ impl PRQLVirtualMachine {
                                 result.param2 = self.__insert_symbol(String::from(""));
                             }
                         }
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
                     TYPE_NUMERIC => match term2.param1 {
@@ -466,7 +511,7 @@ impl PRQLVirtualMachine {
                                     .repeat(f64::from_le_bytes(term1.param2).to_usize().unwrap()),
                             );
                         }
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
                     TYPE_STRING => match term2.param1 {
@@ -490,15 +535,15 @@ impl PRQLVirtualMachine {
                             );
                         }
                         TYPE_STRING => {}
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
-                    TYPE_IDENT => match term2.param1 {
+                    IDENT_TERM => match term2.param1 {
                         TYPE_NULL => {}
                         TYPE_BOOL => {}
                         TYPE_NUMERIC => {}
                         TYPE_STRING => {}
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
                     _ => {}
@@ -542,7 +587,7 @@ impl PRQLVirtualMachine {
                             result.param1 = TYPE_STRING;
                             result.param2 = term2.param2;
                         }
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
                     TYPE_BOOL => {}
@@ -563,10 +608,10 @@ impl PRQLVirtualMachine {
                                         [(u64::from_be_bytes(term2.param2) as usize)],
                             );
                         }
-                        TYPE_IDENT => {}
+                        IDENT_TERM => {}
                         _ => {}
                     },
-                    TYPE_IDENT => {}
+                    IDENT_TERM => {}
                     _ => {}
                 }
 
@@ -717,11 +762,6 @@ pub fn prql_import(vm: &mut PRQLVirtualMachine) {
             // vm.__current_table = LazyJsonLineReader::new()
         }
         _ => {}
-    }
-
-    let data = vm.__current_table.clone().collect().unwrap();
-    for col in data.get_column_names() {
-        println!("{}", col);
     }
 }
 
