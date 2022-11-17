@@ -6,14 +6,14 @@ import prqlParser from "../grammar/prqlParser.js";
 import { Blob } from "buffer";
 import { TextEncoder } from "util";
 
-export const TYPE_NULL = 0;
-export const TYPE_BOOL = 1;
-export const TYPE_NUMERIC = 2;
-export const TYPE_STRING = 3;
-export const TYPE_INTERVAL = 5;
-export const TYPE_RANGE = 6;
-export const TYPE_LIST = 7;
-export const TYPE_PIPELINE = 8;
+export const TERM_NULL = 0;
+export const TERM_BOOL = 1;
+export const TERM_NUMERIC = 2;
+export const TERM_STRING = 3;
+export const TERM_INTERVAL = 5;
+export const TERM_RANGE = 6;
+export const TERM_LIST = 7;
+export const TERM_PIPELINE = 8;
 export const TERM_IDENT = 10;
 
 export const OP_BEGIN_PIPELINE = 0;
@@ -34,8 +34,8 @@ export const OP_GOTO = 50;
 export const OP_BINARY_MUL = 100;
 export const OP_BINARY_DIV = 101;
 export const OP_BINARY_MOD = 102;
-export const OP_BINARY_PLUS = 103;
-export const OP_BINARY_MINUS = 104;
+export const OP_BINARY_ADD = 103;
+export const OP_BINARY_MIN = 104;
 
 export const OP_BINARY_EQ = 110;
 export const OP_BINARY_NE = 111;
@@ -115,7 +115,7 @@ export default class PrqlCompiler extends prqlListener {
     for (let i = 0; i < this.__instructions.length; i += 3) {
       if (
         this.__instructions[i] === OP_PUSH_TERM &&
-        this.__instructions[i + 1] === TYPE_NUMERIC
+        this.__instructions[i + 1] === TERM_NUMERIC
       ) {
         instructions.push(
           ...this._toByteArray2(this.__instructions[i]),
@@ -428,10 +428,10 @@ export default class PrqlCompiler extends prqlListener {
             this.__instructions.push(OP_BINARY_MOD, 0, 0);
             break;
           case "+":
-            this.__instructions.push(OP_BINARY_PLUS, 0, 0);
+            this.__instructions.push(OP_BINARY_ADD, 0, 0);
             break;
           case "-":
-            this.__instructions.push(OP_BINARY_MINUS, 0, 0);
+            this.__instructions.push(OP_BINARY_MIN, 0, 0);
             break;
           case "==":
             this.__instructions.push(OP_BINARY_EQ, 0, 0);
@@ -507,14 +507,14 @@ export default class PrqlCompiler extends prqlListener {
       case 1:
         // NULL
         if (ctx.NULL_() !== null) {
-          this.__instructions.push(OP_PUSH_TERM, TYPE_NULL, 0);
+          this.__instructions.push(OP_PUSH_TERM, TERM_NULL, 0);
         }
 
         // BOOLEAN
         else if (ctx.BOOLEAN() !== null) {
           this.__instructions.push(
             OP_PUSH_TERM,
-            TYPE_BOOL,
+            TERM_BOOL,
             ctx.BOOLEAN().getText() === "true" ? 1 : 0
           );
         }
@@ -523,7 +523,7 @@ export default class PrqlCompiler extends prqlListener {
         else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
           this.__instructions.push(
             OP_PUSH_TERM,
-            TYPE_NUMERIC,
+            TERM_NUMERIC,
             parseFloat(ctx.NUMBER()[0].getText())
           );
         }
@@ -537,7 +537,7 @@ export default class PrqlCompiler extends prqlListener {
             this.__symbol_table_str.push(str);
           }
 
-          this.__instructions.push(OP_PUSH_TERM, TYPE_STRING, pos);
+          this.__instructions.push(OP_PUSH_TERM, TERM_STRING, pos);
         }
 
         // IDENT
@@ -556,7 +556,7 @@ export default class PrqlCompiler extends prqlListener {
       // time interval
       case 2:
         // this.term = {
-        //   type: TYPE_INTERVAL,
+        //   type: TERM_INTERVAL,
         //   num: parseFloat(ctx.children[0].getText()),
         //   kind: ctx.children[1].getText(),
         // };
@@ -568,18 +568,18 @@ export default class PrqlCompiler extends prqlListener {
         // if (s === NaN) {
         //   const start = { type: TERM_IDENT, value: ctx.children[0].getText() };
         // } else {
-        //   const start = { type: TYPE_NUMERIC, value: s };
+        //   const start = { type: TERM_NUMERIC, value: s };
         // }
 
         // const e = ctx.children[2].getText();
         // if (end === NaN) {
         //   const end = { type: TERM_IDENT, value: ctx.children[2].getText() };
         // } else {
-        //   const end = { type: TYPE_NUMERIC, value: e };
+        //   const end = { type: TERM_NUMERIC, value: e };
         // }
 
         // this.term = {
-        //   type: TYPE_RANGE,
+        //   type: TERM_RANGE,
         //   start: start,
         //   end: end,
         // };
