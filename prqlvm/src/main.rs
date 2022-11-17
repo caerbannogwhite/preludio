@@ -44,8 +44,8 @@ const OP_GOTO: u16 = 50;
 const OP_BINARY_MUL: u16 = 100;
 const OP_BINARY_DIV: u16 = 101;
 const OP_BINARY_MOD: u16 = 102;
-const OP_BINARY_PLUS: u16 = 103;
-const OP_BINARY_MINUS: u16 = 104;
+const OP_BINARY_ADD: u16 = 103;
+const OP_BINARY_MIN: u16 = 104;
 
 // const OP_BINARY_EQ: u16 = 110;
 // const OP_BINARY_NE: u16 = 111;
@@ -72,17 +72,24 @@ struct Cli {
     input_file: String,
 }
 
-#[derive(Clone, Debug)]
-pub enum PrqlDataType {
+pub enum PrqlBaseDataType {
     Null,
     Bool,
     Numeric,
     String,
 }
+// #[derive(Clone, Debug)]
+pub struct PrqlDataType {
+    base: PrqlBaseDataType,
+    size: usize,
+}
 
 impl Default for PrqlDataType {
     fn default() -> Self {
-        PrqlDataType::Null
+        PrqlDataType {
+            base: PrqlBaseDataType::Null,
+            size: 0,
+        }
     }
 }
 
@@ -90,54 +97,102 @@ impl PrqlDataType {
     /// Convert to the physical data type
     #[must_use]
     pub fn to_physical(&self) -> DataType {
-        use PrqlDataType::*;
-        match self {
-            Null => DataType::Null,
-            Bool => DataType::Boolean,
-            Numeric => DataType::Float64,
-            String => DataType::Utf8,
+        match self.base {
+            PrqlBaseDataType::Null => DataType::Null,
+            PrqlBaseDataType::Bool => DataType::Boolean,
+            PrqlBaseDataType::Numeric => DataType::Float64,
+            PrqlBaseDataType::String => DataType::Utf8,
         }
     }
 
-    pub fn polars_to_prql(dtype: &DataType) -> PrqlDataType {
+    pub fn is_scalar(&self) -> bool {
+        self.size != 1
+    }
+
+    pub fn polars_to_prql(dtype: &DataType, size: usize) -> PrqlDataType {
         match dtype {
-            DataType::Null => PrqlDataType::Null,
-            DataType::Unknown => PrqlDataType::Null,
-            DataType::Boolean => PrqlDataType::Bool,
-            DataType::UInt8 => PrqlDataType::Numeric,
-            DataType::UInt16 => PrqlDataType::Numeric,
-            DataType::UInt32 => PrqlDataType::Numeric,
-            DataType::UInt64 => PrqlDataType::Numeric,
-            DataType::Int8 => PrqlDataType::Numeric,
-            DataType::Int16 => PrqlDataType::Numeric,
-            DataType::Int32 => PrqlDataType::Numeric,
-            DataType::Int64 => PrqlDataType::Numeric,
-            DataType::Float32 => PrqlDataType::Numeric,
-            DataType::Float64 => PrqlDataType::Numeric,
-            DataType::Utf8 => PrqlDataType::String,
-            _ => PrqlDataType::Null,
+            DataType::Null => PrqlDataType {
+                base: PrqlBaseDataType::Null,
+                size: size,
+            },
+            DataType::Unknown => PrqlDataType {
+                base: PrqlBaseDataType::Null,
+                size: size,
+            },
+            DataType::Boolean => PrqlDataType {
+                base: PrqlBaseDataType::Bool,
+                size: size,
+            },
+            DataType::UInt8 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::UInt16 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::UInt32 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::UInt64 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Int8 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Int16 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Int32 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Int64 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Float32 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Float64 => PrqlDataType {
+                base: PrqlBaseDataType::Numeric,
+                size: size,
+            },
+            DataType::Utf8 => PrqlDataType {
+                base: PrqlBaseDataType::String,
+                size: size,
+            },
+            _ => PrqlDataType {
+                base: PrqlBaseDataType::Null,
+                size: size,
+            },
         }
     }
 
     pub fn prql_to_polars(self) -> DataType {
-        match self {
-            PrqlDataType::Null => DataType::Null,
-            PrqlDataType::Bool => DataType::Boolean,
-            PrqlDataType::Numeric => DataType::Float64,
-            PrqlDataType::String => DataType::Utf8,
+        match self.base {
+            PrqlBaseDataType::Null => DataType::Null,
+            PrqlBaseDataType::Bool => DataType::Boolean,
+            PrqlBaseDataType::Numeric => DataType::Float64,
+            PrqlBaseDataType::String => DataType::Utf8,
         }
     }
 }
 
 impl Display for PrqlDataType {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let s = match self {
-            PrqlDataType::Null => "Null",
-            PrqlDataType::Bool => "Bool",
-            PrqlDataType::Numeric => "Numeric",
-            PrqlDataType::String => "String",
+        let s = match self.base {
+            PrqlBaseDataType::Null => format!("Null[{}]", self.size),
+            PrqlBaseDataType::Bool => format!("Bool[{}]", self.size),
+            PrqlBaseDataType::Numeric => format!("Numeric[{}]", self.size),
+            PrqlBaseDataType::String => format!("String[{}]", self.size),
         };
-        f.write_str(s)
+        f.write_str(s.as_str())
     }
 }
 
@@ -751,16 +806,7 @@ impl PRQLVirtualMachine {
                     _ => {}
                 }
 
-                println!(
-                    "{}",
-                    self.__current_table
-                        .clone()
-                        .lazy()
-                        .to_owned()
-                        .limit(5)
-                        .collect()
-                        .unwrap()
-                );
+                println!("{}", self.__current_table.head(Some(5)));
 
                 self.__stack.push(result);
             }
@@ -775,7 +821,7 @@ impl PRQLVirtualMachine {
 
             /////////////////////////////////////////////////////////
             ////                ADDITION
-            OP_BINARY_PLUS => {
+            OP_BINARY_ADD => {
                 let term2 = self.__stack.pop().unwrap();
                 let term1 = self.__stack.pop().unwrap();
 
@@ -833,11 +879,13 @@ impl PRQLVirtualMachine {
 
             /////////////////////////////////////////////////////////
             ////                SUBTRACTION
-            OP_BINARY_MINUS => {}
+            OP_BINARY_MIN => {}
 
             _ => println!("[💣] Byte-Code Error - Unknown op code: {}", opcode),
         }
     }
+
+    fn __ident_resolution() {}
 
     pub fn __float_to_param(f: f64) -> u64 {
         let bytes = f.to_ne_bytes();
@@ -980,7 +1028,7 @@ pub fn prql_import(vm: &mut PRQLVirtualMachine) {
             for col in head.schema().iter() {
                 schema.with_column(
                     col.0.to_string(),
-                    PrqlDataType::polars_to_prql(col.1).to_physical(),
+                    PrqlDataType::polars_to_prql(col.1, 0).to_physical(),
                 );
             }
 
