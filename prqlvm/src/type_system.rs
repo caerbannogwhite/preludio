@@ -9,6 +9,19 @@ pub enum PrqlBaseDataType {
     String,
 }
 
+// impl PrqlBaseDataType {
+//     /// Convert to the physical data type
+//     #[must_use]
+//     pub fn to_rust(&self) -> DataType {
+//         match self {
+//             PrqlBaseDataType::Null => DataType::Null,
+//             PrqlBaseDataType::Bool => DataType::Boolean,
+//             PrqlBaseDataType::Numeric => DataType::Float64,
+//             PrqlBaseDataType::String => DataType::Utf8,
+//         }
+//     }
+// }
+
 // #[derive(Clone, Debug)]
 pub struct PrqlDataType {
     base: PrqlBaseDataType,
