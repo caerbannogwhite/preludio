@@ -1,29 +1,24 @@
 use clap::Parser;
+use internal::PrqlInternalDim;
 use polars::export::num::ToPrimitive;
-use polars::prelude::*;
 use std::collections::HashMap;
 use std::fs;
-use std::fs::File;
 use std::str;
 
+mod internal;
 mod prql_std;
-mod prql_vm;
 mod type_system;
+mod vm;
 
 const TERM_NULL: u16 = 0;
 const TERM_BOOL: u16 = 1;
 const TERM_NUMERIC: u16 = 2;
 const TERM_STRING: u16 = 3;
-const TERM_INTERVAL: u16 = 5;
-const TERM_RANGE: u16 = 6;
-const TERM_LIST: u16 = 7;
-const TERM_PIPELINE: u16 = 8;
+// const TERM_INTERVAL: u16 = 5;
+// const TERM_RANGE: u16 = 6;
+// const TERM_LIST: u16 = 7;
+// const TERM_PIPELINE: u16 = 8;
 const TERM_IDENT: u16 = 10;
-
-const TYPE_COLUMN_NULL: u16 = 20;
-const TYPE_COLUMN_BOOL: u16 = 21;
-const TYPE_COLUMN_NUMERIC: u16 = 22;
-const TYPE_COLUMN_STRING: u16 = 23;
 
 const OP_BEGIN_PIPELINE: u16 = 0;
 const OP_END_PIPELINE: u16 = 1;
@@ -44,7 +39,7 @@ const OP_BINARY_MUL: u16 = 100;
 const OP_BINARY_DIV: u16 = 101;
 const OP_BINARY_MOD: u16 = 102;
 const OP_BINARY_ADD: u16 = 103;
-const OP_BINARY_MIN: u16 = 104;
+const OP_BINARY_SUB: u16 = 104;
 
 // const OP_BINARY_EQ: u16 = 110;
 // const OP_BINARY_NE: u16 = 111;
@@ -100,24 +95,18 @@ pub struct FunctionParam {
     value: [u8; 8],
 }
 
-pub struct Operation {
-    opcode: u16,
-    param1: u16,
-    param2: [u8; 8],
-}
-
 pub struct PRQLVirtualMachine {
     __verbosity_level: u8,
     __debug_level: u8,
     __counter: u64,
     __current_directory: String,
-    __current_table: DataFrame,
+    __current_result: Option<internal::PrqlInternal>,
     __current_temp_column: String,
     __symbol_table: Vec<String>,
-    __stack: Vec<Operation>,
+    __stack: Vec<internal::PrqlInternal>,
     __function_num_params: u64,
     __functions: HashMap<String, fn(&mut PRQLVirtualMachine)>,
-    __variables: HashMap<String, DataFrame>,
+    __variables: HashMap<String, internal::PrqlInternal>,
 
     input_file: String,
 }
@@ -130,7 +119,7 @@ impl PRQLVirtualMachine {
             __counter: 0,
             __current_directory: String::new(),
 
-            __current_table: DataFrame::default(),
+            __current_result: std::option::Option::None,
             __current_temp_column: String::from(""),
 
             __symbol_table: Vec::new(),
@@ -143,11 +132,16 @@ impl PRQLVirtualMachine {
         };
 
         // Load functions
-        vm.__functions.insert(String::from("derive"), prql_std::prql_derive);
-        vm.__functions.insert(String::from("from"), prql_std::prql_from);
-        vm.__functions.insert(String::from("import"), prql_std::prql_import);
-        vm.__functions.insert(String::from("export"), prql_std::prql_export);
-        vm.__functions.insert(String::from("select"), prql_std::prql_select);
+        vm.__functions
+            .insert(String::from("derive"), prql_std::prql_derive);
+        vm.__functions
+            .insert(String::from("from"), prql_std::prql_from);
+        vm.__functions
+            .insert(String::from("import"), prql_std::prql_import);
+        vm.__functions
+            .insert(String::from("export"), prql_std::prql_export);
+        vm.__functions
+            .insert(String::from("select"), prql_std::prql_select);
 
         return vm;
     }
@@ -280,83 +274,118 @@ impl PRQLVirtualMachine {
             OP_ADD_EXPR_TERM => {}
 
             OP_PUSH_NAMED_PARAM => {
+                let param_name = self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                 if self.__debug_level > 10 {
-                    let param_name =
-                        self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                     println!(
                         "{:<25} | {:<20} | {:<20}",
                         "OP_PUSH_NAMED_PARAM", "", param_name
                     );
                 }
 
-                self.__stack.push(Operation {
-                    opcode: OP_PUSH_NAMED_PARAM,
-                    param1: 0,
-                    param2: param2,
+                self.__stack.push(internal::PrqlInternal {
+                    dim: internal::PrqlInternalDim::Scalar,
+                    tag: internal::PrqlInternalTag::ParamName,
+                    scalar_type: None,
+                    scalar_bool: None,
+                    scalar_num: None,
+                    scalar_string: None,
+                    name: Some(param_name),
+                    data_frame: None,
+                    error_message: None,
                 });
             }
 
             OP_PUSH_ASSIGN_IDENT => {
+                let param_name = self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                 if self.__debug_level > 10 {
-                    let param_name =
-                        self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                     println!(
                         "{:<25} | {:<20} | {:<20}",
                         "OP_PUSH_ASSIGN_IDENT", "", param_name
                     );
                 }
 
-                self.__stack.push(Operation {
-                    opcode: OP_PUSH_ASSIGN_IDENT,
-                    param1: 0,
-                    param2: param2,
+                self.__stack.push(internal::PrqlInternal {
+                    dim: internal::PrqlInternalDim::Scalar,
+                    tag: internal::PrqlInternalTag::AssignIdent,
+                    scalar_type: None,
+                    scalar_bool: None,
+                    scalar_num: None,
+                    scalar_string: None,
+                    name: Some(param_name),
+                    data_frame: None,
+                    error_message: None,
                 });
             }
 
             OP_PUSH_TERM => {
-                if self.__debug_level > 10 {
-                    let mut term_tERM_str = String::from("UNKNOWN");
-                    let mut term_val = String::from("");
-                    match param1 {
-                        TERM_NULL => {
-                            term_tERM_str = String::from("NULL");
-                        }
-                        TERM_BOOL => {
-                            term_tERM_str = String::from("BOOL");
-                            if param2[7] == 1 {
-                                term_val = String::from("true");
-                            } else {
-                                term_val = String::from("false");
-                            };
-                        }
-                        TERM_NUMERIC => {
-                            term_tERM_str = String::from("NUMERIC");
-                            term_val = f64::from_le_bytes(param2).to_string();
-                        }
-                        TERM_STRING => {
-                            term_tERM_str = String::from("STRING");
-                            term_val =
-                                self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
-                        }
-                        TERM_IDENT => {
-                            term_tERM_str = String::from("IDENT");
-                            term_val =
-                                self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
-                        }
-                        _ => {}
+                let mut term_type_str = String::from("UNKNOWN");
+                let mut term_val = String::from("");
+                match param1 {
+                    TERM_NULL => {
+                        term_type_str = String::from("NULL");
+                        self.__stack.push(internal::PrqlInternal::new_scalar(
+                            type_system::PrqlBaseDataType::Null,
+                            None,
+                            None,
+                            None,
+                        ));
                     }
+                    TERM_BOOL => {
+                        term_type_str = String::from("BOOL");
+                        term_val = String::from("true");
+                        let bool_val = true;
+                        if param2[7] == 0 {
+                            term_val = String::from("false");
+                            bool_val = false;
+                        }
 
-                    println!(
-                        "{:<25} | {:<20} | {:<20}",
-                        "OP_PUSH_TERM", term_tERM_str, term_val
-                    );
+                        self.__stack.push(internal::PrqlInternal::new_scalar(
+                            type_system::PrqlBaseDataType::Bool,
+                            Some(bool_val),
+                            None,
+                            None,
+                        ));
+                    }
+                    TERM_NUMERIC => {
+                        term_type_str = String::from("NUMERIC");
+                        let num_val = f64::from_le_bytes(param2);
+                        term_val = num_val.to_string();
+
+                        self.__stack.push(internal::PrqlInternal::new_scalar(
+                            type_system::PrqlBaseDataType::Null,
+                            None,
+                            Some(num_val),
+                            None,
+                        ));
+                    }
+                    TERM_STRING => {
+                        term_type_str = String::from("STRING");
+                        term_val =
+                            self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
+
+                        self.__stack.push(internal::PrqlInternal::new_scalar(
+                            type_system::PrqlBaseDataType::String,
+                            None,
+                            None,
+                            Some(term_val),
+                        ));
+                    }
+                    TERM_IDENT => {
+                        term_type_str = String::from("IDENT");
+                        term_val =
+                            self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
+
+                        self.__stack.push(self.__ident_resolution(term_val));
+                    }
+                    _ => {}
                 }
 
-                self.__stack.push(Operation {
-                    opcode: opcode,
-                    param1: param1,
-                    param2: param2,
-                })
+                if self.__debug_level > 10 {
+                    println!(
+                        "{:<25} | {:<20} | {:<20}",
+                        "OP_PUSH_TERM", term_type_str, term_val
+                    );
+                }
             }
 
             OP_END_FUNC_CALL_PARAM => {
@@ -374,325 +403,32 @@ impl PRQLVirtualMachine {
                 let term2 = self.__stack.pop().unwrap();
                 let term1 = self.__stack.pop().unwrap();
 
-                let mut result = Operation {
-                    opcode: OP_PUSH_TERM,
-                    param1: 0,
-                    param2: [0, 0, 0, 0, 0, 0, 0, 0],
-                };
+                term1.arith_binary_mul(term2);
 
-                match term1.param1 {
-                    TERM_NULL => match term2.param1 {
-                        TERM_NULL => result.param1 = TERM_NULL,
-                        TERM_BOOL => result.param1 = TERM_BOOL,
-                        TERM_NUMERIC => {
-                            result.param1 = TERM_NUMERIC;
-                            result.param2 = f64::to_le_bytes(0.0);
-                        }
-                        TERM_STRING => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = self.__insert_symbol(String::from(""));
-                        }
-                        TERM_IDENT => {
-                            let col_name = self.__symbol_table
-                                [(u64::from_be_bytes(term2.param2) as usize)]
-                                .clone();
-
-                            let tmp_col_name = "tmp";
-                            result.param1 = TERM_IDENT;
-                            result.param2 = self.__insert_symbol(String::from(tmp_col_name));
-
-                            // match self
-                            //     .__current_table
-                            //     .schema()
-                            //     .unwrap()
-                            //     .get(&col_name)
-                            //     .unwrap()
-                            // {
-                            //     DataType::Null => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s),
-                            //                         GetOutput::from_type(DataType::Null),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Boolean => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s * 0),
-                            //                         GetOutput::from_type(DataType::Boolean),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Float64 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s * 0),
-                            //                         GetOutput::from_type(DataType::Float64),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Utf8 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| {
-                            //                             s.len();
-                            //                             Ok(Series::new("", &[""]))
-                            //                         },
-                            //                         GetOutput::from_type(DataType::Utf8),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     _ => {}
-                            // }
-                        }
-                        _ => {}
-                    },
-                    TERM_BOOL => match term2.param1 {
-                        TERM_NULL => result.param1 = TERM_BOOL,
-                        TERM_BOOL => {
-                            result.param1 = TERM_BOOL;
-                            result.param2[7] = term1.param2[7] * term2.param2[7];
-                        }
-                        TERM_NUMERIC => {
-                            result.param1 = TERM_NUMERIC;
-                            if term1.param2[7] == 1 {
-                                result.param2 = term2.param2;
-                            } else {
-                                result.param2 = f64::to_le_bytes(0.0);
-                            }
-                        }
-                        TERM_STRING => {
-                            result.param1 = TERM_STRING;
-                            if term1.param2[7] == 1 {
-                                result.param2 = term2.param2;
-                            } else {
-                                result.param2 = self.__insert_symbol(String::from(""));
-                            }
-                        }
-                        TERM_IDENT => {
-                            // let col_name = self.__symbol_table
-                            //     [(u64::from_be_bytes(term2.param2) as usize)]
-                            //     .clone();
-
-                            // let tmp_col_name = "tmp";
-                            // result.param1 = TERM_IDENT;
-                            // result.param2 = self.__insert_symbol(String::from(tmp_col_name));
-
-                            // let value = term1.param2[7] as i64;
-                            // match self
-                            //     .__current_table
-                            //     .schema()
-                            //     .unwrap()
-                            //     .get(&col_name)
-                            //     .unwrap()
-                            // {
-                            //     DataType::Null => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s),
-                            //                         GetOutput::from_type(DataType::Boolean),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Boolean => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s * value),
-                            //                         GetOutput::from_type(DataType::Boolean),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Float64 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s * value),
-                            //                         GetOutput::from_type(DataType::Float64),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Utf8 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| {
-                            //                             s.len();
-                            //                             Ok(Series::new("", &[""]))
-                            //                         },
-                            //                         GetOutput::from_type(DataType::Utf8),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     _ => {}
-                            // }
-                        }
-                        _ => {}
-                    },
-                    TERM_NUMERIC => match term2.param1 {
-                        TERM_NULL => {
-                            result.param1 = TERM_NUMERIC;
-                            result.param2 = f64::to_le_bytes(0.0);
-                        }
-                        TERM_BOOL => {
-                            result.param1 = TERM_NUMERIC;
-                            if term2.param2[7] == 1 {
-                                result.param2 = term1.param2;
-                            } else {
-                                result.param2 = f64::to_le_bytes(0.0);
-                            }
-                        }
-                        TERM_NUMERIC => {
-                            result.param1 = TERM_NUMERIC;
-                            result.param2 = f64::to_le_bytes(
-                                f64::from_le_bytes(term1.param2) * f64::from_le_bytes(term2.param2),
-                            );
-                        }
-                        TERM_STRING => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = self.__insert_symbol(
-                                self.__symbol_table[(u64::from_be_bytes(term2.param2) as usize)]
-                                    .repeat(f64::from_le_bytes(term1.param2).to_usize().unwrap()),
-                            );
-                        }
-                        TERM_IDENT => {}
-                        _ => {}
-                    },
-                    TERM_STRING => match term2.param1 {
-                        TERM_NULL => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = self.__insert_symbol(String::from(""));
-                        }
-                        TERM_BOOL => {
-                            result.param1 = TERM_STRING;
-                            if term2.param2[7] == 1 {
-                                result.param2 = term1.param2;
-                            } else {
-                                result.param2 = self.__insert_symbol(String::from(""));
-                            }
-                        }
-                        TERM_NUMERIC => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = self.__insert_symbol(
-                                self.__symbol_table[(u64::from_be_bytes(term1.param2) as usize)]
-                                    .repeat(f64::from_le_bytes(term2.param2).to_usize().unwrap()),
-                            );
-                        }
-                        TERM_STRING => {}
-                        TERM_IDENT => {}
-                        _ => {}
-                    },
-                    TERM_IDENT => match term2.param1 {
-                        TERM_NULL => {}
-                        TERM_BOOL => {}
-                        TERM_NUMERIC => {
-                            // let col_name = self.__symbol_table
-                            //     [(u64::from_be_bytes(term1.param2) as usize)]
-                            //     .clone();
-
-                            // let tmp_col_name = "tmp";
-                            // result.param1 = TERM_IDENT;
-                            // result.param2 = self.__insert_symbol(String::from(tmp_col_name));
-
-                            // let value = term1.param2[7] as i64;
-                            // match self
-                            //     .__current_table
-                            //     .schema()
-                            //     .unwrap()
-                            //     .get(&col_name)
-                            //     .unwrap()
-                            // {
-                            //     DataType::Null => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| Ok(s),
-                            //                         GetOutput::from_type(DataType::Boolean),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Boolean => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         move |s| Ok(s * value),
-                            //                         GetOutput::from_type(DataType::Boolean),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Float64 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         move |s| Ok(s * value),
-                            //                         GetOutput::from_type(DataType::Float64),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     DataType::Utf8 => {
-                            //         self.__current_table =
-                            //             self.__current_table.clone().with_column(
-                            //                 col(&col_name)
-                            //                     .map(
-                            //                         |s| {
-                            //                             s.len();
-                            //                             Ok(Series::new("", &[""]))
-                            //                         },
-                            //                         GetOutput::from_type(DataType::Utf8),
-                            //                     )
-                            //                     .alias(tmp_col_name),
-                            //             );
-                            //     }
-                            //     _ => {}
-                            // }
-                        }
-                        TERM_STRING => {}
-                        TERM_IDENT => {}
-                        _ => {}
-                    },
-                    _ => {}
-                }
-
-                println!("{}", self.__current_table.head(Some(5)));
-
-                self.__stack.push(result);
+                self.__stack.push(term1);
             }
 
             /////////////////////////////////////////////////////////
             ////                DIVISION
-            OP_BINARY_DIV => {}
+            OP_BINARY_DIV => {
+                let term2 = self.__stack.pop().unwrap();
+                let term1 = self.__stack.pop().unwrap();
+
+                term1.arith_binary_div(term2);
+
+                self.__stack.push(term1);
+            }
 
             /////////////////////////////////////////////////////////
             ////                MODULUS
-            OP_BINARY_MOD => {}
+            OP_BINARY_MOD => {
+                let term2 = self.__stack.pop().unwrap();
+                let term1 = self.__stack.pop().unwrap();
+
+                term1.arith_binary_mod(term2);
+
+                self.__stack.push(term1);
+            }
 
             /////////////////////////////////////////////////////////
             ////                ADDITION
@@ -700,67 +436,80 @@ impl PRQLVirtualMachine {
                 let term2 = self.__stack.pop().unwrap();
                 let term1 = self.__stack.pop().unwrap();
 
-                let mut result = Operation {
-                    opcode: OP_PUSH_TERM,
-                    param1: 0,
-                    param2: [0, 0, 0, 0, 0, 0, 0, 0],
-                };
+                term1.arith_binary_add(term2);
 
-                match term1.param1 {
-                    TERM_NULL => match term2.param1 {
-                        TERM_NULL => result.param1 = TERM_NULL,
-                        TERM_BOOL => {
-                            result.param1 = TERM_BOOL;
-                            result.param2 = term2.param2;
-                        }
-                        TERM_NUMERIC => {
-                            result.param1 = TERM_NUMERIC;
-                            result.param2 = term2.param2;
-                        }
-                        TERM_STRING => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = term2.param2;
-                        }
-                        TERM_IDENT => {}
-                        _ => {}
-                    },
-                    TERM_BOOL => {}
-                    TERM_NUMERIC => {}
-                    TERM_STRING => match term2.param1 {
-                        TERM_NULL => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = term1.param2;
-                        }
-                        TERM_BOOL => {}
-                        TERM_NUMERIC => {}
-                        TERM_STRING => {
-                            result.param1 = TERM_STRING;
-                            result.param2 = self.__insert_symbol(
-                                self.__symbol_table[(u64::from_be_bytes(term1.param2) as usize)]
-                                    .clone()
-                                    + &self.__symbol_table
-                                        [(u64::from_be_bytes(term2.param2) as usize)],
-                            );
-                        }
-                        TERM_IDENT => {}
-                        _ => {}
-                    },
-                    TERM_IDENT => {}
-                    _ => {}
-                }
-
-                self.__stack.push(result);
+                self.__stack.push(term1);
             }
 
             /////////////////////////////////////////////////////////
             ////                SUBTRACTION
-            OP_BINARY_MIN => {}
+            OP_BINARY_SUB => {
+                let term2 = self.__stack.pop().unwrap();
+                let term1 = self.__stack.pop().unwrap();
+
+                term1.arith_binary_sub(term2);
+
+                self.__stack.push(term1);
+            }
 
             _ => println!("[💣] Byte-Code Error - Unknown op code: {}", opcode),
         }
     }
 
-    fn __ident_resolution() {}
+    fn __ident_resolution(&mut self, ident: String) -> internal::PrqlInternal {
+        // Look at the current result first
+        if self.__current_result.is_some() {
+            let res = self.__current_result.unwrap();
+
+            match res.get_dim() {
+                PrqlInternalDim::Scalar => {
+                    return internal::PrqlInternal::new_error(Some(format!(
+                        "Cannot find symbol {}",
+                        ident
+                    )));
+                }
+                PrqlInternalDim::Series => {
+                    return internal::PrqlInternal::new_error(Some(format!(
+                        "Cannot find symbol {}",
+                        ident
+                    )));
+                }
+                PrqlInternalDim::Table => {
+                    if res
+                        .get_data_frame()
+                        .unwrap()
+                        .get_column_names()
+                        .contains(&ident.as_str())
+                    {
+                        return internal::PrqlInternal {
+                            dim: PrqlInternalDim::Series,
+                            tag: internal::PrqlInternalTag::ExprTerm,
+                            scalar_type: None,
+                            scalar_bool: None,
+                            scalar_num: None,
+                            scalar_string: None,
+                            name: None,
+                            data_frame: Some(
+                                res.get_data_frame().unwrap().select([ident]).unwrap(),
+                            ),
+                            error_message: None,
+                        };
+                    }
+                    return internal::PrqlInternal::new_error(Some(format!(
+                        "Cannot find symbol {}",
+                        ident
+                    )));
+                }
+            }
+        }
+
+        // If no result, look at the variables in the environment
+        if self.__variables.contains_key(&ident) {
+            return self.__variables[&ident];
+        }
+
+        return internal::PrqlInternal::new_error(Some(format!("Cannot find symbol {}", ident)));
+    }
 
     pub fn __float_to_param(f: f64) -> u64 {
         let bytes = f.to_ne_bytes();
