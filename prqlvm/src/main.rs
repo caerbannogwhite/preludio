@@ -137,9 +137,9 @@ impl PRQLVirtualMachine {
         vm.__functions
             .insert(String::from("from"), prql_std::prql_from);
         vm.__functions
-            .insert(String::from("import"), prql_std::prql_import);
+            .insert(String::from("import_csv"), prql_std::prql_import_csv);
         vm.__functions
-            .insert(String::from("export"), prql_std::prql_export);
+            .insert(String::from("export_csv"), prql_std::prql_export_csv);
         vm.__functions
             .insert(String::from("select"), prql_std::prql_select);
 
@@ -534,32 +534,24 @@ impl PRQLVirtualMachine {
 
     fn __read_params(
         &mut self,
-        position_params: &mut Vec<FunctionParam>,
-        named_params: &mut HashMap<String, FunctionParam>,
+        position_params: &mut Vec<internal::PrqlInternal>,
+        named_params: &mut HashMap<String, internal::PrqlInternal>,
     ) {
         let mut counter: u64 = 0;
         while counter < self.__function_num_params {
-            let op = self.__stack.pop().unwrap();
-            match op.opcode {
-                OP_PUSH_TERM => {
-                    position_params.push(FunctionParam {
-                        type_: op.param1,
-                        value: op.param2,
-                    });
+            let term = self.__stack.pop().unwrap();
+            match term.get_tag() {
+                internal::PrqlInternalTag::ExprTerm => {
+                    position_params.push(term);
                     counter += 1;
                 }
-                OP_PUSH_NAMED_PARAM => {
-                    let term = self.__stack.pop().unwrap();
-                    named_params.insert(
-                        self.__symbol_table[u64::from_be_bytes(op.param2) as usize].clone(),
-                        FunctionParam {
-                            type_: term.param1,
-                            value: term.param2,
-                        },
-                    );
+                internal::PrqlInternalTag::ParamName => {
+                    let val = self.__stack.pop().unwrap();
+                    named_params.insert(term.get_name().unwrap(), val);
                     counter += 1;
                 }
-                _ => {}
+                internal::PrqlInternalTag::AssignIdent => {}
+                internal::PrqlInternalTag::Error => {}
             }
         }
     }
