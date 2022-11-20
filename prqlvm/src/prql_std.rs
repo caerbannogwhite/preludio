@@ -14,13 +14,13 @@ pub fn prql_from(vm: &mut super::PRQLVirtualMachine) {
     }
 }
 
-pub fn prql_import(vm: &mut super::PRQLVirtualMachine) {
+pub fn prql_import_csv(vm: &mut super::PRQLVirtualMachine) {
     if vm.__debug_level > 5 {
-        println!("CALLING import");
+        println!("CALLING import_csv");
     }
 
     let help_message = "
-    import function
+    import_csv function
     ===============
 
     (path)    - the path of the input file
@@ -35,78 +35,84 @@ pub fn prql_import(vm: &mut super::PRQLVirtualMachine) {
                 ^  
     ";
 
-    let mut position_params: Vec<super::FunctionParam> = Vec::new();
-    let mut named_params: HashMap<String, super::FunctionParam> = HashMap::new();
+    let mut position_params: Vec<super::internal::PrqlInternal> = Vec::new();
+    let mut named_params: HashMap<String, super::internal::PrqlInternal> = HashMap::new();
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let path = vm.__symbol_table[u64::from_be_bytes(position_params[0].value) as usize].as_str();
-
-    let mut input_file_type = String::from("csv");
-    if named_params.contains_key("type") {
-        input_file_type =
-            vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].clone();
-    }
+    let path = position_params[0].get_scalar_string().unwrap();
 
     let mut delimiter: u8 = ',' as u8;
     if named_params.contains_key("delimiter") {
-        delimiter = vm.__symbol_table[u64::from_be_bytes(named_params["delimiter"].value) as usize]
+        delimiter = named_params["delimiter"]
+            .get_scalar_string()
+            .unwrap()
             .as_bytes()[0];
     }
 
     let mut enc_str = String::from("utf8");
     if named_params.contains_key("enc") {
-        enc_str = vm.__symbol_table[u64::from_be_bytes(named_params["enc"].value) as usize]
+        enc_str = named_params["enc"]
+            .get_scalar_string()
+            .unwrap()
             .to_lowercase();
     }
 
     let mut skip_rows = 0;
     if named_params.contains_key("skip") {
-        skip_rows = f64::from_ne_bytes(named_params["enc"].value) as usize
+        skip_rows = named_params["enc"].get_scalar_num().unwrap() as usize;
     }
 
-    match input_file_type.as_str() {
-        "csv" => {
-            let mut enc = CsvEncoding::Utf8;
-            match enc_str.as_str() {
-                "lossyutf8" => enc = CsvEncoding::LossyUtf8,
-                _ => {}
-            }
-
-            // Read the first 10 rows to get the schema
-            // Then, coerce the schema to to the PRQL data types
-            let head = CsvReader::from_path(path)
-                .unwrap()
-                .with_delimiter(delimiter)
-                .with_encoding(enc)
-                .with_skip_rows(skip_rows)
-                .with_n_rows(Some(10))
-                // .with_quote_char(quote)
-                .finish()
-                .unwrap();
-
-            let mut schema = Schema::new();
-            for col in head.schema().iter() {
-                schema.with_column(
-                    col.0.to_string(),
-                    super::type_system::PrqlDataType::polars_to_prql(col.1, 0).to_physical(),
-                );
-            }
-
-            vm.__current_table = CsvReader::from_path(path)
-                .unwrap()
-                .with_delimiter(delimiter)
-                .with_encoding(enc)
-                .with_skip_rows(skip_rows)
-                // .with_n_rows(10)
-                .with_dtypes(Some(&schema))
-                // .with_quote_char(quote)
-                .finish()
-                .unwrap();
-        }
-        "json" => {}
+    let mut enc = CsvEncoding::Utf8;
+    match enc_str.as_str() {
+        "lossyutf8" => enc = CsvEncoding::LossyUtf8,
         _ => {}
     }
+
+    // Read the first 10 rows to get the schema
+    // Then, coerce the schema to to the PRQL data types
+    let head = CsvReader::from_path(path)
+        .unwrap()
+        .with_delimiter(delimiter)
+        .with_encoding(enc)
+        .with_skip_rows(skip_rows)
+        .with_n_rows(Some(10))
+        // .with_quote_char(quote)
+        .finish()
+        .unwrap();
+
+    let mut schema = Schema::new();
+    for col in head.schema().iter() {
+        schema.with_column(
+            col.0.to_string(),
+            super::type_system::PrqlDataType::polars_to_prql(col.1, 0).to_physical(),
+        );
+    }
+
+    let df = CsvReader::from_path(path)
+        .unwrap()
+        .with_delimiter(delimiter)
+        .with_encoding(enc)
+        .with_skip_rows(skip_rows)
+        // .with_n_rows(10)
+        .with_dtypes(Some(&schema))
+        // .with_quote_char(quote)
+        .finish()
+        .unwrap();
+
+    vm.__current_result = Some(super::internal::PrqlInternal {
+        dim: super::internal::PrqlInternalDim::Table,
+        tag: super::internal::PrqlInternalTag::ExprTerm,
+        scalar_type: None,
+        scalar_bool: None,
+        scalar_num: None,
+        scalar_string: None,
+        name: None,
+        data_frame: Some(df),
+        error_message: None,
+    });
+
+    vm.__stack.push(vm.__current_result.unwrap());
 }
 
 pub fn prql_new(vm: &mut super::PRQLVirtualMachine) {
@@ -120,27 +126,35 @@ pub fn prql_new(vm: &mut super::PRQLVirtualMachine) {
 
     ";
 
-    let mut position_params: Vec<super::FunctionParam> = Vec::new();
-    let mut named_params: HashMap<String, super::FunctionParam> = HashMap::new();
+    let mut position_params: Vec<super::internal::PrqlInternal> = Vec::new();
+    let mut named_params: HashMap<String, super::internal::PrqlInternal> = HashMap::new();
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let mut input_file_type = String::from("csv");
-    if named_params.contains_key("type") {
-        input_file_type =
-            vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].clone();
-    }
+    let df = DataFrame::default();
 
-    vm.__current_table = DataFrame::default();
+    vm.__current_result = Some(super::internal::PrqlInternal {
+        dim: super::internal::PrqlInternalDim::Table,
+        tag: super::internal::PrqlInternalTag::ExprTerm,
+        scalar_type: None,
+        scalar_bool: None,
+        scalar_num: None,
+        scalar_string: None,
+        name: None,
+        data_frame: Some(df),
+        error_message: None,
+    });
+
+    vm.__stack.push(vm.__current_result.unwrap());
 }
 
-pub fn prql_export(vm: &mut super::PRQLVirtualMachine) {
+pub fn prql_export_csv(vm: &mut super::PRQLVirtualMachine) {
     if vm.__debug_level > 5 {
-        println!("CALLING output");
+        println!("CALLING export_csv");
     }
 
     let help_message = "
-    output function
+    export_csv function
     ===============
 
     (path)    - the path of the input file
@@ -151,35 +165,25 @@ pub fn prql_export(vm: &mut super::PRQLVirtualMachine) {
                   ^
     ";
 
-    let mut position_params: Vec<super::FunctionParam> = Vec::new();
-    let mut named_params: HashMap<String, super::FunctionParam> = HashMap::new();
+    let mut position_params: Vec<super::internal::PrqlInternal> = Vec::new();
+    let mut named_params: HashMap<String, super::internal::PrqlInternal> = HashMap::new();
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let path = vm.__symbol_table[u64::from_be_bytes(position_params[0].value) as usize].as_str();
-
-    let mut input_file_type = String::from("csv");
-    if named_params.contains_key("type") {
-        input_file_type =
-            vm.__symbol_table[u64::from_be_bytes(named_params["type"].value) as usize].clone();
-    }
+    let path = position_params[0].get_scalar_string().unwrap();
 
     let mut delimiter: u8 = ',' as u8;
     if named_params.contains_key("delimiter") {
-        delimiter = vm.__symbol_table[u64::from_be_bytes(named_params["delimiter"].value) as usize]
+        delimiter = named_params["delimiter"]
+            .get_scalar_string()
+            .unwrap()
             .as_bytes()[0];
     }
 
-    match input_file_type.as_str() {
-        "csv" => {
-            CsvWriter::new(File::create(path).unwrap())
-                .with_delimiter(delimiter)
-                .finish(&mut vm.__current_table)
-                .unwrap();
-        }
-        "json" => {}
-        _ => {}
-    }
+    CsvWriter::new(File::create(path).unwrap())
+        .with_delimiter(delimiter)
+        .finish(&mut vm.__stack.pop().unwrap().get_data_frame().unwrap())
+        .unwrap();
 }
 
 pub fn prql_select(vm: &mut super::PRQLVirtualMachine) {
