@@ -2,6 +2,7 @@ use polars::prelude::*;
 use std::fmt::Display;
 use std::fmt::Formatter;
 
+#[derive(Clone, Debug)]
 pub enum PrqlBaseDataType {
     Null,
     Bool,

@@ -401,55 +401,45 @@ impl PRQLVirtualMachine {
             ////                MULTIPLICATION
             OP_BINARY_MUL => {
                 let term2 = self.__stack.pop().unwrap();
-                let term1 = self.__stack.pop().unwrap();
+                // let term1 = self.__stack.pop().unwrap();
 
-                term1.arith_binary_mul(term2);
-
-                self.__stack.push(term1);
+                self.__stack.last().unwrap().arith_binary_mul(term2);
             }
 
             /////////////////////////////////////////////////////////
             ////                DIVISION
             OP_BINARY_DIV => {
                 let term2 = self.__stack.pop().unwrap();
-                let term1 = self.__stack.pop().unwrap();
+                // let term1 = self.__stack.pop().unwrap();
 
-                term1.arith_binary_div(term2);
-
-                self.__stack.push(term1);
+                self.__stack.last().unwrap().arith_binary_div(term2);
             }
 
             /////////////////////////////////////////////////////////
             ////                MODULUS
             OP_BINARY_MOD => {
                 let term2 = self.__stack.pop().unwrap();
-                let term1 = self.__stack.pop().unwrap();
+                // let term1 = self.__stack.pop().unwrap();
 
-                term1.arith_binary_mod(term2);
-
-                self.__stack.push(term1);
+                self.__stack.last().unwrap().arith_binary_mod(term2);
             }
 
             /////////////////////////////////////////////////////////
             ////                ADDITION
             OP_BINARY_ADD => {
                 let term2 = self.__stack.pop().unwrap();
-                let term1 = self.__stack.pop().unwrap();
+                // let term1 = self.__stack.pop().unwrap();
 
-                term1.arith_binary_add(term2);
-
-                self.__stack.push(term1);
+                self.__stack.last().unwrap().arith_binary_add(term2);
             }
 
             /////////////////////////////////////////////////////////
             ////                SUBTRACTION
             OP_BINARY_SUB => {
                 let term2 = self.__stack.pop().unwrap();
-                let term1 = self.__stack.pop().unwrap();
+                // let term1 = self.__stack.pop().unwrap();
 
-                term1.arith_binary_sub(term2);
-
-                self.__stack.push(term1);
+                self.__stack.last().unwrap().arith_binary_sub(term2);
             }
 
             _ => println!("[💣] Byte-Code Error - Unknown op code: {}", opcode),
