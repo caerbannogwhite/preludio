@@ -35,7 +35,7 @@ export const OP_BINARY_MUL = 100;
 export const OP_BINARY_DIV = 101;
 export const OP_BINARY_MOD = 102;
 export const OP_BINARY_ADD = 103;
-export const OP_BINARY_MIN = 104;
+export const OP_BINARY_SUB = 104;
 
 export const OP_BINARY_EQ = 110;
 export const OP_BINARY_NE = 111;
@@ -431,7 +431,7 @@ export default class PrqlCompiler extends prqlListener {
             this.__instructions.push(OP_BINARY_ADD, 0, 0);
             break;
           case "-":
-            this.__instructions.push(OP_BINARY_MIN, 0, 0);
+            this.__instructions.push(OP_BINARY_SUB, 0, 0);
             break;
           case "==":
             this.__instructions.push(OP_BINARY_EQ, 0, 0);

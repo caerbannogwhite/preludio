@@ -33,7 +33,11 @@ export function activate(context: vscode.ExtensionContext) {
         const buffer = Buffer.from(
           await getByteCode(selectedText).arrayBuffer()
         );
-        fs.writeFile("C:\\Users\\massi\\source\\repos\\prqlvs\\bytecode", buffer, () => {});
+        fs.writeFile(
+          "C:\\Users\\massi\\source\\repos\\prqlvs\\bytecode",
+          buffer,
+          () => {}
+        );
       };
 
       writeBytecode()
