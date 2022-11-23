@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.0.18", features = ["derive"] }
 polars = { version = "0.24.3", features = ["lazy"] }
+specs = "0.16.1"
+specs-derive = "0.4.1"
