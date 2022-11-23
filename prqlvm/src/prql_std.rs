@@ -27,8 +27,6 @@ pub fn prql_import_csv(vm: &mut super::PRQLVirtualMachine) {
     
     enc       - [ Utf8 | LossyUtf8 ]
 
-    type      - [ csv | json ]
-                  ^^^
     delimiter - \",\" the file delimiter
                   ^
     skip      - 0 number of rows to skip
@@ -40,27 +38,21 @@ pub fn prql_import_csv(vm: &mut super::PRQLVirtualMachine) {
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let path = position_params[0].get_scalar_string().unwrap();
+    let path = position_params[0].get_scalar_string();
 
     let mut delimiter: u8 = ',' as u8;
     if named_params.contains_key("delimiter") {
-        delimiter = named_params["delimiter"]
-            .get_scalar_string()
-            .unwrap()
-            .as_bytes()[0];
+        delimiter = named_params["delimiter"].get_scalar_string().as_bytes()[0];
     }
 
     let mut enc_str = String::from("utf8");
     if named_params.contains_key("enc") {
-        enc_str = named_params["enc"]
-            .get_scalar_string()
-            .unwrap()
-            .to_lowercase();
+        enc_str = named_params["enc"].get_scalar_string().to_lowercase();
     }
 
     let mut skip_rows = 0;
     if named_params.contains_key("skip") {
-        skip_rows = named_params["enc"].get_scalar_num().unwrap() as usize;
+        skip_rows = named_params["enc"].get_scalar_num() as usize;
     }
 
     let mut enc = CsvEncoding::Utf8;
@@ -89,7 +81,7 @@ pub fn prql_import_csv(vm: &mut super::PRQLVirtualMachine) {
         );
     }
 
-    let df = CsvReader::from_path(path)
+    let data_frame = CsvReader::from_path(path)
         .unwrap()
         .with_delimiter(delimiter)
         .with_encoding(enc)
@@ -100,17 +92,7 @@ pub fn prql_import_csv(vm: &mut super::PRQLVirtualMachine) {
         .finish()
         .unwrap();
 
-    vm.__current_result = Some(super::internal::PrqlInternal {
-        dim: super::internal::PrqlInternalDim::Table,
-        tag: super::internal::PrqlInternalTag::ExprTerm,
-        scalar_type: None,
-        scalar_bool: None,
-        scalar_num: None,
-        scalar_string: None,
-        name: None,
-        data_frame: Some(df),
-        error_message: None,
-    });
+    vm.__current_result = Some(super::internal::PrqlInternal::new().with_table(data_frame));
 
     vm.__stack.push(vm.__current_result.unwrap());
 }
@@ -131,19 +113,9 @@ pub fn prql_new(vm: &mut super::PRQLVirtualMachine) {
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let df = DataFrame::default();
+    let data_frame = DataFrame::default();
 
-    vm.__current_result = Some(super::internal::PrqlInternal {
-        dim: super::internal::PrqlInternalDim::Table,
-        tag: super::internal::PrqlInternalTag::ExprTerm,
-        scalar_type: None,
-        scalar_bool: None,
-        scalar_num: None,
-        scalar_string: None,
-        name: None,
-        data_frame: Some(df),
-        error_message: None,
-    });
+    vm.__current_result = Some(super::internal::PrqlInternal::new().with_table(data_frame));
 
     vm.__stack.push(vm.__current_result.unwrap());
 }
@@ -170,19 +142,16 @@ pub fn prql_export_csv(vm: &mut super::PRQLVirtualMachine) {
 
     vm.__read_params(&mut position_params, &mut named_params);
 
-    let path = position_params[0].get_scalar_string().unwrap();
+    let path = position_params[0].get_scalar_string();
 
     let mut delimiter: u8 = ',' as u8;
     if named_params.contains_key("delimiter") {
-        delimiter = named_params["delimiter"]
-            .get_scalar_string()
-            .unwrap()
-            .as_bytes()[0];
+        delimiter = named_params["delimiter"].get_scalar_string().as_bytes()[0];
     }
 
     CsvWriter::new(File::create(path).unwrap())
         .with_delimiter(delimiter)
-        .finish(&mut vm.__stack.pop().unwrap().get_data_frame().unwrap())
+        .finish(&mut vm.__stack.pop().unwrap().get_data_frame())
         .unwrap();
 }
 

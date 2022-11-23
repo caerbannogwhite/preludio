@@ -282,39 +282,21 @@ impl PRQLVirtualMachine {
                     );
                 }
 
-                self.__stack.push(internal::PrqlInternal {
-                    dim: internal::PrqlInternalDim::Scalar,
-                    tag: internal::PrqlInternalTag::ParamName,
-                    scalar_type: None,
-                    scalar_bool: None,
-                    scalar_num: None,
-                    scalar_string: None,
-                    name: Some(param_name),
-                    data_frame: None,
-                    error_message: None,
-                });
+                self.__stack
+                    .push(internal::PrqlInternal::new_param_name(param_name));
             }
 
             OP_PUSH_ASSIGN_IDENT => {
-                let param_name = self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
+                let ident = self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
                 if self.__debug_level > 10 {
                     println!(
                         "{:<25} | {:<20} | {:<20}",
-                        "OP_PUSH_ASSIGN_IDENT", "", param_name
+                        "OP_PUSH_ASSIGN_IDENT", "", ident
                     );
                 }
 
-                self.__stack.push(internal::PrqlInternal {
-                    dim: internal::PrqlInternalDim::Scalar,
-                    tag: internal::PrqlInternalTag::AssignIdent,
-                    scalar_type: None,
-                    scalar_bool: None,
-                    scalar_num: None,
-                    scalar_string: None,
-                    name: Some(param_name),
-                    data_frame: None,
-                    error_message: None,
-                });
+                self.__stack
+                    .push(internal::PrqlInternal::new_assign_ident(ident));
             }
 
             OP_PUSH_TERM => {
@@ -323,52 +305,36 @@ impl PRQLVirtualMachine {
                 match param1 {
                     TERM_NULL => {
                         term_type_str = String::from("NULL");
-                        self.__stack.push(internal::PrqlInternal::new_scalar(
-                            type_system::PrqlBaseDataType::Null,
-                            None,
-                            None,
-                            None,
-                        ));
+                        self.__stack
+                            .push(internal::PrqlInternal::new().with_scalar_null());
                     }
                     TERM_BOOL => {
                         term_type_str = String::from("BOOL");
                         term_val = String::from("true");
-                        let bool_val = true;
+                        let mut bool_val = true;
                         if param2[7] == 0 {
                             term_val = String::from("false");
                             bool_val = false;
                         }
 
-                        self.__stack.push(internal::PrqlInternal::new_scalar(
-                            type_system::PrqlBaseDataType::Bool,
-                            Some(bool_val),
-                            None,
-                            None,
-                        ));
+                        self.__stack
+                            .push(internal::PrqlInternal::new().with_scalar_bool(bool_val));
                     }
                     TERM_NUMERIC => {
                         term_type_str = String::from("NUMERIC");
                         let num_val = f64::from_le_bytes(param2);
                         term_val = num_val.to_string();
 
-                        self.__stack.push(internal::PrqlInternal::new_scalar(
-                            type_system::PrqlBaseDataType::Null,
-                            None,
-                            Some(num_val),
-                            None,
-                        ));
+                        self.__stack
+                            .push(internal::PrqlInternal::new().with_scalar_numeric(num_val));
                     }
                     TERM_STRING => {
                         term_type_str = String::from("STRING");
                         term_val =
                             self.__symbol_table[(u64::from_be_bytes(param2) as usize)].clone();
 
-                        self.__stack.push(internal::PrqlInternal::new_scalar(
-                            type_system::PrqlBaseDataType::String,
-                            None,
-                            None,
-                            Some(term_val),
-                        ));
+                        self.__stack
+                            .push(internal::PrqlInternal::new().with_scalar_string(term_val));
                     }
                     TERM_IDENT => {
                         term_type_str = String::from("IDENT");
@@ -446,49 +412,37 @@ impl PRQLVirtualMachine {
         }
     }
 
-    fn __ident_resolution(&mut self, ident: String) -> internal::PrqlInternal {
+    fn __ident_resolution(&self, ident: String) -> internal::PrqlInternal {
         // Look at the current result first
         if self.__current_result.is_some() {
-            let res = self.__current_result.unwrap();
+            let res = self.__current_result.as_ref().unwrap();
 
             match res.get_dim() {
                 PrqlInternalDim::Scalar => {
-                    return internal::PrqlInternal::new_error(Some(format!(
+                    return internal::PrqlInternal::new_error(format!(
                         "Cannot find symbol {}",
                         ident
-                    )));
+                    ));
                 }
                 PrqlInternalDim::Series => {
-                    return internal::PrqlInternal::new_error(Some(format!(
+                    return internal::PrqlInternal::new_error(format!(
                         "Cannot find symbol {}",
                         ident
-                    )));
+                    ));
                 }
                 PrqlInternalDim::Table => {
                     if res
                         .get_data_frame()
-                        .unwrap()
                         .get_column_names()
                         .contains(&ident.as_str())
                     {
-                        return internal::PrqlInternal {
-                            dim: PrqlInternalDim::Series,
-                            tag: internal::PrqlInternalTag::ExprTerm,
-                            scalar_type: None,
-                            scalar_bool: None,
-                            scalar_num: None,
-                            scalar_string: None,
-                            name: None,
-                            data_frame: Some(
-                                res.get_data_frame().unwrap().select([ident]).unwrap(),
-                            ),
-                            error_message: None,
-                        };
+                        return internal::PrqlInternal::new()
+                            .with_series(res.get_data_frame().select([ident]).unwrap());
                     }
-                    return internal::PrqlInternal::new_error(Some(format!(
+                    return internal::PrqlInternal::new_error(format!(
                         "Cannot find symbol {}",
                         ident
-                    )));
+                    ));
                 }
             }
         }
@@ -498,7 +452,7 @@ impl PRQLVirtualMachine {
             return self.__variables[&ident];
         }
 
-        return internal::PrqlInternal::new_error(Some(format!("Cannot find symbol {}", ident)));
+        return internal::PrqlInternal::new_error(format!("Cannot find symbol {}", ident));
     }
 
     pub fn __float_to_param(f: f64) -> u64 {
@@ -537,7 +491,7 @@ impl PRQLVirtualMachine {
                 }
                 internal::PrqlInternalTag::ParamName => {
                     let val = self.__stack.pop().unwrap();
-                    named_params.insert(term.get_name().unwrap(), val);
+                    named_params.insert(term.get_name(), val);
                     counter += 1;
                 }
                 internal::PrqlInternalTag::AssignIdent => {}
