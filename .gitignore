@@ -27,4 +27,6 @@ yarn-error.log*
 
 # project
 /**/.antlr
+*.exe
 bytecode
+/try-polars/
