@@ -1,35 +1,39 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type PRQLFunction func(vm *PRQLVirtualMachine)
+type PrqlFunction func(vm *PrqlVirtualMachine)
 
-func prql_derive(vm *PRQLVirtualMachine) {
+func PrqlFunc_Derive(vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling prql_derive")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_Derive")
 	}
 }
 
-func prql_export_csv(vm *PRQLVirtualMachine) {
+func PrqlFunc_ExportCsv(vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling prql_export_csv")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_ExportCsv")
 	}
 }
 
-func prql_from(vm *PRQLVirtualMachine) {
+func PrqlFunc_From(vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling prql_from")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_From")
 	}
 }
 
-func prql_import_csv(vm *PRQLVirtualMachine) {
+func PrqlFunc_ImportCsv(vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling prql_import_csv")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_ImportCsv")
 	}
+
+	// dataframe.ReadCSV()
 }
 
-func prql_select(vm *PRQLVirtualMachine) {
+func PrqlFunc_Select(vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling prql_select")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_Select")
 	}
 }
