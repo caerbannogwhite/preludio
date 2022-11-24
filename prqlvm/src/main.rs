@@ -22,7 +22,7 @@ const TERM_IDENT: u16 = 10;
 
 const OP_BEGIN_PIPELINE: u16 = 0;
 const OP_END_PIPELINE: u16 = 1;
-const OP_ASSIGN_TABLE: u16 = 2;
+const OP_ASSIGN_STMT: u16 = 2;
 // const OP_BEGIN_FUNC_CALL: u16 = 3;
 const OP_MAKE_FUNC_CALL: u16 = 4;
 const OP_BEGIN_LIST: u16 = 5;
@@ -242,7 +242,7 @@ impl PRQLVirtualMachine {
                 }
             }
 
-            OP_ASSIGN_TABLE => {}
+            OP_ASSIGN_STMT => {}
 
             // OP_BEGIN_FUNC_CALL => {
             //     if self.__debug_level > 10 {
