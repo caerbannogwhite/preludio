@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"os"
 )
 
@@ -97,12 +98,17 @@ func (vm *PRQLVirtualMachine) read_prql_bytecode() {
 	bytemark := bytes[0:4]
 	symbolTableSize := binary.BigEndian.Uint64(bytes[8:16])
 
-	fmt.Printf("SIZE:              %d\n", size)
-	fmt.Printf("BYTE MARK:         %x %x %x %x\n", bytemark[0], bytemark[1], bytemark[2], bytemark[3])
-	fmt.Printf("SYMBOL TABLE SIZE: %d\n\n", symbolTableSize)
+	if vm.__debugLevel > 5 {
+		fmt.Println()
+		fmt.Printf("BYTECODE INFO\n")
+		fmt.Printf("=============\n")
+		fmt.Printf("SIZE:              %d\n", size)
+		fmt.Printf("BYTE MARK:         %x %x %x %x\n", bytemark[0], bytemark[1], bytemark[2], bytemark[3])
+		fmt.Printf("SYMBOL TABLE SIZE: %d\n\n", symbolTableSize)
+		fmt.Printf("STRING SYMBOLS\n")
+		fmt.Printf("==============\n")
+	}
 
-	fmt.Printf("STRING SYMBOLS\n")
-	fmt.Printf("==============\n")
 	offset := uint64(16)
 	for i := uint64(0); i < symbolTableSize; i++ {
 		l := binary.BigEndian.Uint64(bytes[offset : offset+8])
@@ -110,13 +116,20 @@ func (vm *PRQLVirtualMachine) read_prql_bytecode() {
 
 		v := string(bytes[offset : offset+l])
 		vm.SymbolTable = append(vm.SymbolTable, v)
-		fmt.Printf("%s\n", v)
 		offset += l
 	}
 
-	vm.read_instructions(bytes, offset)
+	if vm.__debugLevel > 5 {
+		for _, symbol := range vm.SymbolTable {
+			fmt.Printf("%s\n", symbol)
+		}
 
-	// return bytes, err
+		fmt.Println()
+		fmt.Printf("INSTRUCTIONS\n")
+		fmt.Printf("==============\n")
+	}
+
+	vm.read_instructions(bytes, offset)
 }
 
 func (vm *PRQLVirtualMachine) stackPush(e *PRQLInternal) {
@@ -221,9 +234,17 @@ func (vm *PRQLVirtualMachine) read_instructions(bytes []byte, offset uint64) {
 				termType = "NULL"
 			case TERM_BOOL:
 				termType = "BOOL"
+				termVal = "true"
+				// val := true
+				if binary.BigEndian.Uint64(param2) == 0 {
+					// val = false
+					termVal = "false"
+				}
 
 			case TERM_NUMERIC:
 				termType = "NUMERIC"
+				val := math.Float64frombits(binary.LittleEndian.Uint64(param2))
+				termVal = fmt.Sprintf("%f", val)
 
 			case TERM_STRING:
 				termType = "STRING"
@@ -246,6 +267,32 @@ func (vm *PRQLVirtualMachine) read_instructions(bytes []byte, offset uint64) {
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_GOTO", "", "", "")
 			}
+
+		case OP_BINARY_MUL:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MUL", "", "", "")
+			}
+
+		case OP_BINARY_DIV:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_DIV", "", "", "")
+			}
+
+		case OP_BINARY_MOD:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MOD", "", "", "")
+			}
+
+		case OP_BINARY_ADD:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_ADD", "", "", "")
+			}
+
+		case OP_BINARY_SUB:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_SUB", "", "", "")
+			}
+
 		}
 	}
 }
