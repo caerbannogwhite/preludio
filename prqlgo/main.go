@@ -148,24 +148,24 @@ func (vm *PRQLVirtualMachine) read_instructions(bytes []byte, offset uint64) {
 		switch opCode {
 		case OP_BEGIN_PIPELINE:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_BEGIN_PIPELINE", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BEGIN_PIPELINE", "", "", "")
 			}
 
 		case OP_END_PIPELINE:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_END_PIPELINE", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_PIPELINE", "", "", "")
 			}
 
 		case OP_ASSIGN_STMT:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_ASSIGN_STMT", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ASSIGN_STMT", "", "", "")
 			}
 
 		// case OP_BEGIN_FUNC_CALL:3
 		case OP_MAKE_FUNC_CALL:
 			funcName := vm.SymbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_MAKE_FUNC_CALL", "", funcName, "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_MAKE_FUNC_CALL", "", funcName, "")
 			}
 
 			if f, ok := vm.__functions[funcName]; ok {
@@ -178,36 +178,36 @@ func (vm *PRQLVirtualMachine) read_instructions(bytes []byte, offset uint64) {
 
 		case OP_BEGIN_LIST:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_BEGIN_LIST", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BEGIN_LIST", "", "", "")
 			}
 
 		case OP_END_LIST:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_END_LIST", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_LIST", "", "", "")
 			}
 
 		case OP_ADD_FUNC_PARAM:
 			paramName := vm.SymbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_ADD_FUNC_PARAM", "", paramName, "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_FUNC_PARAM", "", paramName, "")
 			}
 
 			vm.stackPush(NewPRQLInternalParamName(paramName))
 
 		case OP_ADD_EXPR_TERM:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_ADD_EXPR_TERM", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_EXPR_TERM", "", "", "")
 			}
 
 		case OP_PUSH_NAMED_PARAM:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_PUSH_NAMED_PARAM", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", "", "")
 			}
 
 		case OP_PUSH_ASSIGN_IDENT:
 			ident := vm.SymbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_PUSH_ASSIGN_IDENT", "", ident, "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_ASSIGN_IDENT", "", ident, "")
 			}
 
 			vm.stackPush(NewPRQLInternalParamName(ident))
@@ -234,17 +234,17 @@ func (vm *PRQLVirtualMachine) read_instructions(bytes []byte, offset uint64) {
 			}
 
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_PUSH_TERM", termType, termVal, "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_TERM", termType, termVal, "")
 			}
 
 		case OP_END_FUNC_CALL_PARAM:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_END_FUNC_CALL_PARAM", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_FUNC_CALL_PARAM", "", "", "")
 			}
 
 		case OP_GOTO:
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%30.30s | %30.30s | %30.30s | %50.50s \n", "OP_GOTO", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_GOTO", "", "", "")
 			}
 		}
 	}
