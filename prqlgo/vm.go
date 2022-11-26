@@ -6,53 +6,62 @@ import (
 	"fmt"
 	"math"
 	"os"
-
-	"github.com/go-gota/gota/dataframe"
 )
 
-const TERM_NULL uint16 = 0
-const TERM_BOOL uint16 = 1
-const TERM_FLOAT uint16 = 2
-const TERM_STRING uint16 = 3
+type OPCODE uint16
 
-// const TERM_INTERVAL uint16 = 5;
-// const TERM_RANGE uint16 = 6;
-// const TERM_LIST uint16 = 7;
-// const TERM_PIPELINE uint16 = 8;
-const TERM_IDENT uint16 = 10
+const (
+	TERM_NULL     uint16 = 0
+	TERM_BOOL     uint16 = 1
+	TERM_INTEGER  uint16 = 2
+	TERM_FLOAT    uint16 = 3
+	TERM_STRING   uint16 = 4
+	TERM_INTERVAL uint16 = 5
+	TERM_RANGE    uint16 = 6
+	TERM_LIST     uint16 = 7
+	TERM_PIPELINE uint16 = 8
+	TERM_SYMBOL   uint16 = 10
+)
 
-const OP_BEGIN_PIPELINE uint16 = 0
-const OP_END_PIPELINE uint16 = 1
-const OP_ASSIGN_STMT uint16 = 2
+const (
+	OP_BEGIN_PIPELINE OPCODE = 0
+	OP_END_PIPELINE   OPCODE = 1
+	OP_ASSIGN_STMT    OPCODE = 2
+	// OP_BEGIN_FUNC_CALL OPCODE = 3;
+	OP_MAKE_FUNC_CALL      OPCODE = 4
+	OP_BEGIN_LIST          OPCODE = 5
+	OP_END_LIST            OPCODE = 6
+	OP_ADD_FUNC_PARAM      OPCODE = 7
+	OP_ADD_EXPR_TERM       OPCODE = 8
+	OP_PUSH_NAMED_PARAM    OPCODE = 9
+	OP_PUSH_ASSIGN_IDENT   OPCODE = 10
+	OP_PUSH_TERM           OPCODE = 11
+	OP_END_FUNC_CALL_PARAM OPCODE = 12
+	OP_GOTO                OPCODE = 50
 
-// const OP_BEGIN_FUNC_CALL uint16 = 3;
-const OP_MAKE_FUNC_CALL uint16 = 4
-const OP_BEGIN_LIST uint16 = 5
-const OP_END_LIST uint16 = 6
-const OP_ADD_FUNC_PARAM uint16 = 7
-const OP_ADD_EXPR_TERM uint16 = 8
-const OP_PUSH_NAMED_PARAM uint16 = 9
-const OP_PUSH_ASSIGN_IDENT uint16 = 10
-const OP_PUSH_TERM uint16 = 11
-const OP_END_FUNC_CALL_PARAM uint16 = 12
-const OP_GOTO uint16 = 50
+	OP_BINARY_MUL OPCODE = 100
+	OP_BINARY_DIV OPCODE = 101
+	OP_BINARY_MOD OPCODE = 102
+	OP_BINARY_ADD OPCODE = 103
+	OP_BINARY_SUB OPCODE = 104
+	OP_BINARY_POW OPCODE = 105
 
-const OP_BINARY_MUL uint16 = 100
-const OP_BINARY_DIV uint16 = 101
-const OP_BINARY_MOD uint16 = 102
-const OP_BINARY_ADD uint16 = 103
-const OP_BINARY_SUB uint16 = 104
+	OP_BINARY_EQ OPCODE = 110
+	OP_BINARY_NE OPCODE = 111
+	OP_BINARY_GE OPCODE = 112
+	OP_BINARY_LE OPCODE = 113
+	OP_BINARY_GT OPCODE = 114
+	OP_BINARY_LT OPCODE = 115
 
-// const OP_BINARY_EQ uint16 = 110;
-// const OP_BINARY_NE uint16 = 111;
-// const OP_BINARY_GE uint16 = 112;
-// const OP_BINARY_LE uint16 = 113;
-// const OP_BINARY_GT uint16 = 114;
-// const OP_BINARY_LT uint16 = 115;
+	OP_BINARY_AND      OPCODE = 120
+	OP_BINARY_OR       OPCODE = 121
+	OP_BINARY_COALESCE OPCODE = 122
+	OP_BINARY_MODEL    OPCODE = 123
 
-// const OP_BINARY_AND uint16 = 120;
-// const OP_BINARY_OR uint16 = 121;
-// const OP_BINARY_COALESCE uint16 = 122;
+	OP_UNARY_SUB OPCODE = 130
+	OP_UNARY_ADD OPCODE = 131
+	OP_UNARY_NOT OPCODE = 132
+)
 
 type PrqlVirtualMachineParams struct {
 	DebugLevel     int
@@ -135,6 +144,10 @@ func (vm *PrqlVirtualMachine) ReadPrqlBytecode() {
 	vm.ReadPrqlInstructions(bytes, offset)
 }
 
+func (vm *PrqlVirtualMachine) StackIsEmpty() bool {
+	return len(vm.__stack) == 0
+}
+
 func (vm *PrqlVirtualMachine) StackPush(e *PrqlInternal) {
 	vm.__stack = append(vm.__stack, e)
 }
@@ -145,16 +158,20 @@ func (vm *PrqlVirtualMachine) StackPop() *PrqlInternal {
 	return e
 }
 
+func (vm *PrqlVirtualMachine) StackLast() *PrqlInternal {
+	return vm.__stack[len(vm.__stack)-1]
+}
+
 func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) {
 
-	var opCode uint16
+	var opCode OPCODE
 	var param1 uint16
 	var param2 []byte
 
 	usize := uint64(len(bytes))
 
 	for offset < usize {
-		opCode = binary.BigEndian.Uint16(bytes[offset : offset+2])
+		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+2]))
 		offset += 2
 		param1 = binary.BigEndian.Uint16(bytes[offset : offset+2])
 		offset += 2
@@ -186,24 +203,24 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 
 			switch funcName {
 
-			// Standard library functions
+			// Standard library functions build-ins
 			case "derive":
 				PrqlFunc_Derive(vm)
 			case "from":
 				PrqlFunc_From(vm)
-			case "export_csv":
+			case "exportCSV":
 				PrqlFunc_ExportCsv(vm)
-			case "import_csv":
+			case "importCSV":
 				PrqlFunc_ImportCsv(vm)
 			case "select":
 				PrqlFunc_Select(vm)
 
 			// User defined functions
 			default:
-				if f, ok := vm.__userDefinedVariables[funcName]; ok {
-					switch t := f.Value.(type) {
+				if internal, ok := vm.__userDefinedVariables[funcName]; ok {
+					switch value := internal.Expr.GetValue().(type) {
 					case UserDefinedFunction:
-						t(vm)
+						value(vm)
 					default:
 						vm.StackPush(NewPrqlInternalError(fmt.Sprintf("variable '%s' not callable.", funcName)))
 					}
@@ -225,12 +242,11 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 			}
 
 		case OP_ADD_FUNC_PARAM:
-			paramName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_FUNC_PARAM", "", paramName, "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_FUNC_PARAM", "", "", "")
 			}
 
-			vm.StackPush(NewPrqlInternalParamName(paramName))
+			vm.__funcNumParams += 1
 
 		case OP_ADD_EXPR_TERM:
 			if vm.__debugLevel > 10 {
@@ -238,9 +254,12 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 			}
 
 		case OP_PUSH_NAMED_PARAM:
+			paramName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", "", "")
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", paramName, "")
 			}
+
+			vm.StackPush(NewPrqlInternalParamName(paramName))
 
 		case OP_PUSH_ASSIGN_IDENT:
 			ident := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
@@ -257,7 +276,6 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 			switch param1 {
 			// case TERM_NULL:
 			// 	termType = "NULL"
-			// 	vm.StackPush(NewPrqlInternalTerm(nil))
 
 			case TERM_BOOL:
 				termType = "BOOL"
@@ -267,29 +285,29 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 					val = false
 					termVal = "false"
 				}
-
 				vm.StackPush(NewPrqlInternalTerm(val))
 
-			// case TERM_INTEGER:
+			case TERM_INTEGER:
+				termType = "INTEGER"
+				val := int64(binary.LittleEndian.Uint64(param2))
+				termVal = fmt.Sprintf("%d", val)
+				vm.StackPush(NewPrqlInternalTerm(val))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
 				val := math.Float64frombits(binary.LittleEndian.Uint64(param2))
 				termVal = fmt.Sprintf("%f", val)
-
 				vm.StackPush(NewPrqlInternalTerm(val))
 
 			case TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
-
 				vm.StackPush(NewPrqlInternalTerm(termVal))
 
-			case TERM_IDENT:
-				termType = "IDENT"
+			case TERM_SYMBOL:
+				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
-
-				vm.StackPush(vm.IdentResolutionStrategy(termVal))
+				vm.StackPush(NewPrqlInternalTerm(PrqlSymbol(termVal)))
 
 			default:
 				vm.StackPush(NewPrqlInternalError(fmt.Sprintf("PrlqVM: unknown term code %d.", param1)))
@@ -315,47 +333,108 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MUL", "", "", "")
 			}
 
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Mul(op2.Expr)
+
 		case OP_BINARY_DIV:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_DIV", "", "", "")
 			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Div(op2.Expr)
 
 		case OP_BINARY_MOD:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MOD", "", "", "")
 			}
 
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Mod(op2.Expr)
+
 		case OP_BINARY_ADD:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_ADD", "", "", "")
 			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Add(op2.Expr)
 
 		case OP_BINARY_SUB:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_SUB", "", "", "")
 			}
 
-		}
-	}
-}
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Sub(op2.Expr)
 
-func (vm *PrqlVirtualMachine) IdentResolutionStrategy(ident string) *PrqlInternal {
-	if vm.__currentTable != nil {
-		switch t := vm.__currentTable.Value.(type) {
-		case dataframe.DataFrame:
-			names := t.Names()
-			for _, name := range names {
-				if name == ident {
-					return NewPrqlInternalTerm(t.Col(name))
-				}
+		case OP_BINARY_POW:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_POW", "", "", "")
 			}
-		default:
+
+			op2 := vm.StackPop()
+			vm.StackLast().Expr.Pow(op2.Expr)
+
+		case OP_BINARY_EQ:
+		case OP_BINARY_NE:
+		case OP_BINARY_GE:
+		case OP_BINARY_LE:
+		case OP_BINARY_GT:
+		case OP_BINARY_LT:
+		case OP_BINARY_AND:
+		case OP_BINARY_OR:
+
+		case OP_BINARY_COALESCE:
+		case OP_BINARY_MODEL:
+
+		case OP_UNARY_SUB:
+			if vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_UNARY_SUB", "", "", "")
+			}
+
+		case OP_UNARY_ADD:
+		case OP_UNARY_NOT:
+
 		}
 	}
-
-	if v, ok := vm.__userDefinedVariables[ident]; ok {
-		return &v
-	}
-
-	return NewPrqlInternalError(fmt.Sprintf("name '%s' not found.", ident))
 }
+
+func (vm *PrqlVirtualMachine) GetFunctionParams(pos *[]interface{}, named *map[string]interface{}, assign *map[string]interface{}) {
+	var t1, t2 PrqlInternal
+	for i := uint64(0); i < vm.__funcNumParams; i++ {
+		t1 = *vm.StackPop()
+		switch t1.Tag {
+		case PRQL_INTERNAL_TAG_ERROR:
+		case PRQL_INTERNAL_TAG_EXPRESSION:
+			*pos = append(*pos, t2.Expr.Solve())
+		case PRQL_INTERNAL_TAG_PARAM_NAME:
+			t2 = *vm.StackPop()
+			(*named)[t1.Name] = t1.Expr.Solve()
+		case PRQL_INTERNAL_TAG_ASSING_IDENT:
+			t2 = *vm.StackPop()
+			(*assign)[t1.Name] = t1.Expr.Solve()
+		}
+	}
+}
+
+// func (vm *PrqlVirtualMachine) IdentResolutionStrategy(ident string) *PrqlInternal {
+// 	if vm.__currentTable != nil {
+// 		switch t := vm.__currentTable.Value.(type) {
+// 		case dataframe.DataFrame:
+// 			names := t.Names()
+// 			for _, name := range names {
+// 				if name == ident {
+// 					return NewPrqlInternalTerm(t.Col(name))
+// 				}
+// 			}
+// 		default:
+// 		}
+// 	}
+
+// 	if v, ok := vm.__userDefinedVariables[ident]; ok {
+// 		return &v
+// 	}
+
+// 	return NewPrqlInternalError(fmt.Sprintf("name '%s' not found.", ident))
+// }
