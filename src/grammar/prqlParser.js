@@ -4,7 +4,7 @@ import antlr4 from 'antlr4';
 import prqlListener from './prqlListener.js';
 
 const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
-    "\u5964\u00031\u0132\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004",
+    "\u5964\u00036\u0139\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004",
     "\t\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007",
     "\u0004\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f",
     "\u0004\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010",
@@ -37,26 +37,27 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0005\u0017\u00ce\n",
     "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003",
     "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003",
-    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0007\u0017\u00df\n\u0017",
-    "\f\u0017\u000e\u0017\u00e2\u000b\u0017\u0003\u0018\u0003\u0018\u0003",
-    "\u0018\u0003\u0018\u0003\u0018\u0005\u0018\u00e9\n\u0018\u0003\u0019",
-    "\u0003\u0019\u0003\u0019\u0003\u0019\u0005\u0019\u00ef\n\u0019\u0003",
+    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0003",
+    "\u0017\u0003\u0017\u0003\u0017\u0003\u0017\u0007\u0017\u00e5\n\u0017",
+    "\f\u0017\u000e\u0017\u00e8\u000b\u0017\u0003\u0018\u0003\u0018\u0003",
+    "\u0018\u0003\u0018\u0003\u0018\u0005\u0018\u00ef\n\u0018\u0003\u0019",
+    "\u0003\u0019\u0003\u0019\u0003\u0019\u0005\u0019\u00f5\n\u0019\u0003",
     "\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003",
-    "\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0005\u001a\u00fb\n\u001a",
-    "\u0003\u001b\u0003\u001b\u0007\u001b\u00ff\n\u001b\f\u001b\u000e\u001b",
-    "\u0102\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0106\n\u001b",
-    "\u0003\u001b\u0003\u001b\u0007\u001b\u010a\n\u001b\f\u001b\u000e\u001b",
-    "\u010d\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0111\n\u001b",
-    "\u0007\u001b\u0113\n\u001b\f\u001b\u000e\u001b\u0116\u000b\u001b\u0003",
-    "\u001b\u0005\u001b\u0119\n\u001b\u0003\u001b\u0005\u001b\u011c\n\u001b",
-    "\u0005\u001b\u011e\n\u001b\u0003\u001b\u0003\u001b\u0003\u001c\u0003",
-    "\u001c\u0007\u001c\u0124\n\u001c\f\u001c\u000e\u001c\u0127\u000b\u001c",
-    "\u0003\u001c\u0003\u001c\u0007\u001c\u012b\n\u001c\f\u001c\u000e\u001c",
-    "\u012e\u000b\u001c\u0003\u001c\u0003\u001c\u0003\u001c\u0002\u0003,",
-    "\u001d\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a",
-    "\u001c\u001e \"$&(*,.0246\u0002\n\u0003\u0002./\u0004\u0002\u001e\u001e",
-    "..\u0003\u0002\b\t\u0003\u0002\n\f\u0004\u0002\r\u0010\u0017\u0018\u0003",
-    "\u0002#$\u0004\u0002\b\t%%\u0003\u0002)*\u0002\u0148\u00028\u0003\u0002",
+    "\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0003\u001a\u0005\u001a\u0102",
+    "\n\u001a\u0003\u001b\u0003\u001b\u0007\u001b\u0106\n\u001b\f\u001b\u000e",
+    "\u001b\u0109\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u010d\n",
+    "\u001b\u0003\u001b\u0003\u001b\u0007\u001b\u0111\n\u001b\f\u001b\u000e",
+    "\u001b\u0114\u000b\u001b\u0003\u001b\u0003\u001b\u0005\u001b\u0118\n",
+    "\u001b\u0007\u001b\u011a\n\u001b\f\u001b\u000e\u001b\u011d\u000b\u001b",
+    "\u0003\u001b\u0005\u001b\u0120\n\u001b\u0003\u001b\u0005\u001b\u0123",
+    "\n\u001b\u0005\u001b\u0125\n\u001b\u0003\u001b\u0003\u001b\u0003\u001c",
+    "\u0003\u001c\u0007\u001c\u012b\n\u001c\f\u001c\u000e\u001c\u012e\u000b",
+    "\u001c\u0003\u001c\u0003\u001c\u0007\u001c\u0132\n\u001c\f\u001c\u000e",
+    "\u001c\u0135\u000b\u001c\u0003\u001c\u0003\u001c\u0003\u001c\u0002\u0003",
+    ",\u001d\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018",
+    "\u001a\u001c\u001e \"$&(*,.0246\u0002\n\u0003\u000234\u0004\u0002\"",
+    "\"33\u0003\u0002\b\t\u0004\u0002\n\n\f\r\u0003\u0002\u000f\u0014\u0003",
+    "\u0002\'(\u0004\u0002\b\t))\u0003\u0002./\u0002\u0152\u00028\u0003\u0002",
     "\u0002\u0002\u0004=\u0003\u0002\u0002\u0002\u0006[\u0003\u0002\u0002",
     "\u0002\bd\u0003\u0002\u0002\u0002\nj\u0003\u0002\u0002\u0002\fq\u0003",
     "\u0002\u0002\u0002\u000ev\u0003\u0002\u0002\u0002\u0010{\u0003\u0002",
@@ -66,9 +67,9 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0002\u0002\u001e\u00a7\u0003\u0002\u0002\u0002 \u00aa\u0003\u0002",
     "\u0002\u0002\"\u00b3\u0003\u0002\u0002\u0002$\u00b5\u0003\u0002\u0002",
     "\u0002&\u00bb\u0003\u0002\u0002\u0002(\u00bf\u0003\u0002\u0002\u0002",
-    "*\u00c5\u0003\u0002\u0002\u0002,\u00cd\u0003\u0002\u0002\u0002.\u00e8",
-    "\u0003\u0002\u0002\u00020\u00ea\u0003\u0002\u0002\u00022\u00fa\u0003",
-    "\u0002\u0002\u00024\u00fc\u0003\u0002\u0002\u00026\u0121\u0003\u0002",
+    "*\u00c5\u0003\u0002\u0002\u0002,\u00cd\u0003\u0002\u0002\u0002.\u00ee",
+    "\u0003\u0002\u0002\u00020\u00f0\u0003\u0002\u0002\u00022\u0101\u0003",
+    "\u0002\u0002\u00024\u0103\u0003\u0002\u0002\u00026\u0128\u0003\u0002",
     "\u0002\u000289\t\u0002\u0002\u00029\u0003\u0003\u0002\u0002\u0002:<",
     "\u0005\u0002\u0002\u0002;:\u0003\u0002\u0002\u0002<?\u0003\u0002\u0002",
     "\u0002=;\u0003\u0002\u0002\u0002=>\u0003\u0002\u0002\u0002>A\u0003\u0002",
@@ -90,124 +91,128 @@ const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
     "\u0002\u0002a_\u0003\u0002\u0002\u0002bc\u0005\u0002\u0002\u0002c\u0007",
     "\u0003\u0002\u0002\u0002de\u0007\u0003\u0002\u0002ef\u0005\n\u0006\u0002",
     "fg\u0005\f\u0007\u0002gh\u0007\u0006\u0002\u0002hi\u0005,\u0017\u0002",
-    "i\t\u0003\u0002\u0002\u0002jl\u0007*\u0002\u0002km\u0005\u0010\t\u0002",
+    "i\t\u0003\u0002\u0002\u0002jl\u0007/\u0002\u0002km\u0005\u0010\t\u0002",
     "lk\u0003\u0002\u0002\u0002lm\u0003\u0002\u0002\u0002m\u000b\u0003\u0002",
     "\u0002\u0002np\u0005\u000e\b\u0002on\u0003\u0002\u0002\u0002ps\u0003",
     "\u0002\u0002\u0002qo\u0003\u0002\u0002\u0002qr\u0003\u0002\u0002\u0002",
     "r\r\u0003\u0002\u0002\u0002sq\u0003\u0002\u0002\u0002tw\u0005$\u0013",
-    "\u0002uw\u0007*\u0002\u0002vt\u0003\u0002\u0002\u0002vu\u0003\u0002",
+    "\u0002uw\u0007/\u0002\u0002vt\u0003\u0002\u0002\u0002vu\u0003\u0002",
     "\u0002\u0002wy\u0003\u0002\u0002\u0002xz\u0005\u0010\t\u0002yx\u0003",
     "\u0002\u0002\u0002yz\u0003\u0002\u0002\u0002z\u000f\u0003\u0002\u0002",
-    "\u0002{|\u0007\u0017\u0002\u0002|}\u0005\u0012\n\u0002}\u0081\u0007",
-    "\u0011\u0002\u0002~\u0080\u0005\u0012\n\u0002\u007f~\u0003\u0002\u0002",
+    "\u0002{|\u0007\u001b\u0002\u0002|}\u0005\u0012\n\u0002}\u0081\u0007",
+    "\u0015\u0002\u0002~\u0080\u0005\u0012\n\u0002\u007f~\u0003\u0002\u0002",
     "\u0002\u0080\u0083\u0003\u0002\u0002\u0002\u0081\u007f\u0003\u0002\u0002",
     "\u0002\u0081\u0082\u0003\u0002\u0002\u0002\u0082\u0084\u0003\u0002\u0002",
-    "\u0002\u0083\u0081\u0003\u0002\u0002\u0002\u0084\u0085\u0007\u0018\u0002",
-    "\u0002\u0085\u0011\u0003\u0002\u0002\u0002\u0086\u0088\u0007*\u0002",
+    "\u0002\u0083\u0081\u0003\u0002\u0002\u0002\u0084\u0085\u0007\u001c\u0002",
+    "\u0002\u0085\u0011\u0003\u0002\u0002\u0002\u0086\u0088\u0007/\u0002",
     "\u0002\u0087\u0089\u0005\u0010\t\u0002\u0088\u0087\u0003\u0002\u0002",
     "\u0002\u0088\u0089\u0003\u0002\u0002\u0002\u0089\u0013\u0003\u0002\u0002",
     "\u0002\u008a\u008b\u0005\u0016\f\u0002\u008b\u0015\u0003\u0002\u0002",
-    "\u0002\u008c\u008d\u0007\u0005\u0002\u0002\u008d\u008e\u0007*\u0002",
+    "\u0002\u008c\u008d\u0007\u0005\u0002\u0002\u008d\u008e\u0007/\u0002",
     "\u0002\u008e\u008f\u0007\u0007\u0002\u0002\u008f\u0090\u0005,\u0017",
     "\u0002\u0090\u0017\u0003\u0002\u0002\u0002\u0091\u0094\u0005\u0002\u0002",
-    "\u0002\u0092\u0094\u0007\u0011\u0002\u0002\u0093\u0091\u0003\u0002\u0002",
+    "\u0002\u0092\u0094\u0007\u0015\u0002\u0002\u0093\u0091\u0003\u0002\u0002",
     "\u0002\u0093\u0092\u0003\u0002\u0002\u0002\u0094\u0019\u0003\u0002\u0002",
     "\u0002\u0095\u009b\u0005*\u0016\u0002\u0096\u0097\u0005\u0018\r\u0002",
     "\u0097\u0098\u0005*\u0016\u0002\u0098\u009a\u0003\u0002\u0002\u0002",
     "\u0099\u0096\u0003\u0002\u0002\u0002\u009a\u009d\u0003\u0002\u0002\u0002",
     "\u009b\u0099\u0003\u0002\u0002\u0002\u009b\u009c\u0003\u0002\u0002\u0002",
     "\u009c\u001b\u0003\u0002\u0002\u0002\u009d\u009b\u0003\u0002\u0002\u0002",
-    "\u009e\u00a2\u0007\u001e\u0002\u0002\u009f\u00a1\n\u0003\u0002\u0002",
-    "\u00a0\u009f\u0003\u0002\u0002\u0002\u00a1\u00a4\u0003\u0002\u0002\u0002",
-    "\u00a2\u00a0\u0003\u0002\u0002\u0002\u00a2\u00a3\u0003\u0002\u0002\u0002",
-    "\u00a3\u00a5\u0003\u0002\u0002\u0002\u00a4\u00a2\u0003\u0002\u0002\u0002",
-    "\u00a5\u00a6\u0007\u001e\u0002\u0002\u00a6\u001d\u0003\u0002\u0002\u0002",
-    "\u00a7\u00a8\t\u0004\u0002\u0002\u00a8\u00a9\u0007*\u0002\u0002\u00a9",
-    "\u001f\u0003\u0002\u0002\u0002\u00aa\u00ac\u0007*\u0002\u0002\u00ab",
-    "\u00ad\u0005\"\u0012\u0002\u00ac\u00ab\u0003\u0002\u0002\u0002\u00ad",
-    "\u00ae\u0003\u0002\u0002\u0002\u00ae\u00ac\u0003\u0002\u0002\u0002\u00ae",
-    "\u00af\u0003\u0002\u0002\u0002\u00af!\u0003\u0002\u0002\u0002\u00b0",
-    "\u00b4\u0005$\u0013\u0002\u00b1\u00b4\u0005&\u0014\u0002\u00b2\u00b4",
-    "\u0005,\u0017\u0002\u00b3\u00b0\u0003\u0002\u0002\u0002\u00b3\u00b1",
-    "\u0003\u0002\u0002\u0002\u00b3\u00b2\u0003\u0002\u0002\u0002\u00b4#",
-    "\u0003\u0002\u0002\u0002\u00b5\u00b6\u0007*\u0002\u0002\u00b6\u00b9",
-    "\u0007\u0012\u0002\u0002\u00b7\u00ba\u0005&\u0014\u0002\u00b8\u00ba",
-    "\u0005,\u0017\u0002\u00b9\u00b7\u0003\u0002\u0002\u0002\u00b9\u00b8",
-    "\u0003\u0002\u0002\u0002\u00ba%\u0003\u0002\u0002\u0002\u00bb\u00bc",
-    "\u0007*\u0002\u0002\u00bc\u00bd\u0007\u0007\u0002\u0002\u00bd\u00be",
-    "\u0005,\u0017\u0002\u00be\'\u0003\u0002\u0002\u0002\u00bf\u00c0\u0007",
-    "*\u0002\u0002\u00c0\u00c1\u0007\u0007\u0002\u0002\u00c1\u00c2\u0005",
-    "*\u0016\u0002\u00c2)\u0003\u0002\u0002\u0002\u00c3\u00c6\u0005 \u0011",
-    "\u0002\u00c4\u00c6\u0005,\u0017\u0002\u00c5\u00c3\u0003\u0002\u0002",
-    "\u0002\u00c5\u00c4\u0003\u0002\u0002\u0002\u00c6+\u0003\u0002\u0002",
-    "\u0002\u00c7\u00c8\b\u0017\u0001\u0002\u00c8\u00c9\u0007\u001b\u0002",
-    "\u0002\u00c9\u00ca\u0005,\u0017\u0002\u00ca\u00cb\u0007\u001c\u0002",
-    "\u0002\u00cb\u00ce\u0003\u0002\u0002\u0002\u00cc\u00ce\u0005.\u0018",
-    "\u0002\u00cd\u00c7\u0003\u0002\u0002\u0002\u00cd\u00cc\u0003\u0002\u0002",
-    "\u0002\u00ce\u00e0\u0003\u0002\u0002\u0002\u00cf\u00d0\f\t\u0002\u0002",
-    "\u00d0\u00d1\t\u0005\u0002\u0002\u00d1\u00df\u0005,\u0017\n\u00d2\u00d3",
-    "\f\b\u0002\u0002\u00d3\u00d4\t\u0004\u0002\u0002\u00d4\u00df\u0005,",
-    "\u0017\t\u00d5\u00d6\f\u0007\u0002\u0002\u00d6\u00d7\t\u0006\u0002\u0002",
-    "\u00d7\u00df\u0005,\u0017\b\u00d8\u00d9\f\u0006\u0002\u0002\u00d9\u00da",
-    "\u0007&\u0002\u0002\u00da\u00df\u0005,\u0017\u0007\u00db\u00dc\f\u0005",
-    "\u0002\u0002\u00dc\u00dd\t\u0007\u0002\u0002\u00dd\u00df\u0005,\u0017",
-    "\u0006\u00de\u00cf\u0003\u0002\u0002\u0002\u00de\u00d2\u0003\u0002\u0002",
-    "\u0002\u00de\u00d5\u0003\u0002\u0002\u0002\u00de\u00d8\u0003\u0002\u0002",
-    "\u0002\u00de\u00db\u0003\u0002\u0002\u0002\u00df\u00e2\u0003\u0002\u0002",
-    "\u0002\u00e0\u00de\u0003\u0002\u0002\u0002\u00e0\u00e1\u0003\u0002\u0002",
-    "\u0002\u00e1-\u0003\u0002\u0002\u0002\u00e2\u00e0\u0003\u0002\u0002",
-    "\u0002\u00e3\u00e9\u00052\u001a\u0002\u00e4\u00e9\u0005\u001c\u000f",
-    "\u0002\u00e5\u00e9\u00050\u0019\u0002\u00e6\u00e9\u00054\u001b\u0002",
-    "\u00e7\u00e9\u00056\u001c\u0002\u00e8\u00e3\u0003\u0002\u0002\u0002",
-    "\u00e8\u00e4\u0003\u0002\u0002\u0002\u00e8\u00e5\u0003\u0002\u0002\u0002",
-    "\u00e8\u00e6\u0003\u0002\u0002\u0002\u00e8\u00e7\u0003\u0002\u0002\u0002",
-    "\u00e9/\u0003\u0002\u0002\u0002\u00ea\u00ee\t\b\u0002\u0002\u00eb\u00ef",
-    "\u00056\u001c\u0002\u00ec\u00ef\u00052\u001a\u0002\u00ed\u00ef\u0007",
-    "*\u0002\u0002\u00ee\u00eb\u0003\u0002\u0002\u0002\u00ee\u00ec\u0003",
-    "\u0002\u0002\u0002\u00ee\u00ed\u0003\u0002\u0002\u0002\u00ef1\u0003",
-    "\u0002\u0002\u0002\u00f0\u00fb\u0007*\u0002\u0002\u00f1\u00fb\u0007",
-    "\'\u0002\u0002\u00f2\u00fb\u0007(\u0002\u0002\u00f3\u00fb\u00071\u0002",
-    "\u0002\u00f4\u00fb\u0007)\u0002\u0002\u00f5\u00f6\u0007)\u0002\u0002",
-    "\u00f6\u00fb\u00070\u0002\u0002\u00f7\u00f8\t\t\u0002\u0002\u00f8\u00f9",
-    "\u0007\u0016\u0002\u0002\u00f9\u00fb\t\t\u0002\u0002\u00fa\u00f0\u0003",
-    "\u0002\u0002\u0002\u00fa\u00f1\u0003\u0002\u0002\u0002\u00fa\u00f2\u0003",
-    "\u0002\u0002\u0002\u00fa\u00f3\u0003\u0002\u0002\u0002\u00fa\u00f4\u0003",
-    "\u0002\u0002\u0002\u00fa\u00f5\u0003\u0002\u0002\u0002\u00fa\u00f7\u0003",
-    "\u0002\u0002\u0002\u00fb3\u0003\u0002\u0002\u0002\u00fc\u011d\u0007",
-    "\u0019\u0002\u0002\u00fd\u00ff\u0005\u0002\u0002\u0002\u00fe\u00fd\u0003",
-    "\u0002\u0002\u0002\u00ff\u0102\u0003\u0002\u0002\u0002\u0100\u00fe\u0003",
-    "\u0002\u0002\u0002\u0100\u0101\u0003\u0002\u0002\u0002\u0101\u0105\u0003",
-    "\u0002\u0002\u0002\u0102\u0100\u0003\u0002\u0002\u0002\u0103\u0106\u0005",
-    "(\u0015\u0002\u0104\u0106\u0005*\u0016\u0002\u0105\u0103\u0003\u0002",
-    "\u0002\u0002\u0105\u0104\u0003\u0002\u0002\u0002\u0106\u0114\u0003\u0002",
-    "\u0002\u0002\u0107\u010b\u0007\u0013\u0002\u0002\u0108\u010a\u0005\u0002",
-    "\u0002\u0002\u0109\u0108\u0003\u0002\u0002\u0002\u010a\u010d\u0003\u0002",
-    "\u0002\u0002\u010b\u0109\u0003\u0002\u0002\u0002\u010b\u010c\u0003\u0002",
-    "\u0002\u0002\u010c\u0110\u0003\u0002\u0002\u0002\u010d\u010b\u0003\u0002",
-    "\u0002\u0002\u010e\u0111\u0005(\u0015\u0002\u010f\u0111\u0005*\u0016",
-    "\u0002\u0110\u010e\u0003\u0002\u0002\u0002\u0110\u010f\u0003\u0002\u0002",
-    "\u0002\u0111\u0113\u0003\u0002\u0002\u0002\u0112\u0107\u0003\u0002\u0002",
-    "\u0002\u0113\u0116\u0003\u0002\u0002\u0002\u0114\u0112\u0003\u0002\u0002",
-    "\u0002\u0114\u0115\u0003\u0002\u0002\u0002\u0115\u0118\u0003\u0002\u0002",
-    "\u0002\u0116\u0114\u0003\u0002\u0002\u0002\u0117\u0119\u0007\u0013\u0002",
-    "\u0002\u0118\u0117\u0003\u0002\u0002\u0002\u0118\u0119\u0003\u0002\u0002",
-    "\u0002\u0119\u011b\u0003\u0002\u0002\u0002\u011a\u011c\u0005\u0002\u0002",
-    "\u0002\u011b\u011a\u0003\u0002\u0002\u0002\u011b\u011c\u0003\u0002\u0002",
-    "\u0002\u011c\u011e\u0003\u0002\u0002\u0002\u011d\u0100\u0003\u0002\u0002",
-    "\u0002\u011d\u011e\u0003\u0002\u0002\u0002\u011e\u011f\u0003\u0002\u0002",
-    "\u0002\u011f\u0120\u0007\u001a\u0002\u0002\u01205\u0003\u0002\u0002",
-    "\u0002\u0121\u0125\u0007\u001b\u0002\u0002\u0122\u0124\u0005\u0002\u0002",
-    "\u0002\u0123\u0122\u0003\u0002\u0002\u0002\u0124\u0127\u0003\u0002\u0002",
-    "\u0002\u0125\u0123\u0003\u0002\u0002\u0002\u0125\u0126\u0003\u0002\u0002",
-    "\u0002\u0126\u0128\u0003\u0002\u0002\u0002\u0127\u0125\u0003\u0002\u0002",
-    "\u0002\u0128\u012c\u0005\u001a\u000e\u0002\u0129\u012b\u0005\u0002\u0002",
-    "\u0002\u012a\u0129\u0003\u0002\u0002\u0002\u012b\u012e\u0003\u0002\u0002",
-    "\u0002\u012c\u012a\u0003\u0002\u0002\u0002\u012c\u012d\u0003\u0002\u0002",
-    "\u0002\u012d\u012f\u0003\u0002\u0002\u0002\u012e\u012c\u0003\u0002\u0002",
-    "\u0002\u012f\u0130\u0007\u001c\u0002\u0002\u01307\u0003\u0002\u0002",
-    "\u0002&=AFLQV_lqvy\u0081\u0088\u0093\u009b\u00a2\u00ae\u00b3\u00b9\u00c5",
-    "\u00cd\u00de\u00e0\u00e8\u00ee\u00fa\u0100\u0105\u010b\u0110\u0114\u0118",
-    "\u011b\u011d\u0125\u012c"].join("");
+    "\u009e\u00a2\u0007\"\u0002\u0002\u009f\u00a1\n\u0003\u0002\u0002\u00a0",
+    "\u009f\u0003\u0002\u0002\u0002\u00a1\u00a4\u0003\u0002\u0002\u0002\u00a2",
+    "\u00a0\u0003\u0002\u0002\u0002\u00a2\u00a3\u0003\u0002\u0002\u0002\u00a3",
+    "\u00a5\u0003\u0002\u0002\u0002\u00a4\u00a2\u0003\u0002\u0002\u0002\u00a5",
+    "\u00a6\u0007\"\u0002\u0002\u00a6\u001d\u0003\u0002\u0002\u0002\u00a7",
+    "\u00a8\t\u0004\u0002\u0002\u00a8\u00a9\u0007/\u0002\u0002\u00a9\u001f",
+    "\u0003\u0002\u0002\u0002\u00aa\u00ac\u0007/\u0002\u0002\u00ab\u00ad",
+    "\u0005\"\u0012\u0002\u00ac\u00ab\u0003\u0002\u0002\u0002\u00ad\u00ae",
+    "\u0003\u0002\u0002\u0002\u00ae\u00ac\u0003\u0002\u0002\u0002\u00ae\u00af",
+    "\u0003\u0002\u0002\u0002\u00af!\u0003\u0002\u0002\u0002\u00b0\u00b4",
+    "\u0005$\u0013\u0002\u00b1\u00b4\u0005&\u0014\u0002\u00b2\u00b4\u0005",
+    ",\u0017\u0002\u00b3\u00b0\u0003\u0002\u0002\u0002\u00b3\u00b1\u0003",
+    "\u0002\u0002\u0002\u00b3\u00b2\u0003\u0002\u0002\u0002\u00b4#\u0003",
+    "\u0002\u0002\u0002\u00b5\u00b6\u0007/\u0002\u0002\u00b6\u00b9\u0007",
+    "\u0016\u0002\u0002\u00b7\u00ba\u0005&\u0014\u0002\u00b8\u00ba\u0005",
+    ",\u0017\u0002\u00b9\u00b7\u0003\u0002\u0002\u0002\u00b9\u00b8\u0003",
+    "\u0002\u0002\u0002\u00ba%\u0003\u0002\u0002\u0002\u00bb\u00bc\u0007",
+    "/\u0002\u0002\u00bc\u00bd\u0007\u0007\u0002\u0002\u00bd\u00be\u0005",
+    ",\u0017\u0002\u00be\'\u0003\u0002\u0002\u0002\u00bf\u00c0\u0007/\u0002",
+    "\u0002\u00c0\u00c1\u0007\u0007\u0002\u0002\u00c1\u00c2\u0005*\u0016",
+    "\u0002\u00c2)\u0003\u0002\u0002\u0002\u00c3\u00c6\u0005 \u0011\u0002",
+    "\u00c4\u00c6\u0005,\u0017\u0002\u00c5\u00c3\u0003\u0002\u0002\u0002",
+    "\u00c5\u00c4\u0003\u0002\u0002\u0002\u00c6+\u0003\u0002\u0002\u0002",
+    "\u00c7\u00c8\b\u0017\u0001\u0002\u00c8\u00c9\u0007\u001f\u0002\u0002",
+    "\u00c9\u00ca\u0005,\u0017\u0002\u00ca\u00cb\u0007 \u0002\u0002\u00cb",
+    "\u00ce\u0003\u0002\u0002\u0002\u00cc\u00ce\u0005.\u0018\u0002\u00cd",
+    "\u00c7\u0003\u0002\u0002\u0002\u00cd\u00cc\u0003\u0002\u0002\u0002\u00ce",
+    "\u00e6\u0003\u0002\u0002\u0002\u00cf\u00d0\f\u000b\u0002\u0002\u00d0",
+    "\u00d1\t\u0005\u0002\u0002\u00d1\u00e5\u0005,\u0017\f\u00d2\u00d3\f",
+    "\n\u0002\u0002\u00d3\u00d4\t\u0004\u0002\u0002\u00d4\u00e5\u0005,\u0017",
+    "\u000b\u00d5\u00d6\f\t\u0002\u0002\u00d6\u00d7\u0007\u000b\u0002\u0002",
+    "\u00d7\u00e5\u0005,\u0017\n\u00d8\u00d9\f\b\u0002\u0002\u00d9\u00da",
+    "\u0007\u000e\u0002\u0002\u00da\u00e5\u0005,\u0017\t\u00db\u00dc\f\u0007",
+    "\u0002\u0002\u00dc\u00dd\t\u0006\u0002\u0002\u00dd\u00e5\u0005,\u0017",
+    "\b\u00de\u00df\f\u0006\u0002\u0002\u00df\u00e0\u0007*\u0002\u0002\u00e0",
+    "\u00e5\u0005,\u0017\u0007\u00e1\u00e2\f\u0005\u0002\u0002\u00e2\u00e3",
+    "\t\u0007\u0002\u0002\u00e3\u00e5\u0005,\u0017\u0006\u00e4\u00cf\u0003",
+    "\u0002\u0002\u0002\u00e4\u00d2\u0003\u0002\u0002\u0002\u00e4\u00d5\u0003",
+    "\u0002\u0002\u0002\u00e4\u00d8\u0003\u0002\u0002\u0002\u00e4\u00db\u0003",
+    "\u0002\u0002\u0002\u00e4\u00de\u0003\u0002\u0002\u0002\u00e4\u00e1\u0003",
+    "\u0002\u0002\u0002\u00e5\u00e8\u0003\u0002\u0002\u0002\u00e6\u00e4\u0003",
+    "\u0002\u0002\u0002\u00e6\u00e7\u0003\u0002\u0002\u0002\u00e7-\u0003",
+    "\u0002\u0002\u0002\u00e8\u00e6\u0003\u0002\u0002\u0002\u00e9\u00ef\u0005",
+    "2\u001a\u0002\u00ea\u00ef\u0005\u001c\u000f\u0002\u00eb\u00ef\u0005",
+    "0\u0019\u0002\u00ec\u00ef\u00054\u001b\u0002\u00ed\u00ef\u00056\u001c",
+    "\u0002\u00ee\u00e9\u0003\u0002\u0002\u0002\u00ee\u00ea\u0003\u0002\u0002",
+    "\u0002\u00ee\u00eb\u0003\u0002\u0002\u0002\u00ee\u00ec\u0003\u0002\u0002",
+    "\u0002\u00ee\u00ed\u0003\u0002\u0002\u0002\u00ef/\u0003\u0002\u0002",
+    "\u0002\u00f0\u00f4\t\b\u0002\u0002\u00f1\u00f5\u00056\u001c\u0002\u00f2",
+    "\u00f5\u00052\u001a\u0002\u00f3\u00f5\u0007/\u0002\u0002\u00f4\u00f1",
+    "\u0003\u0002\u0002\u0002\u00f4\u00f2\u0003\u0002\u0002\u0002\u00f4\u00f3",
+    "\u0003\u0002\u0002\u0002\u00f51\u0003\u0002\u0002\u0002\u00f6\u0102",
+    "\u0007/\u0002\u0002\u00f7\u0102\u0007+\u0002\u0002\u00f8\u0102\u0007",
+    ",\u0002\u0002\u00f9\u0102\u00076\u0002\u0002\u00fa\u0102\u0007-\u0002",
+    "\u0002\u00fb\u0102\u0007.\u0002\u0002\u00fc\u00fd\u0007.\u0002\u0002",
+    "\u00fd\u0102\u00075\u0002\u0002\u00fe\u00ff\t\t\u0002\u0002\u00ff\u0100",
+    "\u0007\u001a\u0002\u0002\u0100\u0102\t\t\u0002\u0002\u0101\u00f6\u0003",
+    "\u0002\u0002\u0002\u0101\u00f7\u0003\u0002\u0002\u0002\u0101\u00f8\u0003",
+    "\u0002\u0002\u0002\u0101\u00f9\u0003\u0002\u0002\u0002\u0101\u00fa\u0003",
+    "\u0002\u0002\u0002\u0101\u00fb\u0003\u0002\u0002\u0002\u0101\u00fc\u0003",
+    "\u0002\u0002\u0002\u0101\u00fe\u0003\u0002\u0002\u0002\u01023\u0003",
+    "\u0002\u0002\u0002\u0103\u0124\u0007\u001d\u0002\u0002\u0104\u0106\u0005",
+    "\u0002\u0002\u0002\u0105\u0104\u0003\u0002\u0002\u0002\u0106\u0109\u0003",
+    "\u0002\u0002\u0002\u0107\u0105\u0003\u0002\u0002\u0002\u0107\u0108\u0003",
+    "\u0002\u0002\u0002\u0108\u010c\u0003\u0002\u0002\u0002\u0109\u0107\u0003",
+    "\u0002\u0002\u0002\u010a\u010d\u0005(\u0015\u0002\u010b\u010d\u0005",
+    "*\u0016\u0002\u010c\u010a\u0003\u0002\u0002\u0002\u010c\u010b\u0003",
+    "\u0002\u0002\u0002\u010d\u011b\u0003\u0002\u0002\u0002\u010e\u0112\u0007",
+    "\u0017\u0002\u0002\u010f\u0111\u0005\u0002\u0002\u0002\u0110\u010f\u0003",
+    "\u0002\u0002\u0002\u0111\u0114\u0003\u0002\u0002\u0002\u0112\u0110\u0003",
+    "\u0002\u0002\u0002\u0112\u0113\u0003\u0002\u0002\u0002\u0113\u0117\u0003",
+    "\u0002\u0002\u0002\u0114\u0112\u0003\u0002\u0002\u0002\u0115\u0118\u0005",
+    "(\u0015\u0002\u0116\u0118\u0005*\u0016\u0002\u0117\u0115\u0003\u0002",
+    "\u0002\u0002\u0117\u0116\u0003\u0002\u0002\u0002\u0118\u011a\u0003\u0002",
+    "\u0002\u0002\u0119\u010e\u0003\u0002\u0002\u0002\u011a\u011d\u0003\u0002",
+    "\u0002\u0002\u011b\u0119\u0003\u0002\u0002\u0002\u011b\u011c\u0003\u0002",
+    "\u0002\u0002\u011c\u011f\u0003\u0002\u0002\u0002\u011d\u011b\u0003\u0002",
+    "\u0002\u0002\u011e\u0120\u0007\u0017\u0002\u0002\u011f\u011e\u0003\u0002",
+    "\u0002\u0002\u011f\u0120\u0003\u0002\u0002\u0002\u0120\u0122\u0003\u0002",
+    "\u0002\u0002\u0121\u0123\u0005\u0002\u0002\u0002\u0122\u0121\u0003\u0002",
+    "\u0002\u0002\u0122\u0123\u0003\u0002\u0002\u0002\u0123\u0125\u0003\u0002",
+    "\u0002\u0002\u0124\u0107\u0003\u0002\u0002\u0002\u0124\u0125\u0003\u0002",
+    "\u0002\u0002\u0125\u0126\u0003\u0002\u0002\u0002\u0126\u0127\u0007\u001e",
+    "\u0002\u0002\u01275\u0003\u0002\u0002\u0002\u0128\u012c\u0007\u001f",
+    "\u0002\u0002\u0129\u012b\u0005\u0002\u0002\u0002\u012a\u0129\u0003\u0002",
+    "\u0002\u0002\u012b\u012e\u0003\u0002\u0002\u0002\u012c\u012a\u0003\u0002",
+    "\u0002\u0002\u012c\u012d\u0003\u0002\u0002\u0002\u012d\u012f\u0003\u0002",
+    "\u0002\u0002\u012e\u012c\u0003\u0002\u0002\u0002\u012f\u0133\u0005\u001a",
+    "\u000e\u0002\u0130\u0132\u0005\u0002\u0002\u0002\u0131\u0130\u0003\u0002",
+    "\u0002\u0002\u0132\u0135\u0003\u0002\u0002\u0002\u0133\u0131\u0003\u0002",
+    "\u0002\u0002\u0133\u0134\u0003\u0002\u0002\u0002\u0134\u0136\u0003\u0002",
+    "\u0002\u0002\u0135\u0133\u0003\u0002\u0002\u0002\u0136\u0137\u0007 ",
+    "\u0002\u0002\u01377\u0003\u0002\u0002\u0002&=AFLQV_lqvy\u0081\u0088",
+    "\u0093\u009b\u00a2\u00ae\u00b3\u00b9\u00c5\u00cd\u00e4\u00e6\u00ee\u00f4",
+    "\u0101\u0107\u010c\u0112\u0117\u011b\u011f\u0122\u0124\u012c\u0133"].join("");
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -220,22 +225,23 @@ export default class prqlParser extends antlr4.Parser {
 
     static grammarFileName = "prql.g4";
     static literalNames = [ null, "'func'", "'prql'", "'let'", "'->'", "'='", 
-                            "'+'", "'-'", "'*'", "'/'", "'%'", "'=='", "'!='", 
-                            "'<='", "'>='", "'|'", "':'", "','", "'.'", 
-                            "'$'", "'..'", "'<'", "'>'", "'['", "']'", "'('", 
-                            "')'", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'", 
-                            "'''''", "'and'", "'or'", "'!'", "'??'", "'null'" ];
+                            "'+'", "'-'", "'*'", "'**'", "'/'", "'%'", "'~'", 
+                            "'eq'", "'ne'", "'le'", "'lt'", "'ge'", "'gt'", 
+                            "'|'", "':'", "','", "'.'", "'$'", "'..'", "'<'", 
+                            "'>'", "'['", "']'", "'('", "')'", "'_'", "'`'", 
+                            "'\"'", "'''", "'\"\"\"'", "'''''", "'and'", 
+                            "'or'", "'not'", "'??'", "'null'" ];
     static symbolicNames = [ null, "FUNC", "PRQL", "LET", "ARROW", "ASSIGN", 
-                             "PLUS", "MINUS", "STAR", "DIV", "MOD", "EQ", 
-                             "NE", "LE", "GE", "BAR", "COLON", "COMMA", 
-                             "DOT", "DOLLAR", "RANGE", "LANG", "RANG", "LBRACKET", 
-                             "RBRACKET", "LPAREN", "RPAREN", "UNDERSCORE", 
-                             "BACKTICK", "DOUBLE_QUOTE", "SINGLE_QUOTE", 
-                             "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE", 
+                             "PLUS", "MINUS", "STAR", "POW", "DIV", "MOD", 
+                             "MODEL", "EQ", "NE", "LE", "LT", "GE", "GT", 
+                             "BAR", "COLON", "COMMA", "DOT", "DOLLAR", "RANGE", 
+                             "LANG", "RANG", "LBRACKET", "RBRACKET", "LPAREN", 
+                             "RPAREN", "UNDERSCORE", "BACKTICK", "DOUBLE_QUOTE", 
+                             "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE", 
                              "AND", "OR", "NOT", "COALESCE", "NULL_", "BOOLEAN", 
-                             "NUMBER", "IDENT", "IDENT_START", "IDENT_NEXT", 
-                             "WHITESPACE", "NEWLINE", "COMMENT", "INTERVAL_KIND", 
-                             "STRING" ];
+                             "INTEGER", "NUMBER", "IDENT", "IDENT_START", 
+                             "IDENT_NEXT", "WHITESPACE", "NEWLINE", "COMMENT", 
+                             "INTERVAL_KIND", "STRING" ];
     static ruleNames = [ "nl", "program", "programIntro", "funcDef", "funcDefName", 
                          "funcDefParams", "funcDefParam", "typeDef", "typeTerm", 
                          "stmt", "assignStmt", "pipe", "pipeline", "identBacktick", 
@@ -267,14 +273,18 @@ export default class prqlParser extends antlr4.Parser {
     expr_sempred(localctx, predIndex) {
     	switch(predIndex) {
     		case 0:
-    			return this.precpred(this._ctx, 7);
+    			return this.precpred(this._ctx, 9);
     		case 1:
-    			return this.precpred(this._ctx, 6);
+    			return this.precpred(this._ctx, 8);
     		case 2:
-    			return this.precpred(this._ctx, 5);
+    			return this.precpred(this._ctx, 7);
     		case 3:
-    			return this.precpred(this._ctx, 4);
+    			return this.precpred(this._ctx, 6);
     		case 4:
+    			return this.precpred(this._ctx, 5);
+    		case 5:
+    			return this.precpred(this._ctx, 4);
+    		case 6:
     			return this.precpred(this._ctx, 3);
     		default:
     			throw "No predicate with index:" + predIndex;
@@ -355,7 +365,7 @@ export default class prqlParser extends antlr4.Parser {
 	        this.state = 84;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.LET) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.BACKTICK))) !== 0) || ((((_la - 35)) & ~0x1f) == 0 && ((1 << (_la - 35)) & ((1 << (prqlParser.NOT - 35)) | (1 << (prqlParser.NULL_ - 35)) | (1 << (prqlParser.BOOLEAN - 35)) | (1 << (prqlParser.NUMBER - 35)) | (1 << (prqlParser.IDENT - 35)) | (1 << (prqlParser.STRING - 35)))) !== 0)) {
+	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.LET) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN))) !== 0) || ((((_la - 32)) & ~0x1f) == 0 && ((1 << (_la - 32)) & ((1 << (prqlParser.BACKTICK - 32)) | (1 << (prqlParser.NOT - 32)) | (1 << (prqlParser.NULL_ - 32)) | (1 << (prqlParser.BOOLEAN - 32)) | (1 << (prqlParser.INTEGER - 32)) | (1 << (prqlParser.NUMBER - 32)) | (1 << (prqlParser.IDENT - 32)) | (1 << (prqlParser.STRING - 32)))) !== 0)) {
 	            this.state = 74;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
@@ -375,6 +385,7 @@ export default class prqlParser extends antlr4.Parser {
 	            case prqlParser.NOT:
 	            case prqlParser.NULL_:
 	            case prqlParser.BOOLEAN:
+	            case prqlParser.INTEGER:
 	            case prqlParser.NUMBER:
 	            case prqlParser.IDENT:
 	            case prqlParser.STRING:
@@ -802,7 +813,7 @@ export default class prqlParser extends antlr4.Parser {
 	        this.state = 160;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.PRQL) | (1 << prqlParser.LET) | (1 << prqlParser.ARROW) | (1 << prqlParser.ASSIGN) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.STAR) | (1 << prqlParser.DIV) | (1 << prqlParser.MOD) | (1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.GE) | (1 << prqlParser.BAR) | (1 << prqlParser.COLON) | (1 << prqlParser.COMMA) | (1 << prqlParser.DOT) | (1 << prqlParser.DOLLAR) | (1 << prqlParser.RANGE) | (1 << prqlParser.LANG) | (1 << prqlParser.RANG) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.RBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.RPAREN) | (1 << prqlParser.UNDERSCORE) | (1 << prqlParser.DOUBLE_QUOTE) | (1 << prqlParser.SINGLE_QUOTE) | (1 << prqlParser.TRIPLE_DOUBLE_QUOTE))) !== 0) || ((((_la - 32)) & ~0x1f) == 0 && ((1 << (_la - 32)) & ((1 << (prqlParser.TRIPLE_SINGLE_QUOTE - 32)) | (1 << (prqlParser.AND - 32)) | (1 << (prqlParser.OR - 32)) | (1 << (prqlParser.NOT - 32)) | (1 << (prqlParser.COALESCE - 32)) | (1 << (prqlParser.NULL_ - 32)) | (1 << (prqlParser.BOOLEAN - 32)) | (1 << (prqlParser.NUMBER - 32)) | (1 << (prqlParser.IDENT - 32)) | (1 << (prqlParser.IDENT_START - 32)) | (1 << (prqlParser.IDENT_NEXT - 32)) | (1 << (prqlParser.WHITESPACE - 32)) | (1 << (prqlParser.COMMENT - 32)) | (1 << (prqlParser.INTERVAL_KIND - 32)) | (1 << (prqlParser.STRING - 32)))) !== 0)) {
+	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.FUNC) | (1 << prqlParser.PRQL) | (1 << prqlParser.LET) | (1 << prqlParser.ARROW) | (1 << prqlParser.ASSIGN) | (1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.STAR) | (1 << prqlParser.POW) | (1 << prqlParser.DIV) | (1 << prqlParser.MOD) | (1 << prqlParser.MODEL) | (1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.LT) | (1 << prqlParser.GE) | (1 << prqlParser.GT) | (1 << prqlParser.BAR) | (1 << prqlParser.COLON) | (1 << prqlParser.COMMA) | (1 << prqlParser.DOT) | (1 << prqlParser.DOLLAR) | (1 << prqlParser.RANGE) | (1 << prqlParser.LANG) | (1 << prqlParser.RANG) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.RBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.RPAREN) | (1 << prqlParser.UNDERSCORE))) !== 0) || ((((_la - 33)) & ~0x1f) == 0 && ((1 << (_la - 33)) & ((1 << (prqlParser.DOUBLE_QUOTE - 33)) | (1 << (prqlParser.SINGLE_QUOTE - 33)) | (1 << (prqlParser.TRIPLE_DOUBLE_QUOTE - 33)) | (1 << (prqlParser.TRIPLE_SINGLE_QUOTE - 33)) | (1 << (prqlParser.AND - 33)) | (1 << (prqlParser.OR - 33)) | (1 << (prqlParser.NOT - 33)) | (1 << (prqlParser.COALESCE - 33)) | (1 << (prqlParser.NULL_ - 33)) | (1 << (prqlParser.BOOLEAN - 33)) | (1 << (prqlParser.INTEGER - 33)) | (1 << (prqlParser.NUMBER - 33)) | (1 << (prqlParser.IDENT - 33)) | (1 << (prqlParser.IDENT_START - 33)) | (1 << (prqlParser.IDENT_NEXT - 33)) | (1 << (prqlParser.WHITESPACE - 33)) | (1 << (prqlParser.COMMENT - 33)) | (1 << (prqlParser.INTERVAL_KIND - 33)) | (1 << (prqlParser.STRING - 33)))) !== 0)) {
 	            this.state = 157;
 	            _la = this._input.LA(1);
 	            if(_la<=0 || _la===prqlParser.BACKTICK || _la===prqlParser.NEWLINE) {
@@ -1112,7 +1123,7 @@ export default class prqlParser extends antlr4.Parser {
 
 	        }
 	        this._ctx.stop = this._input.LT(-1);
-	        this.state = 222;
+	        this.state = 228;
 	        this._errHandler.sync(this);
 	        var _alt = this._interp.adaptivePredict(this._input,22,this._ctx)
 	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
@@ -1121,7 +1132,7 @@ export default class prqlParser extends antlr4.Parser {
 	                    this.triggerExitRuleEvent();
 	                }
 	                _prevctx = localctx;
-	                this.state = 220;
+	                this.state = 226;
 	                this._errHandler.sync(this);
 	                var la_ = this._interp.adaptivePredict(this._input,21,this._ctx);
 	                switch(la_) {
@@ -1129,8 +1140,8 @@ export default class prqlParser extends antlr4.Parser {
 	                    localctx = new ExprContext(this, _parentctx, _parentState);
 	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
 	                    this.state = 205;
-	                    if (!( this.precpred(this._ctx, 7))) {
-	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 7)");
+	                    if (!( this.precpred(this._ctx, 9))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 9)");
 	                    }
 	                    this.state = 206;
 	                    _la = this._input.LA(1);
@@ -1142,15 +1153,15 @@ export default class prqlParser extends antlr4.Parser {
 	                        this.consume();
 	                    }
 	                    this.state = 207;
-	                    this.expr(8);
+	                    this.expr(10);
 	                    break;
 
 	                case 2:
 	                    localctx = new ExprContext(this, _parentctx, _parentState);
 	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
 	                    this.state = 208;
-	                    if (!( this.precpred(this._ctx, 6))) {
-	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 6)");
+	                    if (!( this.precpred(this._ctx, 8))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 8)");
 	                    }
 	                    this.state = 209;
 	                    _la = this._input.LA(1);
@@ -1162,50 +1173,76 @@ export default class prqlParser extends antlr4.Parser {
 	                        this.consume();
 	                    }
 	                    this.state = 210;
-	                    this.expr(7);
+	                    this.expr(9);
 	                    break;
 
 	                case 3:
 	                    localctx = new ExprContext(this, _parentctx, _parentState);
 	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
 	                    this.state = 211;
-	                    if (!( this.precpred(this._ctx, 5))) {
-	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 5)");
+	                    if (!( this.precpred(this._ctx, 7))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 7)");
 	                    }
 	                    this.state = 212;
-	                    _la = this._input.LA(1);
-	                    if(!((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.GE) | (1 << prqlParser.LANG) | (1 << prqlParser.RANG))) !== 0))) {
-	                    this._errHandler.recoverInline(this);
-	                    }
-	                    else {
-	                    	this._errHandler.reportMatch(this);
-	                        this.consume();
-	                    }
+	                    this.match(prqlParser.POW);
 	                    this.state = 213;
-	                    this.expr(6);
+	                    this.expr(8);
 	                    break;
 
 	                case 4:
 	                    localctx = new ExprContext(this, _parentctx, _parentState);
 	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
 	                    this.state = 214;
-	                    if (!( this.precpred(this._ctx, 4))) {
-	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 4)");
+	                    if (!( this.precpred(this._ctx, 6))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 6)");
 	                    }
 	                    this.state = 215;
-	                    this.match(prqlParser.COALESCE);
+	                    this.match(prqlParser.MODEL);
 	                    this.state = 216;
-	                    this.expr(5);
+	                    this.expr(7);
 	                    break;
 
 	                case 5:
 	                    localctx = new ExprContext(this, _parentctx, _parentState);
 	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
 	                    this.state = 217;
+	                    if (!( this.precpred(this._ctx, 5))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 5)");
+	                    }
+	                    this.state = 218;
+	                    _la = this._input.LA(1);
+	                    if(!((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.EQ) | (1 << prqlParser.NE) | (1 << prqlParser.LE) | (1 << prqlParser.LT) | (1 << prqlParser.GE) | (1 << prqlParser.GT))) !== 0))) {
+	                    this._errHandler.recoverInline(this);
+	                    }
+	                    else {
+	                    	this._errHandler.reportMatch(this);
+	                        this.consume();
+	                    }
+	                    this.state = 219;
+	                    this.expr(6);
+	                    break;
+
+	                case 6:
+	                    localctx = new ExprContext(this, _parentctx, _parentState);
+	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
+	                    this.state = 220;
+	                    if (!( this.precpred(this._ctx, 4))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 4)");
+	                    }
+	                    this.state = 221;
+	                    this.match(prqlParser.COALESCE);
+	                    this.state = 222;
+	                    this.expr(5);
+	                    break;
+
+	                case 7:
+	                    localctx = new ExprContext(this, _parentctx, _parentState);
+	                    this.pushNewRecursionContext(localctx, _startState, prqlParser.RULE_expr);
+	                    this.state = 223;
 	                    if (!( this.precpred(this._ctx, 3))) {
 	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 3)");
 	                    }
-	                    this.state = 218;
+	                    this.state = 224;
 	                    _la = this._input.LA(1);
 	                    if(!(_la===prqlParser.AND || _la===prqlParser.OR)) {
 	                    this._errHandler.recoverInline(this);
@@ -1214,13 +1251,13 @@ export default class prqlParser extends antlr4.Parser {
 	                    	this._errHandler.reportMatch(this);
 	                        this.consume();
 	                    }
-	                    this.state = 219;
+	                    this.state = 225;
 	                    this.expr(4);
 	                    break;
 
 	                } 
 	            }
-	            this.state = 224;
+	            this.state = 230;
 	            this._errHandler.sync(this);
 	            _alt = this._interp.adaptivePredict(this._input,22,this._ctx);
 	        }
@@ -1245,38 +1282,39 @@ export default class prqlParser extends antlr4.Parser {
 	    let localctx = new TermContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 44, prqlParser.RULE_term);
 	    try {
-	        this.state = 230;
+	        this.state = 236;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case prqlParser.NULL_:
 	        case prqlParser.BOOLEAN:
+	        case prqlParser.INTEGER:
 	        case prqlParser.NUMBER:
 	        case prqlParser.IDENT:
 	        case prqlParser.STRING:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 225;
+	            this.state = 231;
 	            this.literal();
 	            break;
 	        case prqlParser.BACKTICK:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 226;
+	            this.state = 232;
 	            this.identBacktick();
 	            break;
 	        case prqlParser.PLUS:
 	        case prqlParser.MINUS:
 	        case prqlParser.NOT:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 227;
+	            this.state = 233;
 	            this.exprUnary();
 	            break;
 	        case prqlParser.LBRACKET:
 	            this.enterOuterAlt(localctx, 4);
-	            this.state = 228;
+	            this.state = 234;
 	            this.list();
 	            break;
 	        case prqlParser.LPAREN:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 229;
+	            this.state = 235;
 	            this.nestedPipeline();
 	            break;
 	        default:
@@ -1304,31 +1342,31 @@ export default class prqlParser extends antlr4.Parser {
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 232;
+	        this.state = 238;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 6)) & ~0x1f) == 0 && ((1 << (_la - 6)) & ((1 << (prqlParser.PLUS - 6)) | (1 << (prqlParser.MINUS - 6)) | (1 << (prqlParser.NOT - 6)))) !== 0))) {
+	        if(!(_la===prqlParser.PLUS || _la===prqlParser.MINUS || _la===prqlParser.NOT)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
 	        	this._errHandler.reportMatch(this);
 	            this.consume();
 	        }
-	        this.state = 236;
+	        this.state = 242;
 	        this._errHandler.sync(this);
 	        var la_ = this._interp.adaptivePredict(this._input,24,this._ctx);
 	        switch(la_) {
 	        case 1:
-	            this.state = 233;
+	            this.state = 239;
 	            this.nestedPipeline();
 	            break;
 
 	        case 2:
-	            this.state = 234;
+	            this.state = 240;
 	            this.literal();
 	            break;
 
 	        case 3:
-	            this.state = 235;
+	            this.state = 241;
 	            this.match(prqlParser.IDENT);
 	            break;
 
@@ -1354,51 +1392,57 @@ export default class prqlParser extends antlr4.Parser {
 	    this.enterRule(localctx, 48, prqlParser.RULE_literal);
 	    var _la = 0; // Token type
 	    try {
-	        this.state = 248;
+	        this.state = 255;
 	        this._errHandler.sync(this);
 	        var la_ = this._interp.adaptivePredict(this._input,25,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 238;
+	            this.state = 244;
 	            this.match(prqlParser.IDENT);
 	            break;
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 239;
+	            this.state = 245;
 	            this.match(prqlParser.NULL_);
 	            break;
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 240;
+	            this.state = 246;
 	            this.match(prqlParser.BOOLEAN);
 	            break;
 
 	        case 4:
 	            this.enterOuterAlt(localctx, 4);
-	            this.state = 241;
+	            this.state = 247;
 	            this.match(prqlParser.STRING);
 	            break;
 
 	        case 5:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 242;
-	            this.match(prqlParser.NUMBER);
+	            this.state = 248;
+	            this.match(prqlParser.INTEGER);
 	            break;
 
 	        case 6:
 	            this.enterOuterAlt(localctx, 6);
-	            this.state = 243;
+	            this.state = 249;
 	            this.match(prqlParser.NUMBER);
-	            this.state = 244;
-	            this.match(prqlParser.INTERVAL_KIND);
 	            break;
 
 	        case 7:
 	            this.enterOuterAlt(localctx, 7);
-	            this.state = 245;
+	            this.state = 250;
+	            this.match(prqlParser.NUMBER);
+	            this.state = 251;
+	            this.match(prqlParser.INTERVAL_KIND);
+	            break;
+
+	        case 8:
+	            this.enterOuterAlt(localctx, 8);
+	            this.state = 252;
 	            _la = this._input.LA(1);
 	            if(!(_la===prqlParser.NUMBER || _la===prqlParser.IDENT)) {
 	            this._errHandler.recoverInline(this);
@@ -1407,9 +1451,9 @@ export default class prqlParser extends antlr4.Parser {
 	            	this._errHandler.reportMatch(this);
 	                this.consume();
 	            }
-	            this.state = 246;
+	            this.state = 253;
 	            this.match(prqlParser.RANGE);
-	            this.state = 247;
+	            this.state = 254;
 	            _la = this._input.LA(1);
 	            if(!(_la===prqlParser.NUMBER || _la===prqlParser.IDENT)) {
 	            this._errHandler.recoverInline(this);
@@ -1443,94 +1487,94 @@ export default class prqlParser extends antlr4.Parser {
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 250;
+	        this.state = 257;
 	        this.match(prqlParser.LBRACKET);
-	        this.state = 283;
+	        this.state = 290;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN) | (1 << prqlParser.BACKTICK))) !== 0) || ((((_la - 35)) & ~0x1f) == 0 && ((1 << (_la - 35)) & ((1 << (prqlParser.NOT - 35)) | (1 << (prqlParser.NULL_ - 35)) | (1 << (prqlParser.BOOLEAN - 35)) | (1 << (prqlParser.NUMBER - 35)) | (1 << (prqlParser.IDENT - 35)) | (1 << (prqlParser.NEWLINE - 35)) | (1 << (prqlParser.COMMENT - 35)) | (1 << (prqlParser.STRING - 35)))) !== 0)) {
-	            this.state = 254;
+	        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << prqlParser.PLUS) | (1 << prqlParser.MINUS) | (1 << prqlParser.LBRACKET) | (1 << prqlParser.LPAREN))) !== 0) || ((((_la - 32)) & ~0x1f) == 0 && ((1 << (_la - 32)) & ((1 << (prqlParser.BACKTICK - 32)) | (1 << (prqlParser.NOT - 32)) | (1 << (prqlParser.NULL_ - 32)) | (1 << (prqlParser.BOOLEAN - 32)) | (1 << (prqlParser.INTEGER - 32)) | (1 << (prqlParser.NUMBER - 32)) | (1 << (prqlParser.IDENT - 32)) | (1 << (prqlParser.NEWLINE - 32)) | (1 << (prqlParser.COMMENT - 32)) | (1 << (prqlParser.STRING - 32)))) !== 0)) {
+	            this.state = 261;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===prqlParser.NEWLINE || _la===prqlParser.COMMENT) {
-	                this.state = 251;
+	                this.state = 258;
 	                this.nl();
-	                this.state = 256;
+	                this.state = 263;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
-	            this.state = 259;
+	            this.state = 266;
 	            this._errHandler.sync(this);
 	            var la_ = this._interp.adaptivePredict(this._input,27,this._ctx);
 	            switch(la_) {
 	            case 1:
-	                this.state = 257;
+	                this.state = 264;
 	                this.assignCall();
 	                break;
 
 	            case 2:
-	                this.state = 258;
+	                this.state = 265;
 	                this.exprCall();
 	                break;
 
 	            }
-	            this.state = 274;
+	            this.state = 281;
 	            this._errHandler.sync(this);
 	            var _alt = this._interp.adaptivePredict(this._input,30,this._ctx)
 	            while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	                if(_alt===1) {
-	                    this.state = 261;
+	                    this.state = 268;
 	                    this.match(prqlParser.COMMA);
-	                    this.state = 265;
+	                    this.state = 272;
 	                    this._errHandler.sync(this);
 	                    _la = this._input.LA(1);
 	                    while(_la===prqlParser.NEWLINE || _la===prqlParser.COMMENT) {
-	                        this.state = 262;
+	                        this.state = 269;
 	                        this.nl();
-	                        this.state = 267;
+	                        this.state = 274;
 	                        this._errHandler.sync(this);
 	                        _la = this._input.LA(1);
 	                    }
-	                    this.state = 270;
+	                    this.state = 277;
 	                    this._errHandler.sync(this);
 	                    var la_ = this._interp.adaptivePredict(this._input,29,this._ctx);
 	                    switch(la_) {
 	                    case 1:
-	                        this.state = 268;
+	                        this.state = 275;
 	                        this.assignCall();
 	                        break;
 
 	                    case 2:
-	                        this.state = 269;
+	                        this.state = 276;
 	                        this.exprCall();
 	                        break;
 
 	                    } 
 	                }
-	                this.state = 276;
+	                this.state = 283;
 	                this._errHandler.sync(this);
 	                _alt = this._interp.adaptivePredict(this._input,30,this._ctx);
 	            }
 
-	            this.state = 278;
+	            this.state = 285;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===prqlParser.COMMA) {
-	                this.state = 277;
+	                this.state = 284;
 	                this.match(prqlParser.COMMA);
 	            }
 
-	            this.state = 281;
+	            this.state = 288;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===prqlParser.NEWLINE || _la===prqlParser.COMMENT) {
-	                this.state = 280;
+	                this.state = 287;
 	                this.nl();
 	            }
 
 	        }
 
-	        this.state = 285;
+	        this.state = 292;
 	        this.match(prqlParser.RBRACKET);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -1554,20 +1598,8 @@ export default class prqlParser extends antlr4.Parser {
 	    var _la = 0; // Token type
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 287;
-	        this.match(prqlParser.LPAREN);
-	        this.state = 291;
-	        this._errHandler.sync(this);
-	        _la = this._input.LA(1);
-	        while(_la===prqlParser.NEWLINE || _la===prqlParser.COMMENT) {
-	            this.state = 288;
-	            this.nl();
-	            this.state = 293;
-	            this._errHandler.sync(this);
-	            _la = this._input.LA(1);
-	        }
 	        this.state = 294;
-	        this.pipeline();
+	        this.match(prqlParser.LPAREN);
 	        this.state = 298;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
@@ -1579,6 +1611,18 @@ export default class prqlParser extends antlr4.Parser {
 	            _la = this._input.LA(1);
 	        }
 	        this.state = 301;
+	        this.pipeline();
+	        this.state = 305;
+	        this._errHandler.sync(this);
+	        _la = this._input.LA(1);
+	        while(_la===prqlParser.NEWLINE || _la===prqlParser.COMMENT) {
+	            this.state = 302;
+	            this.nl();
+	            this.state = 307;
+	            this._errHandler.sync(this);
+	            _la = this._input.LA(1);
+	        }
+	        this.state = 308;
 	        this.match(prqlParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -1606,45 +1650,50 @@ prqlParser.ASSIGN = 5;
 prqlParser.PLUS = 6;
 prqlParser.MINUS = 7;
 prqlParser.STAR = 8;
-prqlParser.DIV = 9;
-prqlParser.MOD = 10;
-prqlParser.EQ = 11;
-prqlParser.NE = 12;
-prqlParser.LE = 13;
-prqlParser.GE = 14;
-prqlParser.BAR = 15;
-prqlParser.COLON = 16;
-prqlParser.COMMA = 17;
-prqlParser.DOT = 18;
-prqlParser.DOLLAR = 19;
-prqlParser.RANGE = 20;
-prqlParser.LANG = 21;
-prqlParser.RANG = 22;
-prqlParser.LBRACKET = 23;
-prqlParser.RBRACKET = 24;
-prqlParser.LPAREN = 25;
-prqlParser.RPAREN = 26;
-prqlParser.UNDERSCORE = 27;
-prqlParser.BACKTICK = 28;
-prqlParser.DOUBLE_QUOTE = 29;
-prqlParser.SINGLE_QUOTE = 30;
-prqlParser.TRIPLE_DOUBLE_QUOTE = 31;
-prqlParser.TRIPLE_SINGLE_QUOTE = 32;
-prqlParser.AND = 33;
-prqlParser.OR = 34;
-prqlParser.NOT = 35;
-prqlParser.COALESCE = 36;
-prqlParser.NULL_ = 37;
-prqlParser.BOOLEAN = 38;
-prqlParser.NUMBER = 39;
-prqlParser.IDENT = 40;
-prqlParser.IDENT_START = 41;
-prqlParser.IDENT_NEXT = 42;
-prqlParser.WHITESPACE = 43;
-prqlParser.NEWLINE = 44;
-prqlParser.COMMENT = 45;
-prqlParser.INTERVAL_KIND = 46;
-prqlParser.STRING = 47;
+prqlParser.POW = 9;
+prqlParser.DIV = 10;
+prqlParser.MOD = 11;
+prqlParser.MODEL = 12;
+prqlParser.EQ = 13;
+prqlParser.NE = 14;
+prqlParser.LE = 15;
+prqlParser.LT = 16;
+prqlParser.GE = 17;
+prqlParser.GT = 18;
+prqlParser.BAR = 19;
+prqlParser.COLON = 20;
+prqlParser.COMMA = 21;
+prqlParser.DOT = 22;
+prqlParser.DOLLAR = 23;
+prqlParser.RANGE = 24;
+prqlParser.LANG = 25;
+prqlParser.RANG = 26;
+prqlParser.LBRACKET = 27;
+prqlParser.RBRACKET = 28;
+prqlParser.LPAREN = 29;
+prqlParser.RPAREN = 30;
+prqlParser.UNDERSCORE = 31;
+prqlParser.BACKTICK = 32;
+prqlParser.DOUBLE_QUOTE = 33;
+prqlParser.SINGLE_QUOTE = 34;
+prqlParser.TRIPLE_DOUBLE_QUOTE = 35;
+prqlParser.TRIPLE_SINGLE_QUOTE = 36;
+prqlParser.AND = 37;
+prqlParser.OR = 38;
+prqlParser.NOT = 39;
+prqlParser.COALESCE = 40;
+prqlParser.NULL_ = 41;
+prqlParser.BOOLEAN = 42;
+prqlParser.INTEGER = 43;
+prqlParser.NUMBER = 44;
+prqlParser.IDENT = 45;
+prqlParser.IDENT_START = 46;
+prqlParser.IDENT_NEXT = 47;
+prqlParser.WHITESPACE = 48;
+prqlParser.NEWLINE = 49;
+prqlParser.COMMENT = 50;
+prqlParser.INTERVAL_KIND = 51;
+prqlParser.STRING = 52;
 
 prqlParser.RULE_nl = 0;
 prqlParser.RULE_program = 1;
@@ -2704,6 +2753,14 @@ class ExprContext extends antlr4.ParserRuleContext {
 	    return this.getToken(prqlParser.PLUS, 0);
 	};
 
+	POW() {
+	    return this.getToken(prqlParser.POW, 0);
+	};
+
+	MODEL() {
+	    return this.getToken(prqlParser.MODEL, 0);
+	};
+
 	EQ() {
 	    return this.getToken(prqlParser.EQ, 0);
 	};
@@ -2720,12 +2777,12 @@ class ExprContext extends antlr4.ParserRuleContext {
 	    return this.getToken(prqlParser.LE, 0);
 	};
 
-	LANG() {
-	    return this.getToken(prqlParser.LANG, 0);
+	LT() {
+	    return this.getToken(prqlParser.LT, 0);
 	};
 
-	RANG() {
-	    return this.getToken(prqlParser.RANG, 0);
+	GT() {
+	    return this.getToken(prqlParser.GT, 0);
 	};
 
 	COALESCE() {
@@ -2899,6 +2956,10 @@ class LiteralContext extends antlr4.ParserRuleContext {
 
 	STRING() {
 	    return this.getToken(prqlParser.STRING, 0);
+	};
+
+	INTEGER() {
+	    return this.getToken(prqlParser.INTEGER, 0);
 	};
 
 	NUMBER = function(i) {

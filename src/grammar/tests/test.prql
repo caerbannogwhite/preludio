@@ -1,9 +1,10 @@
 
 let a = (
-  import_csv "C:\\Users\\massi" + "\\Downloads\\Cars.csv" delimiter:";" header:true
+  importCSV "C:\\Users\\massi" + "\\Downloads\\Cars.csv" delimiter: ";" header:true
   derive v = Cylinders * 2
   select [Cylinders, v]
-  export_csv "C:\\Users\\massi\\Downloads\\Cars_out1.csv" delimiter:"\t"
+  orderBy -Cylinders
+  exportCSV "C:\\Users\\massi\\Downloads\\Cars_out1.csv" delimiter: '\t'
 )
 
 let b = (new col1 = [1, 2, 3, 4] col2 = ["A", "B", "C", "D"])
@@ -15,7 +16,7 @@ let s = "hello"
 from a
 derive d = 7*true + ((null+3) - Cylinders * (Weight / 2-false)) + 1
 select [Cylinders, Weight]
-export_csv "C:\\Users\\massi\\Downloads\\Cars_out2.csv" type:"csv" delimiter:"\t"
+exportCSV "C:\\Users\\massi\\Downloads\\Cars_out2.csv" type:"csv" delimiter:"\t"
 
 
 from a

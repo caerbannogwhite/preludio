@@ -15,13 +15,17 @@ ASSIGN: '=';
 PLUS: '+';
 MINUS: '-';
 STAR: '*';
+POW: '**';
 DIV: '/';
 MOD: '%';
+MODEL: '~';
 
-EQ: '==';
-NE: '!=';
-LE: '<=';
-GE: '>=';
+EQ: 'eq';
+NE: 'ne';
+LE: 'le';
+LT: 'lt';
+GE: 'ge';
+GT: 'gt';
 
 BAR: '|';
 COLON: ':';
@@ -45,16 +49,16 @@ TRIPLE_SINGLE_QUOTE: '\'\'\'';
 
 AND: 'and';
 OR: 'or';
-NOT: '!';
+NOT: 'not';
 COALESCE: '??';
 NULL_: 'null';
 BOOLEAN: 'true' | 'false';
 
-fragment INT: DIGIT+;
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
-fragment EXP: ('E' | 'e') ('+' | '-')? INT;
+fragment EXP: ('E' | 'e') ('+' | '-')? INTEGER;
 
+INTEGER: DIGIT+;
 NUMBER: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
 
 // Either a normal ident (starting with a letter, `$` or `_`), or any string surrounded by
@@ -130,7 +134,9 @@ exprCall: funcCall | expr;
 expr:
 	expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
-	| expr (EQ | NE | GE | LE | LANG | RANG) expr
+	| expr POW expr
+	| expr MODEL expr
+	| expr (EQ | NE | GE | LE | LT | GT) expr
 	| expr COALESCE expr
 	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
@@ -155,6 +161,7 @@ literal:
 	| NULL_
 	| BOOLEAN
 	| STRING // | timestamp | date | time | s_string | f_string |
+	| INTEGER
 	| NUMBER
 	| NUMBER INTERVAL_KIND
 	| (NUMBER | IDENT) RANGE (NUMBER | IDENT);
