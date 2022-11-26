@@ -8,13 +8,14 @@ import { TextEncoder } from "util";
 
 export const TERM_NULL = 0;
 export const TERM_BOOL = 1;
-export const TERM_NUMERIC = 2;
-export const TERM_STRING = 3;
+export const TERM_INTEGER = 2;
+export const TERM_FLOAT = 3;
+export const TERM_STRING = 4;
 export const TERM_INTERVAL = 5;
 export const TERM_RANGE = 6;
 export const TERM_LIST = 7;
 export const TERM_PIPELINE = 8;
-export const TERM_IDENT = 10;
+export const TERM_SYMBOL = 10;
 
 export const OP_BEGIN_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
@@ -36,6 +37,7 @@ export const OP_BINARY_DIV = 101;
 export const OP_BINARY_MOD = 102;
 export const OP_BINARY_ADD = 103;
 export const OP_BINARY_SUB = 104;
+export const OP_BINARY_POW = 105;
 
 export const OP_BINARY_EQ = 110;
 export const OP_BINARY_NE = 111;
@@ -47,6 +49,11 @@ export const OP_BINARY_LT = 115;
 export const OP_BINARY_AND = 120;
 export const OP_BINARY_OR = 121;
 export const OP_BINARY_COALESCE = 122;
+export const OP_BINARY_MODEL = 123;
+
+export const OP_UNARY_SUB = 130;
+export const OP_UNARY_ADD = 131;
+export const OP_UNARY_NOT = 132;
 
 export default class PrqlCompiler extends prqlListener {
   constructor(params) {
@@ -115,7 +122,18 @@ export default class PrqlCompiler extends prqlListener {
     for (let i = 0; i < this.__instructions.length; i += 3) {
       if (
         this.__instructions[i] === OP_PUSH_TERM &&
-        this.__instructions[i + 1] === TERM_NUMERIC
+        this.__instructions[i + 1] === TERM_INTEGER
+      ) {
+        instructions.push(
+          ...this._toByteArray2(this.__instructions[i]),
+          ...this._toByteArray2(this.__instructions[i + 1]),
+          ...new Uint8Array(
+            new BigInt64Array([BigInt(this.__instructions[i + 2])]).buffer
+          )
+        );
+      } else if (
+        this.__instructions[i] === OP_PUSH_TERM &&
+        this.__instructions[i + 1] === TERM_FLOAT
       ) {
         instructions.push(
           ...this._toByteArray2(this.__instructions[i]),
@@ -433,23 +451,29 @@ export default class PrqlCompiler extends prqlListener {
           case "-":
             this.__instructions.push(OP_BINARY_SUB, 0, 0);
             break;
-          case "==":
+          case "eq":
             this.__instructions.push(OP_BINARY_EQ, 0, 0);
             break;
-          case "!=":
+          case "ne":
             this.__instructions.push(OP_BINARY_NE, 0, 0);
             break;
-          case ">=":
+          case "ge":
             this.__instructions.push(OP_BINARY_GE, 0, 0);
             break;
-          case "<=":
+          case "le":
             this.__instructions.push(OP_BINARY_LE, 0, 0);
             break;
-          case ">":
+          case "gt":
             this.__instructions.push(OP_BINARY_GT, 0, 0);
             break;
-          case "<":
+          case "lt":
             this.__instructions.push(OP_BINARY_LT, 0, 0);
+            break;
+          case "**":
+            this.__instructions.push(OP_BINARY_POW, 0, 0);
+            break;
+          case "~":
+            this.__instructions.push(OP_BINARY_MODEL, 0, 0);
             break;
         }
       }
@@ -477,10 +501,40 @@ export default class PrqlCompiler extends prqlListener {
   }
 
   // Enter a parse tree produced by prqlParser#exprUnary.
-  enterExprUnary(ctx) {}
+  enterExprUnary(ctx) {
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `-> enterExprUnary`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#exprUnary.
-  exitExprUnary(ctx) {}
+  exitExprUnary(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `<- enterExprUnary`
+      );
+    }
+
+    // operation or nested expression
+    if (ctx.children.length === 2) {
+      switch (ctx.children[0].getText()) {
+        case "-":
+          this.__instructions.push(OP_UNARY_SUB, 0, 0);
+          break;
+        case "+":
+          this.__instructions.push(OP_UNARY_ADD, 0, 0);
+          break;
+        case "not":
+          this.__instructions.push(OP_UNARY_NOT, 0, 0);
+          break;
+      }
+    }
+  }
 
   // Enter a parse tree produced by prqlParser#literal.
   enterLiteral(ctx) {
@@ -519,12 +573,21 @@ export default class PrqlCompiler extends prqlListener {
           );
         }
 
-        // NUMBER
-        else if (ctx.NUMBER() !== null && ctx.NUMBER().length > 0) {
+        // INTEGER
+        else if (ctx.INTEGER() !== null) {
           this.__instructions.push(
             OP_PUSH_TERM,
-            TERM_NUMERIC,
-            parseFloat(ctx.NUMBER()[0].getText())
+            TERM_INTEGER,
+            parseInt(ctx.INTEGER().getText())
+          );
+        }
+
+        // FLOAT
+        else if (ctx.FLOAT() !== null && ctx.FLOAT().length > 0) {
+          this.__instructions.push(
+            OP_PUSH_TERM,
+            TERM_FLOAT,
+            parseFloat(ctx.FLOAT()[0].getText())
           );
         }
 
@@ -549,7 +612,7 @@ export default class PrqlCompiler extends prqlListener {
             this.__symbol_table_str.push(id);
           }
 
-          this.__instructions.push(OP_PUSH_TERM, TERM_IDENT, pos);
+          this.__instructions.push(OP_PUSH_TERM, TERM_SYMBOL, pos);
         }
         break;
 
@@ -566,16 +629,16 @@ export default class PrqlCompiler extends prqlListener {
       case 3:
         // const s = ctx.children[0].getText();
         // if (s === NaN) {
-        //   const start = { type: TERM_IDENT, value: ctx.children[0].getText() };
+        //   const start = { type: TERM_SYMBOL, value: ctx.children[0].getText() };
         // } else {
-        //   const start = { type: TERM_NUMERIC, value: s };
+        //   const start = { type: TERM_FLOAT, value: s };
         // }
 
         // const e = ctx.children[2].getText();
         // if (end === NaN) {
-        //   const end = { type: TERM_IDENT, value: ctx.children[2].getText() };
+        //   const end = { type: TERM_SYMBOL, value: ctx.children[2].getText() };
         // } else {
-        //   const end = { type: TERM_NUMERIC, value: e };
+        //   const end = { type: TERM_FLOAT, value: e };
         // }
 
         // this.term = {
