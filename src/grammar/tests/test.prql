@@ -1,7 +1,9 @@
 
+let n = 1 + 3 + 4
+
 let a = (
   importCSV "C:\\Users\\massi" + "\\Downloads\\Cars.csv" delimiter: ";" header:true
-  derive v = Cylinders * 2
+  derive v = Cylinders * 2 - 1.123e-1
   select [Cylinders, v]
   orderBy -Cylinders
   exportCSV "C:\\Users\\massi\\Downloads\\Cars_out1.csv" delimiter: '\t'

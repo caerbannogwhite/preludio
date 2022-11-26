@@ -59,7 +59,7 @@ fragment LETTER: [a-zA-Z];
 fragment EXP: ('E' | 'e') ('+' | '-')? INTEGER;
 
 INTEGER: DIGIT+;
-NUMBER: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
+FLOAT: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
 
 // Either a normal ident (starting with a letter, `$` or `_`), or any string surrounded by
 // backticks. We allow `e.*`, but not just `*`, since it might conflict with multiply in some cases.
@@ -162,9 +162,9 @@ literal:
 	| BOOLEAN
 	| STRING // | timestamp | date | time | s_string | f_string |
 	| INTEGER
-	| NUMBER
-	| NUMBER INTERVAL_KIND
-	| (NUMBER | IDENT) RANGE (NUMBER | IDENT);
+	| FLOAT
+	| FLOAT INTERVAL_KIND
+	| (FLOAT | IDENT) RANGE (FLOAT | IDENT);
 
 INTERVAL_KIND:
 	'microseconds'
