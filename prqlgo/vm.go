@@ -24,10 +24,9 @@ const (
 )
 
 const (
-	OP_BEGIN_PIPELINE OPCODE = 0
-	OP_END_PIPELINE   OPCODE = 1
-	OP_ASSIGN_STMT    OPCODE = 2
-	// OP_BEGIN_FUNC_CALL OPCODE = 3;
+	OP_BEGIN_PIPELINE      OPCODE = 0
+	OP_END_PIPELINE        OPCODE = 1
+	OP_ASSIGN_STMT         OPCODE = 2
 	OP_MAKE_FUNC_CALL      OPCODE = 4
 	OP_BEGIN_LIST          OPCODE = 5
 	OP_END_LIST            OPCODE = 6
@@ -58,8 +57,8 @@ const (
 	OP_BINARY_COALESCE OPCODE = 122
 	OP_BINARY_MODEL    OPCODE = 123
 
-	OP_UNARY_SUB OPCODE = 130
-	OP_UNARY_ADD OPCODE = 131
+	OP_UNARY_ADD OPCODE = 130
+	OP_UNARY_SUB OPCODE = 131
 	OP_UNARY_NOT OPCODE = 132
 )
 
@@ -219,6 +218,8 @@ MAIN_LOOP:
 				PrqlFunc_ExportCsv("exportCSV", vm)
 			case "importCSV":
 				PrqlFunc_ImportCsv("importCSV", vm)
+			case "orderBy":
+				PrqlFunc_OrderBy("orderBy", vm)
 			case "select":
 				PrqlFunc_Select("select", vm)
 
@@ -237,14 +238,6 @@ MAIN_LOOP:
 			}
 
 			vm.__funcNumParams = 0
-
-			if vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
-				for !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
-					err := vm.StackPop()
-					vm.PrintError(err.ErrorMsg)
-				}
-				break MAIN_LOOP
-			}
 
 		case OP_BEGIN_LIST:
 			if vm.__debugLevel > 10 {
@@ -412,10 +405,19 @@ MAIN_LOOP:
 		case OP_UNARY_NOT:
 
 		}
+
+		if !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
+			for !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
+				err := vm.StackPop()
+				vm.PrintError(err.ErrorMsg)
+			}
+			break MAIN_LOOP
+		}
+
 	}
 }
 
-func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, positionalParamsNum uint64, namedParams *map[string]*PrqlExpr, acceptingAssignments bool) ([]*PrqlExpr, map[string]*PrqlExpr) {
+func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, positionalParamsNum uint64, namedParams *map[string]*PrqlExpr, acceptingAssignments bool) ([]*PrqlExpr, map[string]*PrqlExpr, error) {
 
 	positionalParams := make([]*PrqlExpr, positionalParamsNum)
 	var assignments map[string]*PrqlExpr
@@ -425,13 +427,14 @@ func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, positionalParam
 
 	var t1, t2 PrqlInternal
 	var positionalParamsIdx = uint64(0)
-	for i := uint64(0); i < vm.__funcNumParams; i++ {
+	// for i := uint64(0); i < vm.__funcNumParams; i++ {
+	for !vm.StackIsEmpty() {
 		t1 = *vm.StackPop()
 		switch t1.Tag {
 		case PRQL_INTERNAL_TAG_ERROR:
 		case PRQL_INTERNAL_TAG_EXPRESSION:
 			if positionalParamsIdx < positionalParamsNum {
-				positionalParams[positionalParamsIdx] = t1.Expr
+				positionalParams[positionalParamsNum-positionalParamsIdx-1] = t1.Expr
 				positionalParamsIdx++
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
@@ -459,20 +462,26 @@ func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, positionalParam
 	}
 
 	for _, p := range positionalParams {
-		p.Solve()
+		if err := p.Solve(); err != nil {
+			return positionalParams, assignments, err
+		}
 	}
 
 	for _, p := range *namedParams {
-		p.Solve()
+		if err := p.Solve(); err != nil {
+			return positionalParams, assignments, err
+		}
 	}
 
 	if acceptingAssignments {
 		for _, p := range assignments {
-			p.Solve()
+			if err := p.Solve(); err != nil {
+				return positionalParams, assignments, err
+			}
 		}
 	}
 
-	return positionalParams, assignments
+	return positionalParams, assignments, nil
 }
 
 // func (vm *PrqlVirtualMachine) IdentResolutionStrategy(ident string) *PrqlInternal {
@@ -503,5 +512,5 @@ func (vm *PrqlVirtualMachine) PrintWarning(msg string) {
 }
 
 func (vm *PrqlVirtualMachine) PrintError(msg string) {
-	fmt.Printf("[ ☠️ Error ☠️ ] %s\n", msg)
+	fmt.Printf("[ ☠️ Error   ☠️ ] %s\n", msg)
 }

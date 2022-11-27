@@ -3,6 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/go-gota/gota/dataframe"
+	"github.com/go-gota/gota/series"
 )
 
 type PrqlInternalTag int
@@ -284,6 +288,12 @@ const (
 	BIN_EXPR_ADD PrqlExprOp = 3
 	BIN_EXPR_SUB PrqlExprOp = 4
 	BIN_EXPR_POW PrqlExprOp = 5
+
+	UN_EXPR_ADD PrqlExprOp = 30
+	UN_EXPR_SUB PrqlExprOp = 31
+	UN_EXPR_NOT PrqlExprOp = 32
+
+	NO_OP PrqlExprOp = 50
 )
 
 type PrqlExpr struct {
@@ -336,7 +346,22 @@ func (e *PrqlExpr) GetValueString() (string, error) {
 	}
 }
 
-func (e *PrqlExpr) Solve() {
+func (e *PrqlExpr) GetValueSeries() (series.Series, error) {
+	switch v := e.stack[0].(type) {
+	case series.Series:
+		return v, nil
+	default:
+		return series.Series{}, errors.New(fmt.Sprintf("expecting series, got %T", v))
+	}
+}
+
+func (e *PrqlExpr) GetValueDataframe() (dataframe.DataFrame, error) {
+	switch v := e.stack[0].(type) {
+	case dataframe.DataFrame:
+		return v, nil
+	default:
+		return dataframe.DataFrame{}, errors.New(fmt.Sprintf("expecting dataframe, got %T", v))
+	}
 }
 
 func (l *PrqlExpr) Mul(r *PrqlExpr) {
@@ -367,4 +392,232 @@ func (l *PrqlExpr) Sub(r *PrqlExpr) {
 func (l *PrqlExpr) Pow(r *PrqlExpr) {
 	l.stack = append(l.stack, r.stack...)
 	l.stack = append(l.stack, BIN_EXPR_POW)
+}
+
+func IsOperator(t interface{}) (PrqlExprOp, bool) {
+	switch v := t.(type) {
+	case PrqlExprOp:
+		return v, true
+	}
+	return NO_OP, false
+}
+
+func BoolToInt64(b bool) int64 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func BoolToFloat64(b bool) float64 {
+	if b {
+		return 1.0
+	}
+	return 0.0
+}
+
+func (e *PrqlExpr) Solve() error {
+
+	for len(e.stack) > 1 {
+		t1 := e.stack[0]
+		t2 := e.stack[1]
+
+		var result interface{}
+
+		// UNARY
+		if op, ok := IsOperator(t2); ok {
+			e.stack = e.stack[2:len(e.stack)]
+
+			switch op {
+			case UN_EXPR_ADD:
+			case UN_EXPR_SUB:
+			case UN_EXPR_NOT:
+			}
+		} else
+
+		// BINARY
+		{
+			op, _ := IsOperator(e.stack[2])
+			e.stack = e.stack[3:len(e.stack)]
+
+			switch op {
+			case BIN_EXPR_MUL:
+				switch val1 := t1.(type) {
+				case bool:
+					switch val2 := t2.(type) {
+					case bool:
+						result = BoolToInt64(val1) * BoolToInt64(val2)
+					case int64:
+						result = BoolToInt64(val1) * val2
+					case float64:
+						result = BoolToFloat64(val1) * val2
+					case string:
+						if val1 {
+							result = val2
+						} else {
+							result = ""
+						}
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case int64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 * BoolToInt64(val2)
+					case int64:
+						result = val1 * val2
+					case float64:
+						result = float64(val1) * val2
+					case string:
+						result = strings.Repeat(val2, int(val1))
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case float64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 * BoolToFloat64(val2)
+					case int64:
+						result = val1 * float64(val2)
+					case float64:
+						result = val1 * val2
+					case string:
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case string:
+					switch val2 := t2.(type) {
+					case bool:
+						if val2 {
+							result = val1
+						} else {
+							result = ""
+						}
+					case int64:
+						result = strings.Repeat(val1, int(val2))
+					case float64:
+					case string:
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case series.Series:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				case dataframe.DataFrame:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				default:
+				}
+			case BIN_EXPR_DIV:
+			case BIN_EXPR_MOD:
+			case BIN_EXPR_ADD:
+				switch val1 := t1.(type) {
+				case bool:
+					switch val2 := t2.(type) {
+					case bool:
+						result = BoolToInt64(val1) + BoolToInt64(val2)
+					case int64:
+						result = BoolToInt64(val1) + val2
+					case float64:
+						result = BoolToFloat64(val1) + val2
+					case string:
+						result = fmt.Sprintf("%v%s", val1, val2)
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case int64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 + BoolToInt64(val2)
+					case int64:
+						result = val1 + val2
+					case float64:
+						result = float64(val1) + val2
+					case string:
+						result = fmt.Sprintf("%v%s", val1, val2)
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case float64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 + BoolToFloat64(val2)
+					case int64:
+						result = val1 + float64(val2)
+					case float64:
+						result = val1 + val2
+					case string:
+						result = fmt.Sprintf("%v%s", val1, val2)
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case string:
+					switch val2 := t2.(type) {
+					case bool:
+					case int64:
+					case float64:
+					case string:
+						result = val1 + val2
+					case series.Series:
+					case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case series.Series:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				case dataframe.DataFrame:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				default:
+				}
+			case BIN_EXPR_SUB:
+			}
+		}
+
+		e.stack = append(e.stack, result)
+	}
+	return nil
 }
