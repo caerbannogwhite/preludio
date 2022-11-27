@@ -6,8 +6,9 @@ func main() {
 	inputPath := os.Args[1]
 
 	vm := NewPrqlVirtualMachine(&PrqlVirtualMachineParams{
-		DebugLevel: 20,
-		InputPath:  inputPath,
+		PrintWarnings: true,
+		DebugLevel:    0,
+		InputPath:     inputPath,
 	})
 
 	vm.ReadPrqlBytecode()

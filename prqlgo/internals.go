@@ -1,5 +1,10 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+)
+
 type PrqlInternalTag int
 
 const (
@@ -295,8 +300,43 @@ func (e *PrqlExpr) GetValue() interface{} {
 	return e.stack[0]
 }
 
-func (e *PrqlExpr) Solve() interface{} {
-	return e.stack[0]
+func (e *PrqlExpr) GetValueBool() (bool, error) {
+	switch v := e.stack[0].(type) {
+	case bool:
+		return v, nil
+	default:
+		return false, errors.New(fmt.Sprintf("expecting bool, got %T", v))
+	}
+}
+
+func (e *PrqlExpr) GetValueInteger() (int64, error) {
+	switch v := e.stack[0].(type) {
+	case int64:
+		return v, nil
+	default:
+		return 0, errors.New(fmt.Sprintf("expecting integer, got %T", v))
+	}
+}
+
+func (e *PrqlExpr) GetValueFloat() (float64, error) {
+	switch v := e.stack[0].(type) {
+	case float64:
+		return v, nil
+	default:
+		return 0, errors.New(fmt.Sprintf("expecting float, got %T", v))
+	}
+}
+
+func (e *PrqlExpr) GetValueString() (string, error) {
+	switch v := e.stack[0].(type) {
+	case string:
+		return v, nil
+	default:
+		return "", errors.New(fmt.Sprintf("expecting string, got %T", v))
+	}
+}
+
+func (e *PrqlExpr) Solve() {
 }
 
 func (l *PrqlExpr) Mul(r *PrqlExpr) {

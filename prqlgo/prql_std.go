@@ -2,58 +2,80 @@ package main
 
 import (
 	"fmt"
+	"os"
+
+	"github.com/go-gota/gota/dataframe"
 )
 
-type PrqlFunction func(vm *PrqlVirtualMachine)
+type PrqlFunction func(funcName string, vm *PrqlVirtualMachine)
 
-func PrqlFunc_Derive(vm *PrqlVirtualMachine) {
+func PrqlFunc_Derive(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_Derive")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
-
-	positional := make([]interface{}, 0)
-	named := make(map[string]interface{})
-	assign := make(map[string]interface{})
-
-	vm.GetFunctionParams(&positional, &named, &assign)
 
 }
 
-func PrqlFunc_ExportCsv(vm *PrqlVirtualMachine) {
+func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_ExportCsv")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
-func PrqlFunc_From(vm *PrqlVirtualMachine) {
+func PrqlFunc_From(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_From")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
-func PrqlFunc_ImportCsv(vm *PrqlVirtualMachine) {
+func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_ImportCsv")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	positional := make([]interface{}, 0)
-	named := make(map[string]interface{})
-	assign := make(map[string]interface{})
+	named := map[string]*PrqlExpr{
+		"delimiter": NewPrqlExpr(","),
+		"header":    NewPrqlExpr(true),
+	}
+	positional, _ := vm.GetFunctionParams(funcName, 1, &named, false)
 
-	vm.GetFunctionParams(&positional, &named, &assign)
+	var path, delimiter string
+	var inputFile *os.File
+	var err error
 
-	keys := make([]string, 0, len(named))
-	for k := range named {
-		keys = append(keys, k)
+	path, err = positional[0].GetValueString()
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
 	}
 
-	fmt.Println(keys)
+	inputFile, err = os.Open(path)
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
 
-	// dataframe.ReadCSV()
+	delimiter, err = named["delimiter"].GetValueString()
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	if len(delimiter) > 1 {
+		vm.PrintWarning("delimiter length greater than 1, ignoring remaining characters")
+	}
+
+	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(rune(delimiter[0])))
+	if df.Error() != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		return
+	}
+
+	vm.StackPush(NewPrqlInternalTerm(df))
 }
 
-func PrqlFunc_Select(vm *PrqlVirtualMachine) {
+func PrqlFunc_Select(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling PrqlFunc_Select")
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }

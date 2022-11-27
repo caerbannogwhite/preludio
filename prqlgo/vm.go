@@ -64,12 +64,14 @@ const (
 )
 
 type PrqlVirtualMachineParams struct {
+	PrintWarnings  bool
 	DebugLevel     int
 	VerbosityLevel int
 	InputPath      string
 }
 
 type PrqlVirtualMachine struct {
+	__printWarnings        bool
 	__debugLevel           int
 	__verbosityLevel       int
 	__inputPath            string
@@ -81,7 +83,11 @@ type PrqlVirtualMachine struct {
 }
 
 func NewPrqlVirtualMachine(params *PrqlVirtualMachineParams) *PrqlVirtualMachine {
-	vm := PrqlVirtualMachine{__inputPath: params.InputPath, __debugLevel: params.DebugLevel}
+	vm := PrqlVirtualMachine{
+		__printWarnings: params.PrintWarnings,
+		__inputPath:     params.InputPath,
+		__debugLevel:    params.DebugLevel,
+	}
 	vm.__userDefinedVariables = map[string]PrqlInternal{}
 	vm.__currentTable = nil
 
@@ -170,6 +176,7 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 
 	usize := uint64(len(bytes))
 
+MAIN_LOOP:
 	for offset < usize {
 		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+2]))
 		offset += 2
@@ -205,15 +212,15 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 
 			// Standard library functions build-ins
 			case "derive":
-				PrqlFunc_Derive(vm)
+				PrqlFunc_Derive("derive", vm)
 			case "from":
-				PrqlFunc_From(vm)
+				PrqlFunc_From("from", vm)
 			case "exportCSV":
-				PrqlFunc_ExportCsv(vm)
+				PrqlFunc_ExportCsv("exportCSV", vm)
 			case "importCSV":
-				PrqlFunc_ImportCsv(vm)
+				PrqlFunc_ImportCsv("importCSV", vm)
 			case "select":
-				PrqlFunc_Select(vm)
+				PrqlFunc_Select("select", vm)
 
 			// User defined functions
 			default:
@@ -231,6 +238,14 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 
 			vm.__funcNumParams = 0
 
+			if vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
+				for !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
+					err := vm.StackPop()
+					vm.PrintError(err.ErrorMsg)
+				}
+				break MAIN_LOOP
+			}
+
 		case OP_BEGIN_LIST:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BEGIN_LIST", "", "", "")
@@ -245,8 +260,6 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_FUNC_PARAM", "", "", "")
 			}
-
-			vm.__funcNumParams += 1
 
 		case OP_ADD_EXPR_TERM:
 			if vm.__debugLevel > 10 {
@@ -322,6 +335,8 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_FUNC_CALL_PARAM", "", "", "")
 			}
+
+			vm.__funcNumParams += 1
 
 		case OP_GOTO:
 			if vm.__debugLevel > 10 {
@@ -400,22 +415,64 @@ func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) 
 	}
 }
 
-func (vm *PrqlVirtualMachine) GetFunctionParams(pos *[]interface{}, named *map[string]interface{}, assign *map[string]interface{}) {
+func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, positionalParamsNum uint64, namedParams *map[string]*PrqlExpr, acceptingAssignments bool) ([]*PrqlExpr, map[string]*PrqlExpr) {
+
+	positionalParams := make([]*PrqlExpr, positionalParamsNum)
+	var assignments map[string]*PrqlExpr
+	if acceptingAssignments {
+		assignments = map[string]*PrqlExpr{}
+	}
+
 	var t1, t2 PrqlInternal
+	var positionalParamsIdx = uint64(0)
 	for i := uint64(0); i < vm.__funcNumParams; i++ {
 		t1 = *vm.StackPop()
 		switch t1.Tag {
 		case PRQL_INTERNAL_TAG_ERROR:
 		case PRQL_INTERNAL_TAG_EXPRESSION:
-			*pos = append(*pos, t2.Expr.Solve())
+			if positionalParamsIdx < positionalParamsNum {
+				positionalParams[positionalParamsIdx] = t1.Expr
+				positionalParamsIdx++
+			} else {
+				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
+			}
+
 		case PRQL_INTERNAL_TAG_PARAM_NAME:
 			t2 = *vm.StackPop()
-			(*named)[t1.Name] = t1.Expr.Solve()
+
+			// Name of parameter is in the given list of names
+			if _, ok := (*namedParams)[t1.Name]; ok {
+				(*namedParams)[t1.Name] = t2.Expr
+			} else {
+				vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
+			}
+
 		case PRQL_INTERNAL_TAG_ASSING_IDENT:
 			t2 = *vm.StackPop()
-			(*assign)[t1.Name] = t1.Expr.Solve()
+			if acceptingAssignments {
+				assignments[t1.Name] = t2.Expr
+			} else {
+				vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
+			}
+
 		}
 	}
+
+	for _, p := range positionalParams {
+		p.Solve()
+	}
+
+	for _, p := range *namedParams {
+		p.Solve()
+	}
+
+	if acceptingAssignments {
+		for _, p := range assignments {
+			p.Solve()
+		}
+	}
+
+	return positionalParams, assignments
 }
 
 // func (vm *PrqlVirtualMachine) IdentResolutionStrategy(ident string) *PrqlInternal {
@@ -438,3 +495,13 @@ func (vm *PrqlVirtualMachine) GetFunctionParams(pos *[]interface{}, named *map[s
 
 // 	return NewPrqlInternalError(fmt.Sprintf("name '%s' not found.", ident))
 // }
+
+func (vm *PrqlVirtualMachine) PrintWarning(msg string) {
+	if vm.__printWarnings {
+		fmt.Printf("[ ⚠️ Warning ⚠️ ] %s\n", msg)
+	}
+}
+
+func (vm *PrqlVirtualMachine) PrintError(msg string) {
+	fmt.Printf("[ ☠️ Error ☠️ ] %s\n", msg)
+}
