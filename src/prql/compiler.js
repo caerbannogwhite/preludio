@@ -17,19 +17,19 @@ export const TERM_LIST = 7;
 export const TERM_PIPELINE = 8;
 export const TERM_SYMBOL = 10;
 
-export const OP_BEGIN_PIPELINE = 0;
+export const OP_START_PIPELINE = 0;
 export const OP_END_PIPELINE = 1;
 export const OP_ASSIGN_STMT = 2;
-// export const OP_BEGIN_FUNC_CALL = 3;
+export const OP_START_FUNC_CALL = 3;
 export const OP_MAKE_FUNC_CALL = 4;
-export const OP_BEGIN_LIST = 5;
+export const OP_START_LIST = 5;
 export const OP_END_LIST = 6;
 export const OP_ADD_FUNC_PARAM = 7;
 export const OP_ADD_EXPR_TERM = 8;
 export const OP_PUSH_NAMED_PARAM = 9;
 export const OP_PUSH_ASSIGN_IDENT = 10;
 export const OP_PUSH_TERM = 11;
-export const OP_END_FUNC_CALL_PARAM = 12;
+export const OP_END_CHUNCK = 12;
 export const OP_GOTO = 50;
 
 export const OP_BINARY_MUL = 100;
@@ -249,7 +249,7 @@ export default class PrqlCompiler extends prqlListener {
       );
     }
 
-    this.__instructions.push(OP_BEGIN_PIPELINE, 0, 0);
+    this.__instructions.push(OP_START_PIPELINE, 0, 0);
 
     this.__rec_depth__++;
   }
@@ -294,7 +294,7 @@ export default class PrqlCompiler extends prqlListener {
       );
     }
 
-    // this.__instructions.push(OP_BEGIN_FUNC_CALL, 0, 0);
+    this.__instructions.push(OP_START_FUNC_CALL, 0, 0);
 
     this.__rec_depth__++;
   }
@@ -339,7 +339,7 @@ export default class PrqlCompiler extends prqlListener {
       );
     }
 
-    this.__instructions.push(OP_END_FUNC_CALL_PARAM, 0, 0);
+    this.__instructions.push(OP_END_CHUNCK, 0, 0);
   }
 
   // Enter a parse tree produced by prqlParser#namedArg.
@@ -403,16 +403,57 @@ export default class PrqlCompiler extends prqlListener {
   }
 
   // Enter a parse tree produced by prqlParser#assignCall.
-  enterAssignCall(ctx) {}
+  enterAssignCall(ctx) {
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignCall`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#assignCall.
-  exitAssignCall(ctx) {}
+  exitAssignCall(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignCall`
+      );
+    }
+
+    const identName = ctx.IDENT().symbol.text;
+    let pos = this.__symbol_table_str.indexOf(identName);
+    if (pos === -1) {
+      pos = this.__symbol_table_str.length;
+      this.__symbol_table_str.push(identName);
+    }
+
+    this.__instructions.push(OP_PUSH_ASSIGN_IDENT, 0, pos);
+  }
 
   // Enter a parse tree produced by prqlParser#exprCall.
-  enterExprCall(ctx) {}
+  enterExprCall(ctx) {
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `-> ExprCall`
+      );
+    }
+
+    this.__rec_depth__++;
+  }
 
   // Exit a parse tree produced by prqlParser#exprCall.
-  exitExprCall(ctx) {}
+  exitExprCall(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `<- ExprCall`
+      );
+    }
+
+    this.__instructions.push(OP_END_CHUNCK, 0, 0);
+  }
 
   // Enter a parse tree produced by prqlParser#expr.
   enterExpr(ctx) {
@@ -656,7 +697,7 @@ export default class PrqlCompiler extends prqlListener {
       console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> List`);
     }
 
-    this.__instructions.push(OP_BEGIN_LIST, 0, 0);
+    this.__instructions.push(OP_START_LIST, 0, 0);
 
     this.__rec_depth__++;
   }

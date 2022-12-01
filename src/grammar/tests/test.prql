@@ -3,13 +3,22 @@ let n = 1 + 3 + 4
 
 let a = (
   importCSV "C:\\Users\\massi" + "\\Downloads\\Cars.csv" delimiter: ";" header:true
+  take 10
+  exportCSV "C:\\Users\\massi\\Downloads\\Cars_1.csv" delimiter: '\t'
+
+  describe $.e
   derive v = Cylinders * 2 - 1.123e-1
   select [Cylinders, v]
-  orderBy -Cylinders
-  exportCSV "C:\\Users\\massi\\Downloads\\Cars_out1.csv" delimiter: '\t'
+  sort -Cylinders
 )
 
-let b = (new col1 = [1, 2, 3, 4] col2 = ["A", "B", "C", "D"])
+let b = (
+  new [
+    col1 = [1, 1 * 2, 2/3, 4 % 3, 4 + 5, 5 - 6, 2 ** 7],
+    col2 = ["A" * true, "B" + "B", "C" * 3, "D", "E", "F", "G"],
+    col3 = [true, false, true, false, true, false, false],
+  ]
+)
 
 let s = "hello"
 
