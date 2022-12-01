@@ -16,6 +16,13 @@ func PrqlFunc_Derive(funcName string, vm *PrqlVirtualMachine) {
 
 }
 
+func PrqlFunc_Describe(funcName string, vm *PrqlVirtualMachine) {
+	if vm.__debugLevel > 5 {
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
+	}
+
+}
+
 func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
@@ -27,7 +34,7 @@ func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, 2, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
 	if err != nil {
 		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -83,6 +90,25 @@ func PrqlFunc_From(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
+
+	named := map[string]*PrqlExpr{}
+
+	var err error
+	var df dataframe.DataFrame
+
+	positional, _, err := vm.GetFunctionParams(funcName, 0, 1, &named, false)
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	df, err = positional[0].GetValueDataframe()
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		return
+	}
+
+	vm.StackPush(NewPrqlInternalTerm(df))
 }
 
 func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
@@ -96,7 +122,7 @@ func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, 1, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, 0, 1, &named, false)
 	if err != nil {
 		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -136,14 +162,77 @@ func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 	vm.StackPush(NewPrqlInternalTerm(df))
 }
 
-func PrqlFunc_OrderBy(funcName string, vm *PrqlVirtualMachine) {
+func PrqlFunc_New(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
+
+	// named := map[string]*PrqlExpr{}
+
+	// var err error
+	// _, assignements, err := vm.GetFunctionParams(funcName, 0, &named, false, true)
+	// if err != nil {
+	// 	vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+	// 	return
+	// }
+
+	// ser := make([]series.Series, len(assignements))
+	// idx := 0
+	// for k, v := range assignements {
+	// 	ser[idx] = series.New(v, series.Bool, k)
+	// 	idx++
+	// }
+	// df := dataframe.New(ser...)
+
+	// vm.StackPush(NewPrqlInternalTerm(df))
 }
 
 func PrqlFunc_Select(funcName string, vm *PrqlVirtualMachine) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
+}
+
+func PrqlFunc_Sort(funcName string, vm *PrqlVirtualMachine) {
+	if vm.__debugLevel > 5 {
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
+	}
+}
+
+func PrqlFunc_Take(funcName string, vm *PrqlVirtualMachine) {
+	if vm.__debugLevel > 5 {
+		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
+	}
+
+	named := map[string]*PrqlExpr{}
+
+	var err error
+	var df dataframe.DataFrame
+	var num int64
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	df, err = positional[0].GetValueDataframe()
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	num, err = positional[1].GetValueInteger()
+	if err != nil {
+		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	rows := make([]int, num)
+	for i, _ := range rows {
+		rows[i] = i
+	}
+
+	df = df.Subset(rows)
+
+	vm.StackPush(NewPrqlInternalTerm(df))
 }
