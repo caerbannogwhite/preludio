@@ -186,6 +186,7 @@ func BoolToFloat64(b bool) float64 {
 }
 
 func (e *PrqlExpr) Solve() error {
+	tmp := make([]interface{}, 1)
 
 	for len(e.stack) > 1 {
 		t1 := e.stack[0]
@@ -351,8 +352,11 @@ func (e *PrqlExpr) Solve() error {
 				case string:
 					switch val2 := t2.(type) {
 					case bool:
+						result = fmt.Sprintf("%s%v", val1, val2)
 					case int64:
+						result = fmt.Sprintf("%s%v", val1, val2)
 					case float64:
+						result = fmt.Sprintf("%s%v", val1, val2)
 					case string:
 						result = val1 + val2
 					case series.Series:
@@ -386,7 +390,9 @@ func (e *PrqlExpr) Solve() error {
 			}
 		}
 
-		e.stack = append(e.stack, result)
+		tmp[0] = result
+
+		e.stack = append(tmp, e.stack...)
 	}
 	return nil
 }
