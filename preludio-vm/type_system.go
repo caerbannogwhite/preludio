@@ -1,4 +1,4 @@
 package main
 
-type UserDefinedFunction func(*PrqlVirtualMachine)
-type PrqlSymbol string
+type UserDefinedFunction func(*PreludioVM)
+type PreludioSymbol string

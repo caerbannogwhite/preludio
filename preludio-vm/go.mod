@@ -1,4 +1,4 @@
-module prqlgo
+module preludio-vm
 
 go 1.19
 

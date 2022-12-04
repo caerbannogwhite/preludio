@@ -9,75 +9,75 @@ import (
 	"github.com/go-gota/gota/series"
 )
 
-type PrqlInternalTag int
+type InternalTag int
 
 const (
-	PRQL_INTERNAL_TAG_ERROR       PrqlInternalTag = 0
-	PRQL_INTERNAL_TAG_EXPRESSION  PrqlInternalTag = 1
-	PRQL_INTERNAL_TAG_NAMED_PARAM PrqlInternalTag = 2
-	PRQL_INTERNAL_TAG_ASSIGNMENT  PrqlInternalTag = 3
-	PRQL_INTERNAL_TAG_START_FUNC  PrqlInternalTag = 4
+	PRELUDIO_INTERNAL_TAG_ERROR       InternalTag = 0
+	PRELUDIO_INTERNAL_TAG_EXPRESSION  InternalTag = 1
+	PRELUDIO_INTERNAL_TAG_NAMED_PARAM InternalTag = 2
+	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  InternalTag = 3
+	PRELUDIO_INTERNAL_TAG_START_FUNC  InternalTag = 4
 )
 
-type PrqlInternal struct {
-	Tag      PrqlInternalTag
-	Expr     *PrqlExpr
+type PreludioInternal struct {
+	Tag      InternalTag
+	Expr     *PreludioExpr
 	Name     string
 	ErrorMsg string
 }
 
-func NewPrqlInternalError(msg string) *PrqlInternal {
-	return &PrqlInternal{Tag: PRQL_INTERNAL_TAG_ERROR, ErrorMsg: msg}
+func NewPreludioInternalError(msg string) *PreludioInternal {
+	return &PreludioInternal{Tag: PRELUDIO_INTERNAL_TAG_ERROR, ErrorMsg: msg}
 }
 
-func NewPrqlInternalStartFunc() *PrqlInternal {
-	return &PrqlInternal{Tag: PRQL_INTERNAL_TAG_START_FUNC}
+func NewPreludioInternalStartFunc() *PreludioInternal {
+	return &PreludioInternal{Tag: PRELUDIO_INTERNAL_TAG_START_FUNC}
 }
 
-func NewPrqlInternalTerm(val interface{}) *PrqlInternal {
-	return &PrqlInternal{Tag: PRQL_INTERNAL_TAG_EXPRESSION, Expr: NewPrqlExpr(val)}
+func NewPreludioInternalTerm(val interface{}) *PreludioInternal {
+	return &PreludioInternal{Tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, Expr: NewPreludioExpr(val)}
 }
 
-func (i *PrqlInternal) SetParamName(name string) {
-	i.Tag = PRQL_INTERNAL_TAG_NAMED_PARAM
+func (i *PreludioInternal) SetParamName(name string) {
+	i.Tag = PRELUDIO_INTERNAL_TAG_NAMED_PARAM
 	i.Name = name
 }
 
-func (i *PrqlInternal) SetAssignment(name string) {
-	i.Tag = PRQL_INTERNAL_TAG_ASSIGNMENT
+func (i *PreludioInternal) SetAssignment(name string) {
+	i.Tag = PRELUDIO_INTERNAL_TAG_ASSIGNMENT
 	i.Name = name
 }
 
-type PrqlExprOp uint8
+type PreludioExprOp uint8
 
 const (
-	BIN_EXPR_MUL PrqlExprOp = 0
-	BIN_EXPR_DIV PrqlExprOp = 1
-	BIN_EXPR_MOD PrqlExprOp = 2
-	BIN_EXPR_ADD PrqlExprOp = 3
-	BIN_EXPR_SUB PrqlExprOp = 4
-	BIN_EXPR_POW PrqlExprOp = 5
+	BIN_EXPR_MUL PreludioExprOp = 0
+	BIN_EXPR_DIV PreludioExprOp = 1
+	BIN_EXPR_MOD PreludioExprOp = 2
+	BIN_EXPR_ADD PreludioExprOp = 3
+	BIN_EXPR_SUB PreludioExprOp = 4
+	BIN_EXPR_POW PreludioExprOp = 5
 
-	UN_EXPR_ADD PrqlExprOp = 30
-	UN_EXPR_SUB PrqlExprOp = 31
-	UN_EXPR_NOT PrqlExprOp = 32
+	UN_EXPR_ADD PreludioExprOp = 30
+	UN_EXPR_SUB PreludioExprOp = 31
+	UN_EXPR_NOT PreludioExprOp = 32
 
-	NO_OP PrqlExprOp = 50
+	NO_OP PreludioExprOp = 50
 )
 
-type PrqlExpr []interface{}
+type PreludioExpr []interface{}
 
-func NewPrqlExpr(t interface{}) *PrqlExpr {
-	e := make(PrqlExpr, 1)
+func NewPreludioExpr(t interface{}) *PreludioExpr {
+	e := make(PreludioExpr, 1)
 	e[0] = t
 	return &e
 }
 
-func (i *PrqlInternal) GetValue() interface{} {
+func (i *PreludioInternal) GetValue() interface{} {
 	return (*i.Expr)[0]
 }
 
-func (i *PrqlInternal) GetValueBool() (bool, error) {
+func (i *PreludioInternal) GetValueBool() (bool, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case bool:
 		return v, nil
@@ -86,7 +86,7 @@ func (i *PrqlInternal) GetValueBool() (bool, error) {
 	}
 }
 
-func (i *PrqlInternal) GetValueInteger() (int64, error) {
+func (i *PreludioInternal) GetValueInteger() (int64, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case int64:
 		return v, nil
@@ -95,7 +95,7 @@ func (i *PrqlInternal) GetValueInteger() (int64, error) {
 	}
 }
 
-func (i *PrqlInternal) GetValueFloat() (float64, error) {
+func (i *PreludioInternal) GetValueFloat() (float64, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case float64:
 		return v, nil
@@ -104,7 +104,7 @@ func (i *PrqlInternal) GetValueFloat() (float64, error) {
 	}
 }
 
-func (i *PrqlInternal) GetValueString() (string, error) {
+func (i *PreludioInternal) GetValueString() (string, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case string:
 		return v, nil
@@ -113,7 +113,7 @@ func (i *PrqlInternal) GetValueString() (string, error) {
 	}
 }
 
-func (i *PrqlInternal) GetValueSeries() (series.Series, error) {
+func (i *PreludioInternal) GetValueSeries() (series.Series, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case series.Series:
 		return v, nil
@@ -122,7 +122,7 @@ func (i *PrqlInternal) GetValueSeries() (series.Series, error) {
 	}
 }
 
-func (i *PrqlInternal) GetValueDataframe() (dataframe.DataFrame, error) {
+func (i *PreludioInternal) GetValueDataframe() (dataframe.DataFrame, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case dataframe.DataFrame:
 		return v, nil
@@ -131,39 +131,39 @@ func (i *PrqlInternal) GetValueDataframe() (dataframe.DataFrame, error) {
 	}
 }
 
-func (l *PrqlInternal) Mul(r *PrqlInternal) {
+func (l *PreludioInternal) Mul(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_MUL)
 }
 
-func (l *PrqlInternal) Div(r *PrqlInternal) {
+func (l *PreludioInternal) Div(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_DIV)
 }
 
-func (l *PrqlInternal) Mod(r *PrqlInternal) {
+func (l *PreludioInternal) Mod(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_MOD)
 }
 
-func (l *PrqlInternal) Add(r *PrqlInternal) {
+func (l *PreludioInternal) Add(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_ADD)
 }
 
-func (l *PrqlInternal) Sub(r *PrqlInternal) {
+func (l *PreludioInternal) Sub(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_SUB)
 }
 
-func (l *PrqlInternal) Pow(r *PrqlInternal) {
+func (l *PreludioInternal) Pow(r *PreludioInternal) {
 	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
 	(*l.Expr) = append((*l.Expr), BIN_EXPR_POW)
 }
 
-func IsOperator(t interface{}) (PrqlExprOp, bool) {
+func IsOperator(t interface{}) (PreludioExprOp, bool) {
 	switch v := t.(type) {
-	case PrqlExprOp:
+	case PreludioExprOp:
 		return v, true
 	}
 	return NO_OP, false
@@ -183,18 +183,18 @@ func BoolToFloat64(b bool) float64 {
 	return 0.0
 }
 
-func (e *PrqlInternal) Solve() error {
+func (i *PreludioInternal) Solve() error {
 	tmp := make([]interface{}, 1)
 
-	for len((*e)) > 1 {
-		t1 := (*e)[0]
-		t2 := (*e)[1]
+	for len((*i.Expr)) > 1 {
+		t1 := (*i.Expr)[0]
+		t2 := (*i.Expr)[1]
 
 		var result interface{}
 
 		// UNARY
 		if op, ok := IsOperator(t2); ok {
-			(*e) = (*e)[2:len((*e))]
+			(*i.Expr) = (*i.Expr)[2:len((*i.Expr))]
 
 			switch op {
 			case UN_EXPR_ADD:
@@ -205,8 +205,8 @@ func (e *PrqlInternal) Solve() error {
 
 		// BINARY
 		{
-			op, _ := IsOperator((*e)[2])
-			(*e) = (*e)[3:len((*e))]
+			op, _ := IsOperator((*i.Expr)[2])
+			(*i.Expr) = (*i.Expr)[3:len((*i.Expr))]
 
 			switch op {
 			case BIN_EXPR_MUL:
@@ -389,7 +389,7 @@ func (e *PrqlInternal) Solve() error {
 		}
 
 		tmp[0] = result
-		(*e) = append(tmp, (*e)...)
+		(*i.Expr) = append(tmp, (*i.Expr)...)
 	}
 	return nil
 }

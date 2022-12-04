@@ -7,36 +7,36 @@ import (
 	"github.com/go-gota/gota/dataframe"
 )
 
-type PrqlFunction func(funcName string, vm *PrqlVirtualMachine)
+type PreludioFunction func(funcName string, vm *PreludioVM)
 
-func PrqlFunc_Derive(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
 }
 
-func PrqlFunc_Describe(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
 }
 
-func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PrqlExpr{
-		// "delimiter": NewPrqlExpr(","),
-		"header": NewPrqlExpr(true),
+	named := map[string]*PreludioInternal{
+		// "delimiter": NewPreludioInternalTerm(","),
+		"header": NewPreludioInternalTerm(true),
 	}
 
 	var err error
 	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
@@ -47,25 +47,25 @@ func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
 
 	df, err = positional[0].GetValueDataframe()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	path, err = positional[1].GetValueString()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	outputFile, err = os.OpenFile(path, os.O_CREATE, 0666)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	// delimiter, err = named["delimiter"].GetValueString()
 	// if err != nil {
-	// 	vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 	// 	return
 	// }
 
@@ -75,56 +75,56 @@ func PrqlFunc_ExportCsv(funcName string, vm *PrqlVirtualMachine) {
 
 	header, err = named["header"].GetValueBool()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	err = df.WriteCSV(outputFile, dataframe.WriteHeader(header))
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
 		return
 	}
 }
 
-func PrqlFunc_From(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_From(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PrqlExpr{}
+	named := map[string]*PreludioInternal{}
 
 	var err error
 	var df dataframe.DataFrame
 
 	positional, _, err := vm.GetFunctionParams(funcName, 0, 1, &named, false)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].GetValueDataframe()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
 		return
 	}
 
-	vm.StackPush(NewPrqlInternalTerm(df))
+	vm.StackPush(NewPreludioInternalTerm(df))
 }
 
-func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PrqlInternal{
-		"delimiter": NewPrqlInternalTerm(","),
-		"header":    NewPrqlInternalTerm(true),
+	named := map[string]*PreludioInternal{
+		"delimiter": NewPreludioInternalTerm(","),
+		"header":    NewPreludioInternalTerm(true),
 	}
 
 	var err error
 	positional, _, err := vm.GetFunctionParams(funcName, 0, 1, &named, false)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
@@ -133,19 +133,19 @@ func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 
 	path, err = positional[0].GetValueString()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	inputFile, err = os.Open(path)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	delimiter, err = named["delimiter"].GetValueString()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
@@ -155,14 +155,14 @@ func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 
 	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(rune(delimiter[0])))
 	if df.Error() != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
 		return
 	}
 
-	vm.StackPush(NewPrqlInternalTerm(df))
+	vm.StackPush(NewPreludioInternalTerm(df))
 }
 
-func PrqlFunc_New(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_New(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -172,7 +172,7 @@ func PrqlFunc_New(funcName string, vm *PrqlVirtualMachine) {
 	// var err error
 	// _, assignements, err := vm.GetFunctionParams(funcName, 0, &named, false, true)
 	// if err != nil {
-	// 	vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 	// 	return
 	// }
 
@@ -184,46 +184,46 @@ func PrqlFunc_New(funcName string, vm *PrqlVirtualMachine) {
 	// }
 	// df := dataframe.New(ser...)
 
-	// vm.StackPush(NewPrqlInternalTerm(df))
+	// vm.StackPush(NewPreludioInternalTerm(df))
 }
 
-func PrqlFunc_Select(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
-func PrqlFunc_Sort(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_Sort(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
-func PrqlFunc_Take(funcName string, vm *PrqlVirtualMachine) {
+func PreludioFunc_Take(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PrqlExpr{}
+	named := map[string]*PreludioInternal{}
 
 	var err error
 	var df dataframe.DataFrame
 	var num int64
 	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].GetValueDataframe()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	num, err = positional[1].GetValueInteger()
 	if err != nil {
-		vm.StackPush(NewPrqlInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
@@ -234,5 +234,5 @@ func PrqlFunc_Take(funcName string, vm *PrqlVirtualMachine) {
 
 	df = df.Subset(rows)
 
-	vm.StackPush(NewPrqlInternalTerm(df))
+	vm.StackPush(NewPreludioInternalTerm(df))
 }

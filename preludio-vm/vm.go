@@ -63,40 +63,40 @@ const (
 	OP_UNARY_NOT OPCODE = 132
 )
 
-type PrqlVirtualMachineParams struct {
+type PreludioVMParams struct {
 	PrintWarnings  bool
 	DebugLevel     int
 	VerbosityLevel int
 	InputPath      string
 }
 
-type PrqlVirtualMachine struct {
+type PreludioVM struct {
 	__printWarnings        bool
 	__debugLevel           int
 	__verbosityLevel       int
 	__inputPath            string
 	__symbolTable          []string
-	__stack                []*PrqlInternal
-	__currentTable         *PrqlInternal
-	__userDefinedVariables map[string]PrqlInternal
+	__stack                []*PreludioInternal
+	__currentTable         *PreludioInternal
+	__userDefinedVariables map[string]PreludioInternal
 	__funcNumParams        int
 	__listElementCounters  []int
 }
 
-func NewPrqlVirtualMachine(params *PrqlVirtualMachineParams) *PrqlVirtualMachine {
-	vm := PrqlVirtualMachine{
+func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
+	vm := PreludioVM{
 		__printWarnings:  params.PrintWarnings,
 		__inputPath:      params.InputPath,
 		__debugLevel:     params.DebugLevel,
 		__verbosityLevel: params.VerbosityLevel,
 	}
-	vm.__userDefinedVariables = map[string]PrqlInternal{}
+	vm.__userDefinedVariables = map[string]PreludioInternal{}
 	vm.__currentTable = nil
 
 	return &vm
 }
 
-func (vm *PrqlVirtualMachine) ReadPrqlBytecode() {
+func (vm *PreludioVM) ReadPreludioBytecode() {
 	file, err := os.Open(vm.__inputPath)
 
 	if err != nil {
@@ -152,25 +152,25 @@ func (vm *PrqlVirtualMachine) ReadPrqlBytecode() {
 	vm.ReadPrqlInstructions(bytes, offset)
 }
 
-func (vm *PrqlVirtualMachine) StackIsEmpty() bool {
+func (vm *PreludioVM) StackIsEmpty() bool {
 	return len(vm.__stack) == 0
 }
 
-func (vm *PrqlVirtualMachine) StackPush(e *PrqlInternal) {
+func (vm *PreludioVM) StackPush(e *PreludioInternal) {
 	vm.__stack = append(vm.__stack, e)
 }
 
-func (vm *PrqlVirtualMachine) StackPop() *PrqlInternal {
+func (vm *PreludioVM) StackPop() *PreludioInternal {
 	e := vm.__stack[len(vm.__stack)-1]
 	vm.__stack = vm.__stack[:len(vm.__stack)-1]
 	return e
 }
 
-func (vm *PrqlVirtualMachine) StackLast() *PrqlInternal {
+func (vm *PreludioVM) StackLast() *PreludioInternal {
 	return vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *PrqlVirtualMachine) ReadPrqlInstructions(bytes []byte, offset uint64) {
+func (vm *PreludioVM) ReadPrqlInstructions(bytes []byte, offset uint64) {
 
 	var opCode OPCODE
 	var param1 uint16
@@ -211,7 +211,7 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_FUNC_CALL", "", "", "")
 			}
 
-			vm.StackPush(NewPrqlInternalStartFunc())
+			vm.StackPush(NewPreludioInternalStartFunc())
 
 		case OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
@@ -223,35 +223,35 @@ MAIN_LOOP:
 
 			// Standard library functions build-ins
 			case "derive":
-				PrqlFunc_Derive("derive", vm)
+				PreludioFunc_Derive("derive", vm)
 			case "describe":
-				PrqlFunc_Describe("describe", vm)
+				PreludioFunc_Describe("describe", vm)
 			case "from":
-				PrqlFunc_From("from", vm)
+				PreludioFunc_From("from", vm)
 			case "exportCSV":
-				PrqlFunc_ExportCsv("exportCSV", vm)
+				PreludioFunc_ExportCsv("exportCSV", vm)
 			case "importCSV":
-				PrqlFunc_ImportCsv("importCSV", vm)
+				PreludioFunc_ImportCsv("importCSV", vm)
 			case "new":
-				PrqlFunc_New("new", vm)
+				PreludioFunc_New("new", vm)
 			case "select":
-				PrqlFunc_Select("select", vm)
+				PreludioFunc_Select("select", vm)
 			case "sort":
-				PrqlFunc_Sort("sort", vm)
+				PreludioFunc_Sort("sort", vm)
 			case "take":
-				PrqlFunc_Take("take", vm)
+				PreludioFunc_Take("take", vm)
 
 			// User defined functions
 			default:
 				if internal, ok := vm.__userDefinedVariables[funcName]; ok {
-					switch value := internal.Expr.GetValue().(type) {
+					switch value := internal.GetValue().(type) {
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.StackPush(NewPrqlInternalError(fmt.Sprintf("variable '%s' not callable.", funcName)))
+						vm.StackPush(NewPreludioInternalError(fmt.Sprintf("variable '%s' not callable.", funcName)))
 					}
 				} else {
-					vm.StackPush(NewPrqlInternalError(fmt.Sprintf("name '%s' not found.", funcName)))
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("name '%s' not found.", funcName)))
 				}
 			}
 
@@ -271,7 +271,7 @@ MAIN_LOOP:
 
 			stackLen := len(vm.__stack)
 			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
-			vm.StackPush(NewPrqlInternalTerm(vm.__stack[stackLen-listLen : stackLen]))
+			vm.StackPush(NewPreludioInternalTerm(vm.__stack[stackLen-listLen : stackLen]))
 
 			vm.__stack = vm.__stack[:stackLen-listLen]
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
@@ -328,32 +328,32 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.StackPush(NewPrqlInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm(val))
 
 			case TERM_INTEGER:
 				termType = "INTEGER"
 				val := int64(binary.LittleEndian.Uint64(param2))
 				termVal = fmt.Sprintf("%d", val)
-				vm.StackPush(NewPrqlInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm(val))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
 				val := math.Float64frombits(binary.LittleEndian.Uint64(param2))
 				termVal = fmt.Sprintf("%f", val)
-				vm.StackPush(NewPrqlInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm(val))
 
 			case TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
-				vm.StackPush(NewPrqlInternalTerm(termVal))
+				vm.StackPush(NewPreludioInternalTerm(termVal))
 
 			case TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
-				vm.StackPush(NewPrqlInternalTerm(PrqlSymbol(termVal)))
+				vm.StackPush(NewPreludioInternalTerm(PreludioSymbol(termVal)))
 
 			default:
-				vm.StackPush(NewPrqlInternalError(fmt.Sprintf("PrlqVM: unknown term code %d.", param1)))
+				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("PrlqVM: unknown term code %d.", param1)))
 
 			}
 
@@ -452,8 +452,8 @@ MAIN_LOOP:
 
 		}
 
-		if !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
-			for !vm.StackIsEmpty() && vm.StackLast().Tag == PRQL_INTERNAL_TAG_ERROR {
+		if !vm.StackIsEmpty() && vm.StackLast().Tag == PRELUDIO_INTERNAL_TAG_ERROR {
+			for !vm.StackIsEmpty() && vm.StackLast().Tag == PRELUDIO_INTERNAL_TAG_ERROR {
 				err := vm.StackPop()
 				vm.PrintError(err.ErrorMsg)
 			}
@@ -463,26 +463,25 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, implicitParamsNum uint64, positionalParamsNum uint64, namedParams *map[string]*PrqlInternal, acceptingAssignments bool) ([]*PrqlInternal, map[string]*PrqlInternal, error) {
+func (vm *PreludioVM) GetFunctionParams(funcName string, implicitParamsNum uint64, positionalParamsNum uint64, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
 
-	var assignments map[string]*PrqlExpr
+	var assignments map[string]*PreludioInternal
 	if acceptingAssignments {
-		assignments = map[string]*PrqlExpr{}
+		assignments = map[string]*PreludioInternal{}
 	}
 
-	var t1 PrqlInternal
 	i := uint64(0)
 	positionalParamsIdx := uint64(0)
 	positionalParamsTot := implicitParamsNum + positionalParamsNum
 
-	positionalParams := make([]*PrqlInternal, positionalParamsTot)
+	positionalParams := make([]*PreludioInternal, positionalParamsTot)
 
 LOOP1:
 	for {
-		t1 = *vm.StackPop()
+		t1 := *vm.StackPop()
 		switch t1.Tag {
-		case PRQL_INTERNAL_TAG_ERROR:
-		case PRQL_INTERNAL_TAG_EXPRESSION:
+		case PRELUDIO_INTERNAL_TAG_ERROR:
+		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			if positionalParamsIdx < positionalParamsTot {
 				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
 				positionalParamsIdx++
@@ -490,7 +489,7 @@ LOOP1:
 				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
 			}
 
-		case PRQL_INTERNAL_TAG_NAMED_PARAM:
+		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
 			if _, ok := (*namedParams)[t1.Name]; ok {
 				(*namedParams)[t1.Name] = &t1
@@ -498,14 +497,14 @@ LOOP1:
 				vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
 			}
 
-		case PRQL_INTERNAL_TAG_ASSIGNMENT:
+		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 			if acceptingAssignments {
-				assignments[t1.Name] = t1.Expr
+				assignments[t1.Name] = &t1
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
 			}
 
-		case PRQL_INTERNAL_TAG_START_FUNC:
+		case PRELUDIO_INTERNAL_TAG_START_FUNC:
 			break LOOP1
 		}
 	}
@@ -513,10 +512,10 @@ LOOP1:
 	// implicit parameters: pushed into the stack before the
 	// function was called
 	for ; i < implicitParamsNum; i++ {
-		t1 = *vm.StackPop()
+		t1 := *vm.StackPop()
 		switch t1.Tag {
-		case PRQL_INTERNAL_TAG_ERROR:
-		case PRQL_INTERNAL_TAG_EXPRESSION:
+		case PRELUDIO_INTERNAL_TAG_ERROR:
+		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			if positionalParamsIdx < positionalParamsTot {
 				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
 				positionalParamsIdx++
@@ -524,7 +523,7 @@ LOOP1:
 				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
 			}
 
-			// case PRQL_INTERNAL_TAG_NAMED_PARAM:
+			// case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// 	// Name of parameter is in the given list of names
 			// 	if _, ok := (*namedParams)[t1.Name]; ok {
 			// 		(*namedParams)[t1.Name] = t1.Expr
@@ -532,7 +531,7 @@ LOOP1:
 			// 		vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
 			// 	}
 
-			// case PRQL_INTERNAL_TAG_ASSIGNMENT:
+			// case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 			// 	if acceptingAssignments {
 			// 		assignments[t1.Name] = t1.Expr
 			// 	} else {
@@ -564,14 +563,14 @@ LOOP1:
 	return positionalParams, assignments, nil
 }
 
-// func (vm *PrqlVirtualMachine) IdentResolutionStrategy(ident string) *PrqlInternal {
+// func (vm *PreludioVM) IdentResolutionStrategy(ident string) *PreludioInternal {
 // 	if vm.__currentTable != nil {
 // 		switch t := vm.__currentTable.Value.(type) {
 // 		case dataframe.DataFrame:
 // 			names := t.Names()
 // 			for _, name := range names {
 // 				if name == ident {
-// 					return NewPrqlInternalTerm(t.Col(name))
+// 					return NewPreludioInternalTerm(t.Col(name))
 // 				}
 // 			}
 // 		default:
@@ -582,15 +581,15 @@ LOOP1:
 // 		return &v
 // 	}
 
-// 	return NewPrqlInternalError(fmt.Sprintf("name '%s' not found.", ident))
+// 	return NewPreludioInternalError(fmt.Sprintf("name '%s' not found.", ident))
 // }
 
-func (vm *PrqlVirtualMachine) PrintWarning(msg string) {
+func (vm *PreludioVM) PrintWarning(msg string) {
 	if vm.__printWarnings {
 		fmt.Printf("[ ⚠️ Warning ⚠️ ] %s\n", msg)
 	}
 }
 
-func (vm *PrqlVirtualMachine) PrintError(msg string) {
+func (vm *PreludioVM) PrintError(msg string) {
 	fmt.Printf("[ ☠️  Error  ☠️ ] %s\n", msg)
 }

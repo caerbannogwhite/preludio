@@ -5,13 +5,13 @@ import "os"
 func main() {
 	inputPath := os.Args[1]
 
-	vm := NewPrqlVirtualMachine(&PrqlVirtualMachineParams{
+	vm := NewPreludioVM(&PreludioVMParams{
 		PrintWarnings: true,
-		DebugLevel:    0,
+		DebugLevel:    20,
 		InputPath:     inputPath,
 	})
 
-	vm.ReadPrqlBytecode()
+	vm.ReadPreludioBytecode()
 
 	// f, _ := os.Open("C:\\Users\\massi\\Downloads\\Cars.csv")
 
