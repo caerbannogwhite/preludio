@@ -57,7 +57,13 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	outputFile, err = os.OpenFile(path, os.O_CREATE, 0666)
+	outputFile, err = os.OpenFile(path, os.O_WRONLY, 0666)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	err = outputFile.Truncate(int64(0))
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -196,6 +202,7 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 
 	var err error
 	var df dataframe.DataFrame
+	var symbol PreludioSymbol
 	var list []*PreludioInternal
 	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
 	if err != nil {
@@ -209,22 +216,28 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	list, err = positional[1].GetValueList()
+	// The first value can be both a symbol or la list of symbols
+	symbol, err = positional[1].GetValueSymbol()
 	if err != nil {
-		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-		return
+		list, err = positional[1].GetValueList()
+		if err != nil {
+			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+			return
+		}
+
+		names := make([]string, len(list))
+		for i, v := range list {
+			symbol, err = v.GetValueSymbol()
+			if err != nil {
+				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+				return
+			}
+			names[i] = string(symbol)
+		}
+		df = df.Select(names)
+	} else {
+		df = df.Select([]string{string(symbol)})
 	}
-
-	for _, v := range list {
-		fmt.Println(v.GetValueSymbol())
-	}
-
-	// rows := make([]int, num)
-	// for i, _ := range rows {
-	// 	rows[i] = i
-	// }
-
-	// df = df.Subset(rows)
 
 	vm.StackPush(NewPreludioInternalTerm(df))
 }

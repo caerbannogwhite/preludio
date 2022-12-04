@@ -7,7 +7,7 @@ func main() {
 
 	vm := NewPreludioVM(&PreludioVMParams{
 		PrintWarnings: true,
-		DebugLevel:    20,
+		DebugLevel:    0,
 		InputPath:     inputPath,
 	})
 
