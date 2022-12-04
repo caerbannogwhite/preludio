@@ -21,6 +21,57 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
+	named := map[string]*PreludioInternal{}
+
+	var err error
+	var df, tmpDf dataframe.DataFrame
+	var symbol PreludioSymbol
+	var list []*PreludioInternal
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	df, err = positional[0].GetValueDataframe()
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	// The first value can be both a symbol or la list of symbols
+	symbol, err = positional[1].GetValueSymbol()
+	if err != nil {
+		list, err = positional[1].GetValueList()
+		if err != nil {
+			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+			return
+		}
+
+		var names []string
+		if len(list) == 0 {
+			names = df.Names()
+		} else {
+			names = make([]string, len(list))
+			for i, v := range list {
+				symbol, err = v.GetValueSymbol()
+				if err != nil {
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+					return
+				}
+				names[i] = string(symbol)
+			}
+		}
+
+		tmpDf = df.Select(names)
+		fmt.Println(tmpDf.Describe())
+	} else {
+		tmpDf = df.Select([]string{string(symbol)})
+		fmt.Println(tmpDf.Describe())
+	}
+
+	vm.StackPush(NewPreludioInternalTerm(df))
+
 }
 
 func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
