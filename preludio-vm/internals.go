@@ -77,6 +77,11 @@ func (i *PreludioInternal) GetValue() interface{} {
 	return (*i.Expr)[0]
 }
 
+func (i *PreludioInternal) IsValueBool() bool {
+	_, ok := (*i.Expr)[0].(bool)
+	return ok
+}
+
 func (i *PreludioInternal) GetValueBool() (bool, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case bool:
@@ -84,6 +89,11 @@ func (i *PreludioInternal) GetValueBool() (bool, error) {
 	default:
 		return false, errors.New(fmt.Sprintf("expecting bool, got %T", v))
 	}
+}
+
+func (i *PreludioInternal) IsValueInteger() bool {
+	_, ok := (*i.Expr)[0].(int64)
+	return ok
 }
 
 func (i *PreludioInternal) GetValueInteger() (int64, error) {
@@ -95,6 +105,11 @@ func (i *PreludioInternal) GetValueInteger() (int64, error) {
 	}
 }
 
+func (i *PreludioInternal) IsValueFloat() bool {
+	_, ok := (*i.Expr)[0].(float64)
+	return ok
+}
+
 func (i *PreludioInternal) GetValueFloat() (float64, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case float64:
@@ -102,6 +117,11 @@ func (i *PreludioInternal) GetValueFloat() (float64, error) {
 	default:
 		return 0, errors.New(fmt.Sprintf("expecting float, got %T", v))
 	}
+}
+
+func (i *PreludioInternal) IsValueString() bool {
+	_, ok := (*i.Expr)[0].(string)
+	return ok
 }
 
 func (i *PreludioInternal) GetValueString() (string, error) {
@@ -113,6 +133,11 @@ func (i *PreludioInternal) GetValueString() (string, error) {
 	}
 }
 
+func (i *PreludioInternal) IsValueSymbol() bool {
+	_, ok := (*i.Expr)[0].(PreludioSymbol)
+	return ok
+}
+
 func (i *PreludioInternal) GetValueSymbol() (PreludioSymbol, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case PreludioSymbol:
@@ -120,6 +145,11 @@ func (i *PreludioInternal) GetValueSymbol() (PreludioSymbol, error) {
 	default:
 		return "", errors.New(fmt.Sprintf("expecting symbol, got %T", v))
 	}
+}
+
+func (i *PreludioInternal) IsValueSeries() bool {
+	_, ok := (*i.Expr)[0].(series.Series)
+	return ok
 }
 
 func (i *PreludioInternal) GetValueSeries() (series.Series, error) {
@@ -131,6 +161,11 @@ func (i *PreludioInternal) GetValueSeries() (series.Series, error) {
 	}
 }
 
+func (i *PreludioInternal) IsValueDataframe() bool {
+	_, ok := (*i.Expr)[0].(dataframe.DataFrame)
+	return ok
+}
+
 func (i *PreludioInternal) GetValueDataframe() (dataframe.DataFrame, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case dataframe.DataFrame:
@@ -140,12 +175,81 @@ func (i *PreludioInternal) GetValueDataframe() (dataframe.DataFrame, error) {
 	}
 }
 
-func (i *PreludioInternal) GetValueList() ([]*PreludioInternal, error) {
+func (i *PreludioInternal) IsValueList() bool {
+	_, ok := (*i.Expr)[0].(PreludioList)
+	return ok
+}
+
+func (i *PreludioInternal) GetValueList() (PreludioList, error) {
 	switch v := (*i.Expr)[0].(type) {
-	case []*PreludioInternal:
+	case PreludioList:
 		return v, nil
 	default:
-		return []*PreludioInternal{}, errors.New(fmt.Sprintf("expecting list, got %T", v))
+		return PreludioList{}, errors.New(fmt.Sprintf("expecting list, got %T", v))
+	}
+}
+
+func (i *PreludioInternal) GetListValuesBool() ([]bool, error) {
+	if l, ok := (*i.Expr)[0].(PreludioList); ok {
+		res := make([]bool, len(l))
+		for j, e := range l {
+			v, err := e.GetValueBool()
+			if err != nil {
+				return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
+			}
+			res[j] = v
+		}
+		return res, nil
+	} else {
+		return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
+	}
+}
+
+func (i *PreludioInternal) GetListValuesInteger() ([]int64, error) {
+	if l, ok := (*i.Expr)[0].(PreludioList); ok {
+		res := make([]int64, len(l))
+		for j, e := range l {
+			v, err := e.GetValueInteger()
+			if err != nil {
+				return []int64{}, errors.New(fmt.Sprintf("expecting list of integers"))
+			}
+			res[j] = v
+		}
+		return res, nil
+	} else {
+		return []int64{}, errors.New(fmt.Sprintf("expecting list of integers"))
+	}
+}
+
+func (i *PreludioInternal) GetListValuesFloat() ([]float64, error) {
+	if l, ok := (*i.Expr)[0].(PreludioList); ok {
+		res := make([]float64, len(l))
+		for j, e := range l {
+			v, err := e.GetValueFloat()
+			if err != nil {
+				return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
+			}
+			res[j] = v
+		}
+		return res, nil
+	} else {
+		return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
+	}
+}
+
+func (i *PreludioInternal) GetListValuesString() ([]string, error) {
+	if l, ok := (*i.Expr)[0].(PreludioList); ok {
+		res := make([]string, len(l))
+		for j, e := range l {
+			v, err := e.GetValueString()
+			if err != nil {
+				return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
+			}
+			res[j] = v
+		}
+		return res, nil
+	} else {
+		return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
 	}
 }
 
@@ -215,7 +319,7 @@ func (i *PreludioInternal) Solve() error {
 	// in the list
 	if len(*i.Expr) == 1 {
 		switch l := (*i.Expr)[0].(type) {
-		case []*PreludioInternal:
+		case PreludioList:
 			for _, t := range l {
 				if err := t.Solve(); err != nil {
 					return err
@@ -425,6 +529,80 @@ func (i *PreludioInternal) Solve() error {
 				default:
 				}
 			case BIN_EXPR_SUB:
+				switch val1 := t1.(type) {
+				case bool:
+					switch val2 := t2.(type) {
+					case bool:
+						result = BoolToInt64(val1) - BoolToInt64(val2)
+					case int64:
+						result = BoolToInt64(val1) - val2
+					case float64:
+						result = BoolToFloat64(val1) - val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case int64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 - BoolToInt64(val2)
+					case int64:
+						result = val1 - val2
+					case float64:
+						result = float64(val1) - val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				case float64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 - BoolToFloat64(val2)
+					case int64:
+						result = val1 - float64(val2)
+					case float64:
+						result = val1 - val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+					}
+				// case string:
+				// 	switch val2 := t2.(type) {
+				// 	case bool:
+				// 	case int64:
+				// 	case float64:
+				// 	case string:
+				// 	case series.Series:
+				// 	default:
+				// 	}
+				case series.Series:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				// case dataframe.DataFrame:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
+				default:
+				}
 			}
 		}
 

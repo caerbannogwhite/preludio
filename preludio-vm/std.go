@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/go-gota/gota/dataframe"
+	"github.com/go-gota/gota/series"
 )
 
 type PreludioFunction func(funcName string, vm *PreludioVM)
@@ -21,13 +22,11 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PreludioInternal{}
-
 	var err error
 	var df, tmpDf dataframe.DataFrame
 	var symbol PreludioSymbol
-	var list []*PreludioInternal
-	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	var list PreludioList
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, nil, false)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -71,7 +70,6 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 	}
 
 	vm.StackPush(NewPreludioInternalTerm(df))
-
 }
 
 func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
@@ -224,24 +222,65 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	// named := map[string]*PrqlExpr{}
+	var list PreludioList
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, 0, 1, nil, false)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
 
-	// var err error
-	// _, assignements, err := vm.GetFunctionParams(funcName, 0, &named, false, true)
-	// if err != nil {
-	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-	// 	return
-	// }
+	list, err = positional[0].GetValueList()
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
 
-	// ser := make([]series.Series, len(assignements))
-	// idx := 0
-	// for k, v := range assignements {
-	// 	ser[idx] = series.New(v, series.Bool, k)
-	// 	idx++
-	// }
-	// df := dataframe.New(ser...)
+	s := make([]series.Series, len(list))
+	for i, e := range list {
+		if l, ok := e.GetValue().(PreludioList); ok {
 
-	// vm.StackPush(NewPreludioInternalTerm(df))
+			switch l[0].GetValue().(type) {
+			case bool:
+				var vals []bool
+				vals, err = e.GetListValuesBool()
+				if err != nil {
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+					return
+				}
+				s[i] = series.New(vals, series.Bool, e.Name)
+			case int64:
+				var vals []int64
+				vals, err = e.GetListValuesInteger()
+				if err != nil {
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+					return
+				}
+				s[i] = series.New(vals, series.Int, e.Name)
+			case float64:
+				var vals []float64
+				vals, err = e.GetListValuesFloat()
+				if err != nil {
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+					return
+				}
+				s[i] = series.New(vals, series.Int, e.Name)
+			case string:
+				var vals []string
+				vals, err = e.GetListValuesString()
+				if err != nil {
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+					return
+				}
+				s[i] = series.New(vals, series.String, e.Name)
+			}
+		} else {
+			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: exprecting list for building dataframe, got %T", funcName, l)))
+			return
+		}
+	}
+
+	vm.StackPush(NewPreludioInternalTerm(dataframe.New(s...)))
 }
 
 func PreludioFunc_Select(funcName string, vm *PreludioVM) {
@@ -249,13 +288,11 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PreludioInternal{}
-
 	var err error
 	var df dataframe.DataFrame
 	var symbol PreludioSymbol
-	var list []*PreludioInternal
-	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	var list PreludioList
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, nil, false)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -304,12 +341,10 @@ func PreludioFunc_Take(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PreludioInternal{}
-
 	var err error
 	var df dataframe.DataFrame
 	var num int64
-	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, nil, false)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return

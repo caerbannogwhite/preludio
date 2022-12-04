@@ -277,7 +277,7 @@ MAIN_LOOP:
 			}
 
 			vm.__stack = vm.__stack[:stackLen-listLen]
-			vm.StackPush(NewPreludioInternalTerm(list))
+			vm.StackPush(NewPreludioInternalTerm(PreludioList(list)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
@@ -551,9 +551,11 @@ LOOP1:
 		}
 	}
 
-	for _, p := range *namedParams {
-		if err := p.Solve(); err != nil {
-			return positionalParams, assignments, err
+	if namedParams != nil {
+		for _, p := range *namedParams {
+			if err := p.Solve(); err != nil {
+				return positionalParams, assignments, err
+			}
 		}
 	}
 
