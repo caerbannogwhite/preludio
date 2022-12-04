@@ -1,7 +1,7 @@
 {
-  "name": "prqlvs",
-  "displayName": "prqlvs",
-  "description": "A PRQL interpreter/PRQL to SAS transpiler.",
+  "name": "preludio",
+  "displayName": "Preludio",
+  "description": "A Preludio interpreter.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.70.0"
@@ -10,14 +10,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:prqlvs.Run"
+    "onCommand:preludio.Run"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "prqlvs.Run",
-        "title": "Run PRQL"
+        "command": "preludio.Run",
+        "title": "Run Preludio"
       }
     ]
   },

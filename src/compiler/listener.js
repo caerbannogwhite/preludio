@@ -55,7 +55,7 @@ export const OP_UNARY_SUB = 130;
 export const OP_UNARY_ADD = 131;
 export const OP_UNARY_NOT = 132;
 
-export default class PrqlCompiler extends prqlListener {
+export default class PreludioCompiler extends prqlListener {
   constructor(params) {
     super();
 
@@ -77,10 +77,10 @@ export default class PrqlCompiler extends prqlListener {
     this.__instructions = [];
 
     if (this.__verbosity_level) {
-      console.log(`  ****  PRQL Compiler  ****`);
-      console.log(`    Debug Level: ${this.__debug_level}`);
-      console.log(`    Verbose:     ${this.__verbosity_level}`);
-      console.log(`  ****                 ****\n`);
+      console.log(`Preludio Compiler Info`);
+      console.log(`======================`);
+      console.log(`Debug Level: ${this.__debug_level}`);
+      console.log(`Verbose:     ${this.__verbosity_level}`);
     }
 
     this.terms = [];
@@ -729,7 +729,7 @@ export function getByteCode(source) {
 
   parser.buildParseTrees = true;
   const tree = parser.program();
-  const compiler = new PrqlCompiler({ debugLevel: 5, verbosity: true });
+  const compiler = new PreludioCompiler({ debugLevel: 5, verbosity: true });
   antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
   return compiler.getByteCode();

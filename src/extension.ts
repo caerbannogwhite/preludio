@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { getByteCode } from "./prql/compiler.js";
+import { getByteCode } from "./compiler/listener.js";
 
 import * as fs from "fs";
 
@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand("prqlvs.Run", () => {
+  let disposable = vscode.commands.registerCommand("preludio.Run", () => {
     const textEditor = vscode.window.activeTextEditor;
     if (textEditor) {
       const endOfLine = "\n";
@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
           await getByteCode(selectedText).arrayBuffer()
         );
         fs.writeFile(
-          "C:\\Users\\massi\\source\\repos\\prqlvs\\bytecode",
+          "C:\\Users\\massi\\source\\repos\\preludio\\bytecode",
           buffer,
           () => {}
         );
@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
         });
     }
 
-    vscode.window.showInformationMessage("PRQL code succesfully executed.");
+    vscode.window.showInformationMessage("Preludio bytecode succesfully generated.");
   });
 
   context.subscriptions.push(disposable);
