@@ -113,6 +113,15 @@ func (i *PreludioInternal) GetValueString() (string, error) {
 	}
 }
 
+func (i *PreludioInternal) GetValueSymbol() (PreludioSymbol, error) {
+	switch v := (*i.Expr)[0].(type) {
+	case PreludioSymbol:
+		return v, nil
+	default:
+		return "", errors.New(fmt.Sprintf("expecting symbol, got %T", v))
+	}
+}
+
 func (i *PreludioInternal) GetValueSeries() (series.Series, error) {
 	switch v := (*i.Expr)[0].(type) {
 	case series.Series:
@@ -128,6 +137,15 @@ func (i *PreludioInternal) GetValueDataframe() (dataframe.DataFrame, error) {
 		return v, nil
 	default:
 		return dataframe.DataFrame{}, errors.New(fmt.Sprintf("expecting dataframe, got %T", v))
+	}
+}
+
+func (i *PreludioInternal) GetValueList() ([]*PreludioInternal, error) {
+	switch v := (*i.Expr)[0].(type) {
+	case []*PreludioInternal:
+		return v, nil
+	default:
+		return []*PreludioInternal{}, errors.New(fmt.Sprintf("expecting list, got %T", v))
 	}
 }
 
@@ -186,7 +204,29 @@ func BoolToFloat64(b bool) float64 {
 func (i *PreludioInternal) Solve() error {
 	tmp := make([]interface{}, 1)
 
-	for len((*i.Expr)) > 1 {
+	// TODO: check if this is possible and
+	// if it's the case to raise an error
+	if len(*i.Expr) == 0 {
+		return nil
+	}
+
+	// Check if the expression is a list
+	// and recursively solve all the expressions
+	// in the list
+	if len(*i.Expr) == 1 {
+		switch l := (*i.Expr)[0].(type) {
+		case []*PreludioInternal:
+			for _, t := range l {
+				if err := t.Solve(); err != nil {
+					return err
+				}
+			}
+		default:
+			return nil
+		}
+	}
+
+	for len(*i.Expr) > 1 {
 		t1 := (*i.Expr)[0]
 		t2 := (*i.Expr)[1]
 

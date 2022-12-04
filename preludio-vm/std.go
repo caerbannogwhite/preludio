@@ -191,6 +191,42 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
+
+	named := map[string]*PreludioInternal{}
+
+	var err error
+	var df dataframe.DataFrame
+	var list []*PreludioInternal
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, &named, false)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	df, err = positional[0].GetValueDataframe()
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	list, err = positional[1].GetValueList()
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	for _, v := range list {
+		fmt.Println(v.GetValueSymbol())
+	}
+
+	// rows := make([]int, num)
+	// for i, _ := range rows {
+	// 	rows[i] = i
+	// }
+
+	// df = df.Subset(rows)
+
+	vm.StackPush(NewPreludioInternalTerm(df))
 }
 
 func PreludioFunc_Sort(funcName string, vm *PreludioVM) {
