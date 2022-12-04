@@ -116,9 +116,9 @@ func PrqlFunc_ImportCsv(funcName string, vm *PrqlVirtualMachine) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	named := map[string]*PrqlExpr{
-		"delimiter": NewPrqlExpr(","),
-		"header":    NewPrqlExpr(true),
+	named := map[string]*PrqlInternal{
+		"delimiter": NewPrqlInternalTerm(","),
+		"header":    NewPrqlInternalTerm(true),
 	}
 
 	var err error

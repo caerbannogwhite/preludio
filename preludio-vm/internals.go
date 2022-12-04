@@ -65,22 +65,20 @@ const (
 	NO_OP PrqlExprOp = 50
 )
 
-type PrqlExpr struct {
-	stack []interface{}
-}
+type PrqlExpr []interface{}
 
 func NewPrqlExpr(t interface{}) *PrqlExpr {
-	e := PrqlExpr{}
-	e.stack = append(e.stack, t)
+	e := make(PrqlExpr, 1)
+	e[0] = t
 	return &e
 }
 
-func (e *PrqlExpr) GetValue() interface{} {
-	return e.stack[0]
+func (i *PrqlInternal) GetValue() interface{} {
+	return (*i.Expr)[0]
 }
 
-func (e *PrqlExpr) GetValueBool() (bool, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueBool() (bool, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case bool:
 		return v, nil
 	default:
@@ -88,8 +86,8 @@ func (e *PrqlExpr) GetValueBool() (bool, error) {
 	}
 }
 
-func (e *PrqlExpr) GetValueInteger() (int64, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueInteger() (int64, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case int64:
 		return v, nil
 	default:
@@ -97,8 +95,8 @@ func (e *PrqlExpr) GetValueInteger() (int64, error) {
 	}
 }
 
-func (e *PrqlExpr) GetValueFloat() (float64, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueFloat() (float64, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case float64:
 		return v, nil
 	default:
@@ -106,8 +104,8 @@ func (e *PrqlExpr) GetValueFloat() (float64, error) {
 	}
 }
 
-func (e *PrqlExpr) GetValueString() (string, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueString() (string, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case string:
 		return v, nil
 	default:
@@ -115,8 +113,8 @@ func (e *PrqlExpr) GetValueString() (string, error) {
 	}
 }
 
-func (e *PrqlExpr) GetValueSeries() (series.Series, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueSeries() (series.Series, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case series.Series:
 		return v, nil
 	default:
@@ -124,8 +122,8 @@ func (e *PrqlExpr) GetValueSeries() (series.Series, error) {
 	}
 }
 
-func (e *PrqlExpr) GetValueDataframe() (dataframe.DataFrame, error) {
-	switch v := e.stack[0].(type) {
+func (i *PrqlInternal) GetValueDataframe() (dataframe.DataFrame, error) {
+	switch v := (*i.Expr)[0].(type) {
 	case dataframe.DataFrame:
 		return v, nil
 	default:
@@ -133,34 +131,34 @@ func (e *PrqlExpr) GetValueDataframe() (dataframe.DataFrame, error) {
 	}
 }
 
-func (l *PrqlExpr) Mul(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_MUL)
+func (l *PrqlInternal) Mul(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_MUL)
 }
 
-func (l *PrqlExpr) Div(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_DIV)
+func (l *PrqlInternal) Div(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_DIV)
 }
 
-func (l *PrqlExpr) Mod(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_MOD)
+func (l *PrqlInternal) Mod(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_MOD)
 }
 
-func (l *PrqlExpr) Add(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_ADD)
+func (l *PrqlInternal) Add(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_ADD)
 }
 
-func (l *PrqlExpr) Sub(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_SUB)
+func (l *PrqlInternal) Sub(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_SUB)
 }
 
-func (l *PrqlExpr) Pow(r *PrqlExpr) {
-	l.stack = append(l.stack, r.stack...)
-	l.stack = append(l.stack, BIN_EXPR_POW)
+func (l *PrqlInternal) Pow(r *PrqlInternal) {
+	(*l.Expr) = append((*l.Expr), (*r.Expr)...)
+	(*l.Expr) = append((*l.Expr), BIN_EXPR_POW)
 }
 
 func IsOperator(t interface{}) (PrqlExprOp, bool) {
@@ -185,18 +183,18 @@ func BoolToFloat64(b bool) float64 {
 	return 0.0
 }
 
-func (e *PrqlExpr) Solve() error {
+func (e *PrqlInternal) Solve() error {
 	tmp := make([]interface{}, 1)
 
-	for len(e.stack) > 1 {
-		t1 := e.stack[0]
-		t2 := e.stack[1]
+	for len((*e)) > 1 {
+		t1 := (*e)[0]
+		t2 := (*e)[1]
 
 		var result interface{}
 
 		// UNARY
 		if op, ok := IsOperator(t2); ok {
-			e.stack = e.stack[2:len(e.stack)]
+			(*e) = (*e)[2:len((*e))]
 
 			switch op {
 			case UN_EXPR_ADD:
@@ -207,8 +205,8 @@ func (e *PrqlExpr) Solve() error {
 
 		// BINARY
 		{
-			op, _ := IsOperator(e.stack[2])
-			e.stack = e.stack[3:len(e.stack)]
+			op, _ := IsOperator((*e)[2])
+			(*e) = (*e)[3:len((*e))]
 
 			switch op {
 			case BIN_EXPR_MUL:
@@ -228,7 +226,7 @@ func (e *PrqlExpr) Solve() error {
 							result = ""
 						}
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
 					}
@@ -243,7 +241,7 @@ func (e *PrqlExpr) Solve() error {
 					case string:
 						result = strings.Repeat(val2, int(val1))
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
 					}
@@ -257,7 +255,7 @@ func (e *PrqlExpr) Solve() error {
 						result = val1 * val2
 					case string:
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
 					}
@@ -274,7 +272,7 @@ func (e *PrqlExpr) Solve() error {
 					case float64:
 					case string:
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
 					}
@@ -288,16 +286,16 @@ func (e *PrqlExpr) Solve() error {
 					// case dataframe.DataFrame:
 					// default:
 					// }
-				case dataframe.DataFrame:
-					// switch val2 := t2.(type) {
-					// case bool:
-					// case int64:
-					// case float64:
-					// case string:
-					// case series.Series:
-					// case dataframe.DataFrame:
-					// default:
-					// }
+				// case dataframe.DataFrame:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
 				default:
 				}
 			case BIN_EXPR_DIV:
@@ -315,7 +313,7 @@ func (e *PrqlExpr) Solve() error {
 					case string:
 						result = fmt.Sprintf("%v%s", val1, val2)
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
 					}
@@ -330,7 +328,7 @@ func (e *PrqlExpr) Solve() error {
 					case string:
 						result = fmt.Sprintf("%v%s", val1, val2)
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
 					}
@@ -345,7 +343,7 @@ func (e *PrqlExpr) Solve() error {
 					case string:
 						result = fmt.Sprintf("%v%s", val1, val2)
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
 					}
@@ -360,7 +358,7 @@ func (e *PrqlExpr) Solve() error {
 					case string:
 						result = val1 + val2
 					case series.Series:
-					case dataframe.DataFrame:
+					// case dataframe.DataFrame:
 					default:
 						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
 					}
@@ -374,16 +372,16 @@ func (e *PrqlExpr) Solve() error {
 					// case dataframe.DataFrame:
 					// default:
 					// }
-				case dataframe.DataFrame:
-					// switch val2 := t2.(type) {
-					// case bool:
-					// case int64:
-					// case float64:
-					// case string:
-					// case series.Series:
-					// case dataframe.DataFrame:
-					// default:
-					// }
+				// case dataframe.DataFrame:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
 				default:
 				}
 			case BIN_EXPR_SUB:
@@ -391,8 +389,7 @@ func (e *PrqlExpr) Solve() error {
 		}
 
 		tmp[0] = result
-
-		e.stack = append(tmp, e.stack...)
+		(*e) = append(tmp, (*e)...)
 	}
 	return nil
 }

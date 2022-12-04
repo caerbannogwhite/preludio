@@ -79,7 +79,8 @@ type PrqlVirtualMachine struct {
 	__stack                []*PrqlInternal
 	__currentTable         *PrqlInternal
 	__userDefinedVariables map[string]PrqlInternal
-	__funcNumParams        uint64
+	__funcNumParams        int
+	__listElementCounters  []int
 }
 
 func NewPrqlVirtualMachine(params *PrqlVirtualMachineParams) *PrqlVirtualMachine {
@@ -187,6 +188,9 @@ MAIN_LOOP:
 		offset += 8
 
 		switch opCode {
+
+		///////////////////////////////////////////////////////////////////////
+		///////////				PIPELINE OPERATIONS					///////////
 		case OP_START_PIPELINE:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_PIPELINE", "", "", "")
@@ -258,10 +262,19 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_LIST", "", "", "")
 			}
 
+			vm.__listElementCounters = append(vm.__listElementCounters, 0)
+
 		case OP_END_LIST:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_LIST", "", "", "")
 			}
+
+			stackLen := len(vm.__stack)
+			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
+			vm.StackPush(NewPrqlInternalTerm(vm.__stack[stackLen-listLen : stackLen]))
+
+			vm.__stack = vm.__stack[:stackLen-listLen]
+			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
 		case OP_ADD_FUNC_PARAM:
 			if vm.__debugLevel > 10 {
@@ -273,6 +286,11 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_EXPR_TERM", "", "", "")
 			}
 
+		///////////////////////////////////////////////////////////////////////
+		///////////					PUSH NAMED PARAM
+		///////////
+		///////////	Set the last element on the stack as a named
+		///////////	parameter.
 		case OP_PUSH_NAMED_PARAM:
 			paramName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
@@ -281,6 +299,11 @@ MAIN_LOOP:
 
 			vm.StackLast().SetParamName(paramName)
 
+		///////////////////////////////////////////////////////////////////////
+		///////////					PUSH ASSIGN IDENT
+		///////////
+		///////////	Set the last element on the stack as an assigned
+		///////////	expression.
 		case OP_PUSH_ASSIGN_IDENT:
 			ident := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
 			if vm.__debugLevel > 10 {
@@ -344,19 +367,24 @@ MAIN_LOOP:
 			}
 
 			vm.__funcNumParams += 1
+			if len(vm.__listElementCounters) > 0 {
+				vm.__listElementCounters[len(vm.__listElementCounters)-1]++
+			}
 
 		case OP_GOTO:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_GOTO", "", "", "")
 			}
 
+		///////////////////////////////////////////////////////////////////////
+		///////////				ARITHMETIC OPERATIONS
 		case OP_BINARY_MUL:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MUL", "", "", "")
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Mul(op2.Expr)
+			vm.StackLast().Mul(op2)
 
 		case OP_BINARY_DIV:
 			if vm.__debugLevel > 10 {
@@ -364,7 +392,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Div(op2.Expr)
+			vm.StackLast().Div(op2)
 
 		case OP_BINARY_MOD:
 			if vm.__debugLevel > 10 {
@@ -372,7 +400,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Mod(op2.Expr)
+			vm.StackLast().Mod(op2)
 
 		case OP_BINARY_ADD:
 			if vm.__debugLevel > 10 {
@@ -380,7 +408,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Add(op2.Expr)
+			vm.StackLast().Add(op2)
 
 		case OP_BINARY_SUB:
 			if vm.__debugLevel > 10 {
@@ -388,7 +416,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Sub(op2.Expr)
+			vm.StackLast().Sub(op2)
 
 		case OP_BINARY_POW:
 			if vm.__debugLevel > 10 {
@@ -396,8 +424,10 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Expr.Pow(op2.Expr)
+			vm.StackLast().Pow(op2)
 
+		///////////////////////////////////////////////////////////////////////
+		///////////				LOGICAL OPERATIONS
 		case OP_BINARY_EQ:
 		case OP_BINARY_NE:
 		case OP_BINARY_GE:
@@ -410,6 +440,8 @@ MAIN_LOOP:
 		case OP_BINARY_COALESCE:
 		case OP_BINARY_MODEL:
 
+		///////////////////////////////////////////////////////////////////////
+		///////////				UNARY OPERATIONS
 		case OP_UNARY_SUB:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_UNARY_SUB", "", "", "")
@@ -431,7 +463,7 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, implicitParamsNum uint64, positionalParamsNum uint64, namedParams *map[string]*PrqlExpr, acceptingAssignments bool) ([]*PrqlExpr, map[string]*PrqlExpr, error) {
+func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, implicitParamsNum uint64, positionalParamsNum uint64, namedParams *map[string]*PrqlInternal, acceptingAssignments bool) ([]*PrqlInternal, map[string]*PrqlInternal, error) {
 
 	var assignments map[string]*PrqlExpr
 	if acceptingAssignments {
@@ -443,7 +475,7 @@ func (vm *PrqlVirtualMachine) GetFunctionParams(funcName string, implicitParamsN
 	positionalParamsIdx := uint64(0)
 	positionalParamsTot := implicitParamsNum + positionalParamsNum
 
-	positionalParams := make([]*PrqlExpr, positionalParamsTot)
+	positionalParams := make([]*PrqlInternal, positionalParamsTot)
 
 LOOP1:
 	for {
@@ -452,7 +484,7 @@ LOOP1:
 		case PRQL_INTERNAL_TAG_ERROR:
 		case PRQL_INTERNAL_TAG_EXPRESSION:
 			if positionalParamsIdx < positionalParamsTot {
-				positionalParams[positionalParamsTot-positionalParamsIdx-1] = t1.Expr
+				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
 				positionalParamsIdx++
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
@@ -461,7 +493,7 @@ LOOP1:
 		case PRQL_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
 			if _, ok := (*namedParams)[t1.Name]; ok {
-				(*namedParams)[t1.Name] = t1.Expr
+				(*namedParams)[t1.Name] = &t1
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
 			}
@@ -486,7 +518,7 @@ LOOP1:
 		case PRQL_INTERNAL_TAG_ERROR:
 		case PRQL_INTERNAL_TAG_EXPRESSION:
 			if positionalParamsIdx < positionalParamsTot {
-				positionalParams[positionalParamsTot-positionalParamsIdx-1] = t1.Expr
+				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
 				positionalParamsIdx++
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
