@@ -443,7 +443,152 @@ func (i *PreludioInternal) Solve() error {
 				default:
 				}
 			case BIN_EXPR_DIV:
+				switch val1 := t1.(type) {
+				case bool:
+					switch val2 := t2.(type) {
+					case bool:
+						result = BoolToInt64(val1) / BoolToInt64(val2)
+					case int64:
+						result = BoolToInt64(val1) / val2
+					case float64:
+						result = BoolToFloat64(val1) / val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Division not implemented for %T and %T", val1, val2))
+					}
+				case int64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 / BoolToInt64(val2)
+					case int64:
+						result = val1 / val2
+					case float64:
+						result = float64(val1) / val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Division not implemented for %T and %T", val1, val2))
+					}
+				case float64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 / BoolToFloat64(val2)
+					case int64:
+						result = val1 / float64(val2)
+					case float64:
+						result = val1 / val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Division not implemented for %T and %T", val1, val2))
+					}
+				// case string:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
+				case series.Series:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				// case dataframe.DataFrame:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
+				default:
+				}
 			case BIN_EXPR_MOD:
+				switch val1 := t1.(type) {
+				case bool:
+					switch val2 := t2.(type) {
+					case bool:
+						result = BoolToInt64(val1) % BoolToInt64(val2)
+					case int64:
+						result = BoolToInt64(val1) % val2
+					// case float64:
+					// result = BoolToFloat64(val1) % val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Modulus not implemented for %T and %T", val1, val2))
+					}
+				case int64:
+					switch val2 := t2.(type) {
+					case bool:
+						result = val1 % BoolToInt64(val2)
+					case int64:
+						result = val1 % val2
+					// case float64:
+					// result = float64(val1) % val2
+					// case string:
+					case series.Series:
+					// case dataframe.DataFrame:
+					default:
+						return errors.New(fmt.Sprintf("Binary Modulus not implemented for %T and %T", val1, val2))
+					}
+				// case float64:
+				// 	switch val2 := t2.(type) {
+				// 	case bool:
+				// 	case int64:
+				// 	case float64:
+				// 	case string:
+				// 	case series.Series:
+				// 	case dataframe.DataFrame:
+				// 	default:
+				// 	}
+				// case string:
+				// 	switch val2 := t2.(type) {
+				// 	case int64:
+				// 	case float64:
+				// 	case string:
+				// 	case series.Series:
+				// 	case dataframe.DataFrame:
+				// 	default:
+				// 	}
+				case series.Series:
+					// switch val2 := t2.(type) {
+					// case bool:
+					// case int64:
+					// case float64:
+					// case string:
+					// case series.Series:
+					// case dataframe.DataFrame:
+					// default:
+					// }
+				// case dataframe.DataFrame:
+				// switch val2 := t2.(type) {
+				// case bool:
+				// case int64:
+				// case float64:
+				// case string:
+				// case series.Series:
+				// case dataframe.DataFrame:
+				// default:
+				// }
+				default:
+				}
 			case BIN_EXPR_ADD:
 				switch val1 := t1.(type) {
 				case bool:
@@ -542,7 +687,7 @@ func (i *PreludioInternal) Solve() error {
 					case series.Series:
 					// case dataframe.DataFrame:
 					default:
-						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+						return errors.New(fmt.Sprintf("Binary Subtraction not implemented for %T and %T", val1, val2))
 					}
 				case int64:
 					switch val2 := t2.(type) {
@@ -556,7 +701,7 @@ func (i *PreludioInternal) Solve() error {
 					case series.Series:
 					// case dataframe.DataFrame:
 					default:
-						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+						return errors.New(fmt.Sprintf("Binary Subtraction not implemented for %T and %T", val1, val2))
 					}
 				case float64:
 					switch val2 := t2.(type) {
@@ -570,7 +715,7 @@ func (i *PreludioInternal) Solve() error {
 					case series.Series:
 					// case dataframe.DataFrame:
 					default:
-						return errors.New(fmt.Sprintf("Binary Addition not implemented for %T and %T", val1, val2))
+						return errors.New(fmt.Sprintf("Binary Subtraction not implemented for %T and %T", val1, val2))
 					}
 				// case string:
 				// 	switch val2 := t2.(type) {

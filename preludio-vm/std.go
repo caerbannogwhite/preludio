@@ -106,7 +106,7 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	outputFile, err = os.OpenFile(path, os.O_WRONLY, 0666)
+	outputFile, err = os.OpenFile(path, os.O_CREATE, 0666)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
