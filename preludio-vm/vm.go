@@ -4,23 +4,25 @@ import (
 	"bufio"
 	"encoding/binary"
 	"fmt"
+	"io/fs"
 	"math"
 	"os"
 )
 
 type OPCODE uint16
+type PARAM1 uint16
 
 const (
-	TERM_NULL     uint16 = 0
-	TERM_BOOL     uint16 = 1
-	TERM_INTEGER  uint16 = 2
-	TERM_FLOAT    uint16 = 3
-	TERM_STRING   uint16 = 4
-	TERM_INTERVAL uint16 = 5
-	TERM_RANGE    uint16 = 6
-	TERM_LIST     uint16 = 7
-	TERM_PIPELINE uint16 = 8
-	TERM_SYMBOL   uint16 = 10
+	TERM_NULL     PARAM1 = 0
+	TERM_BOOL     PARAM1 = 1
+	TERM_INTEGER  PARAM1 = 2
+	TERM_FLOAT    PARAM1 = 3
+	TERM_STRING   PARAM1 = 4
+	TERM_INTERVAL PARAM1 = 5
+	TERM_RANGE    PARAM1 = 6
+	TERM_LIST     PARAM1 = 7
+	TERM_PIPELINE PARAM1 = 8
+	TERM_SYMBOL   PARAM1 = 10
 )
 
 const (
@@ -97,15 +99,18 @@ func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
 }
 
 func (vm *PreludioVM) ReadPreludioBytecode() {
-	file, err := os.Open(vm.__inputPath)
+	var err error
+	var file *os.File
+	var stats fs.FileInfo
 
+	file, err = os.Open(vm.__inputPath)
 	if err != nil {
 		// return nil, err
 	}
 	defer file.Close()
 
-	stats, statsErr := file.Stat()
-	if statsErr != nil {
+	stats, err = file.Stat()
+	if err != nil {
 		// return nil, statsErr
 	}
 
@@ -173,7 +178,7 @@ func (vm *PreludioVM) StackLast() *PreludioInternal {
 func (vm *PreludioVM) ReadPrqlInstructions(bytes []byte, offset uint64) {
 
 	var opCode OPCODE
-	var param1 uint16
+	var param1 PARAM1
 	var param2 []byte
 
 	usize := uint64(len(bytes))
@@ -182,7 +187,7 @@ MAIN_LOOP:
 	for offset < usize {
 		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+2]))
 		offset += 2
-		param1 = binary.BigEndian.Uint16(bytes[offset : offset+2])
+		param1 = PARAM1(binary.BigEndian.Uint16(bytes[offset : offset+2]))
 		offset += 2
 		param2 = bytes[offset : offset+8]
 		offset += 8
@@ -333,24 +338,24 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.StackPush(NewPreludioInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm([]bool{val}))
 
 			case TERM_INTEGER:
 				termType = "INTEGER"
-				val := int64(binary.LittleEndian.Uint64(param2))
+				val := int(binary.LittleEndian.Uint32(param2))
 				termVal = fmt.Sprintf("%d", val)
-				vm.StackPush(NewPreludioInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm([]int{val}))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
 				val := math.Float64frombits(binary.LittleEndian.Uint64(param2))
 				termVal = fmt.Sprintf("%f", val)
-				vm.StackPush(NewPreludioInternalTerm(val))
+				vm.StackPush(NewPreludioInternalTerm([]float64{val}))
 
 			case TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
-				vm.StackPush(NewPreludioInternalTerm(termVal))
+				vm.StackPush(NewPreludioInternalTerm([]string{termVal}))
 
 			case TERM_SYMBOL:
 				termType = "SYMBOL"

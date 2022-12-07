@@ -32,16 +32,16 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	df, err = positional[0].GetValueDataframe()
+	df, err = positional[0].GetDataframe()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	// The first value can be both a symbol or la list of symbols
-	symbol, err = positional[1].GetValueSymbol()
+	symbol, err = positional[1].GetSymbol()
 	if err != nil {
-		list, err = positional[1].GetValueList()
+		list, err = positional[1].GetList()
 		if err != nil {
 			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 			return
@@ -53,7 +53,7 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 		} else {
 			names = make([]string, len(list))
 			for i, v := range list {
-				symbol, err = v.GetValueSymbol()
+				symbol, err = v.GetSymbol()
 				if err != nil {
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 					return
@@ -94,13 +94,13 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 	var df dataframe.DataFrame
 	var outputFile *os.File
 
-	df, err = positional[0].GetValueDataframe()
+	df, err = positional[0].GetDataframe()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
-	path, err = positional[1].GetValueString()
+	path, err = positional[1].GetStringScalar()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -118,7 +118,7 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	// delimiter, err = named["delimiter"].GetValueString()
+	// delimiter, err = named["delimiter"].GetStringScalar()
 	// if err != nil {
 	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 	// 	return
@@ -128,7 +128,7 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 	// 	vm.PrintWarning("delimiter length greater than 1, ignoring remaining characters")
 	// }
 
-	header, err = named["header"].GetValueBool()
+	header, err = named["header"].GetBoolScalar()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -157,7 +157,7 @@ func PreludioFunc_From(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	df, err = positional[0].GetValueDataframe()
+	df, err = positional[0].GetDataframe()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
 		return
@@ -186,7 +186,7 @@ func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 	var path, delimiter string
 	var inputFile *os.File
 
-	path, err = positional[0].GetValueString()
+	path, err = positional[0].GetStringScalar()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -198,7 +198,7 @@ func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	delimiter, err = named["delimiter"].GetValueString()
+	delimiter, err = named["delimiter"].GetStringScalar()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -230,7 +230,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	list, err = positional[0].GetValueList()
+	list, err = positional[0].GetList()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
@@ -243,15 +243,15 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 			switch l[0].GetValue().(type) {
 			case bool:
 				var vals []bool
-				vals, err = e.GetListValuesBool()
+				vals, err = e.ListToBoolVector()
 				if err != nil {
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 					return
 				}
 				s[i] = series.New(vals, series.Bool, e.Name)
-			case int64:
-				var vals []int64
-				vals, err = e.GetListValuesInteger()
+			case int:
+				var vals []int
+				vals, err = e.ListToIntegerVector()
 				if err != nil {
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 					return
@@ -259,7 +259,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 				s[i] = series.New(vals, series.Int, e.Name)
 			case float64:
 				var vals []float64
-				vals, err = e.GetListValuesFloat()
+				vals, err = e.ListToFloatVector()
 				if err != nil {
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 					return
@@ -267,7 +267,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 				s[i] = series.New(vals, series.Int, e.Name)
 			case string:
 				var vals []string
-				vals, err = e.GetListValuesString()
+				vals, err = e.ListToStringVector()
 				if err != nil {
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 					return
@@ -298,16 +298,16 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 		return
 	}
 
-	df, err = positional[0].GetValueDataframe()
+	df, err = positional[0].GetDataframe()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
 	// The first value can be both a symbol or la list of symbols
-	symbol, err = positional[1].GetValueSymbol()
+	symbol, err = positional[1].GetSymbol()
 	if err != nil {
-		list, err = positional[1].GetValueList()
+		list, err = positional[1].GetList()
 		if err != nil {
 			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 			return
@@ -315,7 +315,7 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 
 		names := make([]string, len(list))
 		for i, v := range list {
-			symbol, err = v.GetValueSymbol()
+			symbol, err = v.GetSymbol()
 			if err != nil {
 				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 				return
@@ -343,20 +343,20 @@ func PreludioFunc_Take(funcName string, vm *PreludioVM) {
 
 	var err error
 	var df dataframe.DataFrame
-	var num int64
+	var num int
 	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, nil, false)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
-	df, err = positional[0].GetValueDataframe()
+	df, err = positional[0].GetDataframe()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
 	}
 
-	num, err = positional[1].GetValueInteger()
+	num, err = positional[1].GetIntegerScalar()
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
 		return
