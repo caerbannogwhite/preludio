@@ -1071,26 +1071,18 @@ func (i *PreludioInternal) Solve() error {
 						var res []string
 						if len(val1) == 1 {
 							res = make([]string, len(val2))
-							for j, b := range val2 {
-								res[j] = fmt.Sprintf("%t%t", val1[0], b)
+							for j, s := range val2 {
+								res[j] = fmt.Sprintf("%t%s", val1[0], s)
 							}
 						} else if len(val2) == 1 {
 							res = make([]string, len(val1))
 							for j, b := range val1 {
-								if b {
-									res[j] = val2[j]
-								} else {
-									res[j] = ""
-								}
+								res[j] = fmt.Sprintf("%t%s", b, val2[0])
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
 							for j, b := range val1 {
-								if b {
-									res[j] = val2[j]
-								} else {
-									res[j] = ""
-								}
+								res[j] = fmt.Sprintf("%t%s", b, val2[j])
 							}
 						}
 						result = res
@@ -1162,17 +1154,17 @@ func (i *PreludioInternal) Solve() error {
 						if len(val1) == 1 {
 							res = make([]string, len(val2))
 							for j, s := range val2 {
-								res[j] = strings.Repeat(s, int(val1[0]))
+								res[j] = fmt.Sprintf("%d%s", val1[0], s)
 							}
 						} else if len(val2) == 1 {
 							res = make([]string, len(val1))
-							for j, n := range val1 {
-								res[j] = strings.Repeat(val2[0], n)
+							for j, b := range val1 {
+								res[j] = fmt.Sprintf("%d%s", b, val2[0])
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
-							for j, s := range val2 {
-								res[j] = strings.Repeat(s, val1[j])
+							for j, b := range val1 {
+								res[j] = fmt.Sprintf("%d%s", b, val2[j])
 							}
 						}
 						result = res
@@ -1238,6 +1230,25 @@ func (i *PreludioInternal) Solve() error {
 							}
 						}
 						result = res
+					case []string:
+						var res []string
+						if len(val1) == 1 {
+							res = make([]string, len(val2))
+							for j, f := range val2 {
+								res[j] = fmt.Sprintf("%f%s", val1[0], f)
+							}
+						} else if len(val2) == 1 {
+							res = make([]string, len(val1))
+							for j, f := range val1 {
+								res[j] = fmt.Sprintf("%f%s", f, val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]string, len(val2))
+							for j, f := range val1 {
+								res[j] = fmt.Sprintf("%f%s", f, val2[j])
+							}
+						}
+						result = res
 					default:
 						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
 					}
@@ -1248,29 +1259,17 @@ func (i *PreludioInternal) Solve() error {
 						if len(val1) == 1 {
 							res = make([]string, len(val2))
 							for j, b := range val2 {
-								if b {
-									res[j] = val1[0]
-								} else {
-									res[j] = ""
-								}
+								res[j] = fmt.Sprintf("%s%t", val1[0], b)
 							}
 						} else if len(val2) == 1 {
 							res = make([]string, len(val1))
 							for j, s := range val1 {
-								if val2[0] {
-									res[j] = s
-								} else {
-									res[j] = ""
-								}
+								res[j] = fmt.Sprintf("%s%t", s, val2[0])
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
 							for j, s := range val1 {
-								if val2[j] {
-									res[j] = s
-								} else {
-									res[j] = ""
-								}
+								res[j] = fmt.Sprintf("%s%t", s, val2[j])
 							}
 						}
 						result = res
@@ -1279,17 +1278,55 @@ func (i *PreludioInternal) Solve() error {
 						if len(val1) == 1 {
 							res = make([]string, len(val2))
 							for j, n := range val2 {
-								res[j] = strings.Repeat(val1[0], n)
+								res[j] = fmt.Sprintf("%s%d", val1[0], n)
 							}
 						} else if len(val2) == 1 {
 							res = make([]string, len(val1))
-							for j, n := range val2 {
-								res[j] = strings.Repeat(val1[0], n)
+							for j, s := range val1 {
+								res[j] = fmt.Sprintf("%s%d", s, val2[0])
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
 							for j, s := range val1 {
-								res[j] = strings.Repeat(s, val2[j])
+								res[j] = fmt.Sprintf("%s%d", s, val2[j])
+							}
+						}
+						result = res
+					case []float64:
+						var res []string
+						if len(val1) == 1 {
+							res = make([]string, len(val2))
+							for j, f := range val2 {
+								res[j] = fmt.Sprintf("%s%f", val1[0], f)
+							}
+						} else if len(val2) == 1 {
+							res = make([]string, len(val1))
+							for j, s := range val1 {
+								res[j] = fmt.Sprintf("%s%f", s, val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]string, len(val2))
+							for j, s := range val1 {
+								res[j] = fmt.Sprintf("%s%f", s, val2[j])
+							}
+						}
+						result = res
+					case []string:
+						var res []string
+						if len(val1) == 1 {
+							res = make([]string, len(val2))
+							for j, s := range val2 {
+								res[j] = fmt.Sprintf("%s%s", val1[0], s)
+							}
+						} else if len(val2) == 1 {
+							res = make([]string, len(val1))
+							for j, s := range val1 {
+								res[j] = fmt.Sprintf("%s%s", s, val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]string, len(val2))
+							for j, s := range val1 {
+								res[j] = fmt.Sprintf("%s%s", s, val2[j])
 							}
 						}
 						result = res
