@@ -78,8 +78,8 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 	}
 
 	named := map[string]*PreludioInternal{
-		// "delimiter": NewPreludioInternalTerm(","),
-		"header": NewPreludioInternalTerm(true),
+		// "delimiter": NewPreludioInternalTerm([]string{","}),
+		"header": NewPreludioInternalTerm([]bool{true}),
 	}
 
 	var err error
@@ -172,8 +172,8 @@ func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 	}
 
 	named := map[string]*PreludioInternal{
-		"delimiter": NewPreludioInternalTerm(","),
-		"header":    NewPreludioInternalTerm(true),
+		"delimiter": NewPreludioInternalTerm([]string{","}),
+		"header":    NewPreludioInternalTerm([]bool{true}),
 	}
 
 	var err error
@@ -241,7 +241,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 		if l, ok := e.GetValue().(PreludioList); ok {
 
 			switch l[0].GetValue().(type) {
-			case bool:
+			case []bool:
 				var vals []bool
 				vals, err = e.ListToBoolVector()
 				if err != nil {
@@ -249,7 +249,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 					return
 				}
 				s[i] = series.New(vals, series.Bool, e.Name)
-			case int:
+			case []int:
 				var vals []int
 				vals, err = e.ListToIntegerVector()
 				if err != nil {
@@ -257,7 +257,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 					return
 				}
 				s[i] = series.New(vals, series.Int, e.Name)
-			case float64:
+			case []float64:
 				var vals []float64
 				vals, err = e.ListToFloatVector()
 				if err != nil {
@@ -265,7 +265,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 					return
 				}
 				s[i] = series.New(vals, series.Int, e.Name)
-			case string:
+			case []string:
 				var vals []string
 				vals, err = e.ListToStringVector()
 				if err != nil {
