@@ -15,6 +15,54 @@ func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
+	var err error
+	var df dataframe.DataFrame
+	var series_ []series.Series
+	positional, _, err := vm.GetFunctionParams(funcName, 1, 1, nil, true)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	df, err = positional[0].GetDataframe()
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	if positional[1].IsList() {
+		list, _ := positional[1].GetList()
+		series_ = make([]series.Series, len(list))
+		for _, val := range list {
+			switch col := val.GetValue().(type) {
+			case []bool:
+				series_ = append(series_, series.New(col, series.Bool, val.Name))
+			case []int:
+				series_ = append(series_, series.New(col, series.Int, val.Name))
+			case []float64:
+				series_ = append(series_, series.New(col, series.Float, val.Name))
+			case []string:
+				series_ = append(series_, series.New(col, series.String, val.Name))
+			}
+		}
+	} else {
+		val := positional[1].GetValue()
+		series_ = make([]series.Series, 1)
+		switch col := val.(type) {
+		case []bool:
+			series_ = append(series_, series.New(col, series.Bool, positional[1].Name))
+		case []int:
+			series_ = append(series_, series.New(col, series.Int, positional[1].Name))
+		case []float64:
+			series_ = append(series_, series.New(col, series.Float, positional[1].Name))
+		case []string:
+			series_ = append([]series.Series{}, series.New(col, series.String, positional[1].Name))
+		}
+
+	}
+
+	df = df.CBind(dataframe.New(series_...))
+	vm.StackPush(NewPreludioInternalTerm(df))
 }
 
 func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
@@ -141,6 +189,7 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 	}
 }
 
+// Load table from the Name Space
 func PreludioFunc_From(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
@@ -166,6 +215,7 @@ func PreludioFunc_From(funcName string, vm *PreludioVM) {
 	vm.StackPush(NewPreludioInternalTerm(df))
 }
 
+// Import Table form CSV file
 func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)

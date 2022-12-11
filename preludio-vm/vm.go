@@ -7,6 +7,8 @@ import (
 	"io/fs"
 	"math"
 	"os"
+
+	"github.com/go-gota/gota/series"
 )
 
 type OPCODE uint16
@@ -73,16 +75,17 @@ type PreludioVMParams struct {
 }
 
 type PreludioVM struct {
-	__printWarnings        bool
-	__debugLevel           int
-	__verbosityLevel       int
-	__inputPath            string
-	__symbolTable          []string
-	__stack                []*PreludioInternal
-	__currentTable         *PreludioInternal
-	__userDefinedVariables map[string]PreludioInternal
-	__funcNumParams        int
-	__listElementCounters  []int
+	__printWarnings       bool
+	__debugLevel          int
+	__verbosityLevel      int
+	__inputPath           string
+	__symbolTable         []string
+	__stack               []*PreludioInternal
+	__currentTable        *PreludioInternal
+	__globalNameSpace     map[string]*PreludioInternal
+	__pipelineNameSpace   map[string]*PreludioInternal
+	__funcNumParams       int
+	__listElementCounters []int
 }
 
 func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
@@ -92,7 +95,8 @@ func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
 		__debugLevel:     params.DebugLevel,
 		__verbosityLevel: params.VerbosityLevel,
 	}
-	vm.__userDefinedVariables = map[string]PreludioInternal{}
+	vm.__globalNameSpace = map[string]*PreludioInternal{}
+	vm.__pipelineNameSpace = map[string]*PreludioInternal{}
 	vm.__currentTable = nil
 
 	return &vm
@@ -248,7 +252,7 @@ MAIN_LOOP:
 
 			// User defined functions
 			default:
-				if internal, ok := vm.__userDefinedVariables[funcName]; ok {
+				if internal, ok := vm.__globalNameSpace[funcName]; ok {
 					switch value := internal.GetValue().(type) {
 					case UserDefinedFunction:
 						value(vm)
@@ -550,6 +554,54 @@ LOOP1:
 		}
 	}
 
+	// Symbol resolution
+	if positionalParams[0].IsDataframe() {
+		df, _ := positionalParams[0].GetDataframe()
+		names := make(map[string]bool)
+		for _, name := range df.Names() {
+			names[name] = true
+		}
+
+		ResolveSymbol := func(p *PreludioInternal, names map[string]bool) {
+			for i, v := range *p.Expr {
+				if symbol, ok := v.(PreludioSymbol); ok && names[string(symbol)] {
+					ser := df.Col(string(symbol))
+					switch ser.Type() {
+					case series.Bool:
+						arr, _ := ser.Bool()
+						(*p.Expr)[i] = arr
+					case series.Int:
+						arr, _ := ser.Int()
+						(*p.Expr)[i] = arr
+					case series.Float:
+						(*p.Expr)[i] = ser.Float()
+					case series.String:
+						(*p.Expr)[i] = ser.Records()
+					}
+				}
+			}
+		}
+
+		// positional params
+		for _, p := range positionalParams {
+			ResolveSymbol(p, names)
+		}
+
+		// named params
+		if namedParams != nil {
+			for _, p := range *namedParams {
+				ResolveSymbol(p, names)
+			}
+		}
+
+		// assignments
+		if acceptingAssignments {
+			for _, p := range assignments {
+				ResolveSymbol(p, names)
+			}
+		}
+	}
+
 	for _, p := range positionalParams {
 		if err := p.Solve(); err != nil {
 			return positionalParams, assignments, err
@@ -589,7 +641,7 @@ LOOP1:
 // 		}
 // 	}
 
-// 	if v, ok := vm.__userDefinedVariables[ident]; ok {
+// 	if v, ok := vm.__globalNameSpace[ident]; ok {
 // 		return &v
 // 	}
 
