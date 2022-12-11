@@ -1,14 +1,25 @@
 package main
 
-import "os"
+import (
+	"github.com/alexflint/go-arg"
+)
 
 func main() {
-	inputPath := os.Args[1]
+
+	var args struct {
+		InputPath  string `arg:"positional"`
+		DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
+		Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
+		Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
+	}
+
+	arg.MustParse(&args)
+	// fmt.Println(args.Foo, args.Bar)
 
 	vm := NewPreludioVM(&PreludioVMParams{
-		PrintWarnings: true,
-		DebugLevel:    0,
-		InputPath:     inputPath,
+		PrintWarnings: args.Warnings,
+		DebugLevel:    args.DebugLevel,
+		InputPath:     args.InputPath,
 	})
 
 	vm.ReadPreludioBytecode()

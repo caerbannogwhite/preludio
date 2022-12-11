@@ -260,7 +260,7 @@ MAIN_LOOP:
 						vm.StackPush(NewPreludioInternalError(fmt.Sprintf("variable '%s' not callable.", funcName)))
 					}
 				} else {
-					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("name '%s' not found.", funcName)))
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("variable '%s' not defined.", funcName)))
 				}
 			}
 
