@@ -115,7 +115,7 @@ const serializedATN = [
   "\u0002\u0092\u0094\u0007\u0015\u0002\u0002\u0093\u0091\u0003\u0002\u0002",
   "\u0002\u0093\u0092\u0003\u0002\u0002\u0002\u0094\u0019\u0003\u0002\u0002",
   "\u0002\u0095\u009b\u0005*\u0016\u0002\u0096\u0097\u0005\u0018\r\u0002",
-  "\u0097\u0098\u0005*\u0016\u0002\u0098\u009a\u0003\u0002\u0002\u0002",
+  "\u0097\u0098\u0005 \u0011\u0002\u0098\u009a\u0003\u0002\u0002\u0002",
   "\u0099\u0096\u0003\u0002\u0002\u0002\u009a\u009d\u0003\u0002\u0002\u0002",
   "\u009b\u0099\u0003\u0002\u0002\u0002\u009b\u009c\u0003\u0002\u0002\u0002",
   "\u009c\u001b\u0003\u0002\u0002\u0002\u009d\u009b\u0003\u0002\u0002\u0002",
@@ -879,7 +879,7 @@ export default class prqlParser extends antlr4.Parser {
           this.state = 148;
           this.pipe();
           this.state = 149;
-          this.exprCall();
+          this.funcCall();
         }
         this.state = 155;
         this._errHandler.sync(this);
@@ -2445,16 +2445,9 @@ class PipelineContext extends antlr4.ParserRuleContext {
     this.ruleIndex = prqlParser.RULE_pipeline;
   }
 
-  exprCall = function (i) {
-    if (i === undefined) {
-      i = null;
-    }
-    if (i === null) {
-      return this.getTypedRuleContexts(ExprCallContext);
-    } else {
-      return this.getTypedRuleContext(ExprCallContext, i);
-    }
-  };
+  exprCall() {
+    return this.getTypedRuleContext(ExprCallContext, 0);
+  }
 
   pipe = function (i) {
     if (i === undefined) {
@@ -2464,6 +2457,17 @@ class PipelineContext extends antlr4.ParserRuleContext {
       return this.getTypedRuleContexts(PipeContext);
     } else {
       return this.getTypedRuleContext(PipeContext, i);
+    }
+  };
+
+  funcCall = function (i) {
+    if (i === undefined) {
+      i = null;
+    }
+    if (i === null) {
+      return this.getTypedRuleContexts(FuncCallContext);
+    } else {
+      return this.getTypedRuleContext(FuncCallContext, i);
     }
   };
 

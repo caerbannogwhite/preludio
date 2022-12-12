@@ -96,7 +96,7 @@ stmt: assignStmt;
 assignStmt: LET IDENT ASSIGN expr;
 
 pipe: nl | BAR;
-pipeline: exprCall (pipe exprCall)*;
+pipeline: exprCall (pipe funcCall)*;
 
 // We include backticks because some DBs use them (e.g. BigQuery) and we don't, so we pass anything
 // within them directly through, including otherwise invalid idents, like those with hyphens.
