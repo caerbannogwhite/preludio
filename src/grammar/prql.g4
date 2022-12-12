@@ -129,7 +129,7 @@ namedArg: IDENT COLON (assign | expr);
 assign: IDENT ASSIGN expr;
 assignCall: IDENT ASSIGN exprCall;
 
-exprCall: funcCall | expr;
+exprCall: expr | funcCall;
 
 expr:
 	expr (STAR | DIV | MOD) expr

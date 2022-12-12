@@ -139,8 +139,8 @@ const serializedATN = [
   "/\u0002\u0002\u00bc\u00bd\u0007\u0007\u0002\u0002\u00bd\u00be\u0005",
   ",\u0017\u0002\u00be'\u0003\u0002\u0002\u0002\u00bf\u00c0\u0007/\u0002",
   "\u0002\u00c0\u00c1\u0007\u0007\u0002\u0002\u00c1\u00c2\u0005*\u0016",
-  "\u0002\u00c2)\u0003\u0002\u0002\u0002\u00c3\u00c6\u0005 \u0011\u0002",
-  "\u00c4\u00c6\u0005,\u0017\u0002\u00c5\u00c3\u0003\u0002\u0002\u0002",
+  "\u0002\u00c2)\u0003\u0002\u0002\u0002\u00c3\u00c6\u0005,\u0017\u0002",
+  "\u00c4\u00c6\u0005 \u0011\u0002\u00c5\u00c3\u0003\u0002\u0002\u0002",
   "\u00c5\u00c4\u0003\u0002\u0002\u0002\u00c6+\u0003\u0002\u0002\u0002",
   "\u00c7\u00c8\b\u0017\u0001\u0002\u00c8\u00c9\u0007\u001f\u0002\u0002",
   "\u00c9\u00ca\u0005,\u0017\u0002\u00ca\u00cb\u0007 \u0002\u0002\u00cb",
@@ -1205,13 +1205,13 @@ export default class prqlParser extends antlr4.Parser {
         case 1:
           this.enterOuterAlt(localctx, 1);
           this.state = 193;
-          this.funcCall();
+          this.expr(0);
           break;
 
         case 2:
           this.enterOuterAlt(localctx, 2);
           this.state = 194;
-          this.expr(0);
+          this.funcCall();
           break;
       }
     } catch (re) {
@@ -2776,12 +2776,12 @@ class ExprCallContext extends antlr4.ParserRuleContext {
     this.ruleIndex = prqlParser.RULE_exprCall;
   }
 
-  funcCall() {
-    return this.getTypedRuleContext(FuncCallContext, 0);
-  }
-
   expr() {
     return this.getTypedRuleContext(ExprContext, 0);
+  }
+
+  funcCall() {
+    return this.getTypedRuleContext(FuncCallContext, 0);
   }
 
   enterRule(listener) {
