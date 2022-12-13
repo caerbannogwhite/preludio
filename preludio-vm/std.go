@@ -213,6 +213,7 @@ func PreludioFunc_From(funcName string, vm *PreludioVM) {
 	}
 
 	vm.StackPush(NewPreludioInternalTerm(df))
+	vm.SetCurrentDataFrame()
 }
 
 // Import Table form CSV file
@@ -265,6 +266,7 @@ func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 	}
 
 	vm.StackPush(NewPreludioInternalTerm(df))
+	vm.SetCurrentDataFrame()
 }
 
 func PreludioFunc_New(funcName string, vm *PreludioVM) {
@@ -331,6 +333,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 	}
 
 	vm.StackPush(NewPreludioInternalTerm(dataframe.New(s...)))
+	vm.SetCurrentDataFrame()
 }
 
 func PreludioFunc_Select(funcName string, vm *PreludioVM) {

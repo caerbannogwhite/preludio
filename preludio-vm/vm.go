@@ -7,7 +7,9 @@ import (
 	"io/fs"
 	"math"
 	"os"
+	"strings"
 
+	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
 
@@ -75,17 +77,18 @@ type PreludioVMParams struct {
 }
 
 type PreludioVM struct {
-	__printWarnings       bool
-	__debugLevel          int
-	__verbosityLevel      int
-	__inputPath           string
-	__symbolTable         []string
-	__stack               []*PreludioInternal
-	__currentTable        *PreludioInternal
-	__globalNameSpace     map[string]*PreludioInternal
-	__pipelineNameSpace   map[string]*PreludioInternal
-	__funcNumParams       int
-	__listElementCounters []int
+	__printWarnings         bool
+	__debugLevel            int
+	__verbosityLevel        int
+	__inputPath             string
+	__symbolTable           []string
+	__stack                 []*PreludioInternal
+	__currentDataFrame      *dataframe.DataFrame
+	__currentDataFrameNames map[string]bool
+	__globalNameSpace       map[string]*PreludioInternal
+	__pipelineNameSpace     map[string]*PreludioInternal
+	__funcNumParams         int
+	__listElementCounters   []int
 }
 
 func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
@@ -95,9 +98,11 @@ func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
 		__debugLevel:     params.DebugLevel,
 		__verbosityLevel: params.VerbosityLevel,
 	}
+
+	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNameSpace = map[string]*PreludioInternal{}
 	vm.__pipelineNameSpace = map[string]*PreludioInternal{}
-	vm.__currentTable = nil
+	vm.__currentDataFrame = nil
 
 	return &vm
 }
@@ -554,63 +559,15 @@ LOOP1:
 		}
 	}
 
-	// Symbol resolution
-	if positionalParams[0].IsDataframe() {
-		df, _ := positionalParams[0].GetDataframe()
-		names := make(map[string]bool)
-		for _, name := range df.Names() {
-			names[name] = true
-		}
-
-		ResolveSymbol := func(p *PreludioInternal, names map[string]bool) {
-			for i, v := range *p.Expr {
-				if symbol, ok := v.(PreludioSymbol); ok && names[string(symbol)] {
-					ser := df.Col(string(symbol))
-					switch ser.Type() {
-					case series.Bool:
-						arr, _ := ser.Bool()
-						(*p.Expr)[i] = arr
-					case series.Int:
-						arr, _ := ser.Int()
-						(*p.Expr)[i] = arr
-					case series.Float:
-						(*p.Expr)[i] = ser.Float()
-					case series.String:
-						(*p.Expr)[i] = ser.Records()
-					}
-				}
-			}
-		}
-
-		// positional params
-		for _, p := range positionalParams {
-			ResolveSymbol(p, names)
-		}
-
-		// named params
-		if namedParams != nil {
-			for _, p := range *namedParams {
-				ResolveSymbol(p, names)
-			}
-		}
-
-		// assignments
-		if acceptingAssignments {
-			for _, p := range assignments {
-				ResolveSymbol(p, names)
-			}
-		}
-	}
-
 	for _, p := range positionalParams {
-		if err := p.Solve(); err != nil {
+		if err := p.Solve(vm); err != nil {
 			return positionalParams, assignments, err
 		}
 	}
 
 	if namedParams != nil {
 		for _, p := range *namedParams {
-			if err := p.Solve(); err != nil {
+			if err := p.Solve(vm); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
@@ -618,7 +575,7 @@ LOOP1:
 
 	if acceptingAssignments {
 		for _, p := range assignments {
-			if err := p.Solve(); err != nil {
+			if err := p.Solve(vm); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
@@ -627,26 +584,42 @@ LOOP1:
 	return positionalParams, assignments, nil
 }
 
-// func (vm *PreludioVM) IdentResolutionStrategy(ident string) *PreludioInternal {
-// 	if vm.__currentTable != nil {
-// 		switch t := vm.__currentTable.Value.(type) {
-// 		case dataframe.DataFrame:
-// 			names := t.Names()
-// 			for _, name := range names {
-// 				if name == ident {
-// 					return NewPreludioInternalTerm(t.Col(name))
-// 				}
-// 			}
-// 		default:
-// 		}
-// 	}
+func (vm *PreludioVM) SymbolResolution(symbol PreludioSymbol) interface{} {
+	// 1 - Look at the current DataFrame
+	if vm.__currentDataFrame != nil {
+		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
+			ser := vm.__currentDataFrame.Col(string(symbol))
+			switch ser.Type() {
+			case series.Bool:
+				val, _ := ser.Bool()
+				return val
+			case series.Int:
+				val, _ := ser.Int()
+				return val
+			case series.Float:
+				return ser.Float()
+			case series.String:
+				return ser.Records()
+			}
+		}
+	}
 
-// 	if v, ok := vm.__globalNameSpace[ident]; ok {
-// 		return &v
-// 	}
+	// 2 - Try to split the symbol into pieces
+	pieces := strings.Split(string(symbol), ".")
+	return pieces
+}
 
-// 	return NewPreludioInternalError(fmt.Sprintf("name '%s' not found.", ident))
-// }
+// Set the last element inserted into the stack as
+// the current DataFrame
+func (vm *PreludioVM) SetCurrentDataFrame() {
+	df, _ := vm.StackLast().GetDataframe()
+	vm.__currentDataFrame = &df
+
+	vm.__currentDataFrameNames = map[string]bool{}
+	for _, name := range df.Names() {
+		vm.__currentDataFrameNames[name] = true
+	}
+}
 
 func (vm *PreludioVM) PrintWarning(msg string) {
 	if vm.__printWarnings {

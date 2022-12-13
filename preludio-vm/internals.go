@@ -349,7 +349,7 @@ func IsOperator(t interface{}) (PreludioExprOp, bool) {
 	return NO_OP, false
 }
 
-func (i *PreludioInternal) Solve() error {
+func (i *PreludioInternal) Solve(vm *PreludioVM) error {
 	tmp := make([]interface{}, 1)
 
 	// TODO: check if this is possible and
@@ -365,7 +365,7 @@ func (i *PreludioInternal) Solve() error {
 		switch l := (*i.Expr)[0].(type) {
 		case PreludioList:
 			for _, t := range l {
-				if err := t.Solve(); err != nil {
+				if err := t.Solve(vm); err != nil {
 					return err
 				}
 			}
@@ -384,6 +384,10 @@ func (i *PreludioInternal) Solve() error {
 		if op, ok := IsOperator(t2); ok {
 			(*i.Expr) = (*i.Expr)[2:len((*i.Expr))]
 
+			if s, ok := t1.(PreludioSymbol); ok {
+				t1 = vm.SymbolResolution(s)
+			}
+
 			switch op {
 			case UN_EXPR_ADD:
 			case UN_EXPR_SUB:
@@ -395,6 +399,15 @@ func (i *PreludioInternal) Solve() error {
 		{
 			op, _ := IsOperator((*i.Expr)[2])
 			(*i.Expr) = (*i.Expr)[3:len((*i.Expr))]
+
+			// Symbo resolution
+			if s, ok := t1.(PreludioSymbol); ok {
+				t1 = vm.SymbolResolution(s)
+			}
+
+			if s, ok := t2.(PreludioSymbol); ok {
+				t2 = vm.SymbolResolution(s)
+			}
 
 			switch op {
 
