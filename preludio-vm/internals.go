@@ -1352,7 +1352,194 @@ func (i *PreludioInternal) Solve(vm *PreludioVM) error {
 			////////					SUBTRACTION
 
 			case BIN_EXPR_SUB:
-
+				switch val1 := t1.(type) {
+				case []bool:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []int
+						if len(val1) == 1 {
+							res = make([]int, len(val2))
+							for j, b := range val2 {
+								res[j] = BoolToInt(val1[0]) - BoolToInt(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]int, len(val1))
+							for j, b := range val1 {
+								res[j] = BoolToInt(b) - BoolToInt(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]int, len(val2))
+							for j, b := range val2 {
+								res[j] = BoolToInt(val1[j]) - BoolToInt(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []int
+						if len(val1) == 1 {
+							res = make([]int, len(val2))
+							for j, n := range val2 {
+								res[j] = BoolToInt(val1[0]) - n
+							}
+						} else if len(val2) == 1 {
+							res = make([]int, len(val1))
+							for j, b := range val1 {
+								res[j] = BoolToInt(b) - val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]int, len(val2))
+							for j, n := range val2 {
+								res[j] = BoolToInt(val1[j]) - n
+							}
+						}
+						result = res
+					case []float64:
+						var res []float64
+						if len(val1) == 1 {
+							res = make([]float64, len(val2))
+							for j, f := range val2 {
+								res[j] = BoolToFloat64(val1[0]) - f
+							}
+						} else if len(val2) == 1 {
+							res = make([]float64, len(val1))
+							for j, b := range val1 {
+								res[j] = BoolToFloat64(b) - val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]float64, len(val2))
+							for j, n := range val2 {
+								res[j] = BoolToFloat64(val1[j]) - n
+							}
+						}
+						result = res
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case []int:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []int
+						if len(val1) == 1 {
+							res = make([]int, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] - BoolToInt(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]int, len(val1))
+							for j, n := range val1 {
+								res[j] = n - BoolToInt(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]int, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] - BoolToInt(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []int
+						if len(val1) == 1 {
+							res = make([]int, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[0] - n
+							}
+						} else if len(val2) == 1 {
+							res = make([]int, len(val1))
+							for j, n := range val1 {
+								res[j] = n - val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]int, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[j] - n
+							}
+						}
+						result = res
+					case []float64:
+						var res []float64
+						if len(val1) == 1 {
+							res = make([]float64, len(val2))
+							for j, f := range val2 {
+								res[j] = float64(val1[0]) - f
+							}
+						} else if len(val2) == 1 {
+							res = make([]float64, len(val1))
+							for j, n := range val1 {
+								res[j] = float64(n) - val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]float64, len(val2))
+							for j, f := range val2 {
+								res[j] = float64(val1[j]) - f
+							}
+						}
+						result = res
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				case []float64:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []float64
+						if len(val1) == 1 {
+							res = make([]float64, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] - BoolToFloat64(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]float64, len(val1))
+							for j, f := range val1 {
+								res[j] = f - BoolToFloat64(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]float64, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] - BoolToFloat64(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []float64
+						if len(val1) == 1 {
+							res = make([]float64, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[0] - float64(n)
+							}
+						} else if len(val2) == 1 {
+							res = make([]float64, len(val1))
+							for j, f := range val1 {
+								res[j] = f - float64(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]float64, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[j] - float64(n)
+							}
+						}
+						result = res
+					case []float64:
+						var res []float64
+						if len(val1) == 1 {
+							res = make([]float64, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[0] - f
+							}
+						} else if len(val2) == 1 {
+							res = make([]float64, len(val1))
+							for j, f := range val1 {
+								res[j] = f - val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]float64, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[j] - f
+							}
+						}
+						result = res
+					default:
+						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+					}
+				}
 			}
 		}
 
