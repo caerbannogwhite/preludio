@@ -33,16 +33,17 @@ func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
 	if positional[1].IsList() {
 		list, _ := positional[1].GetList()
 		series_ = make([]series.Series, len(list))
-		for _, val := range list {
+
+		for i, val := range list {
 			switch col := val.GetValue().(type) {
 			case []bool:
-				series_ = append(series_, series.New(col, series.Bool, val.Name))
+				series_[i] = series.New(col, series.Bool, val.Name)
 			case []int:
-				series_ = append(series_, series.New(col, series.Int, val.Name))
+				series_[i] = series.New(col, series.Int, val.Name)
 			case []float64:
-				series_ = append(series_, series.New(col, series.Float, val.Name))
+				series_[i] = series.New(col, series.Float, (*val).Name)
 			case []string:
-				series_ = append(series_, series.New(col, series.String, val.Name))
+				series_[i] = series.New(col, series.String, val.Name)
 			}
 		}
 	} else {
