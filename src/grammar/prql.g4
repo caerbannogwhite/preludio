@@ -20,12 +20,12 @@ DIV: '/';
 MOD: '%';
 MODEL: '~';
 
-EQ: 'eq';
-NE: 'ne';
-LE: 'le';
-LT: 'lt';
-GE: 'ge';
-GT: 'gt';
+EQ: '==';
+NE: '!=';
+LE: '<=';
+LT: '<';
+GE: '>=';
+GT: '>';
 
 BAR: '|';
 COLON: ':';
@@ -95,8 +95,9 @@ typeTerm: IDENT typeDef?;
 stmt: assignStmt;
 assignStmt: LET IDENT ASSIGN expr;
 
-pipe: nl | BAR;
-pipeline: exprCall (pipe funcCall)*;
+// pipe: nl | BAR; // original pipeline separator
+pipeline: exprCall (nl funcCall)* (nl | EOF);
+inlinePipeline: exprCall (BAR funcCall)*;
 
 // We include backticks because some DBs use them (e.g. BigQuery) and we don't, so we pass anything
 // within them directly through, including otherwise invalid idents, like those with hyphens.
@@ -122,7 +123,7 @@ signedIdent: (PLUS | MINUS) IDENT;
 
 // whitespace is required to prevent matching s"string". Forbid `operator` so `a - b` can't parse as
 // `a` & `-b`.
-funcCall: IDENT funcCallParam+;
+funcCall: IDENT funcCallParam*;
 
 funcCallParam: namedArg | assign | expr;
 namedArg: IDENT COLON (assign | expr);
@@ -184,7 +185,8 @@ list:
 		)* COMMA? nl?
 	)? RBRACKET;
 
-nestedPipeline: LPAREN nl* pipeline nl* RPAREN;
+nestedPipeline:
+	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
 
 // We haven't implemented escapes — I think we can mostly pass those through to SQL, but there may
 // be things we're missing. https://pest.rs/book/examples/rust/literals.html

@@ -1,0 +1,15 @@
+
+
+from a
+describe
+aFunction [
+    b,
+    (
+        col
+        sort -c
+        derive [
+            d = (hello f | someFunc | take 10),
+            e = (sin 3.14)
+        ]
+    )
+]
