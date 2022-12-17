@@ -109,8 +109,7 @@ inlinePipeline: exprCall (BAR funcCall)*;
 // in some cases. ident_next: ident_start | '*'; Anything surrounded by backticks, we pass through.
 identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
-// For sorting
-// signedIdent: (PLUS | MINUS) IDENT;
+// For sorting signedIdent: (PLUS | MINUS) IDENT;
 
 // A central issue around the terms vs expr is that we want to be able to parse: [foo bar + 1, 2]
 // as: - foo bar + 1 - foo bar - foo - bar - + - 1 - 2 So this requires two non-silent rules: - A
@@ -125,10 +124,11 @@ identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 // `a` & `-b`.
 funcCall: IDENT funcCallParam*;
 
-funcCallParam: namedArg | assign | expr;
+funcCallParam: namedArg | assign | multiAssign | expr;
 namedArg: IDENT COLON (assign | expr);
-assign: IDENT ASSIGN expr;
-assignCall: IDENT ASSIGN exprCall;
+assign: IDENT ASSIGN exprCall;
+multiAssign: list ASSIGN exprCall;
+// assignCall: IDENT ASSIGN exprCall;
 
 exprCall: expr | funcCall;
 
@@ -164,8 +164,8 @@ literal:
 	| STRING // | timestamp | date | time | s_string | f_string |
 	| INTEGER
 	| FLOAT
-	| FLOAT INTERVAL_KIND
-	| (FLOAT | IDENT) RANGE (FLOAT | IDENT);
+	| (INTEGER | FLOAT) INTERVAL_KIND
+	| (INTEGER | FLOAT | IDENT) RANGE (INTEGER | FLOAT | IDENT);
 
 INTERVAL_KIND:
 	'microseconds'
@@ -180,8 +180,8 @@ INTERVAL_KIND:
 
 list:
 	LBRACKET (
-		nl* (assignCall | exprCall) (
-			COMMA nl* (assignCall | exprCall)
+		nl* (assign | multiAssign | exprCall) (
+			COMMA nl* (assign | multiAssign | exprCall)
 		)* COMMA? nl?
 	)? RBRACKET;
 

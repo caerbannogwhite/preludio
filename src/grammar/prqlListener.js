@@ -112,11 +112,11 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
   // Exit a parse tree produced by prqlParser#assign.
   exitAssign(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#assignCall.
-  enterAssignCall(ctx) {}
+  // Enter a parse tree produced by prqlParser#multiAssign.
+  enterMultiAssign(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#assignCall.
-  exitAssignCall(ctx) {}
+  // Exit a parse tree produced by prqlParser#multiAssign.
+  exitMultiAssign(ctx) {}
 
   // Enter a parse tree produced by prqlParser#exprCall.
   enterExprCall(ctx) {}

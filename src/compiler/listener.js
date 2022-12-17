@@ -421,6 +421,12 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_PUSH_ASSIGN_IDENT, 0, pos);
   }
 
+  // Enter a parse tree produced by prqlParser#multiAssign.
+  enterMultiAssign(ctx) {}
+
+  // Exit a parse tree produced by prqlParser#multiAssign.
+  exitMultiAssign(ctx) {}
+
   // Enter a parse tree produced by prqlParser#assignCall.
   enterAssignCall(ctx) {
     if (this.__debug_level > 10) {
