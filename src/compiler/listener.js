@@ -266,17 +266,36 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_PIPELINE, 0, 0);
   }
 
+  // Enter a parse tree produced by prqlParser#inlinePipeline.
+  enterInlinePipeline(ctx) {
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `-> InlinePipeline`
+      );
+    }
+
+    this.__instructions.push(OP_START_PIPELINE, 0, 0);
+
+    this.__rec_depth__++;
+  }
+
+  // Exit a parse tree produced by prqlParser#inlinePipeline.
+  exitInlinePipeline(ctx) {
+    this.__rec_depth__--;
+    if (this.__debug_level > 10) {
+      console.log(
+        this.__indent_symbol.repeat(this.__rec_depth__) + `<- InlinePipeline`
+      );
+    }
+
+    this.__instructions.push(OP_END_PIPELINE, 0, 0);
+  }
+
   // Enter a parse tree produced by prqlParser#identBackticks.
   // enterIdentBackticks(ctx) {}
 
   // Exit a parse tree produced by prqlParser#identBackticks.
   // exitIdentBackticks(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#signedIdent.
-  enterSignedIdent(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#signedIdent.
-  exitSignedIdent(ctx) {}
 
   // Enter a parse tree produced by prqlParser#keyword.
   // enterKeyword(ctx) {}
@@ -492,22 +511,22 @@ export default class PreludioCompiler extends prqlListener {
           case "-":
             this.__instructions.push(OP_BINARY_SUB, 0, 0);
             break;
-          case "eq":
+          case "==":
             this.__instructions.push(OP_BINARY_EQ, 0, 0);
             break;
-          case "ne":
+          case "!=":
             this.__instructions.push(OP_BINARY_NE, 0, 0);
             break;
-          case "ge":
+          case ">=":
             this.__instructions.push(OP_BINARY_GE, 0, 0);
             break;
-          case "le":
+          case "<=":
             this.__instructions.push(OP_BINARY_LE, 0, 0);
             break;
-          case "gt":
+          case ">":
             this.__instructions.push(OP_BINARY_GT, 0, 0);
             break;
-          case "lt":
+          case "<":
             this.__instructions.push(OP_BINARY_LT, 0, 0);
             break;
           case "**":
