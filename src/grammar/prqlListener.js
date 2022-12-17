@@ -70,29 +70,23 @@ export default class prqlListener extends antlr4.tree.ParseTreeListener {
   // Exit a parse tree produced by prqlParser#assignStmt.
   exitAssignStmt(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#pipe.
-  enterPipe(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#pipe.
-  exitPipe(ctx) {}
-
   // Enter a parse tree produced by prqlParser#pipeline.
   enterPipeline(ctx) {}
 
   // Exit a parse tree produced by prqlParser#pipeline.
   exitPipeline(ctx) {}
 
+  // Enter a parse tree produced by prqlParser#inlinePipeline.
+  enterInlinePipeline(ctx) {}
+
+  // Exit a parse tree produced by prqlParser#inlinePipeline.
+  exitInlinePipeline(ctx) {}
+
   // Enter a parse tree produced by prqlParser#identBacktick.
   enterIdentBacktick(ctx) {}
 
   // Exit a parse tree produced by prqlParser#identBacktick.
   exitIdentBacktick(ctx) {}
-
-  // Enter a parse tree produced by prqlParser#signedIdent.
-  enterSignedIdent(ctx) {}
-
-  // Exit a parse tree produced by prqlParser#signedIdent.
-  exitSignedIdent(ctx) {}
 
   // Enter a parse tree produced by prqlParser#funcCall.
   enterFuncCall(ctx) {}

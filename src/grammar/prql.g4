@@ -23,9 +23,9 @@ MODEL: '~';
 EQ: '==';
 NE: '!=';
 LE: '<=';
-LT: '<';
+// LT: '<';
 GE: '>=';
-GT: '>';
+// GT: '>';
 
 BAR: '|';
 COLON: ':';
@@ -110,7 +110,7 @@ inlinePipeline: exprCall (BAR funcCall)*;
 identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
 // For sorting
-signedIdent: (PLUS | MINUS) IDENT;
+// signedIdent: (PLUS | MINUS) IDENT;
 
 // A central issue around the terms vs expr is that we want to be able to parse: [foo bar + 1, 2]
 // as: - foo bar + 1 - foo bar - foo - bar - + - 1 - 2 So this requires two non-silent rules: - A
@@ -137,7 +137,7 @@ expr:
 	| expr (MINUS | PLUS) expr
 	| expr POW expr
 	| expr MODEL expr
-	| expr (EQ | NE | GE | LE | LT | GT) expr
+	| expr (EQ | NE | GE | LE | LANG | RANG) expr
 	| expr COALESCE expr
 	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
