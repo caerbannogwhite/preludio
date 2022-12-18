@@ -73,9 +73,6 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 	}
 
 	var err error
-	var df, tmpDf dataframe.DataFrame
-	var symbol PreludioSymbol
-	var list PreludioList
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
 	if err != nil {
 		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
@@ -83,44 +80,50 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 	}
 
 	// expecting a Dataframe
-	df, err = positional[0].GetDataframe()
-	if err != nil {
-		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-		return
-	}
-
-	// The first value can be both a symbol or la list of symbols
-	symbol, err = positional[1].GetSymbol()
-	if err != nil {
-		list, err = positional[1].GetList()
-		if err != nil {
-			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-			return
-		}
-
-		var names []string
-		if len(list) == 0 {
-			names = df.Names()
-		} else {
-			names = make([]string, len(list))
-			for i, v := range list {
-				symbol, err = v.GetSymbol()
-				if err != nil {
-					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-					return
-				}
-				names[i] = string(symbol)
-			}
-		}
-
-		tmpDf = df.Select(names)
-		fmt.Println(tmpDf.Describe())
+	if len(positional) == 0 {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, "expecting at least one positional parameter.")))
 	} else {
-		tmpDf = df.Select([]string{string(symbol)})
-		fmt.Println(tmpDf.Describe())
-	}
+		// var symbol PreludioSymbol
+		// var list PreludioList
+		var df dataframe.DataFrame
 
-	vm.StackPush(NewPreludioInternalTerm(df))
+		// Describe all
+		if len(positional) == 1 {
+			switch v := positional[0].GetValue().(type) {
+			case []bool:
+			case []int:
+			case []float64:
+			case []string:
+			case PreludioList:
+			case dataframe.DataFrame:
+				df = v
+			}
+
+			fmt.Println(df.Describe())
+			vm.StackPush(NewPreludioInternalTerm(df))
+		} else
+
+		// Describe a subset
+		if len(positional) == 2 {
+			// names := make([]string, 0)
+			// switch v := positional[1].GetValue().(type) {
+			// case PreludioSymbol:
+			// case PreludioList:
+			// }
+
+			fmt.Println(positional[1])
+
+			// switch v := positional[0].GetValue().(type) {
+			// case []bool:
+			// case []int:
+			// case []float64:
+			// case []string:
+			// case PreludioList:
+			// case dataframe.DataFrame:
+			// 	fmt.Println(v.Select().Describe())
+			// }
+		}
+	}
 }
 
 // Export a Dataframe into a CSV file

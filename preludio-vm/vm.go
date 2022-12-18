@@ -497,11 +497,12 @@ func (vm *PreludioVM) GetFunctionParams(funcName string, namedParams *map[string
 
 LOOP1:
 	for {
-		t1 := *vm.StackPop()
+		t1 := *vm.StackLast()
 		switch t1.Tag {
 		case PRELUDIO_INTERNAL_TAG_ERROR:
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			positionalParams = append([]*PreludioInternal{&t1}, positionalParams...)
+			vm.StackPop()
 
 		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
@@ -510,6 +511,7 @@ LOOP1:
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
 			}
+			vm.StackPop()
 
 		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 			if acceptingAssignments {
@@ -517,6 +519,7 @@ LOOP1:
 			} else {
 				vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
 			}
+			vm.StackPop()
 
 		case PRELUDIO_INTERNAL_TAG_BEGIN_FRAME:
 			break LOOP1
