@@ -82,7 +82,7 @@ type PreludioVM struct {
 	__verbosityLevel        int
 	__inputPath             string
 	__symbolTable           []string
-	__stack                 []*PreludioInternal
+	__stack                 []PreludioInternal
 	__currentDataFrame      *dataframe.DataFrame
 	__currentDataFrameNames map[string]bool
 	__globalNameSpace       map[string]*PreludioInternal
@@ -171,17 +171,17 @@ func (vm *PreludioVM) StackIsEmpty() bool {
 }
 
 func (vm *PreludioVM) StackPush(e *PreludioInternal) {
-	vm.__stack = append(vm.__stack, e)
+	vm.__stack = append(vm.__stack, *e)
 }
 
 func (vm *PreludioVM) StackPop() *PreludioInternal {
 	e := vm.__stack[len(vm.__stack)-1]
 	vm.__stack = vm.__stack[:len(vm.__stack)-1]
-	return e
+	return &e
 }
 
 func (vm *PreludioVM) StackLast() *PreludioInternal {
-	return vm.__stack[len(vm.__stack)-1]
+	return &vm.__stack[len(vm.__stack)-1]
 }
 
 func (vm *PreludioVM) ReadPrqlInstructions(bytes []byte, offset uint64) {
@@ -210,10 +210,16 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_PIPELINE", "", "", "")
 			}
 
+			// Insert BEGIN FRAME
+			vm.StackPush(NewPreludioInternalBeginFrame())
+
 		case OP_END_PIPELINE:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_PIPELINE", "", "", "")
 			}
+
+			// Extract BEGIN FRAME
+			vm.StackPop()
 
 		case OP_ASSIGN_STMT:
 			if vm.__debugLevel > 10 {
@@ -224,8 +230,6 @@ MAIN_LOOP:
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_FUNC_CALL", "", "", "")
 			}
-
-			vm.StackPush(NewPreludioInternalStartFunc())
 
 		case OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
@@ -287,7 +291,7 @@ MAIN_LOOP:
 			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
 			list := make([]*PreludioInternal, listLen)
 			for i := 0; i < listLen; i++ {
-				list[i] = vm.__stack[stackLen-listLen+i]
+				list[i] = &vm.__stack[stackLen-listLen+i]
 			}
 
 			vm.__stack = vm.__stack[:stackLen-listLen]
@@ -482,18 +486,14 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *PreludioVM) GetFunctionParams(funcName string, implicitParamsNum uint64, positionalParamsNum uint64, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
+func (vm *PreludioVM) GetFunctionParams(funcName string, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
 
 	var assignments map[string]*PreludioInternal
 	if acceptingAssignments {
 		assignments = map[string]*PreludioInternal{}
 	}
 
-	i := uint64(0)
-	positionalParamsIdx := uint64(0)
-	positionalParamsTot := implicitParamsNum + positionalParamsNum
-
-	positionalParams := make([]*PreludioInternal, positionalParamsTot)
+	positionalParams := make([]*PreludioInternal, 0)
 
 LOOP1:
 	for {
@@ -501,12 +501,7 @@ LOOP1:
 		switch t1.Tag {
 		case PRELUDIO_INTERNAL_TAG_ERROR:
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-			if positionalParamsIdx < positionalParamsTot {
-				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
-				positionalParamsIdx++
-			} else {
-				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
-			}
+			positionalParams = append([]*PreludioInternal{&t1}, positionalParams...)
 
 		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
@@ -523,39 +518,8 @@ LOOP1:
 				vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
 			}
 
-		case PRELUDIO_INTERNAL_TAG_START_FUNC:
+		case PRELUDIO_INTERNAL_TAG_BEGIN_FRAME:
 			break LOOP1
-		}
-	}
-
-	// implicit parameters: pushed into the stack before the
-	// function was called
-	for ; i < implicitParamsNum; i++ {
-		t1 := *vm.StackPop()
-		switch t1.Tag {
-		case PRELUDIO_INTERNAL_TAG_ERROR:
-		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-			if positionalParamsIdx < positionalParamsTot {
-				positionalParams[positionalParamsTot-positionalParamsIdx-1] = &t1
-				positionalParamsIdx++
-			} else {
-				vm.PrintWarning(fmt.Sprintf("function %s expects exactly %d positional parametes, the remaining values will be ignored.", funcName, positionalParamsNum))
-			}
-
-			// case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
-			// 	// Name of parameter is in the given list of names
-			// 	if _, ok := (*namedParams)[t1.Name]; ok {
-			// 		(*namedParams)[t1.Name] = t1.Expr
-			// 	} else {
-			// 		vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
-			// 	}
-
-			// case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
-			// 	if acceptingAssignments {
-			// 		assignments[t1.Name] = t1.Expr
-			// 	} else {
-			// 		vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
-			// 	}
 		}
 	}
 
