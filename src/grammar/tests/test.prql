@@ -17,8 +17,9 @@ derive [
   ([
     MPG,
     Displacement,
-    Horsepower
-  ] | strReplace "," "." | asFloat | inPlace),
+    Horsepower,
+    Acceleration
+  ] | strReplace old: "," new: "." | asFloat | inPlace),
   num = Cylinders * 2 - 1.123e-1,
   Car_Origin = Car + " - " + Origin
 ]

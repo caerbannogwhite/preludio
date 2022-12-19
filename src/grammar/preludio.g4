@@ -4,7 +4,7 @@
 // but it's not used or tested. It's partly a language question — do those need to start with
 // `from`? How do these work in the midst of an `aggregate` transform?
 
-grammar prql;
+grammar preludio;
 
 FUNC: 'func';
 PRQL: 'prql';

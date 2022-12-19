@@ -1,8 +1,8 @@
 import antlr4 from "antlr4";
 
-import prqlListener from "../grammar/prqlListener.js";
-import prqlLexer from "../grammar/prqlLexer.js";
-import prqlParser from "../grammar/prqlParser.js";
+import preludioListener from "../grammar/preludioListener.js";
+import preludioLexer from "../grammar/preludioLexer.js";
+import preludioParser from "../grammar/preludioParser.js";
 import { Blob } from "buffer";
 import { TextEncoder } from "util";
 
@@ -55,7 +55,7 @@ export const OP_UNARY_SUB = 130;
 export const OP_UNARY_ADD = 131;
 export const OP_UNARY_NOT = 132;
 
-export default class PreludioCompiler extends prqlListener {
+export default class PreludioCompiler extends preludioListener {
   constructor(params) {
     super();
 
@@ -175,43 +175,43 @@ export default class PreludioCompiler extends prqlListener {
     ]);
   }
 
-  // Enter a parse tree produced by prqlParser#funcDef.
+  // Enter a parse tree produced by preludioParser#funcDef.
   enterFuncDef(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#funcDef.
+  // Exit a parse tree produced by preludioParser#funcDef.
   exitFuncDef(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#funcDefName.
+  // Enter a parse tree produced by preludioParser#funcDefName.
   enterFuncDefName(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#funcDefName.
+  // Exit a parse tree produced by preludioParser#funcDefName.
   exitFuncDefName(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#funcDefParams.
+  // Enter a parse tree produced by preludioParser#funcDefParams.
   enterFuncDefParams(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#funcDefParams.
+  // Exit a parse tree produced by preludioParser#funcDefParams.
   exitFuncDefParams(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#funcDefParam.
+  // Enter a parse tree produced by preludioParser#funcDefParam.
   enterFuncDefParam(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#funcDefParam.
+  // Exit a parse tree produced by preludioParser#funcDefParam.
   exitFuncDefParam(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#typeDef.
+  // Enter a parse tree produced by preludioParser#typeDef.
   enterTypeDef(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#typeDef.
+  // Exit a parse tree produced by preludioParser#typeDef.
   exitTypeDef(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#typeTerm.
+  // Enter a parse tree produced by preludioParser#typeTerm.
   enterTypeTerm(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#typeTerm.
+  // Exit a parse tree produced by preludioParser#typeTerm.
   exitTypeTerm(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#assignStmt.
+  // Enter a parse tree produced by preludioParser#assignStmt.
   enterAssignStmt(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -222,7 +222,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#assignStmt.
+  // Exit a parse tree produced by preludioParser#assignStmt.
   exitAssignStmt(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -241,7 +241,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_ASSIGN_STMT, 0, pos);
   }
 
-  // Enter a parse tree produced by prqlParser#pipeline.
+  // Enter a parse tree produced by preludioParser#pipeline.
   enterPipeline(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -254,7 +254,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#pipeline.
+  // Exit a parse tree produced by preludioParser#pipeline.
   exitPipeline(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -266,7 +266,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_PIPELINE, 0, 0);
   }
 
-  // Enter a parse tree produced by prqlParser#inlinePipeline.
+  // Enter a parse tree produced by preludioParser#inlinePipeline.
   enterInlinePipeline(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -279,7 +279,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#inlinePipeline.
+  // Exit a parse tree produced by preludioParser#inlinePipeline.
   exitInlinePipeline(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -291,19 +291,19 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_PIPELINE, 0, 0);
   }
 
-  // Enter a parse tree produced by prqlParser#identBackticks.
+  // Enter a parse tree produced by preludioParser#identBackticks.
   // enterIdentBackticks(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#identBackticks.
+  // Exit a parse tree produced by preludioParser#identBackticks.
   // exitIdentBackticks(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#keyword.
+  // Enter a parse tree produced by preludioParser#keyword.
   // enterKeyword(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#keyword.
+  // Exit a parse tree produced by preludioParser#keyword.
   // exitKeyword(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#funcCall.
+  // Enter a parse tree produced by preludioParser#funcCall.
   enterFuncCall(ctx) {
     if (this.__debug_level > 10) {
       const funcName = ctx.IDENT().symbol.text;
@@ -318,7 +318,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#funcCall.
+  // Exit a parse tree produced by preludioParser#funcCall.
   exitFuncCall(ctx) {
     this.__rec_depth__--;
     const funcName = ctx.IDENT().symbol.text;
@@ -338,7 +338,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_MAKE_FUNC_CALL, 0, pos);
   }
 
-  // Enter a parse tree produced by prqlParser#funcCallParam.
+  // Enter a parse tree produced by preludioParser#funcCallParam.
   enterFuncCallParam(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -349,7 +349,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#funcCallParam.
+  // Exit a parse tree produced by preludioParser#funcCallParam.
   exitFuncCallParam(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -361,7 +361,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_CHUNCK, 0, 0);
   }
 
-  // Enter a parse tree produced by prqlParser#namedArg.
+  // Enter a parse tree produced by preludioParser#namedArg.
   enterNamedArg(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -372,7 +372,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#namedArg.
+  // Exit a parse tree produced by preludioParser#namedArg.
   exitNamedArg(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -391,7 +391,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_PUSH_NAMED_PARAM, 0, pos);
   }
 
-  // Enter a parse tree produced by prqlParser#assign.
+  // Enter a parse tree produced by preludioParser#assign.
   enterAssign(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -402,7 +402,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#assign.
+  // Exit a parse tree produced by preludioParser#assign.
   exitAssign(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -421,13 +421,13 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_PUSH_ASSIGN_IDENT, 0, pos);
   }
 
-  // Enter a parse tree produced by prqlParser#multiAssign.
+  // Enter a parse tree produced by preludioParser#multiAssign.
   enterMultiAssign(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#multiAssign.
+  // Exit a parse tree produced by preludioParser#multiAssign.
   exitMultiAssign(ctx) {}
 
-  // Enter a parse tree produced by prqlParser#assignCall.
+  // Enter a parse tree produced by preludioParser#assignCall.
   enterAssignCall(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -438,7 +438,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#assignCall.
+  // Exit a parse tree produced by preludioParser#assignCall.
   exitAssignCall(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -457,7 +457,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_PUSH_ASSIGN_IDENT, 0, pos);
   }
 
-  // Enter a parse tree produced by prqlParser#exprCall.
+  // Enter a parse tree produced by preludioParser#exprCall.
   enterExprCall(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -468,7 +468,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#exprCall.
+  // Exit a parse tree produced by preludioParser#exprCall.
   exitExprCall(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -480,7 +480,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_CHUNCK, 0, 0);
   }
 
-  // Enter a parse tree produced by prqlParser#expr.
+  // Enter a parse tree produced by preludioParser#expr.
   enterExpr(ctx) {
     if (this.__debug_level > 10) {
       console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Expr`);
@@ -489,7 +489,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#expr.
+  // Exit a parse tree produced by preludioParser#expr.
   exitExpr(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -546,7 +546,7 @@ export default class PreludioCompiler extends prqlListener {
     }
   }
 
-  // Enter a parse tree produced by prqlParser#term.
+  // Enter a parse tree produced by preludioParser#term.
   enterTerm(ctx) {
     if (this.__debug_level > 15) {
       console.log(
@@ -558,7 +558,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#term.
+  // Exit a parse tree produced by preludioParser#term.
   exitTerm(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 15) {
@@ -566,7 +566,7 @@ export default class PreludioCompiler extends prqlListener {
     }
   }
 
-  // Enter a parse tree produced by prqlParser#exprUnary.
+  // Enter a parse tree produced by preludioParser#exprUnary.
   enterExprUnary(ctx) {
     if (this.__debug_level > 10) {
       console.log(
@@ -577,7 +577,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#exprUnary.
+  // Exit a parse tree produced by preludioParser#exprUnary.
   exitExprUnary(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
@@ -602,7 +602,7 @@ export default class PreludioCompiler extends prqlListener {
     }
   }
 
-  // Enter a parse tree produced by prqlParser#literal.
+  // Enter a parse tree produced by preludioParser#literal.
   enterLiteral(ctx) {
     if (this.__debug_level > 15) {
       console.log(
@@ -614,7 +614,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#literal.
+  // Exit a parse tree produced by preludioParser#literal.
   exitLiteral(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 15) {
@@ -640,11 +640,11 @@ export default class PreludioCompiler extends prqlListener {
         }
 
         // INTEGER
-        else if (ctx.INTEGER() !== null) {
+        else if (ctx.INTEGER() !== null && ctx.INTEGER().length > 0) {
           this.__instructions.push(
             OP_PUSH_TERM,
             TERM_INTEGER,
-            parseInt(ctx.INTEGER().getText())
+            parseInt(ctx.INTEGER()[0].getText())
           );
         }
 
@@ -716,7 +716,7 @@ export default class PreludioCompiler extends prqlListener {
     }
   }
 
-  // Enter a parse tree produced by prqlParser#list.
+  // Enter a parse tree produced by preludioParser#list.
   enterList(ctx) {
     if (this.__debug_level > 15) {
       console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> List`);
@@ -727,7 +727,7 @@ export default class PreludioCompiler extends prqlListener {
     this.__rec_depth__++;
   }
 
-  // Exit a parse tree produced by prqlParser#list.
+  // Exit a parse tree produced by preludioParser#list.
   exitList(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 15) {
@@ -737,10 +737,10 @@ export default class PreludioCompiler extends prqlListener {
     this.__instructions.push(OP_END_LIST, 0, 0);
   }
 
-  // Enter a parse tree produced by prqlParser#nestedPipeline.
+  // Enter a parse tree produced by preludioParser#nestedPipeline.
   // enterNestedPipeline(ctx) {}
 
-  // Exit a parse tree produced by prqlParser#nestedPipeline.
+  // Exit a parse tree produced by preludioParser#nestedPipeline.
   // exitNestedPipeline(ctx) {}
 }
 
@@ -748,9 +748,9 @@ export function getByteCode(source) {
   const { CommonTokenStream, InputStream } = antlr4;
 
   const chars = new InputStream(source, true);
-  const lexer = new prqlLexer(chars);
+  const lexer = new preludioLexer(chars);
   const tokens = new CommonTokenStream(lexer);
-  const parser = new prqlParser(tokens);
+  const parser = new preludioParser(tokens);
 
   parser.buildParseTrees = true;
   const tree = parser.program();
