@@ -259,6 +259,20 @@ MAIN_LOOP:
 			case "take":
 				PreludioFunc_Take("take", vm)
 
+			// Coerce functions
+			case "asBool":
+				PreludioFunc_AsBool("asBool", vm)
+			case "asInteger":
+				PreludioFunc_AsInteger("asInteger", vm)
+			case "asFloat":
+				PreludioFunc_AsFloat("asFloat", vm)
+			case "asString":
+				PreludioFunc_AsString("asString", vm)
+
+			// String functions
+			case "strReplace":
+				PreludioFunc_StrReplace("strReplace", vm)
+
 			// User defined functions
 			default:
 				if internal, ok := vm.__globalNameSpace[funcName]; ok {
