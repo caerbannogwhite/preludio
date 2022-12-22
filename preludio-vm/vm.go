@@ -259,6 +259,10 @@ MAIN_LOOP:
 			case "take":
 				PreludioFunc_Take("take", vm)
 
+			// Environment functions
+			case "toCurrent":
+				PreludioFunc_ToCurrent("toCurrent", vm)
+
 			// Coerce functions
 			case "asBool":
 				PreludioFunc_AsBool("asBool", vm)

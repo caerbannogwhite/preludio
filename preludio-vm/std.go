@@ -447,12 +447,79 @@ func PreludioFunc_ToCurrent(funcName string, vm *PreludioVM) {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 
-	// var err error
-	// positional, _, err := vm.GetFunctionParams(funcName, nil, false)
-	// if err != nil {
-	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-	// 	return
-	// }
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	if err != nil {
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
+		return
+	}
+
+	// POSITIONAL PARAMETERS
+	series_ := make(map[string]series.Series)
+	switch len(positional) {
+
+	// 1 PARAM
+	case 1:
+		switch v := positional[0].GetValue().(type) {
+
+		// BASE TYPES
+		case []bool:
+			series_[positional[0].Name] = series.New(v, series.Bool, positional[0].Name)
+		case []int:
+			series_[positional[0].Name] = series.New(v, series.Int, positional[0].Name)
+		case []float64:
+			series_[positional[0].Name] = series.New(v, series.Float, positional[0].Name)
+		case []string:
+			series_[positional[0].Name] = series.New(v, series.String, positional[0].Name)
+
+		// LIST
+		case PreludioList:
+			for _, e := range v {
+				switch t := e.GetValue().(type) {
+				case []bool:
+					series_[e.Name] = series.New(t, series.Bool, e.Name)
+				case []int:
+					series_[e.Name] = series.New(t, series.Int, e.Name)
+				case []float64:
+					series_[e.Name] = series.New(t, series.Float, e.Name)
+				case []string:
+					series_[e.Name] = series.New(t, series.String, e.Name)
+				default:
+					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: expected string, got %T.", funcName, t)))
+					return
+				}
+			}
+			vm.StackPush(NewPreludioInternalTerm(v))
+
+		// DATAFRAME
+		case dataframe.DataFrame:
+			// TODO
+
+		default:
+			vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: expected string, got %T.", funcName, v)))
+			return
+		}
+
+	default:
+		vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: expecting one positional parameter, received %d.", funcName, len(positional))))
+		return
+	}
+
+	df := *vm.__currentDataFrame
+	names := make([]string, 0)
+	for name := range series_ {
+		names = append(names, name)
+	}
+
+	vals := make([]series.Series, len(series_))
+	i := 0
+	for _, s := range series_ {
+		vals[i] = s
+		i++
+	}
+
+	df = df.Drop(names).CBind(dataframe.New(vals...))
+	vm.__currentDataFrame = &df
 }
 
 ///////////////////////////////////////////////////////////////////////////////
