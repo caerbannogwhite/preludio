@@ -43,7 +43,7 @@ func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
 			case []int:
 				series_[i] = series.New(col, series.Int, val.Name)
 			case []float64:
-				series_[i] = series.New(col, series.Float, (*val).Name)
+				series_[i] = series.New(col, series.Float, val.Name)
 			case []string:
 				series_[i] = series.New(col, series.String, val.Name)
 			}
@@ -530,13 +530,6 @@ func PreludioFunc_AsBool(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
-
-	// var err error
-	// positional, _, err := vm.GetFunctionParams(funcName, nil, false)
-	// if err != nil {
-	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-	// 	return
-	// }
 }
 
 // Coerce variables to integer
@@ -544,13 +537,6 @@ func PreludioFunc_AsInteger(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
-
-	// var err error
-	// positional, _, err := vm.GetFunctionParams(funcName, nil, false)
-	// if err != nil {
-	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-	// 	return
-	// }
 }
 
 // Coerce variables to float
@@ -619,14 +605,14 @@ func PreludioFunc_AsFloat(funcName string, vm *PreludioVM) {
 							res[j] = 1.0
 						}
 					}
-					v[i] = NewPreludioInternalTerm(res)
+					v[i] = *NewPreludioInternalTerm(res)
 
 				case []int:
 					res := make([]float64, len(t))
 					for j := range t {
 						res[j] = float64(t[j])
 					}
-					v[i] = NewPreludioInternalTerm(res)
+					v[i] = *NewPreludioInternalTerm(res)
 
 				case []float64:
 
@@ -639,7 +625,7 @@ func PreludioFunc_AsFloat(funcName string, vm *PreludioVM) {
 							return
 						}
 					}
-					v[i] = NewPreludioInternalTerm(res)
+					v[i] = *NewPreludioInternalTerm(res)
 
 				}
 			}
@@ -661,13 +647,6 @@ func PreludioFunc_AsString(funcName string, vm *PreludioVM) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
-
-	// var err error
-	// positional, _, err := vm.GetFunctionParams(funcName, nil, false)
-	// if err != nil {
-	// 	vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: %s", funcName, err)))
-	// 	return
-	// }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -749,7 +728,7 @@ func PreludioFunc_StrReplace(funcName string, vm *PreludioVM) {
 							return
 						}
 					}
-					v[i] = NewPreludioInternalTerm(t)
+					v[i] = *NewPreludioInternalTerm(t)
 
 				default:
 					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("function %s: expected string, got %T.", funcName, t)))

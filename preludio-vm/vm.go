@@ -307,13 +307,12 @@ MAIN_LOOP:
 
 			stackLen := len(vm.__stack)
 			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
-			list := make([]*PreludioInternal, listLen)
-			for i := 0; i < listLen; i++ {
-				list[i] = &vm.__stack[stackLen-listLen+i]
-			}
 
+			listCopy := make([]PreludioInternal, listLen)
+			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
-			vm.StackPush(NewPreludioInternalTerm(PreludioList(list)))
+
+			vm.StackPush(NewPreludioInternalTerm(PreludioList(listCopy)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 

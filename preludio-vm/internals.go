@@ -363,12 +363,16 @@ func (i *PreludioInternal) Solve(vm *PreludioVM) error {
 	// in the list
 	if len(i.Expr) == 1 {
 		switch l := i.Expr[0].(type) {
+		case PreludioSymbol:
+			i.Expr[0] = vm.SymbolResolution(l)
+
 		case PreludioList:
 			for _, t := range l {
 				if err := t.Solve(vm); err != nil {
 					return err
 				}
 			}
+
 		default:
 			return nil
 		}

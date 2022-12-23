@@ -9,7 +9,7 @@ type UserDefinedFunction func(*PreludioVM)
 
 type PreludioSymbol string
 
-type PreludioList []*PreludioInternal
+type PreludioList []PreludioInternal
 
 func BoolToInt(b bool) int {
 	if b {
