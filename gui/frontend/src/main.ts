@@ -2,9 +2,10 @@ import "./style.css";
 import "./app.css";
 
 import App from "./App";
-import dictionary from "./assets/dictionary.json";
-import functionsList from "./assets/preludio-functions.json";
-import { LangDictType, PreludioFunctionsList } from "./declarations";
+import { CURRENT_DICTIONARY } from "./declarations";
+// import dictionary from "./assets/dictionary.json";
+// import functionsList from "./assets/preludio-functions.json";
+// import { LangDictType, PreludioFunctionsList } from "./declarations";
 
 // import { Greet } from "../wailsjs/go/main/App";
 
@@ -35,8 +36,8 @@ import { LangDictType, PreludioFunctionsList } from "./declarations";
 // nameElement.focus();
 // let resultElement = document.getElementById("result");
 
-export const CURRENT_DICTIONARY: LangDictType = dictionary;
-export const PRELUDIO_FUNCTIONS_LIST: PreludioFunctionsList = functionsList;
+// export const CURRENT_DICTIONARY: LangDictType = dictionary;
+// export const PRELUDIO_FUNCTIONS_LIST: PreludioFunctionsList = functionsList;
 
 function loadDictionary() {
   for (let entry of Object.entries(CURRENT_DICTIONARY)) {
