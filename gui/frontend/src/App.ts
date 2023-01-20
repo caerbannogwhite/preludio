@@ -1,11 +1,11 @@
-import { LangDictType, SavedAppStatus } from "./declarations";
+import { LangDictType, SavedAppState } from "./declarations";
 import PreludioPipeline from "./PreludioPipeline";
 
-class AppStatus {
+class App {
   private static pipelineCounter: number = 0;
   private pipelines: Array<PreludioPipeline>;
 
-  constructor(dictionary: LangDictType, savedStatus?: SavedAppStatus) {
+  constructor(dictionary: LangDictType, savedStatus?: SavedAppState) {
     this.pipelines = new Array<PreludioPipeline>();
 
     this._loadDictionary(dictionary);
@@ -24,7 +24,7 @@ class AppStatus {
     }
   }
 
-  private _loadSavedStatus(savedStatus: SavedAppStatus) {
+  private _loadSavedStatus(savedStatus: SavedAppState) {
     this.pipelines = savedStatus.pipelines;
   }
 
@@ -35,24 +35,27 @@ class AppStatus {
   }
 
   addNewPipeline(pipelineName?: string) {
-    AppStatus.pipelineCounter++;
-    let name = `Pipeline #${AppStatus.pipelineCounter}`;
+    App.pipelineCounter++;
+    let name = `Pipeline ${App.pipelineCounter}`;
     if (pipelineName !== undefined) {
       name = pipelineName;
     }
-    
-    this.pipelines.push(new PreludioPipeline(name));
+
+    const pipelineEditorPane = document.getElementById("pipeline-editor-pane");
+    if (pipelineEditorPane !== null) {
+      this.pipelines.push(new PreludioPipeline(pipelineEditorPane, name));
+    }
   }
 
   getNumberOfPipelines(): number {
     return this.pipelines.length;
   }
 
-  exportStatus(): SavedAppStatus {
+  exportStatus(): SavedAppState {
     return {
       pipelines: this.pipelines,
     };
   }
 }
 
-export default AppStatus;
+export default App;

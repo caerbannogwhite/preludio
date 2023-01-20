@@ -1,7 +1,7 @@
 import "./style.css";
 import "./app.css";
 
-import AppStatus from "./AppStatus";
+import App from "./App";
 import dictionary from "./assets/dictionary.json";
 import { LangDictType } from "./declarations";
 
@@ -36,20 +36,20 @@ import { LangDictType } from "./declarations";
 
 const currentDictionary: LangDictType = dictionary;
 
-const appStatus = new AppStatus(currentDictionary);
+const app = new App(currentDictionary);
 
 const createNewPipelineButton = document.getElementById(
-  "add-new-pipeline-label"
+  "add-new-pipeline-button"
 );
 if (createNewPipelineButton !== null) {
-  createNewPipelineButton.addEventListener("click", () => {
-    appStatus.addNewPipeline();
-  });
+  createNewPipelineButton.addEventListener(
+    "click",
+    () => app.addNewPipeline()
+  );
 }
 
 declare global {
   interface Window {
     // greet: () => void;
-    createNewPipeline: () => void;
   }
 }

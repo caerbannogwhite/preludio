@@ -1,19 +1,42 @@
 class PreludioPipeline {
+  private editorPane: HTMLElement;
   private body: HTMLElement;
   private name: string;
   private funcionList: Array<PipelineFunctionCall>;
 
-  constructor(name: string) {
+  constructor(editorPane: HTMLElement, name: string) {
+    this.editorPane = editorPane;
+    this.name = name;
+
     this.funcionList = Array<PipelineFunctionCall>();
 
+    this._initHTMLElement();
+  }
+
+  private _initHTMLElement() {
     this.body = document.createElement("div");
+    this.body.id = `${this.name}-pipeline-body`;
     this.body.className = `pipeline-body`;
 
-    this.name = name;
+    const nameDiv = document.createElement("div");
+    nameDiv.id = `${this.name}-name-div`;
+    nameDiv.className = "pipeline-name";
+
+    const icon = document.createElement("img");
+    icon.className = "icon";
+    icon.src = "src/assets/icons/pipe-svgrepo-com.svg";
+
     const label = document.createElement("label");
+    label.id = `${this.name}-name-label`;
+    label.className = "pipeline-name";
     label.innerHTML = this.name;
 
-    this.body.appendChild(label);
+    nameDiv.appendChild(icon);
+    nameDiv.appendChild(label);
+
+    this.body.appendChild(nameDiv);
+
+    this.editorPane.appendChild(this.body);
   }
 
   appendFunction(funcCall: PipelineFunctionCall) {

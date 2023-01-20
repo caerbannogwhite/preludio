@@ -2,6 +2,6 @@ import PreludioPipeline from "./PreludioPipeline";
 
 export type LangDictType = { [key: string]: string };
 
-export type SavedAppStatus = {
+export type SavedAppState = {
   pipelines: Array<PreludioPipeline>;
 };

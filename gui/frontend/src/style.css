@@ -104,3 +104,14 @@ img.icon {
 label.main-button-label {
   vertical-align: middle;
 }
+
+div.pipeline-name {
+  margin: 2%;
+}
+
+label.pipeline-name {
+  color: black;
+  margin: 2%;
+  font-weight: 600;
+  vertical-align: middle;
+}
