@@ -46,15 +46,16 @@ body {
 }
 
 #code-editor-pane {
-  border-style: solid;
-  border-radius: 10px;
+  /* border-style: solid;
+  border-radius: 10px; */
   display: block;
   height: 96%;
   width: 28%;
   margin: 1%;
   margin-top: 0.5%;
   margin-right: 0.5%;
-  padding-top: 2%;
+  padding-top: 1%;
+  padding-bottom: 1%;
 }
 
 #pipeline-editor-pane {
@@ -80,7 +81,7 @@ body {
 }
 
 div.main-button {
-  margin: 0%;
+  margin: 2%;
   border-style: solid;
   border-radius: 4px;
   width: 80%;
@@ -106,7 +107,7 @@ label.main-button-label {
 }
 
 div.pipeline-name {
-  margin: 2%;
+  margin: 3%;
 }
 
 label.pipeline-name {

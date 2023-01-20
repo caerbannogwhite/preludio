@@ -1,0 +1,33 @@
+{
+  "derive": {
+    "name": "Derive",
+    "docs": "Derive a new column based on an existing one.",
+    "params": [
+      { "name": "", "type": "path", "num": 1 },
+      { "name": "delimiter", "type": "string", "num": 1 },
+      { "name": "header", "type": "boolean", "num": 1 }
+    ]
+  },
+
+  "describe": {
+    "name": "Describe",
+    "docs": "Describe all the columns in the current table.",
+    "params": []
+  },
+
+  "exportCSV": {
+    "name": "Export CSV",
+    "docs": "Export the current table as a CSV file.",
+    "params": [
+      { "name": "", "type": "path", "num": 1 },
+      { "name": "delimiter", "type": "string", "num": 1 },
+      { "name": "header", "type": "boolean", "num": 1 }
+    ]
+  },
+
+  "importCSV": {
+    "name": "Import CSV",
+    "docs": "Import a CSV file.",
+    "params": []
+  }
+}

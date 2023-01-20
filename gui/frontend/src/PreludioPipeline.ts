@@ -10,11 +10,11 @@ class PreludioPipeline {
 
     this.funcionList = Array<PipelineFunctionCall>();
 
+    this.body = document.createElement("div");
     this._initHTMLElement();
   }
 
   private _initHTMLElement() {
-    this.body = document.createElement("div");
     this.body.id = `${this.name}-pipeline-body`;
     this.body.className = `pipeline-body`;
 

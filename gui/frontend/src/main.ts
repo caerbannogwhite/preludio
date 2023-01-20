@@ -3,7 +3,8 @@ import "./app.css";
 
 import App from "./App";
 import dictionary from "./assets/dictionary.json";
-import { LangDictType } from "./declarations";
+import functionsList from "./assets/preludio-functions.json";
+import { LangDictType, PreludioFunctionsList } from "./declarations";
 
 // import { Greet } from "../wailsjs/go/main/App";
 
@@ -34,18 +35,27 @@ import { LangDictType } from "./declarations";
 // nameElement.focus();
 // let resultElement = document.getElementById("result");
 
-const currentDictionary: LangDictType = dictionary;
+export const CURRENT_DICTIONARY: LangDictType = dictionary;
+export const PRELUDIO_FUNCTIONS_LIST: PreludioFunctionsList = functionsList;
 
-const app = new App(currentDictionary);
+function loadDictionary() {
+  for (let entry of Object.entries(CURRENT_DICTIONARY)) {
+    const e = document.getElementById(entry[0]);
+    if (e !== null) {
+      e.innerHTML = entry[1];
+    }
+  }
+}
+
+loadDictionary();
+
+const app = new App();
 
 const createNewPipelineButton = document.getElementById(
   "add-new-pipeline-button"
 );
 if (createNewPipelineButton !== null) {
-  createNewPipelineButton.addEventListener(
-    "click",
-    () => app.addNewPipeline()
-  );
+  createNewPipelineButton.addEventListener("click", () => app.addNewPipeline());
 }
 
 declare global {
