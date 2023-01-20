@@ -5,3 +5,11 @@
 export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
+
+export function LookUpPath(arg1) {
+  return window['go']['main']['App']['LookUpPath'](arg1);
+}
+
+export function RunCommand(arg1) {
+  return window['go']['main']['App']['RunCommand'](arg1);
+}
