@@ -38,9 +38,14 @@ const currentDictionary: LangDictType = dictionary;
 
 const appStatus = new AppStatus(currentDictionary);
 
-window.createNewPipeline = function () {
-  appStatus.addNewPipeline();
-};
+const createNewPipelineButton = document.getElementById(
+  "add-new-pipeline-label"
+);
+if (createNewPipelineButton !== null) {
+  createNewPipelineButton.addEventListener("click", () => {
+    appStatus.addNewPipeline();
+  });
+}
 
 declare global {
   interface Window {

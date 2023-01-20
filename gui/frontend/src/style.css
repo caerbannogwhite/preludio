@@ -49,20 +49,58 @@ body {
   border-style: solid;
   border-radius: 10px;
   display: block;
-  height: 100%;
+  height: 96%;
   width: 28%;
   margin: 1%;
   margin-top: 0.5%;
   margin-right: 0.5%;
+  padding-top: 2%;
+}
+
+#pipeline-editor-pane {
+  border-style: solid;
+  border-radius: 5px;
+  background-color: darkgray;
+  height: 89%;
+  margin-top: 4%;
+  width: 92%;
+  margin-left: 3.5%;
 }
 
 #table-editor-pane {
   border-style: solid;
   border-radius: 10px;
   display: block;
-  height: 100%;
+  height: 96%;
   width: 68%;
   margin: 1%;
   margin-top: 0.5%;
   margin-right: 0.5%;
+  padding-top: 2%;
+}
+
+div.main-button {
+  margin: 0%;
+  border-style: solid;
+  border-radius: 4px;
+  width: 80%;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  background-color: darkgray;
+  color: black;
+  font-weight: 600;
+  display: inline-block;
+}
+
+div.main-button:hover {
+  background-color: orange;
+}
+
+img.icon {
+  height: 1rem;
+  vertical-align: middle;
+}
+
+label.main-button-label {
+  vertical-align: middle;
 }

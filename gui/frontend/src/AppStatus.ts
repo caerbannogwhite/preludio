@@ -1,14 +1,18 @@
-import { LangDictType } from "./declarations";
+import { LangDictType, SavedAppStatus } from "./declarations";
 import PreludioPipeline from "./PreludioPipeline";
 
 class AppStatus {
   private static pipelineCounter: number = 0;
   private pipelines: Array<PreludioPipeline>;
 
-  constructor(dictionary: LangDictType) {
-    this._loadDictionary(dictionary);
-    this._initCodeEditorPane();
+  constructor(dictionary: LangDictType, savedStatus?: SavedAppStatus) {
     this.pipelines = new Array<PreludioPipeline>();
+
+    this._loadDictionary(dictionary);
+    if (savedStatus !== undefined) {
+      this._loadSavedStatus(savedStatus);
+    }
+    this._initCodeEditorPane();
   }
 
   private _loadDictionary(dictionary: LangDictType) {
@@ -18,6 +22,10 @@ class AppStatus {
         e.innerHTML = entry[1];
       }
     }
+  }
+
+  private _loadSavedStatus(savedStatus: SavedAppStatus) {
+    this.pipelines = savedStatus.pipelines;
   }
 
   // Initialize the code editor panel
@@ -32,11 +40,18 @@ class AppStatus {
     if (pipelineName !== undefined) {
       name = pipelineName;
     }
+    
     this.pipelines.push(new PreludioPipeline(name));
   }
 
   getNumberOfPipelines(): number {
     return this.pipelines.length;
+  }
+
+  exportStatus(): SavedAppStatus {
+    return {
+      pipelines: this.pipelines,
+    };
   }
 }
 

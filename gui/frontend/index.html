@@ -3,15 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>gui</title>
+    <title>Preludio</title>
   </head>
   <body>
     <div id="app">
-      <div id="top-menu-pane" class="menu-pane"></div>
+      <div id="top-menu-pane" class="menu-pane">
+        <!-- TODO: Display about -->
+        <div style="display: none;">
+          <label id="about-button-label"></label>
+          <p>
+            Vectors and icons by
+            <a href="https://www.svgrepo.com" target="_blank">SVG Repo</a>
+          </p>
+        </div>
+      </div>
 
       <div id="main-pane">
         <div id="code-editor-pane">
-          <label id="add-new-pipeline-label"></label>
+          <div id="add-new-pipeline-button" class="main-button">
+            <img class="icon" src="src/assets/icons/plus-square-svgrepo-com.svg">
+            <label id="add-new-pipeline-label" class="main-button-label"></label>
+          </div>
+          <div id="pipeline-editor-pane"></div>
         </div>
 
         <div id="table-editor-pane"></div>
