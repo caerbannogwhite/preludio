@@ -9,6 +9,11 @@
   font-weight: bolder;
 }
 
+.drop-down-input:focus-visible {
+  border: transparent;
+  outline: none;
+}
+
 .drop-down-options-list {
   padding: 12px 20px;
   background-color: orange;

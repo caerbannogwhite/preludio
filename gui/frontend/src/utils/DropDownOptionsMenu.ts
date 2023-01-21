@@ -24,10 +24,10 @@ export class DropDownOptionsMenu extends HTMLDivElement {
     this.textInputElement.id = `${this.id}-text-input`;
     this.textInputElement.className = "drop-down-input";
     this.textInputElement.addEventListener("keydown", () => {
-      this._checkTextInput();
+      this._cleanList();
     });
     this.textInputElement.addEventListener("keyup", () => {
-      this._cleanList();
+      this._checkTextInput();
     });
 
     this.optionsListElement.id = `${this.id}-drop-down-options-list`;
