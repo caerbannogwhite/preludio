@@ -1,4 +1,8 @@
 import { PRELUDIO_FUNCTIONS_LIST } from "./declarations";
+import {
+  DropDownOption,
+  DropDownOptionsMenu,
+} from "./utils/DropDownOptionsMenu";
 
 class PreludioPipeline {
   private editorPane: HTMLElement;
@@ -40,23 +44,14 @@ class PreludioPipeline {
     this.body.appendChild(nameDiv);
 
     // Function input element
-    const funcOptions = document.createElement("datalist");
-    funcOptions.id = `${this.name}-function-selector-options`;
-    funcOptions.className = "function-selector-options";
-
-    for (let entry of Object.keys(PRELUDIO_FUNCTIONS_LIST)) {
-      const option = document.createElement("option");
-      option.value = entry;
-      funcOptions.appendChild(option);
+    const options = new Array<DropDownOption>();
+    for (let func of Object.entries(PRELUDIO_FUNCTIONS_LIST)) {
+      options.push({ value: func[0], name: func[1].name });
     }
 
-    const funcSelector = document.createElement("input");
-    funcSelector.id = `${this.name}-function-selector`;
-    funcSelector.className = "function-selector";
-    funcSelector.setAttribute("list", `${this.name}-function-selector-options`);
-
-    this.body.appendChild(funcSelector);
-    this.body.appendChild(funcOptions);
+    this.body.appendChild(
+      new DropDownOptionsMenu("function-selector", options)
+    );
 
     const funcList = document.createElement("div");
     funcList.id = `${this.name}-function-list`;

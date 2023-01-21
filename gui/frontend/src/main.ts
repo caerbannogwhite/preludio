@@ -1,5 +1,5 @@
 import "./style.css";
-import "./app.css";
+// import "./app.css";
 
 import App from "./App";
 import { CURRENT_DICTIONARY } from "./declarations";

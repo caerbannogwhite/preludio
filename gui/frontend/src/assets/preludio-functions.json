@@ -10,13 +10,13 @@
   },
 
   "describe": {
-    "name": "Describe",
+    "name": "Describe Table",
     "docs": "Describe all the columns in the current table.",
     "params": []
   },
 
   "exportCSV": {
-    "name": "Export CSV",
+    "name": "Export To CSV",
     "docs": "Export the current table as a CSV file.",
     "params": [
       { "name": "", "type": "path", "num": 1 },
@@ -26,7 +26,7 @@
   },
 
   "importCSV": {
-    "name": "Import CSV",
+    "name": "Import From CSV",
     "docs": "Import a CSV file.",
     "params": []
   }
