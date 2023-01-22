@@ -101,13 +101,6 @@ export class DropDownOptionsMenu extends HTMLDivElement {
     this.optionsListElement.style.width = `${
       this.textInputElement.getBoundingClientRect().width - 40 // 40 is the magic number!!
     }px`;
-
-    console.log(this.textInputElement.getBoundingClientRect());
-    console.log(
-      this.optionsListElement.style.top,
-      this.optionsListElement.style.left,
-      this.optionsListElement.style.right
-    );
   }
 }
 
