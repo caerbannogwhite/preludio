@@ -43,7 +43,7 @@ export class App extends HTMLDivElement {
 
     const addNewPipelineButton = new MainButton(
       "add-new-pipeline",
-      "src/assets/icons/plus-square-svgrepo-com.svg"
+      "plus-square-svgrepo-com"
     );
     addNewPipelineButton.addEventListener("click", () => this.addNewPipeline());
 
@@ -53,7 +53,7 @@ export class App extends HTMLDivElement {
     // Table Editor Pane
     this.tableEditorPaneElement.id = "table-editor-pane";
     this.tableEditorPaneElement.appendChild(
-      new MainButton("import-table", "src/assets/icons/import-svgrepo-com.svg")
+      new MainButton("import-table", "import-svgrepo-com")
     );
 
     // Main Panel

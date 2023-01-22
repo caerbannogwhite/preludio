@@ -1,25 +1,22 @@
 import { CURRENT_DICTIONARY } from "../declarations";
+import { Icon } from "./Icon";
 import "./MainButton.css";
 
 export class MainButton extends HTMLDivElement {
   private elementId: string;
-  constructor(id: string, iconSrc?: string) {
+  constructor(id: string, iconName?: string) {
     super();
     this.elementId = id;
     this.id = `${id}-button`;
 
-    this._initHTMLElement(iconSrc);
+    this._initHTMLElement(iconName);
   }
 
-  private _initHTMLElement(iconSrc?: string) {
+  private _initHTMLElement(iconName?: string) {
     this.className = "main-button";
 
-    if (iconSrc !== undefined) {
-      const img = document.createElement("img");
-      img.className = "icon";
-      img.src = iconSrc;
-
-      this.appendChild(img);
+    if (iconName !== undefined) {
+      this.appendChild(new Icon(iconName));
     }
 
     const label = document.createElement("label");
