@@ -80,29 +80,8 @@ body {
   padding-top: 2%;
 }
 
-div.main-button {
-  margin: 2%;
-  border-style: solid;
-  border-radius: 4px;
-  width: 80%;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
-  background-color: darkgray;
-  color: black;
-  font-weight: 600;
-  display: inline-block;
-}
-
-div.main-button:hover {
-  background-color: orange;
-}
-
 img.icon {
   height: 1rem;
-  vertical-align: middle;
-}
-
-label.main-button-label {
   vertical-align: middle;
 }
 
