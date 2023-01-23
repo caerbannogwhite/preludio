@@ -71,13 +71,15 @@ body {
 #table-editor-pane {
   border-style: solid;
   border-radius: 10px;
-  display: block;
+  display: flex;
   height: 96%;
   width: 68%;
   margin: 1%;
   margin-top: 0.5%;
   margin-right: 0.5%;
   padding-top: 2%;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 div.pipeline-name {

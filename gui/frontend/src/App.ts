@@ -1,5 +1,5 @@
-import { SavedAppState } from "./declarations";
-import PreludioPipeline from "./PreludioPipeline";
+import { AppState } from "./AppState";
+import { PreludioPipeline } from "./PreludioPipeline";
 import { MainButton } from "./utils/MainButton";
 
 export class App extends HTMLDivElement {
@@ -9,10 +9,9 @@ export class App extends HTMLDivElement {
   private pipelineEditorPaneElement: HTMLDivElement;
   private tableEditorPaneElement: HTMLDivElement;
 
-  private static pipelineCounter: number = 0;
-  private pipelines: Array<PreludioPipeline>;
+  private state: AppState;
 
-  constructor(savedStatus?: SavedAppState) {
+  constructor() {
     super();
     this.id = "app";
 
@@ -22,13 +21,9 @@ export class App extends HTMLDivElement {
     this.pipelineEditorPaneElement = document.createElement("div");
     this.tableEditorPaneElement = document.createElement("div");
 
+    this.state = new AppState();
+
     this._initHTMLElement();
-
-    this.pipelines = new Array<PreludioPipeline>();
-
-    if (savedStatus !== undefined) {
-      this._loadSavedStatus(savedStatus);
-    }
   }
 
   private _initHTMLElement() {
@@ -65,31 +60,21 @@ export class App extends HTMLDivElement {
     this.appendChild(this.mainPaneElement);
   }
 
-  private _loadSavedStatus(savedStatus: SavedAppState) {
-    this.pipelines = savedStatus.pipelines;
-  }
-
   addNewPipeline(pipelineName?: string) {
-    App.pipelineCounter++;
-    let name = `Pipeline ${App.pipelineCounter}`;
+    AppState.pipelineCounter++;
+    let name = `Pipeline ${AppState.pipelineCounter}`;
     if (pipelineName !== undefined) {
       name = pipelineName;
     }
 
     const pipelineEditorPane = document.getElementById("pipeline-editor-pane");
     if (pipelineEditorPane !== null) {
-      this.pipelines.push(new PreludioPipeline(pipelineEditorPane, name));
+      this.state.pipelines.push(new PreludioPipeline(pipelineEditorPane, name));
     }
   }
 
   getNumberOfPipelines(): number {
-    return this.pipelines.length;
-  }
-
-  exportStatus(): SavedAppState {
-    return {
-      pipelines: this.pipelines,
-    };
+    return this.state.pipelines.length;
   }
 }
 

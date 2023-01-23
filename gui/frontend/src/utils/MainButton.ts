@@ -23,7 +23,7 @@ export class MainButton extends HTMLDivElement {
     label.id = `${this.elementId}-label`;
     label.className = "main-button-label";
 
-    const text = CURRENT_DICTIONARY[this.id];
+    const text = CURRENT_DICTIONARY[this.elementId];
     if (text !== undefined) {
       label.innerHTML = text;
     }

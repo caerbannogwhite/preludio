@@ -4,7 +4,7 @@ import {
   DropDownOptionsMenu,
 } from "./utils/DropDownOptionsMenu";
 
-class PreludioPipeline {
+export class PreludioPipeline {
   private editorPane: HTMLElement;
   private body: HTMLElement;
   private name: string;
@@ -72,7 +72,7 @@ class PreludioPipeline {
   }
 }
 
-class PipelineFunctionCall {
+export class PipelineFunctionCall {
   private body: HTMLElement;
 
   constructor(funcName: string) {
@@ -95,5 +95,3 @@ class PipelineFunctionCall {
     return this.body;
   }
 }
-
-export default PreludioPipeline;
