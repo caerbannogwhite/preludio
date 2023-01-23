@@ -4,10 +4,13 @@ import "./MainButton.css";
 
 export class MainButton extends HTMLDivElement {
   private elementId: string;
-  constructor(id: string, iconName?: string) {
+  private fileInput: HTMLInputElement | undefined;
+
+  constructor(id: string, iconName?: string, fileInput?: HTMLInputElement) {
     super();
     this.elementId = id;
     this.id = `${id}-button`;
+    this.fileInput = fileInput;
 
     this._initHTMLElement(iconName);
   }
@@ -26,6 +29,11 @@ export class MainButton extends HTMLDivElement {
     const text = CURRENT_DICTIONARY[this.elementId];
     if (text !== undefined) {
       label.innerHTML = text;
+    }
+
+    if (this.fileInput !== undefined) {
+      label.htmlFor = this.fileInput.id;
+      this.appendChild(this.fileInput);
     }
 
     this.appendChild(label);

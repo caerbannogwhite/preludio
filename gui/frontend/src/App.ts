@@ -47,9 +47,28 @@ export class App extends HTMLDivElement {
 
     // Table Editor Pane
     this.tableEditorPaneElement.id = "table-editor-pane";
-    this.tableEditorPaneElement.appendChild(
-      new MainButton("import-table", "import-svgrepo-com")
+    // const formData = new FormData();
+    const fileInput = document.createElement("input");
+    fileInput.id = "import-table-input";
+    fileInput.className = "file-input";
+    fileInput.type = "file";
+    fileInput.addEventListener("input", () => {
+      console.log("file input");
+    });
+
+    // formData.append("file", fileInput.files);
+
+    // const xhr = new XMLHttpRequest();
+    // xhr.open("POST", "your-server-url");
+    // xhr.send(formData);
+
+    const importTableButton = new MainButton(
+      "import-table",
+      "import-svgrepo-com",
+      fileInput
     );
+
+    this.tableEditorPaneElement.appendChild(importTableButton);
 
     // Main Panel
     this.mainPaneElement.appendChild(this.codeEditorPaneElement);
@@ -72,6 +91,8 @@ export class App extends HTMLDivElement {
       this.state.pipelines.push(new PreludioPipeline(pipelineEditorPane, name));
     }
   }
+
+  importTable() {}
 
   getNumberOfPipelines(): number {
     return this.state.pipelines.length;

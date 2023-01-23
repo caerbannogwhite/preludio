@@ -92,3 +92,7 @@ label.pipeline-name {
   font-weight: 600;
   vertical-align: middle;
 }
+
+input.file-input {
+  display: none;
+}
