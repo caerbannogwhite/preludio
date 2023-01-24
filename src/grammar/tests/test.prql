@@ -19,7 +19,7 @@ derive [
     Displacement,
     Horsepower,
     Acceleration
-  ] | strReplace old: "," new: "." | asFloat | inPlace),
+    ] | strReplace old: "," new: "." | asFloat | toCurrent),
   num = Cylinders * 2 - 1.123e-1,
   Car_Origin = Car + " - " + Origin
 ]
