@@ -1,7 +1,5 @@
 html {
   background-color: rgba(27, 38, 54, 1);
-  text-align: center;
-  color: white;
 }
 
 body {
@@ -24,7 +22,6 @@ body {
 #app {
   height: 98vh;
   /* width: 128vh; */
-  text-align: center;
   display: block;
 }
 
@@ -38,7 +35,6 @@ body {
 }
 
 #main-pane {
-  /* border-style: solid; */
   display: inline-flex;
   height: 88%;
   width: 100%;
@@ -46,8 +42,6 @@ body {
 }
 
 #code-editor-pane {
-  /* border-style: solid;
-  border-radius: 10px; */
   display: block;
   height: 96%;
   width: 28%;

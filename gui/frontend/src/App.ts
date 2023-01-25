@@ -1,3 +1,4 @@
+import { EditorView, basicSetup } from "codemirror";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { MainButton } from "./utils/MainButton";
@@ -6,7 +7,7 @@ export class App extends HTMLDivElement {
   private topMenuPaneElement: HTMLDivElement;
   private mainPaneElement: HTMLDivElement;
   private codeEditorPaneElement: HTMLDivElement;
-  private pipelineEditorPaneElement: HTMLDivElement;
+  // private pipelineEditorPaneElement: HTMLDivElement;
   private tableEditorPaneElement: HTMLDivElement;
 
   private state: AppState;
@@ -18,7 +19,7 @@ export class App extends HTMLDivElement {
     this.topMenuPaneElement = document.createElement("div");
     this.mainPaneElement = document.createElement("div");
     this.codeEditorPaneElement = document.createElement("div");
-    this.pipelineEditorPaneElement = document.createElement("div");
+    // this.pipelineEditorPaneElement = document.createElement("div");
     this.tableEditorPaneElement = document.createElement("div");
 
     this.state = new AppState();
@@ -34,16 +35,13 @@ export class App extends HTMLDivElement {
 
     // Code Editor Pane
     this.codeEditorPaneElement.id = "code-editor-pane";
-    this.pipelineEditorPaneElement.id = "pipeline-editor-pane";
 
-    const addNewPipelineButton = new MainButton(
-      "add-new-pipeline",
-      "plus-square-svgrepo-com"
-    );
-    addNewPipelineButton.addEventListener("click", () => this.addNewPipeline());
+    const editor = new EditorView({
+      extensions: [basicSetup],
+      parent: this.codeEditorPaneElement,
+    });
 
-    this.codeEditorPaneElement.appendChild(addNewPipelineButton);
-    this.codeEditorPaneElement.appendChild(this.pipelineEditorPaneElement);
+    console.log(editor);
 
     // Table Editor Pane
     this.tableEditorPaneElement.id = "table-editor-pane";

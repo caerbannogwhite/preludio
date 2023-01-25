@@ -7,6 +7,7 @@ div.main-button {
   padding-bottom: 0.4rem;
   background-color: darkgray;
   color: black;
+  text-align: center;
   font-weight: 600;
   display: inline-block;
 }
