@@ -27,6 +27,10 @@ export class Series extends Schema {
     return this._values;
   }
 
+  setValues(vals: SeriesType[]) {
+    this._values = vals;
+  }
+
   take(num: number) {
     if (num > 0) {
       this._values = this._values.slice(0, num);
@@ -178,39 +182,24 @@ export class DataFrame extends Array<Series> {
       }
       return 0;
     });
-    this.ungroup();
 
     // swap elements in all the series
-    for (let s of this ){
-
+    for (let s of this) {
+      const vals = s.getValues();
+      let tmp = vals[0];
+      for (let i = 0; i < s.getLength(); ++i) {
+        if (sorted[i].i !== i) {
+          tmp = vals[sorted[i].i];
+          vals[sorted[i].i] = vals[i];
+          vals[i] = tmp;
+        }
+      }
+      s.setValues(vals);
     }
+    this.ungroup();
 
     return this;
   }
-
-  // 2 1 "banana"
-  // 7 1 "pesca"
-  // 1 2 "cane"
-  // 5 2 "gatto"
-  // 6 2 "topo"
-  // 4 3 "casa"
-  // 3 4 "orange"
-
-  // 2 1
-  // 7 1
-  // 1 2
-  // 5 2
-  // 6 2
-  // 4 3
-  // 3 4
-
-  // 2 "banana"
-  // 7 "pesca"
-  // 1 "cane"
-  // 5 "gatto"
-  // 6 "topo"
-  // 4 "casa"
-  // 3 "orange"
 
   derive(): DataFrame {
     return this;
