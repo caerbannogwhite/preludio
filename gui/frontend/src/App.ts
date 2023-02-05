@@ -1,4 +1,4 @@
-import { EditorView, basicSetup } from "codemirror";
+// import { EditorView, basicSetup } from "codemirror";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { MainButton } from "./utils/MainButton";
@@ -36,22 +36,40 @@ export class App extends HTMLDivElement {
     // Code Editor Pane
     this.codeEditorPaneElement.id = "code-editor-pane";
 
-    const editor = new EditorView({
-      extensions: [basicSetup],
-      parent: this.codeEditorPaneElement,
-    });
+    // const editor = new EditorView({
+    //   extensions: [basicSetup],
+    //   parent: this.codeEditorPaneElement,
+    // });
 
-    console.log(editor);
+    // console.log(editor);
 
     // Table Editor Pane
     this.tableEditorPaneElement.id = "table-editor-pane";
+
+    // TODO: NATIVE select input file feature
+    // const filePathInput = new DropDownOptionsMenu(
+    //   "file-path-input",
+    //   [],
+    //   (): DropDownOption[] => {
+    //     let options = new Array<DropDownOption>();
+    //     LookUpPath("C:").then((d) => {
+    //       console.log(d);
+    //       for (let o of d) {
+    //         options.push({ value: o, name: o });
+    //       }
+    //     });
+
+    //     return options;
+    //   }
+    // );
+
     // const formData = new FormData();
     const fileInput = document.createElement("input");
     fileInput.id = "import-table-input";
     fileInput.className = "file-input";
     fileInput.type = "file";
-    fileInput.addEventListener("input", () => {
-      console.log("file input");
+    fileInput.addEventListener("input", (e: Event) => {
+      console.log(e);
     });
 
     // formData.append("file", fileInput.files);
@@ -66,6 +84,7 @@ export class App extends HTMLDivElement {
       fileInput
     );
 
+    // this.tableEditorPaneElement.appendChild(filePathInput);
     this.tableEditorPaneElement.appendChild(importTableButton);
 
     // Main Panel

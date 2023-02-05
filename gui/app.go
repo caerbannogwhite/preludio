@@ -25,11 +25,6 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
 func IsValidPath(filePaht string) bool {
 	// Check if file already exists
 	if _, err := os.Stat(filePaht); err == nil {

@@ -1,6 +1,8 @@
 import dictionary from "./assets/dictionary.json";
 import functionsList from "./assets/preludio-functions.json";
 
+export const IS_WEB_APP = true;
+
 export type LangDictType = { [key: string]: string };
 
 export type PreludioFunctionParam = { name: string; type: string; num: number };

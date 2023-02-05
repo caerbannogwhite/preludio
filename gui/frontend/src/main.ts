@@ -6,8 +6,6 @@ document.body.appendChild(new App());
 
 // Default Wails code
 
-// import { Greet } from "../wailsjs/go/main/App";
-
 // Setup the greet function
 // window.greet = function () {
 //   // Get name
