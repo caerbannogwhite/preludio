@@ -1,3 +1,5 @@
+import { ImportCsv, ImportExcel } from "../../wailsjs/go/main/App";
+
 type SeriesType = boolean | number | string | DataFrame;
 type IndexElement = { i: number; v: SeriesType[] };
 
@@ -86,9 +88,15 @@ export class DataFrame extends Array<Series> {
     return this[0].getLength();
   }
 
-  fromCsv() {}
+  fromCsv(path: string) {
+    ImportCsv(path).then((d) => {
+      console.log(d);
+    });
+  }
 
-  fromExcel() {}
+  fromExcel(path: string) {
+    ImportExcel(path);
+  }
 
   fromSeries(...series: Series[]) {
     this.empty();

@@ -3,6 +3,10 @@
 
 export function Greet(arg1:string):Promise<string>;
 
+export function ImportCsv(arg1:string):Promise<Array<number>>;
+
+export function ImportExcel(arg1:string):Promise<Array<number>>;
+
 export function LookUpPath(arg1:string):Promise<Array<string>>;
 
 export function RunCommand(arg1:string):Promise<string>;

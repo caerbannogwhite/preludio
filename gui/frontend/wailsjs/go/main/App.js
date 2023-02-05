@@ -6,6 +6,14 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function ImportCsv(arg1) {
+  return window['go']['main']['App']['ImportCsv'](arg1);
+}
+
+export function ImportExcel(arg1) {
+  return window['go']['main']['App']['ImportExcel'](arg1);
+}
+
 export function LookUpPath(arg1) {
   return window['go']['main']['App']['LookUpPath'](arg1);
 }

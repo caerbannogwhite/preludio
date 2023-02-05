@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -70,4 +72,35 @@ func (a *App) RunCommand(cmd string) string {
 	fmt.Printf("Run command '%s'\n", cmd)
 
 	return ""
+}
+
+func (a *App) ImportCsv(path string) []byte {
+
+	f, err := os.Open(path)
+	if err != nil {
+		res, _ := json.Marshal(err)
+		return res
+	}
+
+	reader := csv.NewReader(f)
+
+	tab, err := reader.ReadAll()
+	if err != nil {
+		res, _ := json.Marshal(err)
+		return res
+	}
+
+	res, _ := json.Marshal(tab)
+	return res
+}
+
+func (a *App) ImportExcel(path string) []byte {
+
+	_, err := os.Open(path)
+	if err != nil {
+		res, _ := json.Marshal(err)
+		return res
+	}
+
+	return []byte{}
 }
