@@ -1,7 +1,9 @@
 // import { EditorView, basicSetup } from "codemirror";
+import { ParseCsv } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { MainButton } from "./utils/MainButton";
+// import * as monaco from "monaco-editor";
 
 export class App extends HTMLDivElement {
   private topMenuPaneElement: HTMLDivElement;
@@ -36,6 +38,11 @@ export class App extends HTMLDivElement {
     // Code Editor Pane
     this.codeEditorPaneElement.id = "code-editor-pane";
 
+    // monaco.editor.create(this.codeEditorPaneElement, {
+    //   value: "function hello() {\n\talert('Hello world!');\n}",
+    //   language: "javascript",
+    // });
+
     // const editor = new EditorView({
     //   extensions: [basicSetup],
     //   parent: this.codeEditorPaneElement,
@@ -68,8 +75,27 @@ export class App extends HTMLDivElement {
     fileInput.id = "import-table-input";
     fileInput.className = "file-input";
     fileInput.type = "file";
-    fileInput.addEventListener("input", (e: Event) => {
-      console.log(e);
+    fileInput.addEventListener("change", async (e: any) => {
+      console.log("hello");
+      if (e.target !== null && e.target.files !== null && e.target.files.length > 0) {
+        const file = e.target.files[0];
+        Promise.resolve(file.arrayBuffer()).then((ab: ArrayBuffer) => {
+          const u = new Uint8Array(ab);
+          ParseCsv(`[${u.toString()}]`).then((d) => {
+            console.log(d);
+          });
+          // SendFileFromJStoGo(`[${u.toString()}]`);
+        });
+
+        // const blob = new Blob([e.target.files[0]]);
+
+        // const buffer = await blob.arrayBuffer();
+        // console.log(buffer);
+
+        // ParseCsv(buffer).then((d) => {
+        //   console.log(d);
+        // });
+      }
     });
 
     // formData.append("file", fileInput.files);
@@ -78,11 +104,7 @@ export class App extends HTMLDivElement {
     // xhr.open("POST", "your-server-url");
     // xhr.send(formData);
 
-    const importTableButton = new MainButton(
-      "import-table",
-      "import-svgrepo-com",
-      fileInput
-    );
+    const importTableButton = new MainButton("import-table", "import-svgrepo-com", fileInput);
 
     // this.tableEditorPaneElement.appendChild(filePathInput);
     this.tableEditorPaneElement.appendChild(importTableButton);
@@ -113,6 +135,10 @@ export class App extends HTMLDivElement {
 
   getNumberOfPipelines(): number {
     return this.state.pipelines.length;
+  }
+
+  getCodeEditorPaneElement(): HTMLDivElement {
+    return this.codeEditorPaneElement;
   }
 }
 

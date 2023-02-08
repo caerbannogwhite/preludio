@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -69,8 +71,26 @@ func (a *App) RunCommand(cmd string) string {
 	return ""
 }
 
-func (a *App) ImportCsv(path string) []byte {
+func (a *App) ParseCsv(blob string) string {
 
+	file := []byte{}
+	if err := json.Unmarshal([]byte(blob), &file); err != nil {
+		log.Fatal(err)
+	}
+
+	reader := csv.NewReader(bytes.NewReader(file))
+
+	tab, err := reader.ReadAll()
+	if err != nil {
+		res, _ := json.Marshal(err)
+		return string(res)
+	}
+
+	res, _ := json.Marshal(tab)
+	return string(res)
+}
+
+func (a *App) ImportCsv(path string) []byte {
 	f, err := os.Open(path)
 	if err != nil {
 		res, _ := json.Marshal(err)
