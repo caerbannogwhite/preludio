@@ -1,4 +1,5 @@
 // import { EditorView, basicSetup } from "codemirror";
+import { ParseCsv } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { MainButton } from "./utils/MainButton";
@@ -68,8 +69,30 @@ export class App extends HTMLDivElement {
     fileInput.id = "import-table-input";
     fileInput.className = "file-input";
     fileInput.type = "file";
-    fileInput.addEventListener("input", (e: Event) => {
-      console.log(e);
+    fileInput.addEventListener("change", async (e: any) => {
+      if (
+        e.target !== null &&
+        e.target.files !== null &&
+        e.target.files.length > 0
+      ) {
+        const file = e.target.files[0];
+        Promise.resolve(file.arrayBuffer()).then((ab: ArrayBuffer) => {
+          const u = new Uint8Array(ab);
+          ParseCsv(`[${u.toString()}]`).then((d) => {
+            console.log(d);
+          });
+          // SendFileFromJStoGo(`[${u.toString()}]`);
+        });
+
+        // const blob = new Blob([e.target.files[0]]);
+
+        // const buffer = await blob.arrayBuffer();
+        // console.log(buffer);
+
+        // ParseCsv(buffer).then((d) => {
+        //   console.log(d);
+        // });
+      }
     });
 
     // formData.append("file", fileInput.files);
