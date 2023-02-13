@@ -76,7 +76,6 @@ export class App extends HTMLDivElement {
     fileInput.className = "file-input";
     fileInput.type = "file";
     fileInput.addEventListener("change", async (e: any) => {
-      console.log("hello");
       if (e.target !== null && e.target.files !== null && e.target.files.length > 0) {
         const file = e.target.files[0];
         Promise.resolve(file.arrayBuffer()).then((ab: ArrayBuffer) => {
