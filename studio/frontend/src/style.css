@@ -6,50 +6,51 @@ body {
   scroll-behavior: unset;
   margin: 0;
   color: white;
-  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
 }
 
 @font-face {
   font-family: "Nunito";
   font-style: normal;
   font-weight: 400;
-  src: local(""),
-    url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
+  src: local(""), url("assets/fonts/nunito-v16-latin-regular.woff2") format("woff2");
 }
 
 #app {
   height: 98vh;
-  /* width: 128vh; */
   display: block;
 }
 
 #top-menu-pane {
-  border-style: solid;
-  border-radius: 10px;
-  height: 8%;
-  width: 98%;
-  margin: 1%;
-  margin-bottom: 0.5%;
+  height: max(8%, 40px);
+  width: 100%;
 }
 
 #main-pane {
   display: inline-flex;
-  height: 88%;
+  height: 100%;
   width: 100%;
   justify-content: space-around;
 }
 
+#left-pane {
+  display: inline-flex;
+  height: 100%;
+  width: 50%;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 #code-editor-pane {
   display: block;
-  height: 96%;
-  width: 28%;
-  margin: 1%;
-  margin-top: 0.5%;
-  margin-right: 0.5%;
-  padding-top: 1%;
-  padding-bottom: 1%;
+  height: 72%;
+}
+
+#log-error-pane {
+  display: block;
+  height: max(16%, 200px);
 }
 
 #pipeline-editor-pane {
@@ -63,30 +64,9 @@ body {
 }
 
 #table-editor-pane {
-  border-style: solid;
-  border-radius: 10px;
   display: flex;
-  height: 96%;
-  width: 68%;
-  margin: 1%;
-  margin-top: 0.5%;
-  margin-right: 0.5%;
-  padding-top: 2%;
+  height: 100%;
+  width: 50%;
   justify-content: space-evenly;
   align-items: center;
-}
-
-div.pipeline-name {
-  margin: 3%;
-}
-
-label.pipeline-name {
-  color: black;
-  margin: 2%;
-  font-weight: 600;
-  vertical-align: middle;
-}
-
-input.file-input {
-  display: none;
 }

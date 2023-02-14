@@ -39,7 +39,18 @@ const app = new App();
 document.body.appendChild(app);
 
 monaco.editor.create(app.getCodeEditorPaneElement(), {
-  value: "function hello() {\n\talert('Hello world!');\n}",
+  value: [
+    `importCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars.csv" delimiter: ";" header:true`,
+    `derive [`,
+    `  [MPG, Displacement] = ([MPG, Displacement] | strReplace "," "." | asFloat),`,
+    `  num = Cylinders * 2 - 1.123e-1,`,
+    `  Car_Origin = Car + " - " + Origin`,
+    `]`,
+    `describe`,
+    `take 20`,
+    `select [Car_Origin, MPG, Cylinders, num]`,
+    `exportCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars1.csv" delimiter: '\\t'`,
+  ].join("\n"),
   language: "python",
   minimap: { enabled: false },
 });

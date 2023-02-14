@@ -2,14 +2,15 @@
 import { ParseCsv } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
-import { MainButton } from "./utils/MainButton";
+// import { MainButton } from "./utils/MainButton";
 // import * as monaco from "monaco-editor";
 
 export class App extends HTMLDivElement {
   private topMenuPaneElement: HTMLDivElement;
   private mainPaneElement: HTMLDivElement;
+  private leftPaneElement: HTMLDivElement;
   private codeEditorPaneElement: HTMLDivElement;
-  // private pipelineEditorPaneElement: HTMLDivElement;
+  private logErrorPaneElement: HTMLDivElement;
   private tableEditorPaneElement: HTMLDivElement;
 
   private state: AppState;
@@ -20,8 +21,9 @@ export class App extends HTMLDivElement {
 
     this.topMenuPaneElement = document.createElement("div");
     this.mainPaneElement = document.createElement("div");
+    this.leftPaneElement = document.createElement("div");
     this.codeEditorPaneElement = document.createElement("div");
-    // this.pipelineEditorPaneElement = document.createElement("div");
+    this.logErrorPaneElement = document.createElement("div");
     this.tableEditorPaneElement = document.createElement("div");
 
     this.state = new AppState();
@@ -35,20 +37,13 @@ export class App extends HTMLDivElement {
 
     this.mainPaneElement.id = "main-pane";
 
+    this.leftPaneElement.id = "left-pane";
+
     // Code Editor Pane
     this.codeEditorPaneElement.id = "code-editor-pane";
 
-    // monaco.editor.create(this.codeEditorPaneElement, {
-    //   value: "function hello() {\n\talert('Hello world!');\n}",
-    //   language: "javascript",
-    // });
-
-    // const editor = new EditorView({
-    //   extensions: [basicSetup],
-    //   parent: this.codeEditorPaneElement,
-    // });
-
-    // console.log(editor);
+    // Log Error Pane
+    this.logErrorPaneElement.id = "log-error-pane";
 
     // Table Editor Pane
     this.tableEditorPaneElement.id = "table-editor-pane";
@@ -97,19 +92,16 @@ export class App extends HTMLDivElement {
       }
     });
 
-    // formData.append("file", fileInput.files);
-
-    // const xhr = new XMLHttpRequest();
-    // xhr.open("POST", "your-server-url");
-    // xhr.send(formData);
-
-    const importTableButton = new MainButton("import-table", "import-svgrepo-com", fileInput);
+    // const importTableButton = new MainButton("import-table", "import-svgrepo-com", fileInput);
 
     // this.tableEditorPaneElement.appendChild(filePathInput);
-    this.tableEditorPaneElement.appendChild(importTableButton);
+    // this.tableEditorPaneElement.appendChild(importTableButton);
+
+    this.leftPaneElement.appendChild(this.codeEditorPaneElement);
+    this.leftPaneElement.appendChild(this.logErrorPaneElement);
 
     // Main Panel
-    this.mainPaneElement.appendChild(this.codeEditorPaneElement);
+    this.mainPaneElement.appendChild(this.leftPaneElement);
     this.mainPaneElement.appendChild(this.tableEditorPaneElement);
 
     // App
