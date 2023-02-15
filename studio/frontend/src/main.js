@@ -4,6 +4,7 @@ import "./style.css";
 import { App } from "./App";
 import * as monaco from "monaco-editor/esm/vs/editor/editor.main";
 
+// MONACO CONFIGURATIONS
 // https://github.com/microsoft/monaco-editor/blob/main/docs/integrate-esm.md#using-vite
 // https://github.com/microsoft/monaco-editor-webpack-plugin/issues/135
 self.MonacoEnvironment = {
@@ -37,25 +38,7 @@ self.MonacoEnvironment = {
 
 const app = new App();
 document.body.appendChild(app);
-
-monaco.editor.create(app.getCodeEditorPaneElement(), {
-  value: [
-    `importCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars.csv" delimiter: ";" header:true`,
-    `derive [`,
-    `  [MPG, Displacement] = ([MPG, Displacement] | strReplace "," "." | asFloat),`,
-    `  num = Cylinders * 2 - 1.123e-1,`,
-    `  Car_Origin = Car + " - " + Origin`,
-    `]`,
-    `describe`,
-    `take 20`,
-    `select [Car_Origin, MPG, Cylinders, num]`,
-    `exportCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars1.csv" delimiter: '\\t'`,
-  ].join("\n"),
-  language: "python",
-  minimap: { enabled: false },
-});
-
-monaco.editor.setTheme('vs-dark');
+app.pageLoaded();
 
 // Default Wails code
 

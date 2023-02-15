@@ -1,3 +1,4 @@
+import { App, Theme } from "./App";
 import "./TopMenuPaneElement.css";
 import { Icon } from "./utils/Icon";
 
@@ -13,7 +14,8 @@ window.customElements.define("button-bar-element", ButtonBar, {
   extends: "div",
 });
 
-export const TopMenuPaneElement = (id: string) => {
+export const TopMenuPaneElement = (id: string, app: App) => {
+  // app.switchTheme();
   const menu = document.createElement("div");
   menu.id = id;
   menu.className = "menu-pane";
@@ -35,6 +37,9 @@ export const TopMenuPaneElement = (id: string) => {
   const switchThemeButton = document.createElement("button");
   switchThemeButton.id = "run-all-button";
   switchThemeButton.appendChild(new Icon("symbol-color-svgrepo-com"));
+  switchThemeButton.addEventListener("click", () => {
+    app.switchTheme();
+  });
 
   const squirrelButton = document.createElement("button");
   squirrelButton.id = "run-all-button";

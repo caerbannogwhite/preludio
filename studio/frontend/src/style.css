@@ -53,20 +53,18 @@ body {
   height: max(16%, 200px);
 }
 
-#pipeline-editor-pane {
-  border-style: solid;
-  border-radius: 5px;
-  background-color: darkgray;
-  height: 89%;
-  margin-top: 4%;
-  width: 92%;
-  margin-left: 3.5%;
-}
-
 #table-editor-pane {
   display: flex;
   height: 100%;
   width: 50%;
   justify-content: space-evenly;
   align-items: center;
+}
+
+.light-mode {
+  background-color: white;
+}
+
+.dark-mode {
+  background-color: #1e1e1e;
 }
