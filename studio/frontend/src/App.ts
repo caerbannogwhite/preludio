@@ -2,6 +2,7 @@
 import { ParseCsv } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
+import { TopMenuPaneElement } from "./TopMenuPaneElement";
 // import { MainButton } from "./utils/MainButton";
 // import * as monaco from "monaco-editor";
 
@@ -19,7 +20,7 @@ export class App extends HTMLDivElement {
     super();
     this.id = "app";
 
-    this.topMenuPaneElement = document.createElement("div");
+    this.topMenuPaneElement = TopMenuPaneElement("top-menu-pane");
     this.mainPaneElement = document.createElement("div");
     this.leftPaneElement = document.createElement("div");
     this.codeEditorPaneElement = document.createElement("div");
@@ -32,9 +33,6 @@ export class App extends HTMLDivElement {
   }
 
   private _initHTMLElement() {
-    this.topMenuPaneElement.id = "top-menu-pane";
-    this.topMenuPaneElement.className = "menu-pane";
-
     this.mainPaneElement.id = "main-pane";
 
     this.leftPaneElement.id = "left-pane";

@@ -55,6 +55,8 @@ monaco.editor.create(app.getCodeEditorPaneElement(), {
   minimap: { enabled: false },
 });
 
+monaco.editor.setTheme('vs-dark');
+
 // Default Wails code
 
 // Setup the greet function
