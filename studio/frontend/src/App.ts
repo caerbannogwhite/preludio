@@ -29,7 +29,7 @@ type AppSettings = {
 };
 
 const DEFAULT_SETTINGS = {
-  theme: Theme.ligth,
+  theme: Theme.dark,
 };
 
 export class App extends HTMLDivElement {
