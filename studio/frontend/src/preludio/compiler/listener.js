@@ -1,8 +1,8 @@
 import antlr4 from "antlr4";
 
-import preludioListener from "../grammar/preludioListener.js";
-import preludioLexer from "../grammar/preludioLexer.js";
-import preludioParser from "../grammar/preludioParser.js";
+import preludioListener from "../parser/preludioListener.js";
+import preludioLexer from "../parser/preludioLexer.js";
+import preludioParser from "../parser/preludioParser.js";
 import { Blob } from "buffer";
 import { TextEncoder } from "util";
 
