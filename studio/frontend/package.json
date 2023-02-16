@@ -12,6 +12,7 @@
     "vite": "^2.9.9"
   },
   "dependencies": {
+    "antlr4": "^4.12.0-beta.11",
     "monaco-editor": "^0.35.0"
   }
 }
