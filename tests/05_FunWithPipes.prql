@@ -1,0 +1,33 @@
+
+
+from a
+describe
+aFunction [
+    b,
+    (
+        col
+        sort -c
+        derive [
+            d = (hello f | someFunc | take 10),
+            e = (sin 3.14)
+        ]
+    )
+]
+
+
+importCSV "hello.csv"
+derive [
+    a = (
+        from b | take 2 | sort -c | merge (
+            importCSV "cars.csv"
+            select cars
+            take 3
+            exportCSV "out.csv"
+        )
+    ),
+    b = (from d | derive [
+        c = d * 3,
+        d = a + b
+    ]),
+    c = (from employees | filter department == "Product" | select [first_name, last_name])
+]
