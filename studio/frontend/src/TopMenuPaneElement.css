@@ -1,12 +1,12 @@
 .button-bar {
-  padding: 1.5rem;
+  padding: 13px;
 }
 
 .button-bar > button {
-  height: 60px;
-  width: 60px;
+  height: 40px;
+  width: 40px;
 }
 
 .button-bar > button > img {
-  height: 2rem;
+  height: 1.5rem;
 }

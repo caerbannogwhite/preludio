@@ -23,7 +23,7 @@ body {
 }
 
 #top-menu-pane {
-  height: max(8%, 40px);
+  height: 66px;
   width: 100%;
 }
 
