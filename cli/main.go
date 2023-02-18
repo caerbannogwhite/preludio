@@ -1,6 +1,8 @@
 package main
 
 import (
+	"preludiovm"
+
 	"github.com/alexflint/go-arg"
 )
 
@@ -16,7 +18,7 @@ func main() {
 	arg.MustParse(&args)
 	// fmt.Println(args.Foo, args.Bar)
 
-	vm := NewPreludioVM(&PreludioVMParams{
+	vm := preludiovm.NewPreludioVM(&preludiovm.PreludioVMParams{
 		PrintWarnings: args.Warnings,
 		DebugLevel:    args.DebugLevel,
 		InputPath:     args.InputPath,

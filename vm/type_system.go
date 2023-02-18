@@ -1,4 +1,4 @@
-package main
+package preludiovm
 
 type UserDefinedFunction func(*PreludioVM)
 
