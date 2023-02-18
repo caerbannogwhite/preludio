@@ -164,14 +164,14 @@ export class App extends HTMLDivElement {
         this.className = "dark-mode";
         this.logErrorPaneElement.className = "dark-mode";
         this.tableEditorPaneElement.className = "dark-mode";
-        // monaco.editor.setTheme(theme);
+        monaco.editor.setTheme(theme);
         break;
       // case Theme.ligth:
       default:
         this.className = "light-mode";
         this.logErrorPaneElement.className = "ligtht-mode";
         this.tableEditorPaneElement.className = "light-mode";
-        // monaco.editor.setTheme(theme);
+        monaco.editor.setTheme(theme);
         break;
     }
 

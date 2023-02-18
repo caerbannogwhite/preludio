@@ -5,15 +5,17 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"preludio"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx        context.Context
+	preludioVm preludio.ByteEater
 }
 
 // NewApp creates a new App application struct
@@ -65,8 +67,12 @@ func (a *App) LookUpPath(path string) []string {
 	return []string{}
 }
 
-func (a *App) RunCommand(cmd string) string {
-	fmt.Printf("Run command '%s'\n", cmd)
+func (a *App) RunPreludioBytecode(blob string) string {
+
+	return ""
+}
+
+func (a *App) RunPreludioCode(code string) string {
 
 	return ""
 }

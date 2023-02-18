@@ -1,6 +1,8 @@
-module changeme
+module diluvio
 
 go 1.18
+
+replace preludio => ../preludio/
 
 require github.com/wailsapp/wails/v2 v2.2.0
 
