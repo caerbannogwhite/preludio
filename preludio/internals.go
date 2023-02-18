@@ -1,4 +1,4 @@
-package preludiovm
+package preludio
 
 import (
 	"errors"
@@ -349,7 +349,7 @@ func IsOperator(t interface{}) (PreludioExprOp, bool) {
 	return NO_OP, false
 }
 
-func (i *PreludioInternal) Solve(vm *PreludioVM) error {
+func (i *PreludioInternal) Solve(vm *ByteEater) error {
 	tmp := make([]interface{}, 1)
 
 	// TODO: check if this is possible and

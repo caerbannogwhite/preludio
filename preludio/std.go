@@ -1,4 +1,4 @@
-package preludiovm
+package preludio
 
 import (
 	"fmt"
@@ -10,9 +10,9 @@ import (
 	"github.com/go-gota/gota/series"
 )
 
-type PreludioFunction func(funcName string, vm *PreludioVM)
+type PreludioFunction func(funcName string, vm *ByteEater)
 
-func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
+func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -69,7 +69,7 @@ func PreludioFunc_Derive(funcName string, vm *PreludioVM) {
 }
 
 // Describe a Dataframe
-func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
+func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -129,7 +129,7 @@ func PreludioFunc_Describe(funcName string, vm *PreludioVM) {
 }
 
 // Export a Dataframe into a CSV file
-func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
+func PreludioFunc_ExportCsv(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -199,7 +199,7 @@ func PreludioFunc_ExportCsv(funcName string, vm *PreludioVM) {
 }
 
 // Load a Dataframe from the Name Space
-func PreludioFunc_From(funcName string, vm *PreludioVM) {
+func PreludioFunc_From(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -226,7 +226,7 @@ func PreludioFunc_From(funcName string, vm *PreludioVM) {
 }
 
 // Import a Dataframe form CSV file
-func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
+func PreludioFunc_ImportCsv(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -279,7 +279,7 @@ func PreludioFunc_ImportCsv(funcName string, vm *PreludioVM) {
 }
 
 // Create a new Dataframe
-func PreludioFunc_New(funcName string, vm *PreludioVM) {
+func PreludioFunc_New(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -347,7 +347,7 @@ func PreludioFunc_New(funcName string, vm *PreludioVM) {
 }
 
 // Select a subset of the Dataframe's columns
-func PreludioFunc_Select(funcName string, vm *PreludioVM) {
+func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -395,14 +395,14 @@ func PreludioFunc_Select(funcName string, vm *PreludioVM) {
 }
 
 // Sort all the values in the Dataframe
-func PreludioFunc_Sort(funcName string, vm *PreludioVM) {
+func PreludioFunc_Sort(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
 // Take a subset of the Dataframe's rows
-func PreludioFunc_Take(funcName string, vm *PreludioVM) {
+func PreludioFunc_Take(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -442,7 +442,7 @@ func PreludioFunc_Take(funcName string, vm *PreludioVM) {
 ///////						ENVIRONMENT FUNCTIONS
 
 // Set what's left in the stack to the current Dataframe
-func PreludioFunc_ToCurrent(funcName string, vm *PreludioVM) {
+func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -526,21 +526,21 @@ func PreludioFunc_ToCurrent(funcName string, vm *PreludioVM) {
 ///////						COERCION FUNCTIONS
 
 // Coerce variables to bool
-func PreludioFunc_AsBool(funcName string, vm *PreludioVM) {
+func PreludioFunc_AsBool(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
 // Coerce variables to integer
-func PreludioFunc_AsInteger(funcName string, vm *PreludioVM) {
+func PreludioFunc_AsInteger(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
 }
 
 // Coerce variables to float
-func PreludioFunc_AsFloat(funcName string, vm *PreludioVM) {
+func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -643,7 +643,7 @@ func PreludioFunc_AsFloat(funcName string, vm *PreludioVM) {
 }
 
 // Coerce variables to string
-func PreludioFunc_AsString(funcName string, vm *PreludioVM) {
+func PreludioFunc_AsString(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}
@@ -652,7 +652,7 @@ func PreludioFunc_AsString(funcName string, vm *PreludioVM) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////						STRING FUNCTIONS
 
-func PreludioFunc_StrReplace(funcName string, vm *PreludioVM) {
+func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	if vm.__debugLevel > 5 {
 		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
 	}

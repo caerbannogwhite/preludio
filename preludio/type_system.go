@@ -1,6 +1,6 @@
-package preludiovm
+package preludio
 
-type UserDefinedFunction func(*PreludioVM)
+type UserDefinedFunction func(*ByteEater)
 
 // type PreludioBool bool
 // type PreludioInt int

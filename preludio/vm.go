@@ -1,4 +1,4 @@
-package preludiovm
+package preludio
 
 import (
 	"bufio"
@@ -69,14 +69,8 @@ const (
 	OP_UNARY_NOT OPCODE = 132
 )
 
-type PreludioVMParams struct {
-	PrintWarnings  bool
-	DebugLevel     int
-	VerbosityLevel int
-	InputPath      string
-}
-
-type PreludioVM struct {
+// ByteEater is the name of the Preludio Virtual Machine
+type ByteEater struct {
 	__printWarnings         bool
 	__debugLevel            int
 	__verbosityLevel        int
@@ -91,23 +85,87 @@ type PreludioVM struct {
 	__listElementCounters   []int
 }
 
-func NewPreludioVM(params *PreludioVMParams) *PreludioVM {
-	vm := PreludioVM{
-		__printWarnings:  params.PrintWarnings,
-		__inputPath:      params.InputPath,
-		__debugLevel:     params.DebugLevel,
-		__verbosityLevel: params.VerbosityLevel,
-	}
+func (vm *ByteEater) SetPrintWarning(flag bool) *ByteEater {
+	vm.__printWarnings = flag
+	return vm
+}
 
+func (vm *ByteEater) SetInputPath(path string) *ByteEater {
+	vm.__inputPath = path
+	return vm
+}
+
+func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
+	vm.__debugLevel = level
+	return vm
+}
+
+func (vm *ByteEater) SetVerbosityLevel(level int) *ByteEater {
+	vm.__verbosityLevel = level
+	return vm
+}
+
+func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNameSpace = map[string]*PreludioInternal{}
 	vm.__pipelineNameSpace = map[string]*PreludioInternal{}
 	vm.__currentDataFrame = nil
 
-	return &vm
+	return vm
 }
 
-func (vm *PreludioVM) ReadPreludioBytecode() {
+type PreludioOutput struct {
+	log    []string
+	result interface{}
+}
+
+// Read Preludio Bytecode from byte array
+func (vm *ByteEater) ReadBytecode(bytecode []byte) *PreludioOutput {
+	bytemark := bytecode[0:4]
+	__symbolTableSize := binary.BigEndian.Uint64(bytecode[8:16])
+
+	if vm.__debugLevel > 5 {
+		fmt.Println()
+		fmt.Printf("BYTECODE INFO\n")
+		fmt.Printf("=============\n")
+		fmt.Printf("SIZE:              %d\n", len(bytecode))
+		fmt.Printf("BYTE MARK:         %x %x %x %x\n", bytemark[0], bytemark[1], bytemark[2], bytemark[3])
+		fmt.Printf("SYMBOL TABLE SIZE: %d\n\n", __symbolTableSize)
+		fmt.Printf("STRING SYMBOLS\n")
+		fmt.Printf("==============\n")
+	}
+
+	offset := uint64(16)
+	for i := uint64(0); i < __symbolTableSize; i++ {
+		l := binary.BigEndian.Uint64(bytecode[offset : offset+8])
+		offset += 8
+
+		v := string(bytecode[offset : offset+l])
+		vm.__symbolTable = append(vm.__symbolTable, v)
+		offset += l
+	}
+
+	if vm.__debugLevel > 5 {
+		for _, symbol := range vm.__symbolTable {
+			fmt.Printf("%s\n", symbol)
+		}
+
+		fmt.Println()
+		fmt.Printf("INSTRUCTIONS\n")
+		fmt.Printf("============\n")
+	}
+
+	vm.ReadPrqlInstructions(bytecode, offset)
+
+	return &PreludioOutput{
+		log:    []string{"hello"},
+		result: nil,
+	}
+}
+
+// Read Preludio bytecode from a binary file located
+// at __inputPath - SetInputPath
+func (vm *ByteEater) ReadFileBytecode() *PreludioOutput {
 	var err error
 	var file *os.File
 	var stats fs.FileInfo
@@ -124,13 +182,13 @@ func (vm *PreludioVM) ReadPreludioBytecode() {
 	}
 
 	var size int64 = stats.Size()
-	bytes := make([]byte, size)
+	bytecode := make([]byte, size)
 
 	bufr := bufio.NewReader(file)
-	_, err = bufr.Read(bytes)
+	_, err = bufr.Read(bytecode)
 
-	bytemark := bytes[0:4]
-	__symbolTableSize := binary.BigEndian.Uint64(bytes[8:16])
+	bytemark := bytecode[0:4]
+	__symbolTableSize := binary.BigEndian.Uint64(bytecode[8:16])
 
 	if vm.__debugLevel > 5 {
 		fmt.Println()
@@ -145,10 +203,10 @@ func (vm *PreludioVM) ReadPreludioBytecode() {
 
 	offset := uint64(16)
 	for i := uint64(0); i < __symbolTableSize; i++ {
-		l := binary.BigEndian.Uint64(bytes[offset : offset+8])
+		l := binary.BigEndian.Uint64(bytecode[offset : offset+8])
 		offset += 8
 
-		v := string(bytes[offset : offset+l])
+		v := string(bytecode[offset : offset+l])
 		vm.__symbolTable = append(vm.__symbolTable, v)
 		offset += l
 	}
@@ -163,28 +221,33 @@ func (vm *PreludioVM) ReadPreludioBytecode() {
 		fmt.Printf("============\n")
 	}
 
-	vm.ReadPrqlInstructions(bytes, offset)
+	vm.ReadPrqlInstructions(bytecode, offset)
+
+	return &PreludioOutput{
+		log:    []string{},
+		result: nil,
+	}
 }
 
-func (vm *PreludioVM) StackIsEmpty() bool {
+func (vm *ByteEater) StackIsEmpty() bool {
 	return len(vm.__stack) == 0
 }
 
-func (vm *PreludioVM) StackPush(e *PreludioInternal) {
+func (vm *ByteEater) StackPush(e *PreludioInternal) {
 	vm.__stack = append(vm.__stack, *e)
 }
 
-func (vm *PreludioVM) StackPop() *PreludioInternal {
+func (vm *ByteEater) StackPop() *PreludioInternal {
 	e := vm.__stack[len(vm.__stack)-1]
 	vm.__stack = vm.__stack[:len(vm.__stack)-1]
 	return &e
 }
 
-func (vm *PreludioVM) StackLast() *PreludioInternal {
+func (vm *ByteEater) StackLast() *PreludioInternal {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *PreludioVM) ReadPrqlInstructions(bytes []byte, offset uint64) {
+func (vm *ByteEater) ReadPrqlInstructions(bytes []byte, offset uint64) {
 
 	var opCode OPCODE
 	var param1 PARAM1
@@ -503,7 +566,7 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *PreludioVM) GetFunctionParams(funcName string, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
+func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
 
 	var assignments map[string]*PreludioInternal
 	if acceptingAssignments {
@@ -568,7 +631,7 @@ LOOP1:
 	return positionalParams, assignments, nil
 }
 
-func (vm *PreludioVM) SymbolResolution(symbol PreludioSymbol) interface{} {
+func (vm *ByteEater) SymbolResolution(symbol PreludioSymbol) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
@@ -595,7 +658,7 @@ func (vm *PreludioVM) SymbolResolution(symbol PreludioSymbol) interface{} {
 
 // Set the last element inserted into the stack as
 // the current DataFrame
-func (vm *PreludioVM) SetCurrentDataFrame() {
+func (vm *ByteEater) SetCurrentDataFrame() {
 	df, _ := vm.StackLast().GetDataframe()
 	vm.__currentDataFrame = &df
 
@@ -605,12 +668,12 @@ func (vm *PreludioVM) SetCurrentDataFrame() {
 	}
 }
 
-func (vm *PreludioVM) PrintWarning(msg string) {
+func (vm *ByteEater) PrintWarning(msg string) {
 	if vm.__printWarnings {
 		fmt.Printf("[ ⚠️ Warning ⚠️ ] %s\n", msg)
 	}
 }
 
-func (vm *PreludioVM) PrintError(msg string) {
+func (vm *ByteEater) PrintError(msg string) {
 	fmt.Printf("[ ☠️  Error  ☠️ ] %s\n", msg)
 }
