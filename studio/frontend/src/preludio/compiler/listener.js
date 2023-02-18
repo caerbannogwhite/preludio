@@ -3,8 +3,8 @@ import antlr4 from "antlr4";
 import preludioListener from "../parser/preludioListener.js";
 import preludioLexer from "../parser/preludioLexer.js";
 import preludioParser from "../parser/preludioParser.js";
-import Blob from "buffer";
-import TextEncoder from "util";
+// import Blob from "buffer";
+// import { TextEncoder } from "util";
 
 export const TERM_NULL = 0;
 export const TERM_BOOL = 1;
@@ -123,7 +123,7 @@ export default class PreludioCompiler extends preludioListener {
     // const compiler = new PreludioCompiler({ debugLevel: 5, verbosity: true });
     antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
 
-    const encoder = TextEncoder.TextEncoder();
+    const encoder = new TextEncoder();
     const stringSymbols = [];
     for (let s of this.__symbol_table_str) {
       const v = encoder.encode(s);
