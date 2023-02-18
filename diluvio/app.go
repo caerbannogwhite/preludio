@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compiler"
 	"context"
 	"encoding/csv"
 	"encoding/json"
@@ -15,12 +16,12 @@ import (
 // App struct
 type App struct {
 	ctx        context.Context
-	preludioVm preludio.ByteEater
+	preludioVm *preludio.ByteEater
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{preludioVm: new(preludio.ByteEater).InitVM()}
 }
 
 // startup is called when the app starts. The context is saved
@@ -68,13 +69,24 @@ func (a *App) LookUpPath(path string) []string {
 }
 
 func (a *App) RunPreludioBytecode(blob string) string {
+	bytecode := []byte{}
+	if err := json.Unmarshal([]byte(blob), &bytecode); err != nil {
+		log.Fatal(err)
+	}
 
-	return ""
+	out := a.preludioVm.ReadBytecode(bytecode)
+
+	res, _ := json.Marshal(out)
+	return string(res)
 }
 
 func (a *App) RunPreludioCode(code string) string {
 
-	return ""
+	bytecode := compiler.Compile(code)
+	out := a.preludioVm.ReadBytecode(bytecode)
+
+	res, _ := json.Marshal(out)
+	return string(res)
 }
 
 func (a *App) ParseCsv(blob string) string {

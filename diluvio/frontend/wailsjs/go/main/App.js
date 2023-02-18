@@ -18,6 +18,10 @@ export function ParseCsv(arg1) {
   return window['go']['main']['App']['ParseCsv'](arg1);
 }
 
-export function RunCommand(arg1) {
-  return window['go']['main']['App']['RunCommand'](arg1);
+export function RunPreludioBytecode(arg1) {
+  return window['go']['main']['App']['RunPreludioBytecode'](arg1);
+}
+
+export function RunPreludioCode(arg1) {
+  return window['go']['main']['App']['RunPreludioCode'](arg1);
 }

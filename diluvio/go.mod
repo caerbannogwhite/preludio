@@ -4,10 +4,18 @@ go 1.18
 
 replace preludio => ../preludio/
 
-require github.com/wailsapp/wails/v2 v2.2.0
+replace compiler => ../preludio/compiler
 
 require (
+	compiler v0.0.0-00010101000000-000000000000
+	github.com/wailsapp/wails/v2 v2.2.0
+	preludio v0.0.0-00010101000000-000000000000
+)
+
+require (
+	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/go-gota/gota v0.12.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -31,6 +39,7 @@ require (
 	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.7 // indirect
+	gonum.org/v1/gonum v0.9.1 // indirect
 )
 
 // replace github.com/wailsapp/wails/v2 v2.2.0 => C:\Users\massi\go\pkg\mod

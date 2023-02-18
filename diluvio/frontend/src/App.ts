@@ -1,4 +1,4 @@
-import { ParseCsv } from "../wailsjs/go/main/App";
+import { ParseCsv, RunPreludioBytecode } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { TopMenuPaneElement } from "./TopMenuPaneElement";
@@ -181,9 +181,7 @@ export class App extends HTMLDivElement {
   // Run all the code in the current editor
   runAll() {
     const source = monaco.editor.getEditors()[0].getValue();
-    const bytecode = new PreludioCompiler({ debugLevel: 5, verbosity: true }).compileToBytecode(source);
-
-    console.log(bytecode);
+    // const bytecode = new PreludioCompiler({ debugLevel: 5, verbosity: true }).compileToBytecode(source);
   }
 
   addNewPipeline(pipelineName?: string) {
