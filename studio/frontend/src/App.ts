@@ -1,10 +1,10 @@
-// import { EditorView, basicSetup } from "codemirror";
 import { ParseCsv } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { TopMenuPaneElement } from "./TopMenuPaneElement";
 // import { MainButton } from "./utils/MainButton";
 import * as monaco from "monaco-editor";
+import PreludioCompiler from "./preludio/compiler/listener";
 
 const STARTING_CODE_SAMPLE = [
   `importCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars.csv" delimiter: ";" header:true`,
@@ -164,18 +164,26 @@ export class App extends HTMLDivElement {
         this.className = "dark-mode";
         this.logErrorPaneElement.className = "dark-mode";
         this.tableEditorPaneElement.className = "dark-mode";
-        monaco.editor.setTheme(theme);
+        // monaco.editor.setTheme(theme);
         break;
       // case Theme.ligth:
       default:
         this.className = "light-mode";
         this.logErrorPaneElement.className = "ligtht-mode";
         this.tableEditorPaneElement.className = "light-mode";
-        monaco.editor.setTheme(theme);
+        // monaco.editor.setTheme(theme);
         break;
     }
 
     this.settings.theme = theme;
+  }
+
+  // Run all the code in the current editor
+  runAll() {
+    const source = monaco.editor.getEditors()[0].getValue();
+    const bytecode = new PreludioCompiler({ debugLevel: 5, verbosity: true }).compileToBytecode(source);
+
+    console.log(bytecode);
   }
 
   addNewPipeline(pipelineName?: string) {
@@ -205,9 +213,8 @@ export class App extends HTMLDivElement {
     monaco.editor.create(this.codeEditorPaneElement, {
       value: STARTING_CODE_SAMPLE.join("\n"),
       language: "python",
-      minimap: { enabled: false },
+      minimap: { enabled: false }, // the minimap is not really usefull and might cause issues with the workers
     });
-
     monaco.editor.setTheme(this.settings.theme);
   }
 }

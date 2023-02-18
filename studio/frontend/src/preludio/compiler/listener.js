@@ -3,8 +3,8 @@ import antlr4 from "antlr4";
 import preludioListener from "../parser/preludioListener.js";
 import preludioLexer from "../parser/preludioLexer.js";
 import preludioParser from "../parser/preludioParser.js";
-import { Blob } from "buffer";
-import { TextEncoder } from "util";
+import Blob from "buffer";
+import TextEncoder from "util";
 
 export const TERM_NULL = 0;
 export const TERM_BOOL = 1;
@@ -110,8 +110,20 @@ export default class PreludioCompiler extends preludioListener {
     return b;
   }
 
-  getByteCode() {
-    const encoder = new TextEncoder();
+  compileToBytecode(source) {
+    const { CommonTokenStream, InputStream } = antlr4;
+
+    const chars = new InputStream(source, true);
+    const lexer = new preludioLexer(chars);
+    const tokens = new CommonTokenStream(lexer);
+    const parser = new preludioParser(tokens);
+
+    parser.buildParseTrees = true;
+    const tree = parser.program();
+    // const compiler = new PreludioCompiler({ debugLevel: 5, verbosity: true });
+    antlr4.tree.ParseTreeWalker.DEFAULT.walk(this, tree);
+
+    const encoder = TextEncoder.TextEncoder();
     const stringSymbols = [];
     for (let s of this.__symbol_table_str) {
       const v = encoder.encode(s);
@@ -120,27 +132,17 @@ export default class PreludioCompiler extends preludioListener {
 
     const instructions = [];
     for (let i = 0; i < this.__instructions.length; i += 3) {
-      if (
-        this.__instructions[i] === OP_PUSH_TERM &&
-        this.__instructions[i + 1] === TERM_INTEGER
-      ) {
+      if (this.__instructions[i] === OP_PUSH_TERM && this.__instructions[i + 1] === TERM_INTEGER) {
         instructions.push(
           ...this._toByteArray2(this.__instructions[i]),
           ...this._toByteArray2(this.__instructions[i + 1]),
-          ...new Uint8Array(
-            new BigInt64Array([BigInt(this.__instructions[i + 2])]).buffer
-          )
+          ...new Uint8Array(new BigInt64Array([BigInt(this.__instructions[i + 2])]).buffer)
         );
-      } else if (
-        this.__instructions[i] === OP_PUSH_TERM &&
-        this.__instructions[i + 1] === TERM_FLOAT
-      ) {
+      } else if (this.__instructions[i] === OP_PUSH_TERM && this.__instructions[i + 1] === TERM_FLOAT) {
         instructions.push(
           ...this._toByteArray2(this.__instructions[i]),
           ...this._toByteArray2(this.__instructions[i + 1]),
-          ...new Uint8Array(
-            new Float64Array([this.__instructions[i + 2]]).buffer
-          )
+          ...new Uint8Array(new Float64Array([this.__instructions[i + 2]]).buffer)
         );
       } else {
         instructions.push(
@@ -214,9 +216,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#assignStmt.
   enterAssignStmt(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignStmt`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignStmt`);
     }
 
     this.__rec_depth__++;
@@ -226,9 +226,7 @@ export default class PreludioCompiler extends preludioListener {
   exitAssignStmt(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignStmt`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignStmt`);
     }
 
     const identName = ctx.IDENT().symbol.text;
@@ -244,9 +242,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#pipeline.
   enterPipeline(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> Pipeline`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Pipeline`);
     }
 
     this.__instructions.push(OP_START_PIPELINE, 0, 0);
@@ -258,9 +254,7 @@ export default class PreludioCompiler extends preludioListener {
   exitPipeline(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- Pipeline`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- Pipeline`);
     }
 
     this.__instructions.push(OP_END_PIPELINE, 0, 0);
@@ -269,9 +263,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#inlinePipeline.
   enterInlinePipeline(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> InlinePipeline`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> InlinePipeline`);
     }
 
     this.__instructions.push(OP_START_PIPELINE, 0, 0);
@@ -283,9 +275,7 @@ export default class PreludioCompiler extends preludioListener {
   exitInlinePipeline(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- InlinePipeline`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- InlinePipeline`);
     }
 
     this.__instructions.push(OP_END_PIPELINE, 0, 0);
@@ -307,10 +297,7 @@ export default class PreludioCompiler extends preludioListener {
   enterFuncCall(ctx) {
     if (this.__debug_level > 10) {
       const funcName = ctx.IDENT().symbol.text;
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) +
-          `-> FuncCall: ${funcName}`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> FuncCall: ${funcName}`);
     }
 
     this.__instructions.push(OP_START_FUNC_CALL, 0, 0);
@@ -323,10 +310,7 @@ export default class PreludioCompiler extends preludioListener {
     this.__rec_depth__--;
     const funcName = ctx.IDENT().symbol.text;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) +
-          `<- FuncCall: ${funcName}`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- FuncCall: ${funcName}`);
     }
 
     let pos = this.__symbol_table_str.indexOf(funcName);
@@ -341,9 +325,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#funcCallParam.
   enterFuncCallParam(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> FuncCallParam`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> FuncCallParam`);
     }
 
     this.__rec_depth__++;
@@ -353,9 +335,7 @@ export default class PreludioCompiler extends preludioListener {
   exitFuncCallParam(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- FuncCallParam`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- FuncCallParam`);
     }
 
     this.__instructions.push(OP_END_CHUNCK, 0, 0);
@@ -364,9 +344,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#namedArg.
   enterNamedArg(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> NamedArg`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> NamedArg`);
     }
 
     this.__rec_depth__++;
@@ -376,9 +354,7 @@ export default class PreludioCompiler extends preludioListener {
   exitNamedArg(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- NamedArg`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- NamedArg`);
     }
 
     const paramName = ctx.IDENT().symbol.text;
@@ -394,9 +370,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#assign.
   enterAssign(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> Assign`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Assign`);
     }
 
     this.__rec_depth__++;
@@ -406,9 +380,7 @@ export default class PreludioCompiler extends preludioListener {
   exitAssign(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- Assign`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- Assign`);
     }
 
     const identName = ctx.IDENT().symbol.text;
@@ -430,9 +402,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#assignCall.
   enterAssignCall(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignCall`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> AssignCall`);
     }
 
     this.__rec_depth__++;
@@ -442,9 +412,7 @@ export default class PreludioCompiler extends preludioListener {
   exitAssignCall(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignCall`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- AssignCall`);
     }
 
     const identName = ctx.IDENT().symbol.text;
@@ -460,9 +428,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#exprCall.
   enterExprCall(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> ExprCall`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> ExprCall`);
     }
 
     this.__rec_depth__++;
@@ -472,9 +438,7 @@ export default class PreludioCompiler extends preludioListener {
   exitExprCall(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- ExprCall`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- ExprCall`);
     }
 
     this.__instructions.push(OP_END_CHUNCK, 0, 0);
@@ -549,10 +513,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#term.
   enterTerm(ctx) {
     if (this.__debug_level > 15) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) +
-          `-> Term: ${ctx.getText()}`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Term: ${ctx.getText()}`);
     }
 
     this.__rec_depth__++;
@@ -569,9 +530,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#exprUnary.
   enterExprUnary(ctx) {
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `-> enterExprUnary`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> enterExprUnary`);
     }
 
     this.__rec_depth__++;
@@ -581,9 +540,7 @@ export default class PreludioCompiler extends preludioListener {
   exitExprUnary(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 10) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- enterExprUnary`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- enterExprUnary`);
     }
 
     // operation or nested expression
@@ -605,10 +562,7 @@ export default class PreludioCompiler extends preludioListener {
   // Enter a parse tree produced by preludioParser#literal.
   enterLiteral(ctx) {
     if (this.__debug_level > 15) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) +
-          `-> Literal: ${ctx.getText()}`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `-> Literal: ${ctx.getText()}`);
     }
 
     this.__rec_depth__++;
@@ -618,9 +572,7 @@ export default class PreludioCompiler extends preludioListener {
   exitLiteral(ctx) {
     this.__rec_depth__--;
     if (this.__debug_level > 15) {
-      console.log(
-        this.__indent_symbol.repeat(this.__rec_depth__) + `<- Literal`
-      );
+      console.log(this.__indent_symbol.repeat(this.__rec_depth__) + `<- Literal`);
     }
 
     switch (ctx.children.length) {
@@ -632,29 +584,17 @@ export default class PreludioCompiler extends preludioListener {
 
         // BOOLEAN
         else if (ctx.BOOLEAN() !== null) {
-          this.__instructions.push(
-            OP_PUSH_TERM,
-            TERM_BOOL,
-            ctx.BOOLEAN().getText() === "true" ? 1 : 0
-          );
+          this.__instructions.push(OP_PUSH_TERM, TERM_BOOL, ctx.BOOLEAN().getText() === "true" ? 1 : 0);
         }
 
         // INTEGER
         else if (ctx.INTEGER() !== null && ctx.INTEGER().length > 0) {
-          this.__instructions.push(
-            OP_PUSH_TERM,
-            TERM_INTEGER,
-            parseInt(ctx.INTEGER()[0].getText())
-          );
+          this.__instructions.push(OP_PUSH_TERM, TERM_INTEGER, parseInt(ctx.INTEGER()[0].getText()));
         }
 
         // FLOAT
         else if (ctx.FLOAT() !== null && ctx.FLOAT().length > 0) {
-          this.__instructions.push(
-            OP_PUSH_TERM,
-            TERM_FLOAT,
-            parseFloat(ctx.FLOAT()[0].getText())
-          );
+          this.__instructions.push(OP_PUSH_TERM, TERM_FLOAT, parseFloat(ctx.FLOAT()[0].getText()));
         }
 
         // STRING
@@ -744,18 +684,18 @@ export default class PreludioCompiler extends preludioListener {
   // exitNestedPipeline(ctx) {}
 }
 
-export function getByteCode(source) {
-  const { CommonTokenStream, InputStream } = antlr4;
+// export function getByteCode(source) {
+//   const { CommonTokenStream, InputStream } = antlr4;
 
-  const chars = new InputStream(source, true);
-  const lexer = new preludioLexer(chars);
-  const tokens = new CommonTokenStream(lexer);
-  const parser = new preludioParser(tokens);
+//   const chars = new InputStream(source, true);
+//   const lexer = new preludioLexer(chars);
+//   const tokens = new CommonTokenStream(lexer);
+//   const parser = new preludioParser(tokens);
 
-  parser.buildParseTrees = true;
-  const tree = parser.program();
-  const compiler = new PreludioCompiler({ debugLevel: 5, verbosity: true });
-  antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
+//   parser.buildParseTrees = true;
+//   const tree = parser.program();
+//   const compiler = new PreludioCompiler({ debugLevel: 5, verbosity: true });
+//   antlr4.tree.ParseTreeWalker.DEFAULT.walk(compiler, tree);
 
-  return compiler.getByteCode();
-}
+//   return compiler.getByteCode();
+// }

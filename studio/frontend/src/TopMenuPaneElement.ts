@@ -1,4 +1,4 @@
-import { App, Theme } from "./App";
+import { App } from "./App";
 import "./TopMenuPaneElement.css";
 import { Icon } from "./utils/Icon";
 
@@ -22,9 +22,13 @@ export const TopMenuPaneElement = (id: string, app: App) => {
 
   const buttonBar1 = new ButtonBar("1");
 
+  // Run all button
   const runAllButton = document.createElement("button");
   runAllButton.id = "run-all-button";
   runAllButton.appendChild(new Icon("run-all-svgrepo-com"));
+  runAllButton.addEventListener("click", () => {
+    app.runAll();
+  });
 
   const decreaseTextSizeButton = document.createElement("button");
   decreaseTextSizeButton.id = "run-all-button";
@@ -34,6 +38,7 @@ export const TopMenuPaneElement = (id: string, app: App) => {
   increaseTextSizeButton.id = "run-all-button";
   increaseTextSizeButton.appendChild(new Icon("zoom-in-svgrepo-com"));
 
+  // Switch theme button
   const switchThemeButton = document.createElement("button");
   switchThemeButton.id = "run-all-button";
   switchThemeButton.appendChild(new Icon("symbol-color-svgrepo-com"));
