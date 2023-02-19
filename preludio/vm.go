@@ -5,16 +5,16 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io/fs"
-	"math"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
 
-type OPCODE uint16
-type PARAM1 uint16
+type OPCODE uint8
+type PARAM1 uint8
 
 const (
 	TERM_NULL     PARAM1 = 0
@@ -122,7 +122,7 @@ type PreludioOutput struct {
 // Read Preludio Bytecode from byte array
 func (vm *ByteEater) ReadBytecode(bytecode []byte) *PreludioOutput {
 	bytemark := bytecode[0:4]
-	__symbolTableSize := binary.BigEndian.Uint64(bytecode[8:16])
+	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
 	if vm.__debugLevel > 5 {
 		fmt.Println()
@@ -135,10 +135,10 @@ func (vm *ByteEater) ReadBytecode(bytecode []byte) *PreludioOutput {
 		fmt.Printf("==============\n")
 	}
 
-	offset := uint64(16)
-	for i := uint64(0); i < __symbolTableSize; i++ {
-		l := binary.BigEndian.Uint64(bytecode[offset : offset+8])
-		offset += 8
+	offset := uint32(8)
+	for i := uint32(0); i < __symbolTableSize; i++ {
+		l := binary.BigEndian.Uint32(bytecode[offset : offset+4])
+		offset += 4
 
 		v := string(bytecode[offset : offset+l])
 		vm.__symbolTable = append(vm.__symbolTable, v)
@@ -188,7 +188,7 @@ func (vm *ByteEater) ReadFileBytecode() *PreludioOutput {
 	_, err = bufr.Read(bytecode)
 
 	bytemark := bytecode[0:4]
-	__symbolTableSize := binary.BigEndian.Uint64(bytecode[8:16])
+	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
 	if vm.__debugLevel > 5 {
 		fmt.Println()
@@ -201,10 +201,10 @@ func (vm *ByteEater) ReadFileBytecode() *PreludioOutput {
 		fmt.Printf("==============\n")
 	}
 
-	offset := uint64(16)
-	for i := uint64(0); i < __symbolTableSize; i++ {
-		l := binary.BigEndian.Uint64(bytecode[offset : offset+8])
-		offset += 8
+	offset := uint32(8)
+	for i := uint32(0); i < __symbolTableSize; i++ {
+		l := binary.BigEndian.Uint32(bytecode[offset : offset+4])
+		offset += 4
 
 		v := string(bytecode[offset : offset+l])
 		vm.__symbolTable = append(vm.__symbolTable, v)
@@ -247,22 +247,22 @@ func (vm *ByteEater) StackLast() *PreludioInternal {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *ByteEater) ReadPrqlInstructions(bytes []byte, offset uint64) {
+func (vm *ByteEater) ReadPrqlInstructions(bytes []byte, offset uint32) {
 
 	var opCode OPCODE
 	var param1 PARAM1
 	var param2 []byte
 
-	usize := uint64(len(bytes))
+	usize := uint32(len(bytes))
 
 MAIN_LOOP:
 	for offset < usize {
-		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+2]))
-		offset += 2
-		param1 = PARAM1(binary.BigEndian.Uint16(bytes[offset : offset+2]))
-		offset += 2
-		param2 = bytes[offset : offset+8]
-		offset += 8
+		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+1]))
+		offset++
+		param1 = PARAM1(binary.BigEndian.Uint16(bytes[offset : offset+1]))
+		offset++
+		param2 = bytes[offset : offset+4]
+		offset += 4
 
 		switch opCode {
 
@@ -295,7 +295,7 @@ MAIN_LOOP:
 			}
 
 		case OP_MAKE_FUNC_CALL:
-			funcName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
+			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_MAKE_FUNC_CALL", "", funcName, "")
 			}
@@ -395,7 +395,7 @@ MAIN_LOOP:
 		///////////	Set the last element on the stack as a named
 		///////////	parameter.
 		case OP_PUSH_NAMED_PARAM:
-			paramName := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
+			paramName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", paramName, "")
 			}
@@ -408,7 +408,7 @@ MAIN_LOOP:
 		///////////	Set the last element on the stack as an assigned
 		///////////	expression.
 		case OP_PUSH_ASSIGN_IDENT:
-			ident := vm.__symbolTable[binary.BigEndian.Uint64(param2)]
+			ident := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			if vm.__debugLevel > 10 {
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_ASSIGN_IDENT", "", ident, "")
 			}
@@ -427,7 +427,7 @@ MAIN_LOOP:
 				termType = "BOOL"
 				termVal = "true"
 				val := true
-				if binary.BigEndian.Uint64(param2) == 0 {
+				if binary.BigEndian.Uint32(param2) == 0 {
 					val = false
 					termVal = "false"
 				}
@@ -435,24 +435,24 @@ MAIN_LOOP:
 
 			case TERM_INTEGER:
 				termType = "INTEGER"
-				val := int(binary.LittleEndian.Uint32(param2))
-				termVal = fmt.Sprintf("%d", val)
-				vm.StackPush(NewPreludioInternalTerm([]int{val}))
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.StackPush(NewPreludioInternalTerm([]int{int(val)}))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
-				val := math.Float64frombits(binary.LittleEndian.Uint64(param2))
-				termVal = fmt.Sprintf("%f", val)
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseFloat(termVal, 64)
 				vm.StackPush(NewPreludioInternalTerm([]float64{val}))
 
 			case TERM_STRING:
 				termType = "STRING"
-				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.StackPush(NewPreludioInternalTerm([]string{termVal}))
 
 			case TERM_SYMBOL:
 				termType = "SYMBOL"
-				termVal = vm.__symbolTable[binary.BigEndian.Uint64(param2)]
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.StackPush(NewPreludioInternalTerm(PreludioSymbol(termVal)))
 
 			default:

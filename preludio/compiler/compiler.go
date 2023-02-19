@@ -133,14 +133,13 @@ func (bf *ByteFeeder) GetBytecode() []byte {
 	// and the number of elements in the symbol table
 	bytecode := []byte{
 		0x11, 0x01, 0x19, 0x93,
-		0x00, 0x00, 0x00, 0x00,
 	}
 
-	bytecode = binary.BigEndian.AppendUint64(bytecode, uint64(len(bf.symbolTable)))
+	bytecode = binary.BigEndian.AppendUint32(bytecode, uint32(len(bf.symbolTable)))
 
 	for _, symbol := range bf.symbolTable {
 		enc := []byte(symbol)
-		bytecode = binary.BigEndian.AppendUint64(bytecode, uint64(len(enc)))
+		bytecode = binary.BigEndian.AppendUint32(bytecode, uint32(len(enc)))
 		bytecode = append(bytecode, enc...)
 	}
 
