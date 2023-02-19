@@ -1,10 +1,9 @@
-import { ParseCsv, RunPreludioBytecode } from "../wailsjs/go/main/App";
+import { ParseCsv, RunPreludioCode } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { TopMenuPaneElement } from "./TopMenuPaneElement";
 // import { MainButton } from "./utils/MainButton";
 import * as monaco from "monaco-editor";
-import PreludioCompiler from "./preludio/compiler/listener";
 
 const STARTING_CODE_SAMPLE = [
   `importCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars.csv" delimiter: ";" header:true`,
@@ -182,6 +181,9 @@ export class App extends HTMLDivElement {
   runAll() {
     const source = monaco.editor.getEditors()[0].getValue();
     // const bytecode = new PreludioCompiler({ debugLevel: 5, verbosity: true }).compileToBytecode(source);
+
+    const res = RunPreludioCode(source);
+    console.log(res);
   }
 
   addNewPipeline(pipelineName?: string) {
