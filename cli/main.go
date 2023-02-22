@@ -9,6 +9,7 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func main() {
@@ -120,6 +121,18 @@ const KEY_MAP = `
 	ctrl+r		show/hide key map
 `
 
+var (
+	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	cursorStyle  = focusedStyle.Copy()
+	noStyle      = lipgloss.NewStyle()
+	helpStyle    = blurredStyle.Copy()
+	// cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
+
+	// focusedButton = focusedStyle.Copy().Render("[ Submit ]")
+	// blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
+)
+
 type CodeEditor struct {
 	saved         bool
 	showKeyMap    bool
@@ -141,21 +154,25 @@ func NewCodeEditor() CodeEditor {
 		footerMessage: KEY_MAP,
 	}
 
+	// editor.updateFocus()
+
 	return editor
 }
 
 func NewCodeEditorRow() textinput.Model {
 	row := textinput.New()
-	row.Placeholder = ""
-	// row.Focus()
+	// row.Placeholder = ""
 	row.CharLimit = 156
 	row.Width = 20
+
+	row.Prompt = ""
+	row.CursorStyle = cursorStyle
 
 	return row
 }
 
 func (editor CodeEditor) Init() tea.Cmd {
-	return nil
+	return textinput.Blink
 }
 
 func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -171,31 +188,30 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// 		m.table.Focus()
 		// 	}
 
-		case "down":
-			editor.rows[editor.currentRow].Reset()
+		case "up":
 			editor.currentRow--
 			if editor.currentRow < 0 {
 				editor.currentRow = len(editor.rows) - 1
 			}
-			editor.rows[editor.currentRow].Focus()
+			return editor.updateFocus()
 
-		case "up":
-			editor.rows[editor.currentRow].Reset()
+		case "down":
 			editor.currentRow++
 			if editor.currentRow == len(editor.rows) {
 				editor.currentRow = 0
 			}
-			editor.rows[editor.currentRow].Focus()
+			return editor.updateFocus()
 
-		case "left":
+		// case "left":
 
-		case "right":
+		// case "right":
 
 		case "enter":
-			editor.rows[editor.currentRow].Reset()
-			editor.rows = append(editor.rows, NewCodeEditorRow())
 			editor.currentRow++
-			editor.rows[editor.currentRow].Focus()
+			if editor.currentRow == len(editor.rows) {
+				editor.rows = append(editor.rows, NewCodeEditorRow())
+			}
+			return editor.updateFocus()
 
 		// SHOW/HIDE KEY MAP
 		case "ctrl+r":
@@ -220,12 +236,29 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	editor.rows[editor.currentRow].Focus()
-
 	cmd = editor.updateInputs(msg)
 
-	// m.table, cmd = m.table.Update(msg)
 	return editor, cmd
+}
+
+func (editor CodeEditor) updateFocus() (tea.Model, tea.Cmd) {
+	cmds := make([]tea.Cmd, len(editor.rows))
+	for i := 0; i <= len(editor.rows)-1; i++ {
+		if i == editor.currentRow {
+			// Set focused state
+			cmds[i] = editor.rows[i].Focus()
+			editor.rows[i].PromptStyle = focusedStyle
+			editor.rows[i].TextStyle = focusedStyle
+			continue
+		}
+
+		// Remove focused state
+		editor.rows[i].Blur()
+		editor.rows[i].PromptStyle = noStyle
+		editor.rows[i].TextStyle = noStyle
+	}
+
+	return editor, tea.Batch(cmds...)
 }
 
 func (editor CodeEditor) updateInputs(msg tea.Msg) tea.Cmd {
@@ -244,55 +277,11 @@ func (editor CodeEditor) View() string {
 	out := "	Welcome To Preludio!\n\n"
 
 	for idx, row := range editor.rows {
-		out += fmt.Sprintf("%3d | %s\n", idx, row.Value())
+		out += helpStyle.Render(fmt.Sprintf("%3d | ", idx))
+		out += row.View() + "\n"
 	}
 
-	out += fmt.Sprintf("\n%s", editor.footerMessage)
+	out += fmt.Sprintf("\n%s", helpStyle.Render(editor.footerMessage))
 
 	return out
 }
-
-// type FunctionSelector struct {
-// 	currentPattern    string
-// 	selectedFunctions []string
-// }
-
-// var baseStyle = lipgloss.NewStyle().
-// 	BorderStyle(lipgloss.NormalBorder()).
-// 	BorderForeground(lipgloss.Color("240"))
-
-// type model struct {
-// 	table table.Model
-// }
-
-// func (m model) Init() tea.Cmd {
-// 	return nil
-// }
-
-// func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-// 	var cmd tea.Cmd
-// 	switch msg := msg.(type) {
-// 	case tea.KeyMsg:
-// 		switch msg.String() {
-// 		case "esc":
-// 			if m.table.Focused() {
-// 				m.table.Blur()
-// 			} else {
-// 				m.table.Focus()
-// 			}
-// 		case "ctrl+c":
-// 			return m, tea.Quit
-// 		case "enter":
-// 			return m, tea.Batch(
-// 				tea.Printf("%s", m.table.SelectedRow()[0]),
-// 			)
-// 		default:
-// 		}
-// 	}
-// 	m.table, cmd = m.table.Update(msg)
-// 	return m, cmd
-// }
-
-// func (m model) View() string {
-// 	return baseStyle.Render(m.table.View()) + "\n"
-// }
