@@ -127,7 +127,7 @@ const KEY_MAP = `
 
 // DEFAULT SETTINGS
 const (
-	INIT_ROWS_NUM    = 1000
+	INIT_ROWS_NUM    = 100
 	VISIBLE_ROWS_NUM = 20
 	ROW_WIDTH        = 60
 )
@@ -177,7 +177,6 @@ func NewCodeEditor() CodeEditor {
 		currentRow:      0,
 		visibleRows:     VISIBLE_ROWS_NUM,
 		firstVisibleRow: 0,
-		lastRowInUse:    1,
 		rows:            rows,
 		footerMessage:   KEY_MAP,
 	}
@@ -224,17 +223,30 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// case "esc":
 
 		case "up":
+			// move visible region up
+			if editor.currentRow == (editor.firstVisibleRow+1) && editor.firstVisibleRow > 0 {
+				editor.firstVisibleRow--
+			}
+
 			editor.currentRow--
 			if editor.currentRow < 0 {
 				editor.currentRow = 0
 			}
+
 			return editor.updateFocus()
 
 		case "down":
+
+			// move visible region down
+			if tmp := (editor.firstVisibleRow + editor.visibleRows - 2); editor.currentRow == tmp && tmp < len(editor.rows)-1 {
+				editor.firstVisibleRow++
+			}
+
 			editor.currentRow++
 			if editor.currentRow == len(editor.rows) {
-				editor.currentRow = 0
+				editor.currentRow = len(editor.rows) - 1
 			}
+
 			return editor.updateFocus()
 
 		// case "left":
@@ -245,6 +257,8 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// if editor.currentRow.Cursor.
 
 		case "enter":
+
+			// add a new empty row
 			values := make([]string, len(editor.rows)-editor.currentRow-1)
 			for idx, row := range editor.rows[editor.currentRow+1 : len(editor.rows)] {
 				values[idx] = row.Value()
@@ -255,6 +269,11 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			editor.rows[editor.currentRow+1].SetValue("")
 			for idx := range editor.rows[editor.currentRow+3 : len(editor.rows)] {
 				editor.rows[editor.currentRow+2+idx].SetValue(values[idx])
+			}
+
+			// move visible region down
+			if editor.currentRow == (editor.firstVisibleRow + editor.visibleRows - 2) {
+				editor.firstVisibleRow++
 			}
 
 			editor.currentRow++
@@ -325,12 +344,9 @@ func (editor CodeEditor) View() string {
 	out := BANNER_STYLE.Render(BANNER_TEXT)
 	out += "\n"
 
-	idx := editor.firstVisibleRow
-	for idx < editor.visibleRows {
-		if idx < len(editor.rows) {
-			out += editor.rows[idx].View() + "\n"
-		}
-		idx++
+	lastVisibleRow := editor.firstVisibleRow + editor.visibleRows
+	for idx := editor.firstVisibleRow; idx < lastVisibleRow && idx < len(editor.rows); idx++ {
+		out += editor.rows[idx].View() + "\n"
 	}
 
 	out += fmt.Sprintf("\n%s", helpStyle.Render(editor.footerMessage))
