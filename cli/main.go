@@ -144,19 +144,19 @@ var (
 	EDITOR_ROW_PROMPT_STYLE = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("240"))
 
-	focusedStyle = lipgloss.NewStyle().
-			Background(lipgloss.Color("#7D56F4"))
+	EDITOR_ROW_FOCUSED_STYLE = lipgloss.NewStyle().
+					Background(lipgloss.Color("#7D56F4"))
 
-	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-	cursorStyle  = focusedStyle.Copy()
-	noStyle      = lipgloss.NewStyle()
-	helpStyle    = blurredStyle.Copy()
+	BLURRED_STYLE = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("240"))
+
+	NO_STYLE = lipgloss.NewStyle()
 )
 
 type CodeEditor struct {
 	saved           bool
 	showKeyMap      bool
-	currentRow      int
+	currentRowIdx   int
 	visibleRows     int
 	firstVisibleRow int
 	lastRowInUse    int
@@ -174,7 +174,7 @@ func NewCodeEditor() CodeEditor {
 	editor := CodeEditor{
 		saved:           false,
 		showKeyMap:      true,
-		currentRow:      0,
+		currentRowIdx:   0,
 		visibleRows:     VISIBLE_ROWS_NUM,
 		firstVisibleRow: 0,
 		rows:            rows,
@@ -191,9 +191,9 @@ func NewCodeEditorRow(idx int) textinput.Model {
 	row.CharLimit = 0
 	row.Width = ROW_WIDTH
 
-	row.CursorStyle = cursorStyle
+	row.CursorStyle = EDITOR_ROW_FOCUSED_STYLE
 
-	row.Prompt = fmt.Sprintf(" %4d \t", idx+1)
+	row.Prompt = fmt.Sprintf(" %4d ", idx+1)
 	row.PromptStyle = EDITOR_ROW_PROMPT_STYLE
 
 	return row
@@ -205,8 +205,9 @@ func (editor CodeEditor) Init() tea.Cmd {
 
 	// Focus on first row
 	cmds = append(cmds, editor.rows[0].Focus())
-	editor.rows[0].PromptStyle = focusedStyle
-	editor.rows[0].TextStyle = focusedStyle
+	editor.rows[0].PromptStyle = EDITOR_ROW_FOCUSED_STYLE
+	editor.rows[0].TextStyle = EDITOR_ROW_FOCUSED_STYLE
+	editor.rows[0].Cursor.TextStyle = EDITOR_ROW_FOCUSED_STYLE
 
 	// Blicking cursor
 	cmds = append(cmds, textinput.Blink)
@@ -224,13 +225,13 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "up":
 			// move visible region up
-			if editor.currentRow == (editor.firstVisibleRow+1) && editor.firstVisibleRow > 0 {
+			if editor.currentRowIdx == (editor.firstVisibleRow+1) && editor.firstVisibleRow > 0 {
 				editor.firstVisibleRow--
 			}
 
-			editor.currentRow--
-			if editor.currentRow < 0 {
-				editor.currentRow = 0
+			editor.currentRowIdx--
+			if editor.currentRowIdx < 0 {
+				editor.currentRowIdx = 0
 			}
 
 			return editor.updateFocus()
@@ -238,13 +239,13 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "down":
 
 			// move visible region down
-			if tmp := (editor.firstVisibleRow + editor.visibleRows - 2); editor.currentRow == tmp && tmp < len(editor.rows)-1 {
+			if tmp := (editor.firstVisibleRow + editor.visibleRows - 2); editor.currentRowIdx == tmp && tmp < len(editor.rows)-1 {
 				editor.firstVisibleRow++
 			}
 
-			editor.currentRow++
-			if editor.currentRow == len(editor.rows) {
-				editor.currentRow = len(editor.rows) - 1
+			editor.currentRowIdx++
+			if editor.currentRowIdx == len(editor.rows) {
+				editor.currentRowIdx = len(editor.rows) - 1
 			}
 
 			return editor.updateFocus()
@@ -254,29 +255,50 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// case "right":
 
 		case "backspace":
-			// if editor.currentRow.Cursor.
+			if editor.rows[editor.currentRowIdx].Position() == 0 && editor.currentRowIdx > 0 {
+				values := make([]string, len(editor.rows)-editor.currentRowIdx-1)
+				for idx, row := range editor.rows[editor.currentRowIdx+1 : len(editor.rows)] {
+					values[idx] = row.Value()
+				}
+
+				for idx, value := range values {
+					editor.rows[editor.currentRowIdx+idx].SetValue(value)
+				}
+
+				// move visible region up
+				if editor.currentRowIdx == (editor.firstVisibleRow+1) && editor.firstVisibleRow > 0 {
+					editor.firstVisibleRow--
+				}
+
+				editor.currentRowIdx--
+				if editor.currentRowIdx < 0 {
+					editor.currentRowIdx = 0
+				}
+
+				return editor.updateFocus()
+			}
 
 		case "enter":
 
 			// add a new empty row
-			values := make([]string, len(editor.rows)-editor.currentRow-1)
-			for idx, row := range editor.rows[editor.currentRow+1 : len(editor.rows)] {
+			values := make([]string, len(editor.rows)-editor.currentRowIdx-1)
+			for idx, row := range editor.rows[editor.currentRowIdx+1 : len(editor.rows)] {
 				values[idx] = row.Value()
 			}
 
 			editor.rows = append(editor.rows, NewCodeEditorRow(len(editor.rows)))
 
-			editor.rows[editor.currentRow+1].SetValue("")
-			for idx := range editor.rows[editor.currentRow+3 : len(editor.rows)] {
-				editor.rows[editor.currentRow+2+idx].SetValue(values[idx])
+			editor.rows[editor.currentRowIdx+1].SetValue("")
+			for idx, value := range values {
+				editor.rows[editor.currentRowIdx+2+idx].SetValue(value)
 			}
 
 			// move visible region down
-			if editor.currentRow == (editor.firstVisibleRow + editor.visibleRows - 2) {
+			if editor.currentRowIdx == (editor.firstVisibleRow + editor.visibleRows - 2) {
 				editor.firstVisibleRow++
 			}
 
-			editor.currentRow++
+			editor.currentRowIdx++
 
 			return editor.updateFocus()
 
@@ -311,18 +333,20 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (editor CodeEditor) updateFocus() (tea.Model, tea.Cmd) {
 	cmds := make([]tea.Cmd, len(editor.rows))
 	for i := 0; i <= len(editor.rows)-1; i++ {
-		if i == editor.currentRow {
+		if i == editor.currentRowIdx {
 			// Set focused state
 			cmds[i] = editor.rows[i].Focus()
-			editor.rows[i].PromptStyle = focusedStyle
-			editor.rows[i].TextStyle = focusedStyle
+			editor.rows[i].PromptStyle = EDITOR_ROW_FOCUSED_STYLE
+			editor.rows[i].TextStyle = EDITOR_ROW_FOCUSED_STYLE
+			editor.rows[i].Cursor.TextStyle = EDITOR_ROW_FOCUSED_STYLE
 			continue
 		}
 
 		// Remove focused state
 		editor.rows[i].Blur()
-		editor.rows[i].PromptStyle = noStyle
-		editor.rows[i].TextStyle = noStyle
+		editor.rows[i].PromptStyle = EDITOR_ROW_PROMPT_STYLE
+		editor.rows[i].TextStyle = NO_STYLE
+		editor.rows[i].Cursor.TextStyle = NO_STYLE
 	}
 
 	return editor, tea.Batch(cmds...)
@@ -349,7 +373,7 @@ func (editor CodeEditor) View() string {
 		out += editor.rows[idx].View() + "\n"
 	}
 
-	out += fmt.Sprintf("\n%s", helpStyle.Render(editor.footerMessage))
+	out += fmt.Sprintf("\n%s", BLURRED_STYLE.Render(editor.footerMessage))
 
 	return out
 }
