@@ -113,6 +113,10 @@ func REPL() {
 	// }
 }
 
+const BANNER_TEXT = `
+PRELUDIO
+`
+
 const KEY_MAP = `
 	KEY MAP
 	
@@ -121,58 +125,94 @@ const KEY_MAP = `
 	ctrl+r		show/hide key map
 `
 
+// DEFAULT SETTINGS
+const (
+	INIT_ROWS_NUM    = 1000
+	VISIBLE_ROWS_NUM = 20
+	ROW_WIDTH        = 60
+)
+
+// COLOR SCHEME
+
 var (
-	focusedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	BANNER_STYLE = lipgloss.NewStyle().
+			Background(lipgloss.Color("##61edd0")).
+			Bold(true).
+			PaddingLeft(4).
+			Width(ROW_WIDTH)
+
+	EDITOR_ROW_PROMPT_STYLE = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("240"))
+
+	focusedStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#7D56F4"))
+
 	blurredStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	cursorStyle  = focusedStyle.Copy()
 	noStyle      = lipgloss.NewStyle()
 	helpStyle    = blurredStyle.Copy()
-	// cursorModeHelpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("244"))
-
-	// focusedButton = focusedStyle.Copy().Render("[ Submit ]")
-	// blurredButton = fmt.Sprintf("[ %s ]", blurredStyle.Render("Submit"))
 )
 
 type CodeEditor struct {
-	saved         bool
-	showKeyMap    bool
-	currentRow    int
-	rows          []textinput.Model
-	footerMessage string
+	saved           bool
+	showKeyMap      bool
+	currentRow      int
+	visibleRows     int
+	firstVisibleRow int
+	lastRowInUse    int
+	rows            []textinput.Model
+	footerMessage   string
 }
 
 func NewCodeEditor() CodeEditor {
 
-	rows := []textinput.Model{NewCodeEditorRow()}
-	// rows[0].CursorStart()
-
-	editor := CodeEditor{
-		saved:         false,
-		showKeyMap:    true,
-		currentRow:    0,
-		rows:          rows,
-		footerMessage: KEY_MAP,
+	rows := make([]textinput.Model, INIT_ROWS_NUM)
+	for idx := range rows {
+		rows[idx] = NewCodeEditorRow(idx)
 	}
 
-	// editor.updateFocus()
+	editor := CodeEditor{
+		saved:           false,
+		showKeyMap:      true,
+		currentRow:      0,
+		visibleRows:     VISIBLE_ROWS_NUM,
+		firstVisibleRow: 0,
+		lastRowInUse:    1,
+		rows:            rows,
+		footerMessage:   KEY_MAP,
+	}
 
 	return editor
 }
 
-func NewCodeEditorRow() textinput.Model {
+func NewCodeEditorRow(idx int) textinput.Model {
 	row := textinput.New()
-	// row.Placeholder = ""
-	row.CharLimit = 156
-	row.Width = 20
 
-	row.Prompt = ""
+	row.Placeholder = ""
+	row.CharLimit = 0
+	row.Width = ROW_WIDTH
+
 	row.CursorStyle = cursorStyle
+
+	row.Prompt = fmt.Sprintf(" %4d \t", idx+1)
+	row.PromptStyle = EDITOR_ROW_PROMPT_STYLE
 
 	return row
 }
 
 func (editor CodeEditor) Init() tea.Cmd {
-	return textinput.Blink
+
+	cmds := make([]tea.Cmd, 0)
+
+	// Focus on first row
+	cmds = append(cmds, editor.rows[0].Focus())
+	editor.rows[0].PromptStyle = focusedStyle
+	editor.rows[0].TextStyle = focusedStyle
+
+	// Blicking cursor
+	cmds = append(cmds, textinput.Blink)
+
+	return tea.Batch(cmds...)
 }
 
 func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -182,16 +222,11 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		// case "esc":
-		// 	if m.table.Focused() {
-		// 		m.table.Blur()
-		// 	} else {
-		// 		m.table.Focus()
-		// 	}
 
 		case "up":
 			editor.currentRow--
 			if editor.currentRow < 0 {
-				editor.currentRow = len(editor.rows) - 1
+				editor.currentRow = 0
 			}
 			return editor.updateFocus()
 
@@ -206,11 +241,24 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// case "right":
 
+		case "backspace":
+			// if editor.currentRow.Cursor.
+
 		case "enter":
-			editor.currentRow++
-			if editor.currentRow == len(editor.rows) {
-				editor.rows = append(editor.rows, NewCodeEditorRow())
+			values := make([]string, len(editor.rows)-editor.currentRow-1)
+			for idx, row := range editor.rows[editor.currentRow+1 : len(editor.rows)] {
+				values[idx] = row.Value()
 			}
+
+			editor.rows = append(editor.rows, NewCodeEditorRow(len(editor.rows)))
+
+			editor.rows[editor.currentRow+1].SetValue("")
+			for idx := range editor.rows[editor.currentRow+3 : len(editor.rows)] {
+				editor.rows[editor.currentRow+2+idx].SetValue(values[idx])
+			}
+
+			editor.currentRow++
+
 			return editor.updateFocus()
 
 		// SHOW/HIDE KEY MAP
@@ -274,11 +322,15 @@ func (editor CodeEditor) updateInputs(msg tea.Msg) tea.Cmd {
 }
 
 func (editor CodeEditor) View() string {
-	out := "	Welcome To Preludio!\n\n"
+	out := BANNER_STYLE.Render(BANNER_TEXT)
+	out += "\n"
 
-	for idx, row := range editor.rows {
-		out += helpStyle.Render(fmt.Sprintf("%3d | ", idx))
-		out += row.View() + "\n"
+	idx := editor.firstVisibleRow
+	for idx < editor.visibleRows {
+		if idx < len(editor.rows) {
+			out += editor.rows[idx].View() + "\n"
+		}
+		idx++
 	}
 
 	out += fmt.Sprintf("\n%s", helpStyle.Render(editor.footerMessage))
