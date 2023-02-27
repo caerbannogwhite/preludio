@@ -130,6 +130,8 @@ const (
 	INIT_ROWS_NUM    = 100
 	VISIBLE_ROWS_NUM = 20
 	ROW_WIDTH        = 60
+
+	EDITOR_LINE_ENDING = "\n"
 )
 
 // COLOR SCHEME
@@ -150,6 +152,9 @@ var (
 	BLURRED_STYLE = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240"))
 
+	EDITOR_ERROR_MESSAGE_STYLE = lipgloss.NewStyle().
+					Foreground(lipgloss.Color("211"))
+
 	NO_STYLE = lipgloss.NewStyle()
 )
 
@@ -161,6 +166,7 @@ type CodeEditor struct {
 	firstVisibleRow int
 	lastRowInUse    int
 	rows            []textinput.Model
+	errorMessage    string
 	footerMessage   string
 }
 
@@ -178,6 +184,7 @@ func NewCodeEditor() CodeEditor {
 		visibleRows:     VISIBLE_ROWS_NUM,
 		firstVisibleRow: 0,
 		rows:            rows,
+		errorMessage:    "",
 		footerMessage:   KEY_MAP,
 	}
 
@@ -302,6 +309,24 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			return editor.updateFocus()
 
+		case "ctrl+e":
+			last := len(editor.rows) - 1
+			for ; last > 0; last-- {
+				if editor.rows[last].Value() != "" {
+					break
+				}
+			}
+
+			code := ""
+			for _, row := range editor.rows[0 : last+1] {
+				code += row.Value() + EDITOR_LINE_ENDING
+			}
+
+			err := os.WriteFile("test.prql", []byte(code), 0644)
+			if err != nil {
+				editor.errorMessage = err.Error()
+			}
+
 		// SHOW/HIDE KEY MAP
 		case "ctrl+r":
 			if editor.showKeyMap {
@@ -372,6 +397,8 @@ func (editor CodeEditor) View() string {
 	for idx := editor.firstVisibleRow; idx < lastVisibleRow && idx < len(editor.rows); idx++ {
 		out += editor.rows[idx].View() + "\n"
 	}
+
+	out += fmt.Sprintf("\n%s", EDITOR_ERROR_MESSAGE_STYLE.Render(editor.errorMessage))
 
 	out += fmt.Sprintf("\n%s", BLURRED_STYLE.Render(editor.footerMessage))
 
