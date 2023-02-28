@@ -16,9 +16,9 @@ PRELUDIO
 const KEY_MAP = `
 	KEY MAP
 	
-	ctrl+c		quit
+	ctrl+c		quit				•	ctrl+r		run the code
 	ctrl+s		save
-	ctrl+r		show/hide key map
+	ctrl+h		show/hide key map
 `
 
 // DEFAULT SETTINGS
@@ -111,12 +111,28 @@ func (editor *CodeEditor) MoveCurrentRowDown() {
 	}
 }
 
-func (editor *CodeEditor) GetLastRowInUseIndex() int {
-	idx := len(editor.rows) - 1
-	for editor.rows[idx].Value() != "" {
+func (editor *CodeEditor) GetFirstInUseRoxIndex() int {
+	idx := 0
+	for editor.rows[idx].Value() == "" {
 		idx++
 	}
 	return idx
+}
+
+func (editor *CodeEditor) GetLastInUseRowIndex() int {
+	idx := len(editor.rows) - 1
+	for idx > 0 && editor.rows[idx].Value() == "" {
+		idx--
+	}
+	return idx
+}
+
+func (editor *CodeEditor) GetCurrentEditorCode() string {
+	code := ""
+	for _, row := range editor.rows[editor.GetFirstInUseRoxIndex() : editor.GetLastInUseRowIndex()+1] {
+		code += row.Value() + EDITOR_LINE_ENDING
+	}
+	return code
 }
 
 func NewCodeEditorRow(idx int) textinput.Model {
@@ -174,21 +190,40 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "right":
 			row := editor.rows[editor.currentRowIdx]
-			if row.Position() == 0 || row.Position() == len(row.Value())-1 {
+			if (row.Value() == "" && row.Position() == 0) || row.Position() == len(row.Value()) {
 				editor.MoveCurrentRowDown()
 				return editor.updateFocus()
 			}
 
 		case "backspace":
-			if editor.rows[editor.currentRowIdx].Position() == 0 && editor.currentRowIdx > 0 {
-				lastRow := editor.GetLastRowInUseIndex()
-				values := make([]string, lastRow-editor.currentRowIdx-1)
-				for idx, row := range editor.rows[editor.currentRowIdx+1 : lastRow] {
-					values[idx] = row.Value()
-				}
+			editor.saved = false
 
-				for idx, value := range values {
-					editor.rows[editor.currentRowIdx+idx].SetValue(value)
+			if editor.rows[editor.currentRowIdx].Position() == 0 && editor.currentRowIdx > 0 {
+				lastRow := editor.GetLastInUseRowIndex()
+				if lastRow >= editor.currentRowIdx {
+
+					// Copy all the values from the current row (where the focus is) to the last row
+					// in use (it can be the same row, so +1)
+					// the +2 at the end: empty the last row with the for loop
+					values := make([]string, lastRow-editor.currentRowIdx+2)
+					for idx, row := range editor.rows[editor.currentRowIdx : lastRow+2] {
+						values[idx] = row.Value()
+					}
+
+					if editor.rows[editor.currentRowIdx-1].Value() != "" {
+						val := editor.rows[editor.currentRowIdx-1].Value()
+						editor.rows[editor.currentRowIdx-1].SetValue(val + values[0])
+
+						for idx, value := range values[1:] {
+							editor.rows[editor.currentRowIdx+idx].SetValue(value)
+						}
+					} else {
+						for idx, value := range values {
+							editor.rows[editor.currentRowIdx+idx-1].SetValue(value)
+						}
+
+						editor.rows[editor.currentRowIdx-1].SetCursor(0)
+					}
 				}
 
 				editor.MoveCurrentRowUp()
@@ -197,37 +232,40 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "enter":
+			editor.saved = false
 
 			// add a new empty row
-			lastRow := editor.GetLastRowInUseIndex()
-			values := make([]string, lastRow-editor.currentRowIdx-1)
-			for idx, row := range editor.rows[editor.currentRowIdx+1 : lastRow] {
-				values[idx] = row.Value()
-			}
+			lastRow := editor.GetLastInUseRowIndex() + 1
+			if lastRow > editor.currentRowIdx {
+				values := make([]string, lastRow-editor.currentRowIdx-1)
+				for idx, row := range editor.rows[editor.currentRowIdx+1 : lastRow] {
+					values[idx] = row.Value()
+				}
 
-			editor.rows = append(editor.rows, NewCodeEditorRow(len(editor.rows)))
+				// deal with the current row
+				currentRow := editor.rows[editor.currentRowIdx]
 
-			editor.rows[editor.currentRowIdx+1].SetValue("")
-			for idx, value := range values {
-				editor.rows[editor.currentRowIdx+2+idx].SetValue(value)
+				currentValue := currentRow.Value()
+				editor.rows[editor.currentRowIdx].SetValue(currentValue[0:currentRow.Position()])
+				editor.rows[editor.currentRowIdx+1].SetValue(currentValue[currentRow.Position():])
+
+				editor.rows = append(editor.rows, NewCodeEditorRow(len(editor.rows)))
+
+				for idx, value := range values {
+					editor.rows[editor.currentRowIdx+2+idx].SetValue(value)
+				}
+
+				// Put the cursor at the beginning
+				editor.rows[editor.currentRowIdx+1].SetCursor(0)
 			}
 
 			editor.MoveCurrentRowDown()
 
 			return editor.updateFocus()
 
-		case "ctrl+e":
-			last := len(editor.rows) - 1
-			for ; last > 0; last-- {
-				if editor.rows[last].Value() != "" {
-					break
-				}
-			}
-
-			code := ""
-			for _, row := range editor.rows[0 : last+1] {
-				code += row.Value() + EDITOR_LINE_ENDING
-			}
+		// RUN CODE
+		case "ctrl+r":
+			code := editor.GetCurrentEditorCode()
 
 			err := os.WriteFile("test.prql", []byte(code), 0644)
 			if err != nil {
@@ -235,7 +273,7 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		// SHOW/HIDE KEY MAP
-		case "ctrl+r":
+		case "ctrl+h":
 			if editor.showKeyMap {
 				editor.footerMessage = ""
 			} else {
@@ -245,6 +283,13 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// SAVE
 		case "ctrl+s":
+			code := editor.GetCurrentEditorCode()
+
+			err := os.WriteFile(".tmp.prql", []byte(code), 0644)
+			if err != nil {
+				editor.errorMessage = err.Error()
+			}
+
 			editor.saved = true
 
 		// QUIT
