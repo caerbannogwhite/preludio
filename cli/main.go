@@ -10,14 +10,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+type CliArgs struct {
+	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
+	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
+	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
+	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
+}
+
 func main() {
 
-	var args struct {
-		InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
-		DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
-		Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
-		Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
-	}
+	var args CliArgs
 
 	arg.MustParse(&args)
 
@@ -51,13 +53,19 @@ func main() {
 		be.ReadBytecode(bytecode)
 
 	} else {
-		REPL()
+		REPL(args)
 	}
 }
 
-func REPL() {
+func REPL(args CliArgs) {
 
-	codeEditor := NewCodeEditor()
+	be := new(preludio.ByteEater).
+		InitVM().
+		SetPrintWarning(args.Warnings).
+		SetDebugLevel(args.DebugLevel)
+
+	codeEditor := NewCodeEditor().
+		SetPreludioByteEater(*be)
 
 	if _, err := tea.NewProgram(codeEditor).Run(); err != nil {
 		fmt.Println("Error running program:", err)

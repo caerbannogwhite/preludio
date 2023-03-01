@@ -1,8 +1,10 @@
 package main
 
 import (
+	"compiler"
 	"fmt"
 	"os"
+	"preludio"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -64,6 +66,7 @@ type CodeEditor struct {
 	rows            []textinput.Model
 	errorMessage    string
 	footerMessage   string
+	byteEater       preludio.ByteEater
 }
 
 func NewCodeEditor() CodeEditor {
@@ -84,6 +87,11 @@ func NewCodeEditor() CodeEditor {
 		footerMessage:   KEY_MAP,
 	}
 
+	return editor
+}
+
+func (editor CodeEditor) SetPreludioByteEater(be preludio.ByteEater) CodeEditor {
+	editor.byteEater = be
 	return editor
 }
 
@@ -267,10 +275,9 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+r":
 			code := editor.GetCurrentEditorCode()
 
-			err := os.WriteFile("test.prql", []byte(code), 0644)
-			if err != nil {
-				editor.errorMessage = err.Error()
-			}
+			bytecode := compiler.Compile(code)
+			editor.errorMessage = "Bytecode generated"
+			editor.byteEater.ReadBytecode(bytecode)
 
 		// SHOW/HIDE KEY MAP
 		case "ctrl+h":
