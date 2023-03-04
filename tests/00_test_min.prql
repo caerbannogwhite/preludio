@@ -1,9 +1,6 @@
 importCSV "C:\\Users\\massi\\Downloads\\Cars.csv" delimiter: ";" header:true
 describe
-derive [
-  num = Cylinders * 2 - 1.123e-1,
-  Car_Origin = Car + " - " + Origin
-]
+derive [num = Cylinders * 2 - 1.123e-1]
 describe
 take 20
 select [Car_Origin, MPG, Cylinders, num]
