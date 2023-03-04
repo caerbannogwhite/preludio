@@ -4,6 +4,7 @@ import (
 	"compiler"
 	"fmt"
 	"os"
+	"path/filepath"
 	"preludio"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -36,7 +37,7 @@ const (
 
 var (
 	BANNER_STYLE = lipgloss.NewStyle().
-			Background(lipgloss.Color("##61edd0")).
+			Background(lipgloss.Color("#61edd0")).
 			Bold(true).
 			PaddingLeft(4).
 			Width(ROW_WIDTH)
@@ -275,7 +276,19 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+r":
 			code := editor.GetCurrentEditorCode()
 
-			bytecode := compiler.Compile(code)
+			err := os.WriteFile(".chunk.tmp.prql", []byte(code), 0644)
+			if err != nil {
+				editor.errorMessage = err.Error()
+				return editor, nil
+			}
+
+			wd, err := os.Getwd()
+			if err != nil {
+				editor.errorMessage = err.Error()
+				return editor, nil
+			}
+
+			bytecode := compiler.Compile(filepath.Join(wd, ".chunk.tmp.prql"))
 			editor.errorMessage = "Bytecode generated"
 			editor.byteEater.ReadBytecode(bytecode)
 
