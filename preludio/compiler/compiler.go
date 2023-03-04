@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"strings"
 
-	"github.com/antlr/antlr4/runtime/Go/antlr/v4"
+	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
 
 type OPCODE uint8
@@ -63,13 +63,16 @@ const (
 	OP_UNARY_NOT OPCODE = 132
 )
 
-func Compile(source string) []byte {
-	input, _ := antlr.NewFileStream(source)
-	lexer := NewpreludioLexer(input)
+func Compile(path string) []byte {
+	fileStream, err := antlr.NewFileStream(path)
+	if err != nil {
+		panic(err)
+	}
+
+	lexer := NewpreludioLexer(fileStream)
 	tokStream := antlr.NewCommonTokenStream(lexer, 0)
 	parser := NewpreludioParser(tokStream)
 
-	// p.AddErrorListener(antlr.NewDiagnosticErrorListener(true))
 	parser.BuildParseTrees = true
 	tree := parser.Program()
 
@@ -77,6 +80,7 @@ func Compile(source string) []byte {
 	antlr.ParseTreeWalkerDefault.Walk(compiler, tree)
 
 	return compiler.GetBytecode()
+
 }
 
 type SymbolTable []string
@@ -112,12 +116,19 @@ type ByteFeeder struct {
 
 	symbolTable  SymbolTable
 	instructions []byte
+
+	verbose bool
 }
 
 func (bf *ByteFeeder) Init() *ByteFeeder {
 	bf.instructions = make([]byte, 0)
 	bf.symbolTable = make([]string, 0)
 
+	return bf
+}
+
+func (bf *ByteFeeder) SetVerbose(flag bool) *ByteFeeder {
+	bf.verbose = flag
 	return bf
 }
 
@@ -163,10 +174,10 @@ func (bf *ByteFeeder) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 // // ExitNl is called when production nl is exited.
 // func (bf *ByteFeeder) ExitNl(ctx *NlContext) {}
 
-// // EnterProgram is called when production program is entered.
+// EnterProgram is called when production program is entered.
 // func (bf *ByteFeeder) EnterProgram(ctx *ProgramContext) {}
 
-// // ExitProgram is called when production program is exited.
+// ExitProgram is called when production program is exited.
 // func (bf *ByteFeeder) ExitProgram(ctx *ProgramContext) {}
 
 // // EnterProgramIntro is called when production programIntro is entered.
@@ -222,7 +233,6 @@ func (bf *ByteFeeder) EnterAssignStmt(ctx *AssignStmtContext) {}
 
 // ExitAssignStmt is called when production assignStmt is exited.
 func (bf *ByteFeeder) ExitAssignStmt(ctx *AssignStmtContext) {
-	// identName := ctx.IDENT().GetSymbol().GetText()
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
 	bf.AppendInstruction(OP_ASSIGN_STMT, 0, pos)
 }
@@ -314,7 +324,7 @@ func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
 func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// operation or nested expression
 	if ctx.GetChildCount() == 3 {
-		if ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() == "(" {
+		if ctx.GetChild(0).GetPayload().(*antlr.BaseParserRuleContext).GetText() == "(" {
 			// console.log(ctx.children[0].symbol.text);
 		} else {
 			switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
