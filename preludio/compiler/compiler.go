@@ -406,7 +406,7 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 	switch ctx.GetChildCount() {
 	case 1:
 		// NULL
-		if ctx.NULL_() == nil {
+		if ctx.NULL_() != nil {
 			bf.AppendInstruction(OP_PUSH_TERM, TERM_NULL, 0)
 		} else
 

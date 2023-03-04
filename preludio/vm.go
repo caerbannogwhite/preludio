@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
@@ -71,7 +72,7 @@ const (
 
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
-	__printWarnings         bool
+	__reportWarnings        bool
 	__debugLevel            int
 	__verbosityLevel        int
 	__inputPath             string
@@ -83,15 +84,11 @@ type ByteEater struct {
 	__pipelineNameSpace     map[string]*PreludioInternal
 	__funcNumParams         int
 	__listElementCounters   []int
+	__output                PreludioOutput
 }
 
 func (vm *ByteEater) SetPrintWarning(flag bool) *ByteEater {
-	vm.__printWarnings = flag
-	return vm
-}
-
-func (vm *ByteEater) SetInputPath(path string) *ByteEater {
-	vm.__inputPath = path
+	vm.__reportWarnings = flag
 	return vm
 }
 
@@ -119,8 +116,26 @@ type PreludioOutput struct {
 	result interface{}
 }
 
+func (vm *ByteEater) GetLog() []string {
+	return vm.__output.log
+}
+
+func (vm *ByteEater) PrintLog() {
+	for _, l := range vm.__output.log {
+		fmt.Println(l)
+	}
+}
+
+func (vm *ByteEater) GetResult() interface{} {
+	return vm.__output.result
+}
+
 // Read Preludio Bytecode from byte array
 func (vm *ByteEater) ReadBytecode(bytecode []byte) *PreludioOutput {
+
+	// set a new output for the new computation
+	vm.__output = PreludioOutput{log: make([]string, 0), result: nil}
+
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
@@ -165,6 +180,7 @@ func (vm *ByteEater) ReadBytecode(bytecode []byte) *PreludioOutput {
 
 // Read Preludio bytecode from a binary file located
 // at __inputPath - SetInputPath
+// TO DEPRECATE (?)
 func (vm *ByteEater) ReadFileBytecode() *PreludioOutput {
 	var err error
 	var file *os.File
@@ -257,9 +273,9 @@ func (vm *ByteEater) ReadPrqlInstructions(bytes []byte, offset uint32) {
 
 MAIN_LOOP:
 	for offset < usize {
-		opCode = OPCODE(binary.BigEndian.Uint16(bytes[offset : offset+1]))
+		opCode = OPCODE(bytes[offset])
 		offset++
-		param1 = PARAM1(binary.BigEndian.Uint16(bytes[offset : offset+1]))
+		param1 = PARAM1(bytes[offset])
 		offset++
 		param2 = bytes[offset : offset+4]
 		offset += 4
@@ -456,7 +472,7 @@ MAIN_LOOP:
 				vm.StackPush(NewPreludioInternalTerm(PreludioSymbol(termVal)))
 
 			default:
-				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("PrlqVM: unknown term code %d.", param1)))
+				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("ByteEater: unknown term code %d.", param1)))
 
 			}
 
@@ -668,12 +684,20 @@ func (vm *ByteEater) SetCurrentDataFrame() {
 	}
 }
 
+var WARNING_STYLE = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#d7d700")).
+	Bold(true)
+
+var ERROR_STYLE = lipgloss.NewStyle().
+	Foreground(lipgloss.Color("#ff8787")).
+	Bold(true)
+
 func (vm *ByteEater) PrintWarning(msg string) {
-	if vm.__printWarnings {
-		fmt.Printf("[ ⚠️ Warning ⚠️ ] %s\n", msg)
+	if vm.__reportWarnings {
+		vm.__output.log = append(vm.__output.log, WARNING_STYLE.Render(fmt.Sprintf("[ ⚠️ Warning ] %s\n", msg)))
 	}
 }
 
 func (vm *ByteEater) PrintError(msg string) {
-	fmt.Printf("[ ☠️  Error  ☠️ ] %s\n", msg)
+	vm.__output.log = append(vm.__output.log, ERROR_STYLE.Render(fmt.Sprintf("[ ☠️ Error ] %s\n", msg)))
 }
