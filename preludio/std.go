@@ -20,32 +20,34 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	var err error
 	var df dataframe.DataFrame
 	var series_ []series.Series
-	positional, _, err := vm.GetFunctionParams(funcName, nil, true)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, true, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	if list, err := positional[1].getList(); err == nil {
-		series_ = make([]series.Series, len(list))
+		// series_ = make([]series.Series, len(list))
+		series_ = make([]series.Series, 0)
 
 		for i, val := range list {
-			switch col := val.getValue().(type) {
-			case []bool:
-				series_[i] = series.New(col, series.Bool, val.Name)
-			case []int:
-				series_[i] = series.New(col, series.Int, val.Name)
-			case []float64:
-				series_[i] = series.New(col, series.Float, val.Name)
-			case []string:
-				series_[i] = series.New(col, series.String, val.Name)
-			}
+			fmt.Println(i, val)
+			// switch col := val.getValue().(type) {
+			// case []bool:
+			// 	series_[i] = series.New(col, series.Bool, val.Name)
+			// case []int:
+			// 	series_[i] = series.New(col, series.Int, val.Name)
+			// case []float64:
+			// 	series_[i] = series.New(col, series.Float, val.Name)
+			// case []string:
+			// 	series_[i] = series.New(col, series.String, val.Name)
+			// }
 		}
 	} else {
 		val := positional[1].getValue()
@@ -74,15 +76,15 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	// expecting a Dataframe
 	if len(positional) == 0 {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, "expecting at least one positional parameter.")))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, "expecting at least one positional parameter.")))
 	} else {
 		// var symbol __p_symbol__
 		// var list __p_list__
@@ -139,9 +141,9 @@ func PreludioFunc_ExportCsv(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -152,31 +154,31 @@ func PreludioFunc_ExportCsv(funcName string, vm *ByteEater) {
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	path, err = positional[1].getStringScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	outputFile, err = os.OpenFile(path, os.O_CREATE, 0666)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	err = outputFile.Truncate(int64(0))
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	// delimiter, err = named["delimiter"].getStringScalar()
 	// if err != nil {
-	// 	vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+	// 	vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 	// 	return
 	// }
 
@@ -186,13 +188,13 @@ func PreludioFunc_ExportCsv(funcName string, vm *ByteEater) {
 
 	header, err = named["header"].getBoolScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	err = df.WriteCSV(outputFile, dataframe.WriteHeader(header))
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, df.Error())))
 		return
 	}
 }
@@ -208,15 +210,15 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 	var err error
 	var df dataframe.DataFrame
 
-	positional, _, err := vm.GetFunctionParams(funcName, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, df.Error())))
 		return
 	}
 
@@ -236,9 +238,9 @@ func PreludioFunc_ImportCsv(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -247,19 +249,19 @@ func PreludioFunc_ImportCsv(funcName string, vm *ByteEater) {
 
 	path, err = positional[0].getStringScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	inputFile, err = os.Open(path)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	delimiter, err = named["delimiter"].getStringScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -269,7 +271,7 @@ func PreludioFunc_ImportCsv(funcName string, vm *ByteEater) {
 
 	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(rune(delimiter[0])))
 	if df.Error() != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, df.Error())))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, df.Error())))
 		return
 	}
 
@@ -285,15 +287,15 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 
 	var list __p_list__
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	list, err = positional[0].getList()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -306,7 +308,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				var vals []bool
 				vals, err = e.ListToBoolVector()
 				if err != nil {
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
 				s[i] = series.New(vals, series.Bool, e.Name)
@@ -314,7 +316,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				var vals []int
 				vals, err = e.ListToIntegerVector()
 				if err != nil {
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
 				s[i] = series.New(vals, series.Int, e.Name)
@@ -322,7 +324,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				var vals []float64
 				vals, err = e.ListToFloatVector()
 				if err != nil {
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
 				s[i] = series.New(vals, series.Int, e.Name)
@@ -330,13 +332,13 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				var vals []string
 				vals, err = e.ListToStringVector()
 				if err != nil {
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
 				s[i] = series.New(vals, series.String, e.Name)
 			}
 		} else {
-			vm.StackPush(newPInternError(fmt.Sprintf("function %s: exprecting list for building dataframe, got %T", funcName, l)))
+			vm.StackPush(newPInternError(fmt.Sprintf("%s: exprecting list for building dataframe, got %T", funcName, l)))
 			return
 		}
 	}
@@ -355,24 +357,24 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	var df dataframe.DataFrame
 	var symbol __p_symbol__
 	var list __p_list__
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
-	// The first value can be both a symbol or la list of symbols
+	// The first value can be both a symbol or a list of symbols
 	symbol, err = positional[1].getSymbol()
 	if err != nil {
 		list, err = positional[1].getList()
 		if err != nil {
-			vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+			vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 			return
 		}
 
@@ -380,7 +382,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 		for i, v := range list {
 			symbol, err = v.getSymbol()
 			if err != nil {
-				vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+				vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 				return
 			}
 			names[i] = string(symbol)
@@ -409,21 +411,21 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 	var err error
 	var df dataframe.DataFrame
 	var num int
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	num, err = positional[1].getIntegerScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -447,9 +449,9 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -484,7 +486,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 				case []string:
 					series_[e.Name] = series.New(t, series.String, e.Name)
 				default:
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: expected string, got %T.", funcName, t)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: expected string, got %T.", funcName, t)))
 					return
 				}
 			}
@@ -495,12 +497,12 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 			// TODO
 
 		default:
-			vm.StackPush(newPInternError(fmt.Sprintf("function %s: expected string, got %T.", funcName, v)))
+			vm.StackPush(newPInternError(fmt.Sprintf("%s: expected string, got %T.", funcName, v)))
 			return
 		}
 
 	default:
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: expecting one positional parameter, received %d.", funcName, len(positional))))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: expecting one positional parameter, received %d.", funcName, len(positional))))
 		return
 	}
 
@@ -545,9 +547,9 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -586,7 +588,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 			for i := range v {
 				res[i], err = strconv.ParseFloat(v[i], 64)
 				if err != nil {
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
 			}
@@ -620,7 +622,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 					for j := range v {
 						res[j], err = strconv.ParseFloat(t[j], 64)
 						if err != nil {
-							vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+							vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 							return
 						}
 					}
@@ -636,7 +638,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 		}
 
 	default:
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: expecting one positional parameter, received %d.", funcName, len(positional))))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: expecting one positional parameter, received %d.", funcName, len(positional))))
 		return
 	}
 }
@@ -665,39 +667,39 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	var err error
 	var num int
 	var strOld, strNew string
-	positional, _, err := vm.GetFunctionParams(funcName, &named, false)
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	// NAMED PARAMETERS
 	// GET old
 	if named["old"] == nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: nammed parameter 'old' is required since it has no default value.", funcName)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: nammed parameter 'old' is required since it has no default value.", funcName)))
 		return
 	}
 	strOld, err = named["old"].getStringScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	// GET new
 	if named["new"] == nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: nammed parameter 'new' is required since it has no default value.", funcName)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: nammed parameter 'new' is required since it has no default value.", funcName)))
 		return
 	}
 	strNew, err = named["new"].getStringScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
 	// GET num
 	num, err = named["n"].getIntegerScalar()
 	if err != nil {
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 		return
 	}
 
@@ -723,14 +725,14 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 					for j := range v {
 						t[j] = strings.Replace(t[j], strOld, strNew, num)
 						if err != nil {
-							vm.StackPush(newPInternError(fmt.Sprintf("function %s: %s", funcName, err)))
+							vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 							return
 						}
 					}
 					v[i] = *newPInternTerm(t)
 
 				default:
-					vm.StackPush(newPInternError(fmt.Sprintf("function %s: expected string, got %T.", funcName, t)))
+					vm.StackPush(newPInternError(fmt.Sprintf("%s: expected string, got %T.", funcName, t)))
 					return
 				}
 			}
@@ -741,12 +743,12 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			// TODO
 
 		default:
-			vm.StackPush(newPInternError(fmt.Sprintf("function %s: expected string, got %T.", funcName, v)))
+			vm.StackPush(newPInternError(fmt.Sprintf("%s: expected string, got %T.", funcName, v)))
 			return
 		}
 
 	default:
-		vm.StackPush(newPInternError(fmt.Sprintf("function %s: expecting one positional parameter, received %d.", funcName, len(positional))))
+		vm.StackPush(newPInternError(fmt.Sprintf("%s: expecting one positional parameter, received %d.", funcName, len(positional))))
 		return
 	}
 }

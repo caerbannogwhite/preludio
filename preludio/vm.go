@@ -582,7 +582,17 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]*__p_intern__, acceptingAssignments bool) ([]*__p_intern__, map[string]*__p_intern__, error) {
+// Process and get the parameters from the VM stack
+// ready to be used for the function call.
+//
+// funcName: name of the caller function (for error reporting)
+//
+// namedParams: map with the names of the expecting named parameters (nil if none)
+//
+// acceptingAssignments:
+//
+// solve: if false, parameters expression won't be solved
+func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]*__p_intern__, acceptingAssignments bool, solve bool) ([]*__p_intern__, map[string]*__p_intern__, error) {
 
 	var assignments map[string]*__p_intern__
 	if acceptingAssignments {
@@ -622,24 +632,26 @@ LOOP1:
 		}
 	}
 
-	for _, p := range positionalParams {
-		if err := p.Solve(vm); err != nil {
-			return positionalParams, assignments, err
-		}
-	}
-
-	if namedParams != nil {
-		for _, p := range *namedParams {
+	if solve {
+		for _, p := range positionalParams {
 			if err := p.Solve(vm); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
-	}
 
-	if acceptingAssignments {
-		for _, p := range assignments {
-			if err := p.Solve(vm); err != nil {
-				return positionalParams, assignments, err
+		if namedParams != nil {
+			for _, p := range *namedParams {
+				if err := p.Solve(vm); err != nil {
+					return positionalParams, assignments, err
+				}
+			}
+		}
+
+		if acceptingAssignments {
+			for _, p := range assignments {
+				if err := p.Solve(vm); err != nil {
+					return positionalParams, assignments, err
+				}
 			}
 		}
 	}

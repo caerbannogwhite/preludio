@@ -73,6 +73,9 @@ func NewPExprItems(t interface{}) *__p_expr_items__ {
 }
 
 func (i *__p_intern__) getValue() interface{} {
+	fmt.Println("GetValue")
+	fmt.Println(i, i.expr)
+	fmt.Println(i.expr...)
 	return i.expr[0]
 }
 
