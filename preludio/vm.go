@@ -359,7 +359,7 @@ MAIN_LOOP:
 			// User defined functions
 			default:
 				if internal, ok := vm.__globalNameSpace[funcName]; ok {
-					switch value := internal.GetValue().(type) {
+					switch value := internal.getValue().(type) {
 					case UserDefinedFunction:
 						value(vm)
 					default:
@@ -675,7 +675,7 @@ func (vm *ByteEater) SymbolResolution(symbol PreludioSymbol) interface{} {
 // Set the last element inserted into the stack as
 // the current DataFrame
 func (vm *ByteEater) SetCurrentDataFrame() {
-	df, _ := vm.StackLast().GetDataframe()
+	df, _ := vm.StackLast().getDataframe()
 	vm.__currentDataFrame = &df
 
 	vm.__currentDataFrameNames = map[string]bool{}

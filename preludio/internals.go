@@ -20,7 +20,7 @@ const (
 
 type PreludioInternal struct {
 	Tag      InternalTag
-	Expr     PreludioExpr
+	expr     ExprItems
 	Name     string
 	ErrorMsg string
 }
@@ -34,7 +34,7 @@ func NewPreludioInternalBeginFrame() *PreludioInternal {
 }
 
 func NewPreludioInternalTerm(val interface{}) *PreludioInternal {
-	return &PreludioInternal{Tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, Expr: *NewPreludioExpr(val)}
+	return &PreludioInternal{Tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, expr: *NewExprItems(val)}
 }
 
 func (i *PreludioInternal) SetParamName(name string) {
@@ -47,138 +47,138 @@ func (i *PreludioInternal) SetAssignment(name string) {
 	i.Name = name
 }
 
-type PreludioExprOp uint8
+type ExprItemsOp uint8
 
 const (
-	BIN_EXPR_MUL PreludioExprOp = 0
-	BIN_EXPR_DIV PreludioExprOp = 1
-	BIN_EXPR_MOD PreludioExprOp = 2
-	BIN_EXPR_ADD PreludioExprOp = 3
-	BIN_EXPR_SUB PreludioExprOp = 4
-	BIN_EXPR_POW PreludioExprOp = 5
+	BIN_EXPR_MUL ExprItemsOp = 0
+	BIN_EXPR_DIV ExprItemsOp = 1
+	BIN_EXPR_MOD ExprItemsOp = 2
+	BIN_EXPR_ADD ExprItemsOp = 3
+	BIN_EXPR_SUB ExprItemsOp = 4
+	BIN_EXPR_POW ExprItemsOp = 5
 
-	UN_EXPR_ADD PreludioExprOp = 30
-	UN_EXPR_SUB PreludioExprOp = 31
-	UN_EXPR_NOT PreludioExprOp = 32
+	UN_EXPR_ADD ExprItemsOp = 30
+	UN_EXPR_SUB ExprItemsOp = 31
+	UN_EXPR_NOT ExprItemsOp = 32
 
-	NO_OP PreludioExprOp = 50
+	NO_OP ExprItemsOp = 50
 )
 
-type PreludioExpr []interface{}
+type ExprItems []interface{}
 
-func NewPreludioExpr(t interface{}) *PreludioExpr {
-	e := make(PreludioExpr, 1)
+func NewExprItems(t interface{}) *ExprItems {
+	e := make(ExprItems, 1)
 	e[0] = t
 	return &e
 }
 
-func (i *PreludioInternal) GetValue() interface{} {
-	return i.Expr[0]
+func (i *PreludioInternal) getValue() interface{} {
+	return i.expr[0]
 }
 
-func (i *PreludioInternal) IsBoolScalar() bool {
-	if s, ok := i.Expr[0].([]bool); ok && len(s) == 1 {
+func (i *PreludioInternal) isBoolScalar() bool {
+	if s, ok := i.expr[0].([]bool); ok && len(s) == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *PreludioInternal) GetBoolScalar() (bool, error) {
-	if v, ok := i.Expr[0].([]bool); ok && len(v) == 1 {
+func (i *PreludioInternal) getBoolScalar() (bool, error) {
+	if v, ok := i.expr[0].([]bool); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return false, errors.New(fmt.Sprintf("expecting bool scalar, got %T", i.Expr[0]))
+	return false, errors.New(fmt.Sprintf("expecting bool scalar, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) GetBoolVector() ([]bool, error) {
-	if v, ok := i.Expr[0].([]bool); ok {
+func (i *PreludioInternal) getBoolVector() ([]bool, error) {
+	if v, ok := i.expr[0].([]bool); ok {
 		return v, nil
 	}
-	return []bool{}, errors.New(fmt.Sprintf("expecting bool vector, got %T", i.Expr[0]))
+	return []bool{}, errors.New(fmt.Sprintf("expecting bool vector, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) IsIntegerScalar() bool {
-	if v, ok := i.Expr[0].([]int); ok && len(v) == 1 {
+func (i *PreludioInternal) isIntegerScalar() bool {
+	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *PreludioInternal) GetIntegerScalar() (int, error) {
-	if v, ok := i.Expr[0].([]int); ok && len(v) == 1 {
+func (i *PreludioInternal) getIntegerScalar() (int, error) {
+	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return 0, errors.New(fmt.Sprintf("expecting integer scalar, got %T", i.Expr[0]))
+	return 0, errors.New(fmt.Sprintf("expecting integer scalar, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) GetIntegerVector() ([]int, error) {
-	if v, ok := i.Expr[0].([]int); ok {
+func (i *PreludioInternal) getIntegerVector() ([]int, error) {
+	if v, ok := i.expr[0].([]int); ok {
 		return v, nil
 	}
-	return []int{}, errors.New(fmt.Sprintf("expecting integer vector, got %T", i.Expr[0]))
+	return []int{}, errors.New(fmt.Sprintf("expecting integer vector, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) IsScalarFloat() bool {
-	if v, ok := i.Expr[0].([]float64); ok && len(v) == 1 {
+func (i *PreludioInternal) isScalarFloat() bool {
+	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *PreludioInternal) GetFloatScalar() (float64, error) {
-	if v, ok := i.Expr[0].([]float64); ok && len(v) == 1 {
+func (i *PreludioInternal) getFloatScalar() (float64, error) {
+	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return 0, errors.New(fmt.Sprintf("expecting float scalar, got %T", i.Expr[0]))
+	return 0, errors.New(fmt.Sprintf("expecting float scalar, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) GetFloatVector() ([]float64, error) {
-	if v, ok := i.Expr[0].([]float64); ok {
+func (i *PreludioInternal) getFloatVector() ([]float64, error) {
+	if v, ok := i.expr[0].([]float64); ok {
 		return v, nil
 	}
-	return []float64{}, errors.New(fmt.Sprintf("expecting float vector, got %T", i.Expr[0]))
+	return []float64{}, errors.New(fmt.Sprintf("expecting float vector, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) IsStringScalar() bool {
-	if v, ok := i.Expr[0].([]string); ok && len(v) == 1 {
+func (i *PreludioInternal) isStringScalar() bool {
+	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *PreludioInternal) GetStringScalar() (string, error) {
-	if v, ok := i.Expr[0].([]string); ok && len(v) == 1 {
+func (i *PreludioInternal) getStringScalar() (string, error) {
+	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return "", errors.New(fmt.Sprintf("expecting string scalar, got %T", i.Expr[0]))
+	return "", errors.New(fmt.Sprintf("expecting string scalar, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) GetStringVector() ([]string, error) {
-	if v, ok := i.Expr[0].([]string); ok {
+func (i *PreludioInternal) getStringVector() ([]string, error) {
+	if v, ok := i.expr[0].([]string); ok {
 		return v, nil
 	}
-	return []string{}, errors.New(fmt.Sprintf("expecting string vector, got %T", i.Expr[0]))
+	return []string{}, errors.New(fmt.Sprintf("expecting string vector, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) IsSymbol() bool {
-	_, ok := i.Expr[0].(PreludioSymbol)
+func (i *PreludioInternal) isSymbol() bool {
+	_, ok := i.expr[0].(PreludioSymbol)
 	return ok
 }
 
-func (i *PreludioInternal) GetSymbol() (PreludioSymbol, error) {
-	if v, ok := i.Expr[0].(PreludioSymbol); ok {
+func (i *PreludioInternal) getSymbol() (PreludioSymbol, error) {
+	if v, ok := i.expr[0].(PreludioSymbol); ok {
 		return v, nil
 	}
-	return "", errors.New(fmt.Sprintf("expecting symbol, got %T", i.Expr[0]))
+	return "", errors.New(fmt.Sprintf("expecting symbol, got %T", i.expr[0]))
 }
 
-func (i *PreludioInternal) IsDataframe() bool {
-	_, ok := i.Expr[0].(dataframe.DataFrame)
+func (i *PreludioInternal) isDataframe() bool {
+	_, ok := i.expr[0].(dataframe.DataFrame)
 	return ok
 }
 
-func (i *PreludioInternal) GetDataframe() (dataframe.DataFrame, error) {
-	switch v := i.Expr[0].(type) {
+func (i *PreludioInternal) getDataframe() (dataframe.DataFrame, error) {
+	switch v := i.expr[0].(type) {
 	case dataframe.DataFrame:
 		return v, nil
 	default:
@@ -186,13 +186,13 @@ func (i *PreludioInternal) GetDataframe() (dataframe.DataFrame, error) {
 	}
 }
 
-func (i *PreludioInternal) IsList() bool {
-	_, ok := i.Expr[0].(PreludioList)
+func (i *PreludioInternal) isList() bool {
+	_, ok := i.expr[0].(PreludioList)
 	return ok
 }
 
-func (i *PreludioInternal) GetList() (PreludioList, error) {
-	switch v := i.Expr[0].(type) {
+func (i *PreludioInternal) getList() (PreludioList, error) {
+	switch v := i.expr[0].(type) {
 	case PreludioList:
 		return v, nil
 	default:
@@ -201,10 +201,10 @@ func (i *PreludioInternal) GetList() (PreludioList, error) {
 }
 
 func (i *PreludioInternal) ListToBoolVector() ([]bool, error) {
-	if l, ok := i.Expr[0].(PreludioList); ok {
+	if l, ok := i.expr[0].(PreludioList); ok {
 		res := make([]bool, len(l))
 		for j, e := range l {
-			v, err := e.GetBoolScalar()
+			v, err := e.getBoolScalar()
 			if err != nil {
 				return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
 			}
@@ -219,7 +219,7 @@ func (i *PreludioInternal) ListToBoolVector() ([]bool, error) {
 func (l *PreludioList) ListToBoolVector() ([]bool, error) {
 	res := make([]bool, len(*l))
 	for j, e := range *l {
-		v, err := e.GetBoolScalar()
+		v, err := e.getBoolScalar()
 		if err != nil {
 			return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
 		}
@@ -229,10 +229,10 @@ func (l *PreludioList) ListToBoolVector() ([]bool, error) {
 }
 
 func (i *PreludioInternal) ListToIntegerVector() ([]int, error) {
-	if l, ok := i.Expr[0].(PreludioList); ok {
+	if l, ok := i.expr[0].(PreludioList); ok {
 		res := make([]int, len(l))
 		for j, e := range l {
-			v, err := e.GetIntegerScalar()
+			v, err := e.getIntegerScalar()
 			if err != nil {
 				return []int{}, errors.New(fmt.Sprintf("expecting list of integers"))
 			}
@@ -247,7 +247,7 @@ func (i *PreludioInternal) ListToIntegerVector() ([]int, error) {
 func (l *PreludioList) ListToIntegerVector() ([]int, error) {
 	res := make([]int, len(*l))
 	for j, e := range *l {
-		v, err := e.GetIntegerScalar()
+		v, err := e.getIntegerScalar()
 		if err != nil {
 			return []int{}, errors.New(fmt.Sprintf("expecting list of integers"))
 		}
@@ -257,10 +257,10 @@ func (l *PreludioList) ListToIntegerVector() ([]int, error) {
 }
 
 func (i *PreludioInternal) ListToFloatVector() ([]float64, error) {
-	if l, ok := i.Expr[0].(PreludioList); ok {
+	if l, ok := i.expr[0].(PreludioList); ok {
 		res := make([]float64, len(l))
 		for j, e := range l {
-			v, err := e.GetFloatScalar()
+			v, err := e.getFloatScalar()
 			if err != nil {
 				return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
 			}
@@ -275,7 +275,7 @@ func (i *PreludioInternal) ListToFloatVector() ([]float64, error) {
 func (l *PreludioList) ListToFloatVector() ([]float64, error) {
 	res := make([]float64, len(*l))
 	for j, e := range *l {
-		v, err := e.GetFloatScalar()
+		v, err := e.getFloatScalar()
 		if err != nil {
 			return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
 		}
@@ -285,10 +285,10 @@ func (l *PreludioList) ListToFloatVector() ([]float64, error) {
 }
 
 func (i *PreludioInternal) ListToStringVector() ([]string, error) {
-	if l, ok := i.Expr[0].(PreludioList); ok {
+	if l, ok := i.expr[0].(PreludioList); ok {
 		res := make([]string, len(l))
 		for j, e := range l {
-			v, err := e.GetStringScalar()
+			v, err := e.getStringScalar()
 			if err != nil {
 				return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
 			}
@@ -303,7 +303,7 @@ func (i *PreludioInternal) ListToStringVector() ([]string, error) {
 func (l *PreludioList) ListToStringVector() ([]string, error) {
 	res := make([]string, len(*l))
 	for j, e := range *l {
-		v, err := e.GetStringScalar()
+		v, err := e.getStringScalar()
 		if err != nil {
 			return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
 		}
@@ -313,37 +313,37 @@ func (l *PreludioList) ListToStringVector() ([]string, error) {
 }
 
 func (lhs *PreludioInternal) Mul(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_MUL)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_MUL)
 }
 
 func (lhs *PreludioInternal) Div(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_DIV)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_DIV)
 }
 
 func (lhs *PreludioInternal) Mod(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_MOD)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_MOD)
 }
 
 func (lhs *PreludioInternal) Add(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_ADD)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_ADD)
 }
 
 func (lhs *PreludioInternal) Sub(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_SUB)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_SUB)
 }
 
 func (lhs *PreludioInternal) Pow(rhs *PreludioInternal) {
-	lhs.Expr = append(lhs.Expr, rhs.Expr...)
-	lhs.Expr = append(lhs.Expr, BIN_EXPR_POW)
+	lhs.expr = append(lhs.expr, rhs.expr...)
+	lhs.expr = append(lhs.expr, BIN_EXPR_POW)
 }
 
-func IsOperator(t interface{}) (PreludioExprOp, bool) {
-	if v, ok := t.(PreludioExprOp); ok {
+func isOperator(t interface{}) (ExprItemsOp, bool) {
+	if v, ok := t.(ExprItemsOp); ok {
 		return v, true
 	}
 	return NO_OP, false
@@ -354,17 +354,17 @@ func (i *PreludioInternal) Solve(vm *ByteEater) error {
 
 	// TODO: check if this is possible and
 	// if it's the case to raise an error
-	if len(i.Expr) == 0 {
+	if len(i.expr) == 0 {
 		return nil
 	}
 
 	// Check if the expression is a list
 	// and recursively solve all the expressions
 	// in the list
-	if len(i.Expr) == 1 {
-		switch l := i.Expr[0].(type) {
+	if len(i.expr) == 1 {
+		switch l := i.expr[0].(type) {
 		case PreludioSymbol:
-			i.Expr[0] = vm.SymbolResolution(l)
+			i.expr[0] = vm.SymbolResolution(l)
 
 		case PreludioList:
 			for _, t := range l {
@@ -378,15 +378,15 @@ func (i *PreludioInternal) Solve(vm *ByteEater) error {
 		}
 	}
 
-	for len(i.Expr) > 1 {
-		t1 := i.Expr[0]
-		t2 := i.Expr[1]
+	for len(i.expr) > 1 {
+		t1 := i.expr[0]
+		t2 := i.expr[1]
 
 		var result interface{}
 
 		// UNARY
-		if op, ok := IsOperator(t2); ok {
-			i.Expr = i.Expr[2:len(i.Expr)]
+		if op, ok := isOperator(t2); ok {
+			i.expr = i.expr[2:len(i.expr)]
 
 			if s, ok := t1.(PreludioSymbol); ok {
 				t1 = vm.SymbolResolution(s)
@@ -401,8 +401,8 @@ func (i *PreludioInternal) Solve(vm *ByteEater) error {
 
 		// BINARY
 		{
-			op, _ := IsOperator(i.Expr[2])
-			i.Expr = i.Expr[3:len(i.Expr)]
+			op, _ := isOperator(i.expr[2])
+			i.expr = i.expr[3:len(i.expr)]
 
 			// Symbo resolution
 			if s, ok := t1.(PreludioSymbol); ok {
@@ -1548,7 +1548,7 @@ func (i *PreludioInternal) Solve(vm *ByteEater) error {
 		}
 
 		tmp[0] = result
-		i.Expr = append(tmp, i.Expr...)
+		i.expr = append(tmp, i.expr...)
 	}
 	return nil
 }
