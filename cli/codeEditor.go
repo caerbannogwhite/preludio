@@ -37,10 +37,10 @@ const (
 
 var (
 	BANNER_STYLE = lipgloss.NewStyle().
-			Background(lipgloss.Color("#61edd0")).
-			Bold(true).
-			PaddingLeft(4).
-			Width(ROW_WIDTH)
+		// Background(lipgloss.Color("#61edd0")).
+		Bold(true).
+		PaddingLeft(4).
+		Width(ROW_WIDTH)
 
 	EDITOR_ROW_PROMPT_STYLE = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("240"))
@@ -289,8 +289,13 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			bytecode := compiler.Compile(filepath.Join(wd, ".chunk.tmp.prql"))
-			editor.errorMessage = "Bytecode generated"
 			editor.byteEater.ReadBytecode(bytecode)
+
+			log := editor.byteEater.GetLog()
+			editor.errorMessage = ""
+			for _, l := range log {
+				editor.errorMessage += l + "\n"
+			}
 
 		// SHOW/HIDE KEY MAP
 		case "ctrl+h":
