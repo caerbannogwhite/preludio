@@ -77,11 +77,11 @@ type ByteEater struct {
 	__verbosityLevel        int
 	__inputPath             string
 	__symbolTable           []string
-	__stack                 []PreludioInternal
+	__stack                 []__p_intern__
 	__currentDataFrame      *dataframe.DataFrame
 	__currentDataFrameNames map[string]bool
-	__globalNameSpace       map[string]*PreludioInternal
-	__pipelineNameSpace     map[string]*PreludioInternal
+	__globalNameSpace       map[string]*__p_intern__
+	__pipelineNameSpace     map[string]*__p_intern__
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                PreludioOutput
@@ -104,8 +104,8 @@ func (vm *ByteEater) SetVerbosityLevel(level int) *ByteEater {
 
 func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
-	vm.__globalNameSpace = map[string]*PreludioInternal{}
-	vm.__pipelineNameSpace = map[string]*PreludioInternal{}
+	vm.__globalNameSpace = map[string]*__p_intern__{}
+	vm.__pipelineNameSpace = map[string]*__p_intern__{}
 	vm.__currentDataFrame = nil
 
 	return vm
@@ -249,17 +249,17 @@ func (vm *ByteEater) StackIsEmpty() bool {
 	return len(vm.__stack) == 0
 }
 
-func (vm *ByteEater) StackPush(e *PreludioInternal) {
+func (vm *ByteEater) StackPush(e *__p_intern__) {
 	vm.__stack = append(vm.__stack, *e)
 }
 
-func (vm *ByteEater) StackPop() *PreludioInternal {
+func (vm *ByteEater) StackPop() *__p_intern__ {
 	e := vm.__stack[len(vm.__stack)-1]
 	vm.__stack = vm.__stack[:len(vm.__stack)-1]
 	return &e
 }
 
-func (vm *ByteEater) StackLast() *PreludioInternal {
+func (vm *ByteEater) StackLast() *__p_intern__ {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
@@ -290,7 +290,7 @@ MAIN_LOOP:
 			}
 
 			// Insert BEGIN FRAME
-			vm.StackPush(NewPreludioInternalBeginFrame())
+			vm.StackPush(newPInternBeginFrame())
 
 		case OP_END_PIPELINE:
 			if vm.__debugLevel > 10 {
@@ -363,10 +363,10 @@ MAIN_LOOP:
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.StackPush(NewPreludioInternalError(fmt.Sprintf("variable '%s' not callable.", funcName)))
+						vm.StackPush(newPInternError(fmt.Sprintf("variable '%s' not callable.", funcName)))
 					}
 				} else {
-					vm.StackPush(NewPreludioInternalError(fmt.Sprintf("variable '%s' not defined.", funcName)))
+					vm.StackPush(newPInternError(fmt.Sprintf("variable '%s' not defined.", funcName)))
 				}
 			}
 
@@ -387,11 +387,11 @@ MAIN_LOOP:
 			stackLen := len(vm.__stack)
 			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
 
-			listCopy := make([]PreludioInternal, listLen)
+			listCopy := make([]__p_intern__, listLen)
 			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
 
-			vm.StackPush(NewPreludioInternalTerm(PreludioList(listCopy)))
+			vm.StackPush(newPInternTerm(__p_list__(listCopy)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
@@ -416,7 +416,7 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", paramName, "")
 			}
 
-			vm.StackLast().SetParamName(paramName)
+			vm.StackLast().setParamName(paramName)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////					PUSH ASSIGN IDENT
@@ -429,7 +429,7 @@ MAIN_LOOP:
 				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_ASSIGN_IDENT", "", ident, "")
 			}
 
-			vm.StackLast().SetAssignment(ident)
+			vm.StackLast().setAssignment(ident)
 
 		case OP_PUSH_TERM:
 			termType := ""
@@ -447,32 +447,32 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.StackPush(NewPreludioInternalTerm([]bool{val}))
+				vm.StackPush(newPInternTerm([]bool{val}))
 
 			case TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.StackPush(NewPreludioInternalTerm([]int{int(val)}))
+				vm.StackPush(newPInternTerm([]int{int(val)}))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
-				vm.StackPush(NewPreludioInternalTerm([]float64{val}))
+				vm.StackPush(newPInternTerm([]float64{val}))
 
 			case TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.StackPush(NewPreludioInternalTerm([]string{termVal}))
+				vm.StackPush(newPInternTerm([]string{termVal}))
 
 			case TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.StackPush(NewPreludioInternalTerm(PreludioSymbol(termVal)))
+				vm.StackPush(newPInternTerm(__p_symbol__(termVal)))
 
 			default:
-				vm.StackPush(NewPreludioInternalError(fmt.Sprintf("ByteEater: unknown term code %d.", param1)))
+				vm.StackPush(newPInternError(fmt.Sprintf("ByteEater: unknown term code %d.", param1)))
 
 			}
 
@@ -582,14 +582,14 @@ MAIN_LOOP:
 	}
 }
 
-func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]*PreludioInternal, acceptingAssignments bool) ([]*PreludioInternal, map[string]*PreludioInternal, error) {
+func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]*__p_intern__, acceptingAssignments bool) ([]*__p_intern__, map[string]*__p_intern__, error) {
 
-	var assignments map[string]*PreludioInternal
+	var assignments map[string]*__p_intern__
 	if acceptingAssignments {
-		assignments = map[string]*PreludioInternal{}
+		assignments = map[string]*__p_intern__{}
 	}
 
-	positionalParams := make([]*PreludioInternal, 0)
+	positionalParams := make([]*__p_intern__, 0)
 
 LOOP1:
 	for {
@@ -597,7 +597,7 @@ LOOP1:
 		switch t1.Tag {
 		case PRELUDIO_INTERNAL_TAG_ERROR:
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-			positionalParams = append([]*PreludioInternal{&t1}, positionalParams...)
+			positionalParams = append([]*__p_intern__{&t1}, positionalParams...)
 			vm.StackPop()
 
 		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
@@ -647,7 +647,7 @@ LOOP1:
 	return positionalParams, assignments, nil
 }
 
-func (vm *ByteEater) SymbolResolution(symbol PreludioSymbol) interface{} {
+func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {

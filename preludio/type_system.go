@@ -7,9 +7,9 @@ type UserDefinedFunction func(*ByteEater)
 // type PreludioFloat float64
 // type PreludioString string
 
-type PreludioSymbol string
+type __p_symbol__ string
 
-type PreludioList []PreludioInternal
+type __p_list__ []__p_intern__
 
 func BoolToInt(b bool) int {
 	if b {
