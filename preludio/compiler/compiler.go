@@ -310,12 +310,12 @@ func (bf *ByteFeeder) EnterMultiAssign(ctx *MultiAssignContext) {}
 func (bf *ByteFeeder) ExitMultiAssign(ctx *MultiAssignContext) {}
 
 // EnterExprCall is called when production exprCall is entered.
-func (bf *ByteFeeder) EnterExprCall(ctx *ExprCallContext) {
-	bf.AppendInstruction(OP_END_CHUNCK, 0, 0)
-}
+func (bf *ByteFeeder) EnterExprCall(ctx *ExprCallContext) {}
 
 // ExitExprCall is called when production exprCall is exited.
-func (bf *ByteFeeder) ExitExprCall(ctx *ExprCallContext) {}
+func (bf *ByteFeeder) ExitExprCall(ctx *ExprCallContext) {
+	bf.AppendInstruction(OP_END_CHUNCK, 0, 0)
+}
 
 // EnterExpr is called when production expr is entered.
 func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
