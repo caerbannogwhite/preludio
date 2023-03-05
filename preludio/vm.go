@@ -615,7 +615,7 @@ LOOP1:
 			if _, ok := (*namedParams)[t1.Name]; ok {
 				(*namedParams)[t1.Name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("function %s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
+				vm.PrintWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
 			}
 			vm.StackPop()
 
@@ -623,7 +623,7 @@ LOOP1:
 			if acceptingAssignments {
 				assignments[t1.Name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("function %s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
+				vm.PrintWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
 			}
 			vm.StackPop()
 
@@ -697,7 +697,7 @@ func (vm *ByteEater) SetCurrentDataFrame() {
 }
 
 var WARNING_STYLE = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#d7d700")).
+	Foreground(lipgloss.Color("#ffff00")).
 	Bold(true)
 
 var ERROR_STYLE = lipgloss.NewStyle().

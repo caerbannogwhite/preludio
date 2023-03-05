@@ -1,7 +1,6 @@
 package preludio
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -73,9 +72,6 @@ func NewPExprItems(t interface{}) *__p_expr_items__ {
 }
 
 func (i *__p_intern__) getValue() interface{} {
-	fmt.Println("GetValue")
-	fmt.Println(i, i.expr)
-	fmt.Println(i.expr...)
 	return i.expr[0]
 }
 
@@ -90,14 +86,14 @@ func (i *__p_intern__) getBoolScalar() (bool, error) {
 	if v, ok := i.expr[0].([]bool); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return false, errors.New(fmt.Sprintf("expecting bool scalar, got %T", i.expr[0]))
+	return false, fmt.Errorf("expecting bool scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getBoolVector() ([]bool, error) {
 	if v, ok := i.expr[0].([]bool); ok {
 		return v, nil
 	}
-	return []bool{}, errors.New(fmt.Sprintf("expecting bool vector, got %T", i.expr[0]))
+	return []bool{}, fmt.Errorf("expecting bool vector, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isIntegerScalar() bool {
@@ -111,14 +107,14 @@ func (i *__p_intern__) getIntegerScalar() (int, error) {
 	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return 0, errors.New(fmt.Sprintf("expecting integer scalar, got %T", i.expr[0]))
+	return 0, fmt.Errorf("expecting integer scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getIntegerVector() ([]int, error) {
 	if v, ok := i.expr[0].([]int); ok {
 		return v, nil
 	}
-	return []int{}, errors.New(fmt.Sprintf("expecting integer vector, got %T", i.expr[0]))
+	return []int{}, fmt.Errorf("expecting integer vector, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isScalarFloat() bool {
@@ -132,14 +128,14 @@ func (i *__p_intern__) getFloatScalar() (float64, error) {
 	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return 0, errors.New(fmt.Sprintf("expecting float scalar, got %T", i.expr[0]))
+	return 0, fmt.Errorf("expecting float scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getFloatVector() ([]float64, error) {
 	if v, ok := i.expr[0].([]float64); ok {
 		return v, nil
 	}
-	return []float64{}, errors.New(fmt.Sprintf("expecting float vector, got %T", i.expr[0]))
+	return []float64{}, fmt.Errorf("expecting float vector, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isStringScalar() bool {
@@ -153,14 +149,14 @@ func (i *__p_intern__) getStringScalar() (string, error) {
 	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
 		return v[0], nil
 	}
-	return "", errors.New(fmt.Sprintf("expecting string scalar, got %T", i.expr[0]))
+	return "", fmt.Errorf("expecting string scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getStringVector() ([]string, error) {
 	if v, ok := i.expr[0].([]string); ok {
 		return v, nil
 	}
-	return []string{}, errors.New(fmt.Sprintf("expecting string vector, got %T", i.expr[0]))
+	return []string{}, fmt.Errorf("expecting string vector, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isSymbol() bool {
@@ -172,7 +168,7 @@ func (i *__p_intern__) getSymbol() (__p_symbol__, error) {
 	if v, ok := i.expr[0].(__p_symbol__); ok {
 		return v, nil
 	}
-	return "", errors.New(fmt.Sprintf("expecting symbol, got %T", i.expr[0]))
+	return "", fmt.Errorf("expecting symbol, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isDataframe() bool {
@@ -185,7 +181,7 @@ func (i *__p_intern__) getDataframe() (dataframe.DataFrame, error) {
 	case dataframe.DataFrame:
 		return v, nil
 	default:
-		return dataframe.DataFrame{}, errors.New(fmt.Sprintf("expecting dataframe, got %T", v))
+		return dataframe.DataFrame{}, fmt.Errorf("expecting dataframe, got %T", v)
 	}
 }
 
@@ -199,7 +195,7 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 	case __p_list__:
 		return v, nil
 	default:
-		return __p_list__{}, errors.New(fmt.Sprintf("expecting list, got %T", v))
+		return __p_list__{}, fmt.Errorf("expecting list, got %T", v)
 	}
 }
 
@@ -209,13 +205,13 @@ func (i *__p_intern__) ListToBoolVector() ([]bool, error) {
 		for j, e := range l {
 			v, err := e.getBoolScalar()
 			if err != nil {
-				return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
+				return []bool{}, fmt.Errorf("expecting list of bools")
 			}
 			res[j] = v
 		}
 		return res, nil
 	} else {
-		return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
+		return []bool{}, fmt.Errorf("expecting list of bools")
 	}
 }
 
@@ -224,7 +220,7 @@ func (l *__p_list__) ListToBoolVector() ([]bool, error) {
 	for j, e := range *l {
 		v, err := e.getBoolScalar()
 		if err != nil {
-			return []bool{}, errors.New(fmt.Sprintf("expecting list of bools"))
+			return []bool{}, fmt.Errorf("expecting list of bools")
 		}
 		res[j] = v
 	}
@@ -237,13 +233,13 @@ func (i *__p_intern__) ListToIntegerVector() ([]int, error) {
 		for j, e := range l {
 			v, err := e.getIntegerScalar()
 			if err != nil {
-				return []int{}, errors.New(fmt.Sprintf("expecting list of integers"))
+				return []int{}, fmt.Errorf("expecting list of integers")
 			}
 			res[j] = v
 		}
 		return res, nil
 	} else {
-		return []int{}, errors.New(fmt.Sprintf("expecting list of integers"))
+		return []int{}, fmt.Errorf("expecting list of integers")
 	}
 }
 
@@ -252,7 +248,7 @@ func (l *__p_list__) ListToIntegerVector() ([]int, error) {
 	for j, e := range *l {
 		v, err := e.getIntegerScalar()
 		if err != nil {
-			return []int{}, errors.New(fmt.Sprintf("expecting list of integers"))
+			return []int{}, fmt.Errorf("expecting list of integers")
 		}
 		res[j] = v
 	}
@@ -265,13 +261,13 @@ func (i *__p_intern__) ListToFloatVector() ([]float64, error) {
 		for j, e := range l {
 			v, err := e.getFloatScalar()
 			if err != nil {
-				return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
+				return []float64{}, fmt.Errorf("expecting list of floats")
 			}
 			res[j] = v
 		}
 		return res, nil
 	} else {
-		return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
+		return []float64{}, fmt.Errorf("expecting list of floats")
 	}
 }
 
@@ -280,7 +276,7 @@ func (l *__p_list__) ListToFloatVector() ([]float64, error) {
 	for j, e := range *l {
 		v, err := e.getFloatScalar()
 		if err != nil {
-			return []float64{}, errors.New(fmt.Sprintf("expecting list of floats"))
+			return []float64{}, fmt.Errorf("expecting list of floats")
 		}
 		res[j] = v
 	}
@@ -293,13 +289,13 @@ func (i *__p_intern__) ListToStringVector() ([]string, error) {
 		for j, e := range l {
 			v, err := e.getStringScalar()
 			if err != nil {
-				return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
+				return []string{}, fmt.Errorf("expecting list of strings")
 			}
 			res[j] = v
 		}
 		return res, nil
 	} else {
-		return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
+		return []string{}, fmt.Errorf("expecting list of strings")
 	}
 }
 
@@ -308,7 +304,7 @@ func (l *__p_list__) ListToStringVector() ([]string, error) {
 	for j, e := range *l {
 		v, err := e.getStringScalar()
 		if err != nil {
-			return []string{}, errors.New(fmt.Sprintf("expecting list of strings"))
+			return []string{}, fmt.Errorf("expecting list of strings")
 		}
 		res[j] = v
 	}
@@ -523,7 +519,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						result = res
 
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []int:
 					switch val2 := t2.(type) {
@@ -604,7 +600,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []float64:
 					switch val2 := t2.(type) {
@@ -666,7 +662,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []string:
 					switch val2 := t2.(type) {
@@ -721,7 +717,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				}
 
@@ -798,7 +794,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []int:
 					switch val2 := t2.(type) {
@@ -860,7 +856,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []float64:
 					switch val2 := t2.(type) {
@@ -922,7 +918,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				}
 
@@ -976,7 +972,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []int:
 					switch val2 := t2.(type) {
@@ -1019,7 +1015,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				}
 
@@ -1108,7 +1104,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						result = res
 
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []int:
 					switch val2 := t2.(type) {
@@ -1189,7 +1185,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []float64:
 					switch val2 := t2.(type) {
@@ -1270,7 +1266,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []string:
 					switch val2 := t2.(type) {
@@ -1351,7 +1347,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				}
 
@@ -1420,7 +1416,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []int:
 					switch val2 := t2.(type) {
@@ -1482,7 +1478,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				case []float64:
 					switch val2 := t2.(type) {
@@ -1544,7 +1540,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return errors.New(fmt.Sprintf("Binary Multiplication not implemented for %T and %T", val1, val2))
+						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
 					}
 				}
 			}
