@@ -63,7 +63,23 @@ const (
 	OP_UNARY_NOT OPCODE = 132
 )
 
-func Compile(path string) []byte {
+func CompileSource(source string) []byte {
+	inputStream := antlr.NewInputStream(source)
+
+	lexer := NewpreludioLexer(inputStream)
+	tokStream := antlr.NewCommonTokenStream(lexer, 0)
+	parser := NewpreludioParser(tokStream)
+
+	parser.BuildParseTrees = true
+	tree := parser.Program()
+
+	compiler := new(ByteFeeder)
+	antlr.ParseTreeWalkerDefault.Walk(compiler, tree)
+
+	return compiler.GetBytecode()
+}
+
+func CompileFile(path string) []byte {
 	fileStream, err := antlr.NewFileStream(path)
 	if err != nil {
 		panic(err)
@@ -80,7 +96,6 @@ func Compile(path string) []byte {
 	antlr.ParseTreeWalkerDefault.Walk(compiler, tree)
 
 	return compiler.GetBytecode()
-
 }
 
 type SymbolTable []string
