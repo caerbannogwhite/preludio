@@ -33,21 +33,19 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	}
 
 	if list, err := positional[1].getList(); err == nil {
-		// series_ = make([]series.Series, len(list))
-		series_ = make([]series.Series, 0)
+		series_ = make([]series.Series, len(list))
 
 		for i, val := range list {
-			fmt.Println(i, val)
-			// switch col := val.getValue().(type) {
-			// case []bool:
-			// 	series_[i] = series.New(col, series.Bool, val.Name)
-			// case []int:
-			// 	series_[i] = series.New(col, series.Int, val.Name)
-			// case []float64:
-			// 	series_[i] = series.New(col, series.Float, val.Name)
-			// case []string:
-			// 	series_[i] = series.New(col, series.String, val.Name)
-			// }
+			switch col := val.getValue().(type) {
+			case []bool:
+				series_[i] = series.New(col, series.Bool, val.Name)
+			case []int:
+				series_[i] = series.New(col, series.Int, val.Name)
+			case []float64:
+				series_[i] = series.New(col, series.Float, val.Name)
+			case []string:
+				series_[i] = series.New(col, series.String, val.Name)
+			}
 		}
 	} else {
 		val := positional[1].getValue()

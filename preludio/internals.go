@@ -366,8 +366,8 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 			i.expr[0] = vm.SymbolResolution(l)
 
 		case __p_list__:
-			for _, t := range l {
-				if err := t.Solve(vm); err != nil {
+			for idx := range l {
+				if err := l[idx].Solve(vm); err != nil {
 					return err
 				}
 			}
