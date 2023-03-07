@@ -70,11 +70,8 @@ func CompileSource(source string) []byte {
 	tokStream := antlr.NewCommonTokenStream(lexer, 0)
 	parser := NewpreludioParser(tokStream)
 
-	parser.BuildParseTrees = true
-	tree := parser.Program()
-
 	compiler := new(ByteFeeder)
-	antlr.ParseTreeWalkerDefault.Walk(compiler, tree)
+	antlr.ParseTreeWalkerDefault.Walk(compiler, parser.Program())
 
 	return compiler.GetBytecode()
 }
@@ -89,11 +86,8 @@ func CompileFile(path string) []byte {
 	tokStream := antlr.NewCommonTokenStream(lexer, 0)
 	parser := NewpreludioParser(tokStream)
 
-	parser.BuildParseTrees = true
-	tree := parser.Program()
-
 	compiler := new(ByteFeeder)
-	antlr.ParseTreeWalkerDefault.Walk(compiler, tree)
+	antlr.ParseTreeWalkerDefault.Walk(compiler, parser.Program())
 
 	return compiler.GetBytecode()
 }
