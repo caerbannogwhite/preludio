@@ -100,7 +100,7 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 				df = v
 			}
 
-			vm.__output.log = append(vm.__output.log, fmt.Sprintln(df.Describe()))
+			vm.__output.Log = append(vm.__output.Log, fmt.Sprintln(df.Describe()))
 			vm.StackPush(newPInternTerm(df))
 		} else
 

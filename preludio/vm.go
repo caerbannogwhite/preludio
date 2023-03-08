@@ -278,11 +278,11 @@ func (vm *ByteEater) StackLast() *__p_intern__ {
 
 func (vm *ByteEater) LoadResult() {
 	if !vm.StackIsEmpty() {
-		switch res := vm.StackPop().(type) {
+		switch res := vm.StackPop().getValue().(type) {
 		case dataframe.DataFrame:
-			vm.__output.DataFrame = make([][]string, res.Ncols())
+			vm.__output.DataFrame = make([][]string, res.Ncol())
 			for i, name := range res.Names() {
-				vm.__output.DataFrame[i] = make([]string, res.Nrows())
+				vm.__output.DataFrame[i] = make([]string, res.Nrow())
 				for j, val := range res.Col(name).Records() {
 					vm.__output.DataFrame[i][j] = val
 				}
@@ -295,7 +295,7 @@ func (vm *ByteEater) LoadResult() {
 	if vm.__printToStdout && vm.__debugLevel > 5 {
 		fmt.Println("STACK DUMP")
 		for !vm.StackIsEmpty() {
-			fmt.Printf("%s\n", vm.StackPop().ToString())
+			fmt.Printf("%s\n", vm.StackPop().getValue())
 		}
 	}
 }
