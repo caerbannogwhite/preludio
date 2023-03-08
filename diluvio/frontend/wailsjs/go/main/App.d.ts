@@ -9,6 +9,4 @@ export function LookUpPath(arg1:string):Promise<Array<string>>;
 
 export function ParseCsv(arg1:string):Promise<string>;
 
-export function RunPreludioBytecode(arg1:string):Promise<string>;
-
 export function RunPreludioCode(arg1:string):Promise<string>;

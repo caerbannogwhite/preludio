@@ -2,13 +2,14 @@ import { ParseCsv, RunPreludioCode } from "../wailsjs/go/main/App";
 import { AppState } from "./AppState";
 import { PreludioPipeline } from "./PreludioPipeline";
 import { TopMenuPaneElement } from "./TopMenuPaneElement";
+import { TableEditorPane } from "./components/tableEditor/TableEditorPane";
 // import { MainButton } from "./utils/MainButton";
+
 import * as monaco from "monaco-editor";
 
 const STARTING_CODE_SAMPLE = [
   `importCSV "C:\\\\Users\\\\massi\\\\Downloads\\\\Cars.csv" delimiter: ";" header:true`,
   `derive [`,
-  `  [MPG, Displacement] = ([MPG, Displacement] | strReplace "," "." | asFloat),`,
   `  num = Cylinders * 2 - 1.123e-1,`,
   `  Car_Origin = Car + " - " + Origin`,
   `]`,
@@ -37,7 +38,7 @@ export class App extends HTMLDivElement {
   private leftPaneElement: HTMLDivElement;
   private codeEditorPaneElement: HTMLDivElement;
   private logErrorPaneElement: HTMLDivElement;
-  private tableEditorPaneElement: HTMLDivElement;
+  private tableEditorPaneElement: TableEditorPane;
 
   private settings: AppSettings;
   private state: AppState;
@@ -56,7 +57,7 @@ export class App extends HTMLDivElement {
     this.leftPaneElement = document.createElement("div");
     this.codeEditorPaneElement = document.createElement("div");
     this.logErrorPaneElement = document.createElement("div");
-    this.tableEditorPaneElement = document.createElement("div");
+    this.tableEditorPaneElement = new TableEditorPane();
 
     this._initHTMLElement();
   }
@@ -180,10 +181,14 @@ export class App extends HTMLDivElement {
   // Run all the code in the current editor
   runAll() {
     const source = monaco.editor.getEditors()[0].getValue();
-    // const bytecode = new PreludioCompiler({ debugLevel: 5, verbosity: true }).compileToBytecode(source);
 
-    const res = RunPreludioCode(source);
-    console.log(res);
+    RunPreludioCode(source)
+      .then((d) => JSON.parse(d))
+      .then((d) => {
+        console.log(d);
+        this.tableEditorPaneElement.setTableValues(d.Result);
+        return d;
+      });
   }
 
   addNewPipeline(pipelineName?: string) {

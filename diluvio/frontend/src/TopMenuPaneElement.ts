@@ -1,6 +1,6 @@
 import { App } from "./App";
-import "./TopMenuPaneElement.css";
 import { Icon } from "./utils/Icon";
+import "./TopMenuPaneElement.css";
 
 export class ButtonBar extends HTMLDivElement {
   constructor(id: string) {
