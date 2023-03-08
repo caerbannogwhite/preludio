@@ -15,6 +15,7 @@ require (
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20221202181307-76fa05c21b12 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
+	github.com/charmbracelet/lipgloss v0.6.0 // indirect
 	github.com/go-gota/gota v0.12.0 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/google/uuid v1.1.2 // indirect
@@ -25,10 +26,15 @@ require (
 	github.com/leaanthony/go-ansi-parser v1.0.1 // indirect
 	github.com/leaanthony/gosod v1.0.3 // indirect
 	github.com/leaanthony/slicer v1.5.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
+	github.com/muesli/termenv v0.11.1-0.20220204035834-5ac8409525e0 // indirect
 	github.com/pkg/browser v0.0.0-20210706143420-7d21f8c997e2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/samber/lo v1.27.1 // indirect
 	github.com/tkrajina/go-reflector v0.5.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

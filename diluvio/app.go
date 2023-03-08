@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -21,7 +22,13 @@ type App struct {
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{preludioVm: new(preludio.ByteEater).InitVM()}
+
+	be := new(preludio.ByteEater).
+		InitVM()
+		// SetPrintWarning(args.Warnings).
+		// SetDebugLevel(args.DebugLevel)
+
+	return &App{preludioVm: be.InitVM()}
 }
 
 // startup is called when the app starts. The context is saved
@@ -68,24 +75,17 @@ func (a *App) LookUpPath(path string) []string {
 	return []string{}
 }
 
-func (a *App) RunPreludioBytecode(blob string) string {
-	bytecode := []byte{}
-	if err := json.Unmarshal([]byte(blob), &bytecode); err != nil {
+func (a *App) RunPreludioCode(code string) string {
+
+	bytecode := compiler.CompileSource(code)
+	out := a.preludioVm.RunBytecode(bytecode)
+
+	res, err := json.Marshal(out)
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	out := a.preludioVm.ReadBytecode(bytecode)
-
-	res, _ := json.Marshal(out)
-	return string(res)
-}
-
-func (a *App) RunPreludioCode(code string) string {
-
-	bytecode := compiler.Compile(code)
-	out := a.preludioVm.ReadBytecode(bytecode)
-
-	res, _ := json.Marshal(out)
+	fmt.Print(string(res))
 	return string(res)
 }
 
