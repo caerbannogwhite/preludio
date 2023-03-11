@@ -19,37 +19,81 @@ const (
 )
 
 type __p_intern__ struct {
-	Tag      __p_intern_tag__
+	tag      __p_intern_tag__
 	expr     __p_expr_items__
-	Name     string
-	ErrorMsg string
+	name     string
+	errorMsg string
 }
 
 func newPInternError(msg string) *__p_intern__ {
-	return &__p_intern__{Tag: PRELUDIO_INTERNAL_TAG_ERROR, ErrorMsg: msg}
+	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_ERROR, errorMsg: msg}
 }
 
 func newPInternBeginFrame() *__p_intern__ {
-	return &__p_intern__{Tag: PRELUDIO_INTERNAL_TAG_BEGIN_FRAME}
+	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_BEGIN_FRAME}
 }
 
 func newPInternTerm(val interface{}) *__p_intern__ {
-	return &__p_intern__{Tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, expr: *NewPExprItems(val)}
+	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, expr: *newPExprItems(val)}
 }
 
 func (i *__p_intern__) setParamName(name string) {
-	i.Tag = PRELUDIO_INTERNAL_TAG_NAMED_PARAM
-	i.Name = name
+	i.tag = PRELUDIO_INTERNAL_TAG_NAMED_PARAM
+	i.name = name
 }
 
 func (i *__p_intern__) setAssignment(name string) {
-	i.Tag = PRELUDIO_INTERNAL_TAG_ASSIGNMENT
-	i.Name = name
+	i.tag = PRELUDIO_INTERNAL_TAG_ASSIGNMENT
+	i.name = name
+}
+
+func (i *__p_intern__) ToString() string {
+	switch i.tag {
+	case PRELUDIO_INTERNAL_TAG_ERROR:
+		return i.errorMsg
+	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
+		return fmt.Sprintf("%v", i.expr.ToString())
+	case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
+		return fmt.Sprintf("%s = %v", i.name, i.expr.ToString())
+	case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
+		return fmt.Sprintf("%s = %v", i.name, i.expr.ToString())
+	case PRELUDIO_INTERNAL_TAG_BEGIN_FRAME:
+		return "BEGIN_FRAME"
+	}
+	return "UNKNOWN"
 }
 
 type __p_expr_items__ []interface{}
 
-func NewPExprItems(t interface{}) *__p_expr_items__ {
+func (e *__p_expr_items__) ToString() string {
+	if len(*e) > 0 {
+		switch (*e)[0].(type) {
+		case []bool:
+			return fmt.Sprintf("%v", (*e)[0].([]bool))
+		case []int:
+			return fmt.Sprintf("%v", (*e)[0].([]int))
+		case []float64:
+			return fmt.Sprintf("%v", (*e)[0].([]float64))
+		case []string:
+			return fmt.Sprintf("%v", (*e)[0].([]string))
+		case []__p_symbol__:
+			return fmt.Sprintf("%v", (*e)[0].([]__p_symbol__))
+		// case []__p_date__:
+		// 	return fmt.Sprintf("%v", (*e)[0].([]__p_date__))
+		// case []__p_time__:
+		// 	return fmt.Sprintf("%v", (*e)[0].([]__p_time__))
+		// case []__p_datetime__:
+		// 	return fmt.Sprintf("%v", (*e)[0].([]__p_datetime__))
+		// case []__p_duration__:
+		// 	return fmt.Sprintf("%v", (*e)[0].([]__p_duration__))
+		default:
+			return fmt.Sprintf("%v", (*e)[0])
+		}
+	}
+	return ""
+}
+
+func newPExprItems(t interface{}) *__p_expr_items__ {
 	e := make(__p_expr_items__, 1)
 	e[0] = t
 	return &e
@@ -60,7 +104,22 @@ func (i *__p_intern__) getValue() interface{} {
 }
 
 func (i *__p_intern__) isBoolScalar() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
 	if s, ok := i.expr[0].([]bool); ok && len(s) == 1 {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) isBoolVector() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
+	if s, ok := i.expr[0].([]bool); ok && len(s) > 1 {
 		return true
 	}
 	return false
@@ -81,7 +140,22 @@ func (i *__p_intern__) getBoolVector() ([]bool, error) {
 }
 
 func (i *__p_intern__) isIntegerScalar() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
 	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) isIntegerVector() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
+	if v, ok := i.expr[0].([]int); ok && len(v) > 1 {
 		return true
 	}
 	return false
@@ -101,8 +175,23 @@ func (i *__p_intern__) getIntegerVector() ([]int, error) {
 	return []int{}, fmt.Errorf("expecting integer vector, got %T", i.expr[0])
 }
 
-func (i *__p_intern__) isScalarFloat() bool {
+func (i *__p_intern__) isFloatScalar() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
 	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) isFloatVector() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
+	if v, ok := i.expr[0].([]float64); ok && len(v) > 1 {
 		return true
 	}
 	return false
@@ -123,7 +212,22 @@ func (i *__p_intern__) getFloatVector() ([]float64, error) {
 }
 
 func (i *__p_intern__) isStringScalar() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
 	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) isStringVector() bool {
+	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		return false
+	}
+
+	if v, ok := i.expr[0].([]string); ok && len(v) > 1 {
 		return true
 	}
 	return false
@@ -183,7 +287,7 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 	}
 }
 
-func (i *__p_intern__) ListToBoolVector() ([]bool, error) {
+func (i *__p_intern__) listToBoolVector() ([]bool, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]bool, len(l))
 		for j, e := range l {
@@ -199,7 +303,7 @@ func (i *__p_intern__) ListToBoolVector() ([]bool, error) {
 	}
 }
 
-func (l *__p_list__) ListToBoolVector() ([]bool, error) {
+func (l *__p_list__) listToBoolVector() ([]bool, error) {
 	res := make([]bool, len(*l))
 	for j, e := range *l {
 		v, err := e.getBoolScalar()
@@ -211,7 +315,7 @@ func (l *__p_list__) ListToBoolVector() ([]bool, error) {
 	return res, nil
 }
 
-func (i *__p_intern__) ListToIntegerVector() ([]int, error) {
+func (i *__p_intern__) listToIntegerVector() ([]int, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]int, len(l))
 		for j, e := range l {
@@ -227,7 +331,7 @@ func (i *__p_intern__) ListToIntegerVector() ([]int, error) {
 	}
 }
 
-func (l *__p_list__) ListToIntegerVector() ([]int, error) {
+func (l *__p_list__) listToIntegerVector() ([]int, error) {
 	res := make([]int, len(*l))
 	for j, e := range *l {
 		v, err := e.getIntegerScalar()
@@ -239,7 +343,7 @@ func (l *__p_list__) ListToIntegerVector() ([]int, error) {
 	return res, nil
 }
 
-func (i *__p_intern__) ListToFloatVector() ([]float64, error) {
+func (i *__p_intern__) listToFloatVector() ([]float64, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]float64, len(l))
 		for j, e := range l {
@@ -255,7 +359,7 @@ func (i *__p_intern__) ListToFloatVector() ([]float64, error) {
 	}
 }
 
-func (l *__p_list__) ListToFloatVector() ([]float64, error) {
+func (l *__p_list__) listToFloatVector() ([]float64, error) {
 	res := make([]float64, len(*l))
 	for j, e := range *l {
 		v, err := e.getFloatScalar()
@@ -267,7 +371,7 @@ func (l *__p_list__) ListToFloatVector() ([]float64, error) {
 	return res, nil
 }
 
-func (i *__p_intern__) ListToStringVector() ([]string, error) {
+func (i *__p_intern__) listToStringVector() ([]string, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]string, len(l))
 		for j, e := range l {
@@ -283,7 +387,7 @@ func (i *__p_intern__) ListToStringVector() ([]string, error) {
 	}
 }
 
-func (l *__p_list__) ListToStringVector() ([]string, error) {
+func (l *__p_list__) listToStringVector() ([]string, error) {
 	res := make([]string, len(*l))
 	for j, e := range *l {
 		v, err := e.getStringScalar()
@@ -307,7 +411,7 @@ func isOperator(t interface{}) (OPCODE, bool) {
 	return NO_OP, false
 }
 
-func (i *__p_intern__) Solve(vm *ByteEater) error {
+func (i *__p_intern__) solve(vm *ByteEater) error {
 	tmp := make([]interface{}, 1)
 
 	// TODO: check if this is possible and
@@ -326,7 +430,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 
 		case __p_list__:
 			for idx := range l {
-				if err := l[idx].Solve(vm); err != nil {
+				if err := l[idx].solve(vm); err != nil {
 					return err
 				}
 			}

@@ -691,10 +691,10 @@ MAIN_LOOP:
 
 		}
 
-		if !vm.StackIsEmpty() && vm.StackLast().Tag == PRELUDIO_INTERNAL_TAG_ERROR {
-			for !vm.StackIsEmpty() && vm.StackLast().Tag == PRELUDIO_INTERNAL_TAG_ERROR {
+		if !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
+			for !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
 				err := vm.StackPop()
-				vm.PrintError(err.ErrorMsg)
+				vm.PrintError(err.errorMsg)
 			}
 			break MAIN_LOOP
 		}
@@ -724,7 +724,7 @@ func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]
 LOOP1:
 	for {
 		t1 := *vm.StackLast()
-		switch t1.Tag {
+		switch t1.tag {
 		case PRELUDIO_INTERNAL_TAG_ERROR:
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			positionalParams = append([]*__p_intern__{&t1}, positionalParams...)
@@ -732,18 +732,18 @@ LOOP1:
 
 		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
-			if _, ok := (*namedParams)[t1.Name]; ok {
-				(*namedParams)[t1.Name] = &t1
+			if _, ok := (*namedParams)[t1.name]; ok {
+				(*namedParams)[t1.name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.Name))
+				vm.PrintWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.name))
 			}
 			vm.StackPop()
 
 		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 			if acceptingAssignments {
-				assignments[t1.Name] = &t1
+				assignments[t1.name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.Name))
+				vm.PrintWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.name))
 			}
 			vm.StackPop()
 
@@ -754,14 +754,14 @@ LOOP1:
 
 	if solve {
 		for _, p := range positionalParams {
-			if err := p.Solve(vm); err != nil {
+			if err := p.solve(vm); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
-				if err := p.Solve(vm); err != nil {
+				if err := p.solve(vm); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
@@ -769,7 +769,7 @@ LOOP1:
 
 		if acceptingAssignments {
 			for _, p := range assignments {
-				if err := p.Solve(vm); err != nil {
+				if err := p.solve(vm); err != nil {
 					return positionalParams, assignments, err
 				}
 			}

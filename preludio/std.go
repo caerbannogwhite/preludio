@@ -38,13 +38,13 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		for i, val := range list {
 			switch col := val.getValue().(type) {
 			case []bool:
-				series_[i] = series.New(col, series.Bool, val.Name)
+				series_[i] = series.New(col, series.Bool, val.name)
 			case []int:
-				series_[i] = series.New(col, series.Int, val.Name)
+				series_[i] = series.New(col, series.Int, val.name)
 			case []float64:
-				series_[i] = series.New(col, series.Float, val.Name)
+				series_[i] = series.New(col, series.Float, val.name)
 			case []string:
-				series_[i] = series.New(col, series.String, val.Name)
+				series_[i] = series.New(col, series.String, val.name)
 			}
 		}
 	} else {
@@ -52,13 +52,13 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		series_ = make([]series.Series, 1)
 		switch col := val.(type) {
 		case []bool:
-			series_ = append(series_, series.New(col, series.Bool, positional[1].Name))
+			series_ = append(series_, series.New(col, series.Bool, positional[1].name))
 		case []int:
-			series_ = append(series_, series.New(col, series.Int, positional[1].Name))
+			series_ = append(series_, series.New(col, series.Int, positional[1].name))
 		case []float64:
-			series_ = append(series_, series.New(col, series.Float, positional[1].Name))
+			series_ = append(series_, series.New(col, series.Float, positional[1].name))
 		case []string:
-			series_ = append([]series.Series{}, series.New(col, series.String, positional[1].Name))
+			series_ = append([]series.Series{}, series.New(col, series.String, positional[1].name))
 		}
 
 	}
@@ -304,36 +304,36 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 			switch l[0].getValue().(type) {
 			case []bool:
 				var vals []bool
-				vals, err = e.ListToBoolVector()
+				vals, err = e.listToBoolVector()
 				if err != nil {
 					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
-				s[i] = series.New(vals, series.Bool, e.Name)
+				s[i] = series.New(vals, series.Bool, e.name)
 			case []int:
 				var vals []int
-				vals, err = e.ListToIntegerVector()
+				vals, err = e.listToIntegerVector()
 				if err != nil {
 					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
-				s[i] = series.New(vals, series.Int, e.Name)
+				s[i] = series.New(vals, series.Int, e.name)
 			case []float64:
 				var vals []float64
-				vals, err = e.ListToFloatVector()
+				vals, err = e.listToFloatVector()
 				if err != nil {
 					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
-				s[i] = series.New(vals, series.Int, e.Name)
+				s[i] = series.New(vals, series.Int, e.name)
 			case []string:
 				var vals []string
-				vals, err = e.ListToStringVector()
+				vals, err = e.listToStringVector()
 				if err != nil {
 					vm.StackPush(newPInternError(fmt.Sprintf("%s: %s", funcName, err)))
 					return
 				}
-				s[i] = series.New(vals, series.String, e.Name)
+				s[i] = series.New(vals, series.String, e.name)
 			}
 		} else {
 			vm.StackPush(newPInternError(fmt.Sprintf("%s: exprecting list for building dataframe, got %T", funcName, l)))
@@ -463,26 +463,26 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 
 		// BASE TYPES
 		case []bool:
-			series_[positional[0].Name] = series.New(v, series.Bool, positional[0].Name)
+			series_[positional[0].name] = series.New(v, series.Bool, positional[0].name)
 		case []int:
-			series_[positional[0].Name] = series.New(v, series.Int, positional[0].Name)
+			series_[positional[0].name] = series.New(v, series.Int, positional[0].name)
 		case []float64:
-			series_[positional[0].Name] = series.New(v, series.Float, positional[0].Name)
+			series_[positional[0].name] = series.New(v, series.Float, positional[0].name)
 		case []string:
-			series_[positional[0].Name] = series.New(v, series.String, positional[0].Name)
+			series_[positional[0].name] = series.New(v, series.String, positional[0].name)
 
 		// LIST
 		case __p_list__:
 			for _, e := range v {
 				switch t := e.getValue().(type) {
 				case []bool:
-					series_[e.Name] = series.New(t, series.Bool, e.Name)
+					series_[e.name] = series.New(t, series.Bool, e.name)
 				case []int:
-					series_[e.Name] = series.New(t, series.Int, e.Name)
+					series_[e.name] = series.New(t, series.Int, e.name)
 				case []float64:
-					series_[e.Name] = series.New(t, series.Float, e.Name)
+					series_[e.name] = series.New(t, series.Float, e.name)
 				case []string:
-					series_[e.Name] = series.New(t, series.String, e.Name)
+					series_[e.name] = series.New(t, series.String, e.name)
 				default:
 					vm.StackPush(newPInternError(fmt.Sprintf("%s: expected string, got %T.", funcName, t)))
 					return
