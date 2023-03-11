@@ -68,6 +68,8 @@ const (
 	OP_UNARY_ADD OPCODE = 130
 	OP_UNARY_SUB OPCODE = 131
 	OP_UNARY_NOT OPCODE = 132
+
+	NO_OP = 255
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -286,27 +288,32 @@ func (vm *ByteEater) StackLast() *__p_intern__ {
 }
 
 func (vm *ByteEater) LoadResult() {
-	if !vm.StackIsEmpty() {
-		switch res := vm.StackPop().getValue().(type) {
-		case dataframe.DataFrame:
-			vm.__output.DataFrame = make([][]string, res.Ncol())
-			for i, name := range res.Names() {
-				vm.__output.DataFrame[i] = make([]string, res.Nrow())
-				for j, val := range res.Col(name).Records() {
-					vm.__output.DataFrame[i][j] = val
-				}
-			}
-		default:
-			vm.__output.DataFrame = [][]string{{fmt.Sprintf("%s", res)}}
-		}
+
+	for !vm.StackIsEmpty() {
+		vm.__output.Log = append(vm.__output.Log, fmt.Sprintf("%s", vm.StackPop().getValue()))
 	}
 
-	if vm.__printToStdout && vm.__debugLevel > 5 {
-		fmt.Println("STACK DUMP")
-		for !vm.StackIsEmpty() {
-			fmt.Printf("%s\n", vm.StackPop().getValue())
-		}
-	}
+	// if !vm.StackIsEmpty() {
+	// 	switch res := vm.StackPop().getValue().(type) {
+	// 	case dataframe.DataFrame:
+	// 		vm.__output.DataFrame = make([][]string, res.Ncol())
+	// 		for i, name := range res.Names() {
+	// 			vm.__output.DataFrame[i] = make([]string, res.Nrow())
+	// 			for j, val := range res.Col(name).Records() {
+	// 				vm.__output.DataFrame[i][j] = val
+	// 			}
+	// 		}
+	// 	default:
+	// 		vm.__output.DataFrame = [][]string{{fmt.Sprintf("%s", res)}}
+	// 	}
+	// }
+
+	// if vm.__printToStdout && vm.__debugLevel > 5 {
+	// 	fmt.Println("STACK DUMP")
+	// 	for !vm.StackIsEmpty() {
+	// 		fmt.Printf("%s\n", vm.StackPop().getValue())
+	// 	}
+	// }
 }
 
 func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
@@ -557,7 +564,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Mul(op2)
+			vm.StackLast().appendOperand(OP_BINARY_MUL, op2)
 
 		case OP_BINARY_DIV:
 			if vm.__printToStdout && vm.__debugLevel > 10 {
@@ -565,7 +572,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Div(op2)
+			vm.StackLast().appendOperand(OP_BINARY_DIV, op2)
 
 		case OP_BINARY_MOD:
 			if vm.__printToStdout && vm.__debugLevel > 10 {
@@ -573,7 +580,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Mod(op2)
+			vm.StackLast().appendOperand(OP_BINARY_MOD, op2)
 
 		case OP_BINARY_ADD:
 			if vm.__printToStdout && vm.__debugLevel > 10 {
@@ -581,7 +588,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Add(op2)
+			vm.StackLast().appendOperand(OP_BINARY_ADD, op2)
 
 		case OP_BINARY_SUB:
 			if vm.__printToStdout && vm.__debugLevel > 10 {
@@ -589,7 +596,7 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Sub(op2)
+			vm.StackLast().appendOperand(OP_BINARY_SUB, op2)
 
 		case OP_BINARY_POW:
 			if vm.__printToStdout && vm.__debugLevel > 10 {
@@ -597,18 +604,77 @@ MAIN_LOOP:
 			}
 
 			op2 := vm.StackPop()
-			vm.StackLast().Pow(op2)
+			vm.StackLast().appendOperand(OP_BINARY_POW, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
+
 		case OP_BINARY_EQ:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_EQ", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_EQ, op2)
+
 		case OP_BINARY_NE:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_NE", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_NE, op2)
+
 		case OP_BINARY_GE:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_GE", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_GE, op2)
+
 		case OP_BINARY_LE:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_LE", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_LE, op2)
+
 		case OP_BINARY_GT:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_GT", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_GT, op2)
+
 		case OP_BINARY_LT:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_LT", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_LT, op2)
+
 		case OP_BINARY_AND:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_AND", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_AND, op2)
+
 		case OP_BINARY_OR:
+			if vm.__printToStdout && vm.__debugLevel > 10 {
+				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_OR", "", "", "")
+			}
+
+			op2 := vm.StackPop()
+			vm.StackLast().appendOperand(OP_BINARY_OR, op2)
+
+		///////////////////////////////////////////////////////////////////////
+		///////////				OTHER OPERATIONS
 
 		case OP_BINARY_COALESCE:
 		case OP_BINARY_MODEL:

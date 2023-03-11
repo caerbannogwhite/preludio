@@ -2,6 +2,7 @@ package preludio
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/go-gota/gota/dataframe"
@@ -45,23 +46,6 @@ func (i *__p_intern__) setAssignment(name string) {
 	i.Tag = PRELUDIO_INTERNAL_TAG_ASSIGNMENT
 	i.Name = name
 }
-
-type __p_expr_items_op__ uint8
-
-const (
-	BIN_EXPR_MUL __p_expr_items_op__ = 0
-	BIN_EXPR_DIV __p_expr_items_op__ = 1
-	BIN_EXPR_MOD __p_expr_items_op__ = 2
-	BIN_EXPR_ADD __p_expr_items_op__ = 3
-	BIN_EXPR_SUB __p_expr_items_op__ = 4
-	BIN_EXPR_POW __p_expr_items_op__ = 5
-
-	UN_EXPR_ADD __p_expr_items_op__ = 30
-	UN_EXPR_SUB __p_expr_items_op__ = 31
-	UN_EXPR_NOT __p_expr_items_op__ = 32
-
-	NO_OP __p_expr_items_op__ = 50
-)
 
 type __p_expr_items__ []interface{}
 
@@ -311,38 +295,13 @@ func (l *__p_list__) ListToStringVector() ([]string, error) {
 	return res, nil
 }
 
-func (lhs *__p_intern__) Mul(rhs *__p_intern__) {
+func (lhs *__p_intern__) appendOperand(op OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_MUL)
+	lhs.expr = append(lhs.expr, op)
 }
 
-func (lhs *__p_intern__) Div(rhs *__p_intern__) {
-	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_DIV)
-}
-
-func (lhs *__p_intern__) Mod(rhs *__p_intern__) {
-	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_MOD)
-}
-
-func (lhs *__p_intern__) Add(rhs *__p_intern__) {
-	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_ADD)
-}
-
-func (lhs *__p_intern__) Sub(rhs *__p_intern__) {
-	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_SUB)
-}
-
-func (lhs *__p_intern__) Pow(rhs *__p_intern__) {
-	lhs.expr = append(lhs.expr, rhs.expr...)
-	lhs.expr = append(lhs.expr, BIN_EXPR_POW)
-}
-
-func isOperator(t interface{}) (__p_expr_items_op__, bool) {
-	if v, ok := t.(__p_expr_items_op__); ok {
+func isOperator(t interface{}) (OPCODE, bool) {
+	if v, ok := t.(OPCODE); ok {
 		return v, true
 	}
 	return NO_OP, false
@@ -392,9 +351,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 			}
 
 			switch op {
-			case UN_EXPR_ADD:
-			case UN_EXPR_SUB:
-			case UN_EXPR_NOT:
+			case OP_UNARY_ADD:
+			case OP_UNARY_SUB:
+			case OP_UNARY_NOT:
 			}
 		} else
 
@@ -417,7 +376,7 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 			///////////////////////////////////////////////////////////////////
 			////////					MULTIPLICATION
 
-			case BIN_EXPR_MUL:
+			case OP_BINARY_MUL:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -519,8 +478,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						result = res
 
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -600,8 +560,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []float64:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -662,8 +623,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []string:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -717,14 +679,14 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
 					}
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					DIVISION
 
-			case BIN_EXPR_DIV:
+			case OP_BINARY_DIV:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -794,8 +756,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -856,8 +819,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []float64:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -918,14 +882,14 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
 					}
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					MODULUS
 
-			case BIN_EXPR_MOD:
+			case OP_BINARY_MOD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -972,8 +936,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary %% operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1015,14 +980,14 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary %% operator not implemented for %T and %T", val1, val2)
 					}
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					ADDITION
 
-			case BIN_EXPR_ADD:
+			case OP_BINARY_ADD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1104,8 +1069,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						result = res
 
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1185,8 +1151,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []float64:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1266,8 +1233,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []string:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1347,14 +1315,14 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
 					}
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					SUBTRACTION
 
-			case BIN_EXPR_SUB:
+			case OP_BINARY_SUB:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1416,8 +1384,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1478,8 +1447,9 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
 					}
+
 				case []float64:
 					switch val2 := t2.(type) {
 					case []bool:
@@ -1540,7 +1510,330 @@ func (i *__p_intern__) Solve(vm *ByteEater) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("Binary Multiplication not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
+					}
+				}
+
+			///////////////////////////////////////////////////////////////////
+			////////					EQUAL
+			case OP_BINARY_EQ:
+				switch val1 := t1.(type) {
+				case []bool:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] == b
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, b := range val1 {
+								res[j] = b == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] == b
+							}
+						}
+						result = res
+					case []int:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = BoolToInt(val1[0]) == n
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, b := range val1 {
+								res[j] = BoolToInt(b) == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = BoolToInt(val1[j]) == n
+							}
+						}
+						result = res
+					case []float64:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = BoolToFloat64(val1[0]) == f
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, b := range val1 {
+								res[j] = BoolToFloat64(b) == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = BoolToFloat64(val1[j]) == f
+							}
+						}
+						result = res
+					case []string:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = fmt.Sprintf("%t", val1[0]) == s
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, b := range val1 {
+								res[j] = fmt.Sprintf("%t", b) == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = fmt.Sprintf("%t", val1[j]) == s
+							}
+						}
+						result = res
+					default:
+						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+					}
+
+				case []int:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] == BoolToInt(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, n := range val1 {
+								res[j] = n == BoolToInt(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] == BoolToInt(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[0] == n
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, n := range val1 {
+								res[j] = n == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[j] == n
+							}
+						}
+						result = res
+					case []float64:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = float64(val1[0]) == f
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, n := range val1 {
+								res[j] = float64(n) == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = float64(val1[j]) == f
+							}
+						}
+						result = res
+					case []string:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = strconv.Itoa(val1[0]) == s
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, n := range val1 {
+								res[j] = strconv.Itoa(n) == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = strconv.Itoa(val1[j]) == s
+							}
+						}
+						result = res
+					default:
+						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+					}
+
+				case []float64:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] == BoolToFloat64(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, f := range val1 {
+								res[j] = f == BoolToFloat64(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] == BoolToFloat64(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[0] == float64(n)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, f := range val1 {
+								res[j] = f == float64(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[j] == float64(n)
+							}
+						}
+						result = res
+					case []float64:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[0] == f
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, f := range val1 {
+								res[j] = f == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[j] == f
+							}
+						}
+						result = res
+					case []string:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = strconv.FormatFloat(val1[0], 'f', -1, 64) == s
+							}
+						}
+						result = res
+					default:
+						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+					}
+
+				case []string:
+					switch val2 := t2.(type) {
+					case []bool:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[0] == strconv.FormatBool(b)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, s := range val1 {
+								res[j] = s == strconv.FormatBool(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, b := range val2 {
+								res[j] = val1[j] == strconv.FormatBool(b)
+							}
+						}
+						result = res
+					case []int:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[0] == strconv.Itoa(n)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, s := range val1 {
+								res[j] = s == strconv.Itoa(val2[0])
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, n := range val2 {
+								res[j] = val1[j] == strconv.Itoa(n)
+							}
+						}
+						result = res
+					case []float64:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[0] == strconv.FormatFloat(f, 'f', -1, 64)
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, s := range val1 {
+								res[j] = s == strconv.FormatFloat(val2[0], 'f', -1, 64)
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, f := range val2 {
+								res[j] = val1[j] == strconv.FormatFloat(f, 'f', -1, 64)
+							}
+						}
+						result = res
+					case []string:
+						var res []bool
+						if len(val1) == 1 {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = val1[0] == s
+							}
+						} else if len(val2) == 1 {
+							res = make([]bool, len(val1))
+							for j, s := range val1 {
+								res[j] = s == val2[0]
+							}
+						} else if len(val1) == len(val2) {
+							res = make([]bool, len(val2))
+							for j, s := range val2 {
+								res[j] = val1[j] == s
+							}
+						}
+						result = res
+					default:
+						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
 					}
 				}
 			}
