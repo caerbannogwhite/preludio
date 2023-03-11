@@ -1,7 +1,9 @@
 importCSV "C:\\Users\\massi\\Downloads\\Cars.csv" delimiter: ";" header:true
-describe
-derive [num = Cylinders * 2 - 1.123e-1]
-describe
+derive [
+  num = Cylinders * 2 - 1.123e-1,
+  Car_Origin = Car + " - " + Origin
+]
 take 20
-select [Car_Origin, MPG, Cylinders, num]
+select [num, Car_Origin, MPG, Cylinders]
+describe
 exportCSV "C:\\Users\\massi\\Downloads\\Cars1.csv" delimiter: '\t'
