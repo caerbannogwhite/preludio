@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"compiler"
 	"fmt"
 	"os"
 	"preludio"
+	"strings"
 
 	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
@@ -13,6 +15,7 @@ import (
 type CliArgs struct {
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
+	Editor     bool   `arg:"-e, --editor" help:"launch the text editor" default:"false"`
 	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
 	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
 }
@@ -23,41 +26,26 @@ func main() {
 
 	arg.MustParse(&args)
 
-	be := new(preludio.ByteEater).
-		InitVM().
-		SetPrintWarning(args.Warnings).
-		SetDebugLevel(args.DebugLevel)
-
 	if args.InputPath != "" {
-		var err error
-		var file *os.File
+		be := new(preludio.ByteEater).
+			InitVM().
+			SetPrintWarning(args.Warnings).
+			SetDebugLevel(args.DebugLevel)
 
-		file, err = os.Open(args.InputPath)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer file.Close()
-
-		buff := make([]byte, 0)
-		_, err = file.Read(buff)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		bytecode := compiler.Compile(string(buff))
+		bytecode := compiler.CompileFile(args.InputPath)
 		if args.Verbose {
 			fmt.Println("Bytecode generated")
 		}
-		be.ReadBytecode(bytecode)
+		be.RunBytecode(bytecode)
 
+	} else if args.Editor {
+		LaunchCodeEditor(args)
 	} else {
-		REPL(args)
+		LaunchRepl(args)
 	}
 }
 
-func REPL(args CliArgs) {
+func LaunchCodeEditor(args CliArgs) {
 
 	be := new(preludio.ByteEater).
 		InitVM().
@@ -71,50 +59,51 @@ func REPL(args CliArgs) {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
+}
 
-	// columns := []table.Column{
-	// 	{Title: "Function", Width: 15},
-	// 	{Title: "Description", Width: 30},
-	// }
+func LaunchRepl(args CliArgs) {
 
-	// rows := []table.Row{
-	// 	// {"derive", ""},
-	// 	{"describe", "Describe the current table."},
-	// 	{"from", "Set a table to transform."},
-	// 	{"exportCSV", "Export the current table to a CSV file."},
-	// 	{"importCSV", "Import the current table from a CSV file."},
-	// 	{"new", "Create a new table."},
-	// 	{"select", "Select a subset of columns."},
-	// 	{"sort", "Sort the rows according to a sub set of columns."},
-	// 	{"take", "Take a range of rows."},
-	// 	{"asBool", "Coerce to boolean"},
-	// 	{"asInteger", "Coerce to integer."},
-	// 	{"asFloat", "Coerce to float."},
-	// 	{"asString", "Convert to string."},
-	// }
+	fmt.Println("Welcome to the Preludio REPL!")
 
-	// t := table.New(
-	// 	table.WithColumns(columns),
-	// 	table.WithRows(rows),
-	// 	table.WithFocused(true),
-	// 	table.WithHeight(7),
-	// )
+	be := new(preludio.ByteEater).
+		InitVM().
+		SetPrintWarning(args.Warnings).
+		SetDebugLevel(args.DebugLevel)
 
-	// s := table.DefaultStyles()
-	// s.Header = s.Header.
-	// 	BorderStyle(lipgloss.NormalBorder()).
-	// 	BorderForeground(lipgloss.Color("240")).
-	// 	BorderBottom(true).
-	// 	Bold(false)
-	// s.Selected = s.Selected.
-	// 	Foreground(lipgloss.Color("229")).
-	// 	Background(lipgloss.Color("57")).
-	// 	Bold(false)
-	// t.SetStyles(s)
+	in := bufio.NewReader(os.Stdin)
 
-	// m := model{t}
-	// if _, err := tea.NewProgram(m).Run(); err != nil {
-	// 	fmt.Println("Error running program:", err)
-	// 	os.Exit(1)
-	// }
+	readerStart := true
+	code := ""
+	for {
+		if readerStart {
+			fmt.Print(">>> ")
+		} else {
+			fmt.Print("... ")
+		}
+
+		line, err := in.ReadString('\n')
+		if err != nil {
+			if err.Error() == "EOF" {
+				fmt.Println("Bye!")
+				os.Exit(0)
+			}
+			fmt.Println("Error reading input:", err)
+		}
+
+		line = strings.TrimSpace(line)
+
+		if line == "" {
+			bytecode := compiler.CompileSource(code)
+			be.RunBytecode(bytecode)
+
+			be.PrintLog()
+
+			code = ""
+			readerStart = true
+		} else {
+			readerStart = false
+		}
+
+		code += line + "\n"
+	}
 }

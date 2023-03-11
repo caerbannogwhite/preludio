@@ -4,7 +4,6 @@ import (
 	"compiler"
 	"fmt"
 	"os"
-	"path/filepath"
 	"preludio"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -55,6 +54,12 @@ var (
 					Foreground(lipgloss.Color("211"))
 
 	NO_STYLE = lipgloss.NewStyle()
+)
+
+// CODE COLOR SCHEME
+var (
+	FUNCTION_STYLE = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff0000"))
+	NUMBER_STYLE   = lipgloss.NewStyle().Italic(true).Foreground(lipgloss.Color("#00ffff"))
 )
 
 type CodeEditor struct {
@@ -274,22 +279,8 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// RUN CODE
 		case "ctrl+r":
-			code := editor.GetCurrentEditorCode()
-
-			err := os.WriteFile(".chunk.tmp.prql", []byte(code), 0644)
-			if err != nil {
-				editor.errorMessage = err.Error()
-				return editor, nil
-			}
-
-			wd, err := os.Getwd()
-			if err != nil {
-				editor.errorMessage = err.Error()
-				return editor, nil
-			}
-
-			bytecode := compiler.Compile(filepath.Join(wd, ".chunk.tmp.prql"))
-			editor.byteEater.ReadBytecode(bytecode)
+			bytecode := compiler.CompileSource(editor.GetCurrentEditorCode())
+			editor.byteEater.RunBytecode(bytecode)
 
 			log := editor.byteEater.GetLog()
 			editor.errorMessage = ""
