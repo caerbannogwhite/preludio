@@ -72,12 +72,13 @@ const (
 
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
-	__reportWarnings        bool
-	__isCLI                 bool
-	__printToStdout         bool
-	__debugLevel            int
-	__verbosityLevel        int
-	__inputPath             string
+	__reportWarnings bool
+	__isCLI          bool
+	__printToStdout  bool
+	__debugLevel     int
+	__verbosityLevel int
+	__inputPath      string
+
 	__symbolTable           []string
 	__stack                 []__p_intern__
 	__currentDataFrame      *dataframe.DataFrame
@@ -143,6 +144,10 @@ func (vm *ByteEater) PrintLog() {
 // Run Preludio Bytecode from byte array
 func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 
+	// clean vm state
+	vm.__symbolTable = make([]string, 0)
+	vm.__stack = make([]__p_intern__, 0)
+
 	// set a new output for the new computation
 	vm.__output = PreludioOutput{Log: make([]string, 0), Errors: make([]string, 0)}
 
@@ -192,6 +197,10 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	var err error
 	var file *os.File
 	var stats fs.FileInfo
+
+	// clean vm state
+	vm.__symbolTable = make([]string, 0)
+	vm.__stack = make([]__p_intern__, 0)
 
 	// set a new output for the new computation
 	vm.__output = PreludioOutput{Log: make([]string, 0), Errors: make([]string, 0)}
@@ -302,20 +311,28 @@ func (vm *ByteEater) LoadResult() {
 
 func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
 
-	var opCode OPCODE
-	var param1 PARAM1
-	var param2 []byte
+	opCode := OPCODE(0)
+	param1 := PARAM1(0)
+	param2 := []byte{0, 0, 0, 0}
 
 	usize := uint32(len(bytes))
 
 MAIN_LOOP:
 	for offset < usize {
+
 		opCode = OPCODE(bytes[offset])
 		offset++
 		param1 = PARAM1(bytes[offset])
 		offset++
-		param2 = bytes[offset : offset+4]
-		offset += 4
+
+		param2[0] = bytes[offset]
+		offset++
+		param2[1] = bytes[offset]
+		offset++
+		param2[2] = bytes[offset]
+		offset++
+		param2[3] = bytes[offset]
+		offset++
 
 		switch opCode {
 
