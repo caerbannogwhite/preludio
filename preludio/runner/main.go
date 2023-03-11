@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
-
-	// "preludio"
-
-	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
+	"compiler"
+	"preludio"
 )
 
 func main() {
@@ -22,34 +19,33 @@ describe
 exportCSV "C:\\Users\\massi\\Downloads\\Cars1.csv" delimiter: '\t'
 `
 
-	inputStream := antlr.NewInputStream(code)
+	// inputStream := antlr.NewInputStream(code)
 
-	lexer := compiler.NewpreludioLexer(inputStream)
-	tokStream := antlr.NewCommonTokenStream(lexer, 0)
-	parser := compiler.NewpreludioParser(tokStream)
+	// lexer := compiler.NewpreludioLexer(inputStream)
+	// tokStream := antlr.NewCommonTokenStream(lexer, 0)
+	// parser := compiler.NewpreludioParser(tokStream)
 
-	interp := parser.GetInterpreter()
+	// interp := parser.GetInterpreter()
+	// for {
+	// 	tok := tokStream.LT(1)
+	// 	fmt.Println(tok.GetTokenType(), tok.GetText())
+	// 	if tok.GetTokenType() == antlr.TokenEOF {
+	// 		break
+	// 	}
+	// 	tokStream.Consume()
+	// }
 
-	for {
-		tok := tokStream.LT(1)
-		fmt.Println(tok.GetTokenType(), interp.GetTokenName(tok.GetTokenType()), tok.GetText())
-		if tok.GetTokenType() == antlr.TokenEOF {
-			break
-		}
-		tokStream.Consume()
-	}
+	warnings := true
+	debugLevel := 20
 
-	// warnings := true
-	// debugLevel := 20
+	be := new(preludio.ByteEater).
+		InitVM().
+		SetPrintWarning(warnings).
+		SetDebugLevel(debugLevel)
 
-	// be := new(preludio.ByteEater).
-	// 	InitVM().
-	// 	SetPrintWarning(warnings).
-	// 	SetDebugLevel(debugLevel)
-
-	// // bytecode := compiler.Compile("C:\\Users\\massi\\source\\repos\\preludio\\tests\\00_test_min.prql")
-	// bytecode := compiler.CompileSource(code)
-	// be.ReadBytecode(bytecode)
+	// bytecode := compiler.Compile("C:\\Users\\massi\\source\\repos\\preludio\\tests\\00_test_min.prql")
+	bytecode := compiler.CompileSource(code)
+	be.RunBytecode(bytecode)
 
 	// be.PrintLog()
 }
