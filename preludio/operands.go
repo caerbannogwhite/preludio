@@ -104,10 +104,6 @@ func (i *__p_intern__) getValue() interface{} {
 }
 
 func (i *__p_intern__) isBoolScalar() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if s, ok := i.expr[0].([]bool); ok && len(s) == 1 {
 		return true
 	}
@@ -115,10 +111,6 @@ func (i *__p_intern__) isBoolScalar() bool {
 }
 
 func (i *__p_intern__) isBoolVector() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if s, ok := i.expr[0].([]bool); ok && len(s) > 1 {
 		return true
 	}
@@ -140,10 +132,6 @@ func (i *__p_intern__) getBoolVector() ([]bool, error) {
 }
 
 func (i *__p_intern__) isIntegerScalar() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
 		return true
 	}
@@ -151,10 +139,6 @@ func (i *__p_intern__) isIntegerScalar() bool {
 }
 
 func (i *__p_intern__) isIntegerVector() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]int); ok && len(v) > 1 {
 		return true
 	}
@@ -176,10 +160,6 @@ func (i *__p_intern__) getIntegerVector() ([]int, error) {
 }
 
 func (i *__p_intern__) isFloatScalar() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
 		return true
 	}
@@ -187,10 +167,6 @@ func (i *__p_intern__) isFloatScalar() bool {
 }
 
 func (i *__p_intern__) isFloatVector() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]float64); ok && len(v) > 1 {
 		return true
 	}
@@ -212,10 +188,6 @@ func (i *__p_intern__) getFloatVector() ([]float64, error) {
 }
 
 func (i *__p_intern__) isStringScalar() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
 		return true
 	}
@@ -223,10 +195,6 @@ func (i *__p_intern__) isStringScalar() bool {
 }
 
 func (i *__p_intern__) isStringVector() bool {
-	if i.tag == PRELUDIO_INTERNAL_TAG_ERROR {
-		return false
-	}
-
 	if v, ok := i.expr[0].([]string); ok && len(v) > 1 {
 		return true
 	}
