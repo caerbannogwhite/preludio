@@ -763,44 +763,47 @@ func (i *__p_intern__) solve(vm *ByteEater) error {
 				case []bool:
 					switch val2 := t2.(type) {
 					case []bool:
-						var res []int
+						var res []float64
 						if len(val1) == 1 {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, b := range val2 {
-								res[j] = BoolToInt(val1[0]) / BoolToInt(b)
+								res[j] = BoolToFloat64(val1[0]) / BoolToFloat64(b)
 							}
 						} else if len(val2) == 1 {
-							res = make([]int, len(val1))
+							res = make([]float64, len(val1))
 							for j, b := range val1 {
-								res[j] = BoolToInt(b) / BoolToInt(val2[0])
+								res[j] = BoolToFloat64(b) / BoolToFloat64(val2[0])
 							}
 						} else if len(val1) == len(val2) {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, b := range val2 {
-								res[j] = BoolToInt(val1[j]) / BoolToInt(b)
+								res[j] = BoolToFloat64(val1[j]) / BoolToFloat64(b)
 							}
 						}
 						result = res
 					case []int:
-						var res []int
+						var res []float64
 						if len(val1) == 1 {
 							if val1[0] {
-								res = val2
+								res = make([]float64, len(val2))
+								for j, n := range val2 {
+									res[j] = 1 / float64(n)
+								}
 							} else {
-								res = make([]int, len(val2))
+								res = make([]float64, len(val2))
 								for j, _ := range val2 {
 									res[j] = 0
 								}
 							}
 						} else if len(val2) == 1 {
-							res = make([]int, len(val1))
+							res = make([]float64, len(val1))
 							for j, b := range val1 {
-								res[j] = BoolToInt(b) / val2[0]
+								res[j] = BoolToFloat64(b) / float64(val2[0])
 							}
 						} else if len(val1) == len(val2) {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, n := range val2 {
-								res[j] = BoolToInt(val1[j]) / n
+								res[j] = BoolToFloat64(val1[j]) / float64(n)
 							}
 						}
 						result = res
@@ -834,40 +837,40 @@ func (i *__p_intern__) solve(vm *ByteEater) error {
 				case []int:
 					switch val2 := t2.(type) {
 					case []bool:
-						var res []int
+						var res []float64
 						if len(val1) == 1 {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, b := range val2 {
-								res[j] = val1[0] / BoolToInt(b)
+								res[j] = float64(val1[0]) / BoolToFloat64(b)
 							}
 						} else if len(val2) == 1 {
-							res = make([]int, len(val1))
+							res = make([]float64, len(val1))
 							for j, n := range val1 {
-								res[j] = n / BoolToInt(val2[0])
+								res[j] = float64(n) / BoolToFloat64(val2[0])
 							}
 						} else if len(val1) == len(val2) {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, b := range val2 {
-								res[j] = val1[j] / BoolToInt(b)
+								res[j] = float64(val1[j]) / BoolToFloat64(b)
 							}
 						}
 						result = res
 					case []int:
-						var res []int
+						var res []float64
 						if len(val1) == 1 {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, n := range val2 {
-								res[j] = val1[0] / n
+								res[j] = float64(val1[0]) / float64(n)
 							}
 						} else if len(val2) == 1 {
-							res = make([]int, len(val1))
+							res = make([]float64, len(val1))
 							for j, n := range val1 {
-								res[j] = n / val2[0]
+								res[j] = float64(n) / float64(val2[0])
 							}
 						} else if len(val1) == len(val2) {
-							res = make([]int, len(val2))
+							res = make([]float64, len(val2))
 							for j, n := range val2 {
-								res[j] = val1[j] / n
+								res[j] = float64(val1[j]) / float64(n)
 							}
 						}
 						result = res
