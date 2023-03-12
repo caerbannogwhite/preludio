@@ -25,7 +25,7 @@ func TestMul(t *testing.T) {
 	{
 		// BOOL * BOOL
 		b1.appendOperand(OP_BINARY_MUL, b2)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -43,7 +43,7 @@ func TestMul(t *testing.T) {
 
 		// BOOL * INTEGER
 		b1.appendOperand(OP_BINARY_MUL, in)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -61,7 +61,7 @@ func TestMul(t *testing.T) {
 
 		// BOOL * FLOAT
 		b1.appendOperand(OP_BINARY_MUL, fl)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -79,7 +79,7 @@ func TestMul(t *testing.T) {
 
 		// BOOL * STRING
 		b1.appendOperand(OP_BINARY_MUL, st)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -97,7 +97,7 @@ func TestMul(t *testing.T) {
 	{
 		// INTEGER * BOOL
 		in.appendOperand(OP_BINARY_MUL, b2)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -115,7 +115,7 @@ func TestMul(t *testing.T) {
 
 		// INTEGER * INTEGER
 		in.appendOperand(OP_BINARY_MUL, in)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -133,7 +133,7 @@ func TestMul(t *testing.T) {
 
 		// INTEGER * FLOAT
 		in.appendOperand(OP_BINARY_MUL, fl)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -151,7 +151,7 @@ func TestMul(t *testing.T) {
 
 		// INTEGER * STRING
 		in.appendOperand(OP_BINARY_MUL, st)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -172,7 +172,7 @@ func TestMul(t *testing.T) {
 	{
 		// FLOAT * BOOL
 		fl.appendOperand(OP_BINARY_MUL, b2)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -190,7 +190,7 @@ func TestMul(t *testing.T) {
 
 		// FLOAT * INTEGER
 		fl.appendOperand(OP_BINARY_MUL, in)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -208,7 +208,7 @@ func TestMul(t *testing.T) {
 
 		// FLOAT * FLOAT
 		fl.appendOperand(OP_BINARY_MUL, fl)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -226,7 +226,7 @@ func TestMul(t *testing.T) {
 
 		// FLOAT * STRING
 		fl.appendOperand(OP_BINARY_MUL, st)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []float64 and []string" {
 			t.Error(err)
@@ -240,7 +240,7 @@ func TestMul(t *testing.T) {
 	{
 		// STRING * BOOL
 		st.appendOperand(OP_BINARY_MUL, b2)
-		err = st.solve(be)
+		err = solveExpr(be, st)
 
 		if err != nil {
 			t.Error(err)
@@ -258,7 +258,7 @@ func TestMul(t *testing.T) {
 
 		// STRING * INTEGER
 		st.appendOperand(OP_BINARY_MUL, in)
-		err = st.solve(be)
+		err = solveExpr(be, st)
 
 		if err != nil {
 			t.Error(err)
@@ -276,7 +276,7 @@ func TestMul(t *testing.T) {
 
 		// STRING * FLOAT
 		st.appendOperand(OP_BINARY_MUL, fl)
-		err = st.solve(be)
+		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []string and []float64" {
 			t.Error(err)
@@ -287,7 +287,7 @@ func TestMul(t *testing.T) {
 
 		// STRING * STRING
 		st.appendOperand(OP_BINARY_MUL, st)
-		err = st.solve(be)
+		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []string and []string" {
 			t.Error(err)
@@ -309,7 +309,7 @@ func TestDiv(t *testing.T) {
 	{
 		// BOOL / BOOL
 		b1.appendOperand(OP_BINARY_DIV, b2)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -327,7 +327,7 @@ func TestDiv(t *testing.T) {
 
 		// BOOL / INTEGER
 		b1.appendOperand(OP_BINARY_DIV, in)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -345,7 +345,7 @@ func TestDiv(t *testing.T) {
 
 		// BOOL / FLOAT
 		b1.appendOperand(OP_BINARY_DIV, fl)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err != nil {
 			t.Error(err)
@@ -363,7 +363,7 @@ func TestDiv(t *testing.T) {
 
 		// BOOL / STRING
 		b1.appendOperand(OP_BINARY_DIV, st)
-		err = b1.solve(be)
+		err = solveExpr(be, b1)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []bool and []string" {
 			t.Error(err)
@@ -377,7 +377,7 @@ func TestDiv(t *testing.T) {
 	{
 		// INTEGER / BOOL
 		in.appendOperand(OP_BINARY_DIV, b1)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -395,7 +395,7 @@ func TestDiv(t *testing.T) {
 
 		// INTEGER / INTEGER
 		in.appendOperand(OP_BINARY_DIV, in)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -413,7 +413,7 @@ func TestDiv(t *testing.T) {
 
 		// INTEGER / FLOAT
 		in.appendOperand(OP_BINARY_DIV, fl)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err != nil {
 			t.Error(err)
@@ -431,7 +431,7 @@ func TestDiv(t *testing.T) {
 
 		// INTEGER / STRING
 		in.appendOperand(OP_BINARY_DIV, st)
-		err = in.solve(be)
+		err = solveExpr(be, in)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []int and []string" {
 			t.Error(err)
@@ -445,7 +445,7 @@ func TestDiv(t *testing.T) {
 	{
 		// FLOAT / BOOL
 		fl.appendOperand(OP_BINARY_DIV, b1)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -463,7 +463,7 @@ func TestDiv(t *testing.T) {
 
 		// FLOAT / INTEGER
 		fl.appendOperand(OP_BINARY_DIV, in)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -481,7 +481,7 @@ func TestDiv(t *testing.T) {
 
 		// FLOAT / FLOAT
 		fl.appendOperand(OP_BINARY_DIV, fl)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err != nil {
 			t.Error(err)
@@ -499,7 +499,7 @@ func TestDiv(t *testing.T) {
 
 		// FLOAT / STRING
 		fl.appendOperand(OP_BINARY_DIV, st)
-		err = fl.solve(be)
+		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []float64 and []string" {
 			t.Error(err)

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
@@ -126,21 +125,30 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	return vm
 }
 
+type LOG_TYPE uint8
+
+const (
+	LOG_INFO    LOG_TYPE = 0
+	LOG_WARNING LOG_TYPE = 1
+	LOG_ERROR   LOG_TYPE = 2
+	LOG_DEBUG   LOG_TYPE = 3
+)
+
+type LogEnty struct {
+	LogType LOG_TYPE `json:"logType"`
+	Level   uint8    `json:"level"`
+	Message string   `json:"message"`
+}
+
+type Columnar []struct {
+	Name string   `json:"name"`
+	Type string   `json:"type"`
+	Data []string `json:"data"`
+}
+
 type PreludioOutput struct {
-	Log       []string   `json:"log"`
-	Errors    []string   `json:"errors"`
-	Schema    []string   `json:"schema"`
-	DataFrame [][]string `json:"result"`
-}
-
-func (vm *ByteEater) GetLog() []string {
-	return vm.__output.Log
-}
-
-func (vm *ByteEater) PrintLog() {
-	for _, l := range vm.__output.Log {
-		fmt.Println(l)
-	}
+	Log  []LogEnty `json:"log"`
+	Data Columnar  `json:"data"`
 }
 
 // Run Preludio Bytecode from byte array
@@ -151,7 +159,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 	vm.__stack = make([]__p_intern__, 0)
 
 	// set a new output for the new computation
-	vm.__output = PreludioOutput{Log: make([]string, 0), Errors: make([]string, 0)}
+	vm.__output = PreludioOutput{Log: make([]LogEnty, 0)}
 
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
@@ -193,7 +201,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 }
 
 // Run Preludio bytecode from a binary file located
-// at __inputPath - SetInputPath
+// at __inputPath with SetInputPath
 // TO DEPRECATE (?)
 func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	var err error
@@ -205,18 +213,18 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	vm.__stack = make([]__p_intern__, 0)
 
 	// set a new output for the new computation
-	vm.__output = PreludioOutput{Log: make([]string, 0), Errors: make([]string, 0)}
+	vm.__output = PreludioOutput{Log: make([]LogEnty, 0)}
 
 	file, err = os.Open(vm.__inputPath)
 	if err != nil {
-		vm.__output.Errors = append(vm.__output.Errors, err.Error())
+		vm.AddError(err.Error())
 		return &vm.__output
 	}
 	defer file.Close()
 
 	stats, err = file.Stat()
 	if err != nil {
-		vm.__output.Errors = append(vm.__output.Errors, err.Error())
+		vm.AddError(err.Error())
 		return &vm.__output
 	}
 
@@ -226,7 +234,7 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	bufr := bufio.NewReader(file)
 	_, err = bufr.Read(bytecode)
 	if err != nil {
-		vm.__output.Errors = append(vm.__output.Errors, err.Error())
+		vm.AddError(err.Error())
 		return &vm.__output
 	}
 
@@ -287,33 +295,38 @@ func (vm *ByteEater) StackLast() *__p_intern__ {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *ByteEater) LoadResult() {
-
+func (vm *ByteEater) loadResult() {
 	for !vm.StackIsEmpty() {
-		vm.__output.Log = append(vm.__output.Log, fmt.Sprintf("%s", vm.StackPop().getValue()))
+
+		// internal := vm.StackPop()
+		// switch internal.tag {
+		// case PRELUDIO_INTERNAL_TAG_ERROR:
+
+		// case PRELUDIO_INTERNAL_TAG_EXPRESSION:
+		// 	val := internal.getValue()
+		// 	switch tval := val.(type) {
+		// 	case []bool:
+
+		// 	case dataframe.DataFrame:
+		// res := make([]Columnar, tval.Ncol())
+		// names := tval.Names()
+		// for idx, name := range names {
+		// 	ser := tval.Col(name)
+		// 	// res[idx] = struct {
+		// 	Name string
+		// 	Type string
+		// 	Data []string
+		// }{
+		// 	Name: name,
+		// 	Data: ser.Values(),
+		// }
+
 	}
+}
 
-	// if !vm.StackIsEmpty() {
-	// 	switch res := vm.StackPop().getValue().(type) {
-	// 	case dataframe.DataFrame:
-	// 		vm.__output.DataFrame = make([][]string, res.Ncol())
-	// 		for i, name := range res.Names() {
-	// 			vm.__output.DataFrame[i] = make([]string, res.Nrow())
-	// 			for j, val := range res.Col(name).Records() {
-	// 				vm.__output.DataFrame[i][j] = val
-	// 			}
-	// 		}
-	// 	default:
-	// 		vm.__output.DataFrame = [][]string{{fmt.Sprintf("%s", res)}}
-	// 	}
-	// }
-
-	// if vm.__printToStdout && vm.__debugLevel > 5 {
-	// 	fmt.Println("STACK DUMP")
-	// 	for !vm.StackIsEmpty() {
-	// 		fmt.Printf("%s\n", vm.StackPop().getValue())
-	// 	}
-	// }
+func (vm *ByteEater) GetResult() *PreludioOutput {
+	vm.loadResult()
+	return &vm.__output
 }
 
 func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
@@ -346,36 +359,26 @@ MAIN_LOOP:
 		///////////////////////////////////////////////////////////////////////
 		///////////				PIPELINE OPERATIONS					///////////
 		case OP_START_PIPELINE:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_PIPELINE", "", "", "")
-			}
+			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
 			vm.StackPush(newPInternBeginFrame())
 
 		case OP_END_PIPELINE:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_PIPELINE", "", "", "")
-			}
+			vm.printDebug(10, "OP_END_PIPELINE", "", "")
 
 			// Extract BEGIN FRAME
 			vm.StackPop()
 
 		case OP_ASSIGN_STMT:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ASSIGN_STMT", "", "", "")
-			}
+			vm.printDebug(10, "OP_ASSIGN_STMT", "", "")
 
 		case OP_START_FUNC_CALL:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_FUNC_CALL", "", "", "")
-			}
+			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")
 
 		case OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_MAKE_FUNC_CALL", "", funcName, "")
-			}
+			vm.printDebug(10, "OP_MAKE_FUNC_CALL", "", funcName)
 
 			switch funcName {
 
@@ -386,10 +389,10 @@ MAIN_LOOP:
 				PreludioFunc_Describe("describe", vm)
 			case "from":
 				PreludioFunc_From("from", vm)
-			case "exportCSV":
-				PreludioFunc_ExportCsv("exportCSV", vm)
-			case "importCSV":
-				PreludioFunc_ImportCsv("importCSV", vm)
+			case "writeCSV":
+				PreludioFunc_WriteCsv("writeCSV", vm)
+			case "readCSV":
+				PreludioFunc_ReadCsv("readCSV", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
@@ -424,26 +427,22 @@ MAIN_LOOP:
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.StackPush(newPInternError(fmt.Sprintf("variable '%s' not callable.", funcName)))
+						vm.AddError(fmt.Sprintf("variable '%s' not callable.", funcName))
 					}
 				} else {
-					vm.StackPush(newPInternError(fmt.Sprintf("variable '%s' not defined.", funcName)))
+					vm.AddError(fmt.Sprintf("variable '%s' not defined.", funcName))
 				}
 			}
 
 			vm.__funcNumParams = 0
 
 		case OP_START_LIST:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_START_LIST", "", "", "")
-			}
+			vm.printDebug(10, "OP_START_LIST", "", "")
 
 			vm.__listElementCounters = append(vm.__listElementCounters, 0)
 
 		case OP_END_LIST:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_LIST", "", "", "")
-			}
+			vm.printDebug(10, "OP_END_LIST", "", "")
 
 			stackLen := len(vm.__stack)
 			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
@@ -457,14 +456,10 @@ MAIN_LOOP:
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
 		case OP_ADD_FUNC_PARAM:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_FUNC_PARAM", "", "", "")
-			}
+			vm.printDebug(10, "OP_ADD_FUNC_PARAM", "", "")
 
 		case OP_ADD_EXPR_TERM:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_ADD_EXPR_TERM", "", "", "")
-			}
+			vm.printDebug(10, "OP_ADD_EXPR_TERM", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////					PUSH NAMED PARAM
@@ -473,9 +468,7 @@ MAIN_LOOP:
 		///////////	parameter.
 		case OP_PUSH_NAMED_PARAM:
 			paramName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_NAMED_PARAM", "", paramName, "")
-			}
+			vm.printDebug(10, "OP_PUSH_NAMED_PARAM", "", paramName)
 
 			vm.StackLast().setParamName(paramName)
 
@@ -486,9 +479,7 @@ MAIN_LOOP:
 		///////////	expression.
 		case OP_PUSH_ASSIGN_IDENT:
 			ident := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_ASSIGN_IDENT", "", ident, "")
-			}
+			vm.printDebug(10, "OP_PUSH_ASSIGN_IDENT", "", ident)
 
 			vm.StackLast().setAssignment(ident)
 
@@ -533,18 +524,13 @@ MAIN_LOOP:
 				vm.StackPush(newPInternTerm(__p_symbol__(termVal)))
 
 			default:
-				vm.StackPush(newPInternError(fmt.Sprintf("ByteEater: unknown term code %d.", param1)))
-
+				vm.AddError(fmt.Sprintf("ByteEater: unknown term code %d.", param1))
 			}
 
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_PUSH_TERM", termType, termVal, "")
-			}
+			vm.printDebug(10, "OP_PUSH_TERM", termType, termVal)
 
 		case OP_END_CHUNCK:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_END_CHUNCK", "", "", "")
-			}
+			vm.printDebug(10, "OP_END_CHUNCK", "", "")
 
 			vm.__funcNumParams += 1
 			if len(vm.__listElementCounters) > 0 {
@@ -552,56 +538,42 @@ MAIN_LOOP:
 			}
 
 		case OP_GOTO:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_GOTO", "", "", "")
-			}
+			vm.printDebug(10, "OP_GOTO", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				ARITHMETIC OPERATIONS
 		case OP_BINARY_MUL:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MUL", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_MUL", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_MUL, op2)
 
 		case OP_BINARY_DIV:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_DIV", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_DIV", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_DIV, op2)
 
 		case OP_BINARY_MOD:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_MOD", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_MOD, op2)
 
 		case OP_BINARY_ADD:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_ADD", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_ADD, op2)
 
 		case OP_BINARY_SUB:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_SUB", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_SUB", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_SUB, op2)
 
 		case OP_BINARY_POW:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_POW", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_POW", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_POW, op2)
@@ -610,65 +582,49 @@ MAIN_LOOP:
 		///////////				LOGICAL OPERATIONS
 
 		case OP_BINARY_EQ:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_EQ", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_EQ, op2)
 
 		case OP_BINARY_NE:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_NE", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_NE", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_NE, op2)
 
 		case OP_BINARY_GE:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_GE", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_GE", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_GE, op2)
 
 		case OP_BINARY_LE:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_LE", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_LE", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_LE, op2)
 
 		case OP_BINARY_GT:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_GT", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_GT", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_GT, op2)
 
 		case OP_BINARY_LT:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_LT", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_LT", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_LT, op2)
 
 		case OP_BINARY_AND:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_AND", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_AND", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_AND, op2)
 
 		case OP_BINARY_OR:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_BINARY_OR", "", "", "")
-			}
+			vm.printDebug(10, "OP_BINARY_OR", "", "")
 
 			op2 := vm.StackPop()
 			vm.StackLast().appendOperand(OP_BINARY_OR, op2)
@@ -677,24 +633,35 @@ MAIN_LOOP:
 		///////////				OTHER OPERATIONS
 
 		case OP_BINARY_COALESCE:
+			vm.printDebug(10, "OP_BINARY_COALESCE", "", "")
+
 		case OP_BINARY_MODEL:
+			vm.printDebug(10, "OP_BINARY_MODEL", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				UNARY OPERATIONS
+
 		case OP_UNARY_SUB:
-			if vm.__printToStdout && vm.__debugLevel > 10 {
-				fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "OP_UNARY_SUB", "", "", "")
-			}
+			vm.printDebug(10, "OP_UNARY_SUB", "", "")
 
 		case OP_UNARY_ADD:
+			vm.printDebug(10, "OP_UNARY_ADD", "", "")
+
 		case OP_UNARY_NOT:
+			vm.printDebug(10, "OP_UNARY_NOT", "", "")
+
+		///////////////////////////////////////////////////////////////////////
+		///////////				NO OPERATION
+
+		case NO_OP:
+			vm.printDebug(10, "NO_OP", "", "")
 
 		}
 
 		if !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
 			for !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
 				err := vm.StackPop()
-				vm.PrintError(err.errorMsg)
+				vm.printError(err.errorMsg)
 			}
 			break MAIN_LOOP
 		}
@@ -735,7 +702,7 @@ LOOP1:
 			if _, ok := (*namedParams)[t1.name]; ok {
 				(*namedParams)[t1.name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.name))
+				vm.printWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.name))
 			}
 			vm.StackPop()
 
@@ -743,7 +710,7 @@ LOOP1:
 			if acceptingAssignments {
 				assignments[t1.name] = &t1
 			} else {
-				vm.PrintWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.name))
+				vm.printWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.name))
 			}
 			vm.StackPop()
 
@@ -754,14 +721,14 @@ LOOP1:
 
 	if solve {
 		for _, p := range positionalParams {
-			if err := p.solve(vm); err != nil {
+			if err := solveExpr(vm, p); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
-				if err := p.solve(vm); err != nil {
+				if err := solveExpr(vm, p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
@@ -769,7 +736,7 @@ LOOP1:
 
 		if acceptingAssignments {
 			for _, p := range assignments {
-				if err := p.solve(vm); err != nil {
+				if err := solveExpr(vm, p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
@@ -816,36 +783,43 @@ func (vm *ByteEater) SetCurrentDataFrame() {
 	}
 }
 
-var WARNING_STYLE = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#ffff00")).
-	Bold(true)
+func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
+	msg := fmt.Sprintf("[ 🐛 %11s%2d ] %-20s | %-20s | %-20s\n", "Debug Level=", level, opname, param1, param2)
+	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_DEBUG, Level: level, Message: msg})
 
-var ERROR_STYLE = lipgloss.NewStyle().
-	Foreground(lipgloss.Color("#ff8787")).
-	Bold(true)
-
-func (vm *ByteEater) PrintWarning(msg string) {
-	if vm.__reportWarnings {
-		if vm.__isCLI {
-			vm.__output.Log = append(vm.__output.Log, WARNING_STYLE.Render(fmt.Sprintf("[ ⚠️ Warning ] %s\n", msg)))
-		} else {
-			vm.__output.Log = append(vm.__output.Log, fmt.Sprintf("[ ⚠️ Warning ] %s\n", msg))
-		}
-
-		if vm.__printToStdout {
-			fmt.Printf(WARNING_STYLE.Render(fmt.Sprintf("[ ⚠️ Warning ] %s\n", msg)))
-		}
+	if vm.__printToStdout && vm.__debugLevel > int(level) {
+		fmt.Print(msg)
 	}
 }
 
-func (vm *ByteEater) PrintError(msg string) {
-	if vm.__isCLI {
-		vm.__output.Log = append(vm.__output.Log, ERROR_STYLE.Render(fmt.Sprintf("[ ☠️ Error ] %s\n", msg)))
-	} else {
-		vm.__output.Log = append(vm.__output.Log, fmt.Sprintf("[ ☠️ Error ] %s\n", msg))
-	}
+func (vm *ByteEater) printInfo(level uint8, msg string) {
+	msg = fmt.Sprintf("[ ℹ️ %11s%2d ] %s\n", "Info Level=", level, msg)
+	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_INFO, Level: level, Message: msg})
 
 	if vm.__printToStdout {
-		fmt.Printf(ERROR_STYLE.Render(fmt.Sprintf("[ ☠️ Error ] %s\n", msg)))
+		fmt.Print(msg)
 	}
+}
+
+func (vm *ByteEater) printWarning(msg string) {
+	msg = fmt.Sprintf("[ ⚠️ %11s ] %s\n", "Warning", msg)
+	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_WARNING, Message: msg})
+
+	if vm.__printToStdout {
+		fmt.Print(msg)
+	}
+}
+
+func (vm *ByteEater) printError(msg string) {
+	msg = fmt.Sprintf("[ ☠️ %11s ] %s\n", "Error", msg)
+	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_ERROR, Message: msg})
+
+	if vm.__printToStdout {
+		fmt.Print(msg)
+	}
+}
+
+func (vm *ByteEater) AddError(msg string) {
+	vm.printError(msg)
+	vm.StackPush(&__p_intern__{tag: PRELUDIO_INTERNAL_TAG_ERROR, errorMsg: msg})
 }
