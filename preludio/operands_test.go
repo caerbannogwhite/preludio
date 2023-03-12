@@ -1,6 +1,7 @@
 package preludio
 
 import (
+	"math"
 	"testing"
 )
 
@@ -312,12 +313,12 @@ func TestDiv(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
-			t.Error("Expected integer vector type")
+		} else if !b1.isFloatVector() {
+			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
-			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
-				t.Error("Expected [0, 0, 1, 0]")
+			v, _ := b1.getFloatVector()
+			if !math.IsInf(v[0], 1) || !math.IsNaN(v[1]) || v[2] != 1.0 || v[3] != 0.0 {
+				t.Error("Expected [+Inf, NaN, 1.0, 0.0]")
 			}
 		}
 
@@ -330,12 +331,12 @@ func TestDiv(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
-			t.Error("Expected integer vector type")
+		} else if !b1.isFloatVector() {
+			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
-			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
-				t.Error("Expected [0, 0, 1, 0]")
+			v, _ := b1.getFloatVector()
+			if v[0] != 1.0 || v[1] != 0.0 || v[2] != 0.3333333333333333 || v[3] != 0.0 {
+				t.Error("Expected [1.0, 0.0, 0.3333333333333333, 0.0]")
 			}
 		}
 
@@ -348,12 +349,12 @@ func TestDiv(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
-			t.Error("Expected integer vector type")
+		} else if !b1.isFloatVector() {
+			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
-			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
-				t.Error("Expected [0, 0, 1, 0]")
+			v, _ := b1.getFloatVector()
+			if v[0] != 0.2 || v[1] != 0.0 || v[2] != 0.14285714285714285 || v[3] != 0.0 {
+				t.Error("Expected [0.2, 0.0, 0.14285714285714285, 0.0]")
 			}
 		}
 
@@ -364,15 +365,8 @@ func TestDiv(t *testing.T) {
 		b1.appendOperand(OP_BINARY_DIV, st)
 		err = b1.solve(be)
 
-		if err != nil {
+		if err == nil || err.Error() != "binary / operator not implemented for []bool and []string" {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
-			t.Error("Expected integer vector type")
-		} else {
-			v, _ := b1.getIntegerVector()
-			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
-				t.Error("Expected [0, 0, 1, 0]")
-			}
 		}
 
 		// reset b1
@@ -387,13 +381,128 @@ func TestDiv(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
-			t.Error("Expected integer vector type")
+		} else if !in.isFloatVector() {
+			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getIntegerVector()
-			if v[0] != 0 || v[1] != 0 || v[2] != 3 || v[3] != 0 {
-				t.Error("Expected [0, 0, 3, 0]")
+			v, _ := in.getFloatVector()
+			if v[0] != 1.0 || !math.IsInf(v[1], 1) || v[2] != 3.0 || !math.IsInf(v[3], 1) {
+				t.Error("Expected [1.0, +Inf, 3.0, +Inf]")
 			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER / INTEGER
+		in.appendOperand(OP_BINARY_DIV, in)
+		err = in.solve(be)
+
+		if err != nil {
+			t.Error(err)
+		} else if !in.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := in.getFloatVector()
+			if v[0] != 1.0 || v[1] != 1.0 || v[2] != 1.0 || v[3] != 1.0 {
+				t.Error("Expected [1.0, 1.0, 1.0, 1.0]")
+			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER / FLOAT
+		in.appendOperand(OP_BINARY_DIV, fl)
+		err = in.solve(be)
+
+		if err != nil {
+			t.Error(err)
+		} else if !in.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := in.getFloatVector()
+			if v[0] != 0.2 || v[1] != 0.3333333333333333 || v[2] != 0.42857142857142855 || v[3] != 0.5 {
+				t.Error("Expected [0.2, 0.3333333333333333, 0.42857142857142855, 0.5]")
+			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER / STRING
+		in.appendOperand(OP_BINARY_DIV, st)
+		err = in.solve(be)
+
+		if err == nil || err.Error() != "binary / operator not implemented for []int and []string" {
+			t.Error(err)
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+	}
+
+	// FLOAT
+	{
+		// FLOAT / BOOL
+		fl.appendOperand(OP_BINARY_DIV, b1)
+		err = fl.solve(be)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 5.0 || !math.IsInf(v[1], 1) || v[2] != 7.0 || !math.IsInf(v[3], 1) {
+				t.Error("Expected [5.0, +Inf, 7.0, +Inf]")
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT / INTEGER
+		fl.appendOperand(OP_BINARY_DIV, in)
+		err = fl.solve(be)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 5.0 || v[1] != 3.0 || v[2] != 2.3333333333333335 || v[3] != 2.0 {
+				t.Error("Expected [5.0, 3.0, 2.3333333333333335, 2.0]")
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT / FLOAT
+		fl.appendOperand(OP_BINARY_DIV, fl)
+		err = fl.solve(be)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 1 || v[1] != 1 || v[2] != 1 || v[3] != 1 {
+				t.Error("Expected [1, 1, 1, 1]")
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT / STRING
+		fl.appendOperand(OP_BINARY_DIV, st)
+		err = fl.solve(be)
+
+		if err == nil || err.Error() != "binary / operator not implemented for []float64 and []string" {
+			t.Error(err)
 		}
 	}
 }
