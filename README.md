@@ -1,5 +1,5 @@
 
-![](img/logo.png)
+![](img/logo_med.png)
 
 ### Preludio
 ## A PRQL based data transformation language
