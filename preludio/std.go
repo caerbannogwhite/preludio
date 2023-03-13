@@ -13,9 +13,7 @@ import (
 type PreludioFunction func(funcName string, vm *ByteEater)
 
 func PreludioFunc_Derive(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	var df dataframe.DataFrame
@@ -69,9 +67,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 
 // Describe a Dataframe
 func PreludioFunc_Describe(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
@@ -129,9 +125,7 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 
 // Write a Dataframe into a CSV file
 func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
 		// "delimiter": newPInternTerm([]string{","}),
@@ -199,9 +193,7 @@ func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
 
 // Load a Dataframe from the Name Space
 func PreludioFunc_From(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{}
 
@@ -226,9 +218,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 
 // Read a Dataframe form CSV file
 func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
 		"delimiter": newPInternTerm([]string{","}),
@@ -279,9 +269,7 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 
 // Create a new Dataframe
 func PreludioFunc_New(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var list __p_list__
 	var err error
@@ -347,9 +335,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 
 // Select a subset of the Dataframe's columns
 func PreludioFunc_Select(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	var df dataframe.DataFrame
@@ -395,16 +381,12 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 
 // Sort all the values in the Dataframe
 func PreludioFunc_Sort(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 }
 
 // Take a subset of the Dataframe's rows
 func PreludioFunc_Take(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	var df dataframe.DataFrame
@@ -442,9 +424,7 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 
 // Set what's left in the stack to the current Dataframe
 func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
@@ -526,23 +506,17 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 
 // Coerce variables to bool
 func PreludioFunc_AsBool(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 }
 
 // Coerce variables to integer
 func PreludioFunc_AsInteger(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 }
 
 // Coerce variables to float
 func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
@@ -643,18 +617,14 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 
 // Coerce variables to string
 func PreludioFunc_AsString(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////						STRING FUNCTIONS
 
 func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
-	if vm.__debugLevel > 5 {
-		fmt.Printf("%-30s | %-30s | %-30s | %-50s \n", "", "", "", "Calling "+funcName)
-	}
+	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
 		"old": nil,

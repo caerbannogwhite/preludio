@@ -77,7 +77,7 @@ type ByteEater struct {
 	__isCLI          bool
 	__printToStdout  bool
 	__debugLevel     int
-	__verbosityLevel int
+	__verbose        bool
 	__inputPath      string
 
 	__symbolTable           []string
@@ -111,8 +111,8 @@ func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
 	return vm
 }
 
-func (vm *ByteEater) SetVerbosityLevel(level int) *ByteEater {
-	vm.__verbosityLevel = level
+func (vm *ByteEater) SetVerbose(flag bool) *ByteEater {
+	vm.__verbose = flag
 	return vm
 }
 
@@ -164,15 +164,16 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__printToStdout && vm.__debugLevel > 5 {
-		fmt.Println()
-		fmt.Printf("BYTECODE INFO\n")
-		fmt.Printf("=============\n")
-		fmt.Printf("SIZE:              %d\n", len(bytecode))
-		fmt.Printf("BYTE MARK:         %x %x %x %x\n", bytemark[0], bytemark[1], bytemark[2], bytemark[3])
-		fmt.Printf("SYMBOL TABLE SIZE: %d\n\n", __symbolTableSize)
-		fmt.Printf("STRING SYMBOLS\n")
-		fmt.Printf("==============\n")
+	if vm.__debugLevel > 15 {
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "BYTECODE INFO", "", "")
+		vm.printDebug(15, "====================", "", "")
+		vm.printDebug(15, "SIZE", fmt.Sprintf("%d", len(bytecode)), "")
+		vm.printDebug(15, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
+		vm.printDebug(15, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "STRING SYMBOLS", "", "")
+		vm.printDebug(15, "====================", "", "")
 	}
 
 	offset := uint32(8)
@@ -185,14 +186,14 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 		offset += l
 	}
 
-	if vm.__printToStdout && vm.__debugLevel > 5 {
+	if vm.__debugLevel > 15 {
 		for _, symbol := range vm.__symbolTable {
-			fmt.Printf("%s\n", symbol)
+			vm.printDebug(15, "", symbol, "")
 		}
 
-		fmt.Println()
-		fmt.Printf("INSTRUCTIONS\n")
-		fmt.Printf("============\n")
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "INSTRUCTIONS", "", "")
+		vm.printDebug(15, "====================", "", "")
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
@@ -241,15 +242,16 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__printToStdout && vm.__debugLevel > 5 {
-		fmt.Println()
-		fmt.Printf("BYTECODE INFO\n")
-		fmt.Printf("=============\n")
-		fmt.Printf("SIZE:              %d\n", size)
-		fmt.Printf("BYTE MARK:         %x %x %x %x\n", bytemark[0], bytemark[1], bytemark[2], bytemark[3])
-		fmt.Printf("SYMBOL TABLE SIZE: %d\n\n", __symbolTableSize)
-		fmt.Printf("STRING SYMBOLS\n")
-		fmt.Printf("==============\n")
+	if vm.__debugLevel > 15 {
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "BYTECODE INFO", "", "")
+		vm.printDebug(15, "====================", "", "")
+		vm.printDebug(15, "SIZE", fmt.Sprintf("%d", size), "")
+		vm.printDebug(15, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
+		vm.printDebug(15, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "STRING SYMBOLS", "", "")
+		vm.printDebug(15, "====================", "", "")
 	}
 
 	offset := uint32(8)
@@ -262,14 +264,14 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 		offset += l
 	}
 
-	if vm.__printToStdout && vm.__debugLevel > 5 {
+	if vm.__debugLevel > 15 {
 		for _, symbol := range vm.__symbolTable {
-			fmt.Printf("%s\n", symbol)
+			vm.printDebug(15, "", symbol, "")
 		}
 
-		fmt.Println()
-		fmt.Printf("INSTRUCTIONS\n")
-		fmt.Printf("============\n")
+		vm.printDebug(15, "", "", "")
+		vm.printDebug(15, "INSTRUCTIONS", "", "")
+		vm.printDebug(15, "====================", "", "")
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
@@ -298,29 +300,70 @@ func (vm *ByteEater) StackLast() *__p_intern__ {
 func (vm *ByteEater) loadResult() {
 	for !vm.StackIsEmpty() {
 
-		// internal := vm.StackPop()
-		// switch internal.tag {
-		// case PRELUDIO_INTERNAL_TAG_ERROR:
+		internal := vm.StackPop()
+		switch internal.tag {
+		case PRELUDIO_INTERNAL_TAG_ERROR:
 
-		// case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-		// 	val := internal.getValue()
-		// 	switch tval := val.(type) {
-		// 	case []bool:
+		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
+			val := internal.getValue()
+			switch tval := val.(type) {
+			case []bool:
 
-		// 	case dataframe.DataFrame:
-		// res := make([]Columnar, tval.Ncol())
-		// names := tval.Names()
-		// for idx, name := range names {
-		// 	ser := tval.Col(name)
-		// 	// res[idx] = struct {
-		// 	Name string
-		// 	Type string
-		// 	Data []string
-		// }{
-		// 	Name: name,
-		// 	Data: ser.Values(),
-		// }
+			case dataframe.DataFrame:
+				res := make(Columnar, tval.Ncol())
+				for idx, name := range tval.Names() {
+					res[idx] = struct {
+						Name string   `json:"name"`
+						Type string   `json:"type"`
+						Data []string `json:"data"`
+					}{
+						Name: name,
+						Type: string(tval.Types()[idx]),
+						Data: tval.Records()[idx],
+					}
+				}
+			}
 
+		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
+			val := internal.getValue()
+			switch tval := val.(type) {
+			case []bool:
+
+			case dataframe.DataFrame:
+				res := make(Columnar, tval.Ncol())
+				for idx, name := range tval.Names() {
+					res[idx] = struct {
+						Name string   `json:"name"`
+						Type string   `json:"type"`
+						Data []string `json:"data"`
+					}{
+						Name: name,
+						Type: string(tval.Types()[idx]),
+						Data: tval.Records()[idx],
+					}
+				}
+			}
+
+		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
+			val := internal.getValue()
+			switch tval := val.(type) {
+			case []bool:
+
+			case dataframe.DataFrame:
+				res := make(Columnar, tval.Ncol())
+				for idx, name := range tval.Names() {
+					res[idx] = struct {
+						Name string   `json:"name"`
+						Type string   `json:"type"`
+						Data []string `json:"data"`
+					}{
+						Name: name,
+						Type: string(tval.Types()[idx]),
+						Data: tval.Records()[idx],
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -783,8 +826,15 @@ func (vm *ByteEater) SetCurrentDataFrame() {
 	}
 }
 
+func truncate(s string, n int) string {
+	if len(s) > n {
+		return s[:n-3] + "..."
+	}
+	return s
+}
+
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
-	msg := fmt.Sprintf("[ 🐛 %11s%2d ] %-20s | %-20s | %-20s\n", "Debug Level=", level, opname, param1, param2)
+	msg := fmt.Sprintf("[ 🐛 %9s%2d ]  %-20s | %-20s | %-20s", "Debug lvl=", level, truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_DEBUG, Level: level, Message: msg})
 
 	if vm.__printToStdout && vm.__debugLevel > int(level) {
@@ -793,7 +843,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	msg = fmt.Sprintf("[ ℹ️ %11s%2d ] %s\n", "Info Level=", level, msg)
+	msg = fmt.Sprintf("[ ℹ️ %9s%2d ]  %s", "Info lvl=", level, msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_INFO, Level: level, Message: msg})
 
 	if vm.__printToStdout {
@@ -802,7 +852,7 @@ func (vm *ByteEater) printInfo(level uint8, msg string) {
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	msg = fmt.Sprintf("[ ⚠️ %11s ] %s\n", "Warning", msg)
+	msg = fmt.Sprintf("[ ⚠️ %9s    ]  %s", "Warning", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_WARNING, Message: msg})
 
 	if vm.__printToStdout {
@@ -811,7 +861,7 @@ func (vm *ByteEater) printWarning(msg string) {
 }
 
 func (vm *ByteEater) printError(msg string) {
-	msg = fmt.Sprintf("[ ☠️ %11s ] %s\n", "Error", msg)
+	msg = fmt.Sprintf("[ ☠️ %9s    ]  %s", "Error", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_ERROR, Message: msg})
 
 	if vm.__printToStdout {
