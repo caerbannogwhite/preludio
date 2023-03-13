@@ -282,10 +282,10 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			bytecode := compiler.CompileSource(editor.GetCurrentEditorCode())
 			editor.byteEater.RunBytecode(bytecode)
 
-			log := editor.byteEater.GetLog()
+			res := editor.byteEater.GetResult()
 			editor.errorMessage = ""
-			for _, l := range log {
-				editor.errorMessage += l + "\n"
+			for _, log := range res.Log {
+				editor.errorMessage += log.Message + "\n"
 			}
 
 		// SHOW/HIDE KEY MAP

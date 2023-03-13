@@ -12,6 +12,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const VERSION = "0.1.0-alpha"
+
 type CliArgs struct {
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
@@ -64,11 +66,20 @@ func LaunchCodeEditor(args CliArgs) {
 func LaunchRepl(args CliArgs) {
 
 	fmt.Println("Welcome to the Preludio REPL!")
+	fmt.Println("Version:", VERSION)
 
 	be := new(preludio.ByteEater).
 		InitVM().
 		SetPrintWarning(args.Warnings).
-		SetDebugLevel(args.DebugLevel)
+		SetDebugLevel(args.DebugLevel).
+		SetVerbose(args.Verbose)
+
+	if args.Verbose {
+		fmt.Printf("\nPreludio VM initialized\n")
+		fmt.Printf("%15s %t\n", "Print warnings:", args.Warnings)
+		fmt.Printf("%15s %d\n", "Debug level:", args.DebugLevel)
+		fmt.Printf("%15s %t\n", "Verbose:", args.Verbose)
+	}
 
 	in := bufio.NewReader(os.Stdin)
 
@@ -96,7 +107,19 @@ func LaunchRepl(args CliArgs) {
 			bytecode := compiler.CompileSource(code)
 			be.RunBytecode(bytecode)
 
-			be.PrintLog()
+			res := be.GetResult()
+			for _, log := range res.Log {
+				if log.LogType == preludio.LOG_DEBUG {
+					if int(log.Level) < args.DebugLevel {
+						fmt.Println(log.Message)
+					}
+				} else {
+					fmt.Println(log.Message)
+				}
+			}
+
+			fmt.Println()
+			fmt.Println(res.Data)
 
 			code = ""
 			readerStart = true
