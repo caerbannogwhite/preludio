@@ -834,7 +834,7 @@ func truncate(s string, n int) string {
 }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
-	msg := fmt.Sprintf("[ 🐛 %9s%2d ]  %-20s | %-20s | %-20s", "Debug lvl=", level, truncate(opname, 20), truncate(param1, 20), param2)
+	msg := fmt.Sprintf("[ 🐛 %9s%2d ]  %-20s | %-20s | %-20s", "Dbg lvl=", level, truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_DEBUG, Level: level, Message: msg})
 
 	if vm.__printToStdout && vm.__debugLevel > int(level) {
@@ -843,7 +843,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	msg = fmt.Sprintf("[ ℹ️ %9s%2d ]  %s", "Info lvl=", level, msg)
+	msg = fmt.Sprintf("[ ℹ️ %9s%2d ]  %s", "Inf lvl=", level, msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_INFO, Level: level, Message: msg})
 
 	if vm.__printToStdout {
