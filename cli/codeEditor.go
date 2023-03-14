@@ -282,7 +282,7 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			bytecode := compiler.CompileSource(editor.GetCurrentEditorCode())
 			editor.byteEater.RunBytecode(bytecode)
 
-			res := editor.byteEater.GetResult()
+			res := editor.byteEater.GetOutput()
 			editor.errorMessage = ""
 			for _, log := range res.Log {
 				editor.errorMessage += log.Message + "\n"

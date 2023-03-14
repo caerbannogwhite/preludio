@@ -71,6 +71,7 @@ func LaunchRepl(args CliArgs) {
 	be := new(preludio.ByteEater).
 		InitVM().
 		SetPrintWarning(args.Warnings).
+		SetFullOutput(false).
 		SetDebugLevel(args.DebugLevel).
 		SetVerbose(args.Verbose)
 
@@ -107,7 +108,7 @@ func LaunchRepl(args CliArgs) {
 			bytecode := compiler.CompileSource(code)
 			be.RunBytecode(bytecode)
 
-			res := be.GetResult()
+			res := be.GetOutput()
 			for _, log := range res.Log {
 				if log.LogType == preludio.LOG_DEBUG {
 					if int(log.Level) < args.DebugLevel {
@@ -118,8 +119,9 @@ func LaunchRepl(args CliArgs) {
 				}
 			}
 
-			fmt.Println()
-			fmt.Println(res.Data)
+			for _, c := range res.Data {
+				prettyPrint(c)
+			}
 
 			code = ""
 			readerStart = true
@@ -129,4 +131,24 @@ func LaunchRepl(args CliArgs) {
 
 		code += line + "\n"
 	}
+}
+
+func truncate(s string, n int) string {
+	if len(s) > n {
+		return s[:n-3] + "..."
+	}
+	return s
+}
+
+func prettyPrint(columnar []preludio.Columnar) {
+	for _, c := range columnar {
+		fmt.Printf("| %-10s ", truncate(c.Name, 10))
+	}
+	fmt.Println("|")
+
+	for _, c := range columnar {
+		fmt.Printf("| %-10s ", truncate(c.Type, 10))
+	}
+	fmt.Println("|")
+
 }
