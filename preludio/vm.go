@@ -74,11 +74,12 @@ const (
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
 	// parameters
-	__reportWarnings bool
+	__printWarnings  bool
 	__isCLI          bool
 	__printToStdout  bool
-	__debugLevel     int
+	__outputSnippets bool
 	__verbose        bool
+	__debugLevel     int
 	__inputPath      string
 
 	// internal
@@ -95,7 +96,7 @@ type ByteEater struct {
 }
 
 func (vm *ByteEater) SetPrintWarning(flag bool) *ByteEater {
-	vm.__reportWarnings = flag
+	vm.__printWarnings = flag
 	return vm
 }
 
@@ -109,13 +110,18 @@ func (vm *ByteEater) SetPrintToStdout(flag bool) *ByteEater {
 	return vm
 }
 
-func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
-	vm.__debugLevel = level
+func (vm *ByteEater) SetOutputSnippets(flag bool) *ByteEater {
+	vm.__outputSnippets = flag
 	return vm
 }
 
 func (vm *ByteEater) SetVerbose(flag bool) *ByteEater {
 	vm.__verbose = flag
+	return vm
+}
+
+func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
+	vm.__debugLevel = level
 	return vm
 }
 
@@ -136,23 +142,6 @@ const (
 	LOG_ERROR   LOG_TYPE = 2
 	LOG_DEBUG   LOG_TYPE = 3
 )
-
-type LogEnty struct {
-	LogType LOG_TYPE `json:"logType"`
-	Level   uint8    `json:"level"`
-	Message string   `json:"message"`
-}
-
-type Columnar []struct {
-	Name string   `json:"name"`
-	Type string   `json:"type"`
-	Data []string `json:"data"`
-}
-
-type PreludioOutput struct {
-	Log  []LogEnty  `json:"log"`
-	Data []Columnar `json:"data"`
-}
 
 // Run Preludio Bytecode from byte array
 func (vm *ByteEater) RunBytecode(bytecode []byte) {
@@ -299,75 +288,17 @@ func (vm *ByteEater) stackLast() *__p_intern__ {
 }
 
 func (vm *ByteEater) loadResults() {
-	for !vm.stackIsEmpty() {
+	vm.__output.Data = make([][]Columnar, 0)
+	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
+
+		vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
 
 		internal := vm.stackPop()
-		switch internal.tag {
-		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-			val := internal.getValue()
-			switch tval := val.(type) {
-			case []bool:
-
-			case dataframe.DataFrame:
-				res := make(Columnar, tval.Ncol())
-				for idx, name := range tval.Names() {
-					res[idx] = struct {
-						Name string   `json:"name"`
-						Type string   `json:"type"`
-						Data []string `json:"data"`
-					}{
-						Name: name,
-						Type: string(tval.Types()[idx]),
-						Data: tval.Records()[idx],
-					}
-				}
-			}
-
-		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
-			val := internal.getValue()
-			switch tval := val.(type) {
-			case []bool:
-
-			case dataframe.DataFrame:
-				res := make(Columnar, tval.Ncol())
-				for idx, name := range tval.Names() {
-					res[idx] = struct {
-						Name string   `json:"name"`
-						Type string   `json:"type"`
-						Data []string `json:"data"`
-					}{
-						Name: name,
-						Type: string(tval.Types()[idx]),
-						Data: tval.Records()[idx],
-					}
-				}
-			}
-
-		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
-			val := internal.getValue()
-			switch tval := val.(type) {
-			case []bool:
-
-			case dataframe.DataFrame:
-				res := make(Columnar, tval.Ncol())
-				for idx, name := range tval.Names() {
-					res[idx] = struct {
-						Name string   `json:"name"`
-						Type string   `json:"type"`
-						Data []string `json:"data"`
-					}{
-						Name: name,
-						Type: string(tval.Types()[idx]),
-						Data: tval.Records()[idx],
-					}
-				}
-			}
-		}
+		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__outputSnippets)
 	}
 }
 
 func (vm *ByteEater) GetOutput() *PreludioOutput {
-	vm.loadResults()
 	return &vm.__output
 }
 
@@ -408,6 +339,8 @@ MAIN_LOOP:
 
 		case OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
+
+			vm.loadResults()
 
 			// Extract BEGIN FRAME
 			vm.stackPop()

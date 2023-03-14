@@ -40,7 +40,7 @@ take 20
 	bytecode := compiler.CompileSource(code)
 	be.RunBytecode(bytecode)
 
-	res := be.GetResult()
+	res := be.GetOutput()
 
 	for _, log := range res.Log {
 		fmt.Println(log.Message)

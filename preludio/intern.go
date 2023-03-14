@@ -43,18 +43,31 @@ func (i *__p_intern__) setAssignment(name string) {
 	i.name = name
 }
 
-func (i *__p_intern__) ToString() string {
+func (i *__p_intern__) toResult(res *[]Columnar, snippetOnly bool) error {
 	switch i.tag {
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
-		return fmt.Sprintf("%v", i.expr[0])
+		switch v := i.expr[0].(type) {
+		case []bool:
+			*res = append(*res, NewColumnarBool(i.name, snippetOnly, v))
+		case []int:
+			*res = append(*res, NewColumnarInt(i.name, snippetOnly, v))
+		case []float64:
+			*res = append(*res, NewColumnarFloat(i.name, snippetOnly, v))
+		case []string:
+			*res = append(*res, NewColumnarString(i.name, snippetOnly, v))
+		case dataframe.DataFrame:
+			df, err := DataFrameToColumnar(snippetOnly, &v)
+			if err != nil {
+				return err
+			}
+			*res = append(*res, df...)
+		}
 	case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
-		return fmt.Sprintf("%s = %v", i.name, i.expr[0])
+
 	case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
-		return fmt.Sprintf("%s = %v", i.name, i.expr[0])
-	case PRELUDIO_INTERNAL_TAG_BEGIN_FRAME:
-		return "BEGIN_FRAME"
+
 	}
-	return "UNKNOWN"
+	return nil
 }
 
 func (i *__p_intern__) getValue() interface{} {
