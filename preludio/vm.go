@@ -74,13 +74,13 @@ const (
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
 	// parameters
-	__printWarnings  bool
-	__isCLI          bool
-	__printToStdout  bool
-	__outputSnippets bool
-	__verbose        bool
-	__debugLevel     int
-	__inputPath      string
+	__printWarnings bool
+	__isCLI         bool
+	__printToStdout bool
+	__fullOutput    bool
+	__verbose       bool
+	__debugLevel    int
+	__inputPath     string
 
 	// internal
 	__panicMode             bool
@@ -110,8 +110,8 @@ func (vm *ByteEater) SetPrintToStdout(flag bool) *ByteEater {
 	return vm
 }
 
-func (vm *ByteEater) SetOutputSnippets(flag bool) *ByteEater {
-	vm.__outputSnippets = flag
+func (vm *ByteEater) SetFullOutput(flag bool) *ByteEater {
+	vm.__fullOutput = flag
 	return vm
 }
 
@@ -294,7 +294,7 @@ func (vm *ByteEater) loadResults() {
 		vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
 
 		internal := vm.stackPop()
-		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__outputSnippets)
+		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__fullOutput)
 	}
 }
 
@@ -752,13 +752,6 @@ func (vm *ByteEater) SetCurrentDataFrame() {
 	for _, name := range df.Names() {
 		vm.__currentDataFrameNames[name] = true
 	}
-}
-
-func truncate(s string, n int) string {
-	if len(s) > n {
-		return s[:n-3] + "..."
-	}
-	return s
 }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
