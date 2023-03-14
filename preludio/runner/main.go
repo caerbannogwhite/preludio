@@ -9,7 +9,7 @@ import (
 func main() {
 
 	code := `
-readCSV "C:\\Users\\massi\\Downloads\\Cars.csv" delimiter: ";" header:true
+readCSV "C:\\Users\\massi\\Downloads\\Cars.csv" delimiter: ";"
 take 20
 `
 

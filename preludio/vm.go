@@ -150,12 +150,12 @@ type Columnar []struct {
 }
 
 type PreludioOutput struct {
-	Log  []LogEnty `json:"log"`
-	Data Columnar  `json:"data"`
+	Log  []LogEnty  `json:"log"`
+	Data []Columnar `json:"data"`
 }
 
 // Run Preludio Bytecode from byte array
-func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
+func (vm *ByteEater) RunBytecode(bytecode []byte) {
 
 	// clean vm state
 	vm.__symbolTable = make([]string, 0)
@@ -200,14 +200,12 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) *PreludioOutput {
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
-
-	return &vm.__output
 }
 
 // Run Preludio bytecode from a binary file located
 // at __inputPath with SetInputPath
 // TO DEPRECATE (?)
-func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
+func (vm *ByteEater) RunFileBytecode() {
 	var err error
 	var file *os.File
 	var stats fs.FileInfo
@@ -222,14 +220,12 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	file, err = os.Open(vm.__inputPath)
 	if err != nil {
 		vm.setPanicMode(err.Error())
-		return &vm.__output
 	}
 	defer file.Close()
 
 	stats, err = file.Stat()
 	if err != nil {
 		vm.setPanicMode(err.Error())
-		return &vm.__output
 	}
 
 	var size int64 = stats.Size()
@@ -239,7 +235,6 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	_, err = bufr.Read(bytecode)
 	if err != nil {
 		vm.setPanicMode(err.Error())
-		return &vm.__output
 	}
 
 	bytemark := bytecode[0:4]
@@ -278,8 +273,6 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
-
-	return &vm.__output
 }
 
 func (vm *ByteEater) setPanicMode(msg string) {
@@ -305,7 +298,7 @@ func (vm *ByteEater) stackLast() *__p_intern__ {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *ByteEater) loadResult() {
+func (vm *ByteEater) loadResults() {
 	for !vm.stackIsEmpty() {
 
 		internal := vm.stackPop()
@@ -373,8 +366,8 @@ func (vm *ByteEater) loadResult() {
 	}
 }
 
-func (vm *ByteEater) GetResult() *PreludioOutput {
-	vm.loadResult()
+func (vm *ByteEater) GetOutput() *PreludioOutput {
+	vm.loadResults()
 	return &vm.__output
 }
 
@@ -599,9 +592,9 @@ MAIN_LOOP:
 
 		case OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
-
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(OP_BINARY_DIV, op2)
+
+			vm.stackPop().appendOperand(OP_BINARY_DIV, op2)
 
 		case OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")
@@ -712,7 +705,6 @@ MAIN_LOOP:
 			}
 			break MAIN_LOOP
 		}
-
 	}
 }
 
@@ -837,7 +829,7 @@ func truncate(s string, n int) string {
 }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
-	msg := fmt.Sprintf("[ 🐛 %9s%2d ]  %-20s | %-20s | %-20s", "Dbg lvl=", level, truncate(opname, 20), truncate(param1, 20), param2)
+	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_DEBUG, Level: level, Message: msg})
 
 	if vm.__printToStdout && vm.__debugLevel > int(level) {
@@ -846,7 +838,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	msg = fmt.Sprintf("[ ℹ️ %9s%2d ]  %s", "Inf lvl=", level, msg)
+	msg = fmt.Sprintf("[ ℹ️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_INFO, Level: level, Message: msg})
 
 	if vm.__printToStdout {
@@ -855,7 +847,7 @@ func (vm *ByteEater) printInfo(level uint8, msg string) {
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	msg = fmt.Sprintf("[ ⚠️ %9s    ]  %s", "Warning", msg)
+	msg = fmt.Sprintf("[ ⚠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_WARNING, Message: msg})
 
 	if vm.__printToStdout {
@@ -864,7 +856,7 @@ func (vm *ByteEater) printWarning(msg string) {
 }
 
 func (vm *ByteEater) printError(msg string) {
-	msg = fmt.Sprintf("[ ☠️ %9s    ]  %s", "Error", msg)
+	msg = fmt.Sprintf("[ ☠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_ERROR, Message: msg})
 
 	if vm.__printToStdout {
