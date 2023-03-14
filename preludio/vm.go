@@ -73,6 +73,7 @@ const (
 
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
+	// parameters
 	__reportWarnings bool
 	__isCLI          bool
 	__printToStdout  bool
@@ -80,6 +81,8 @@ type ByteEater struct {
 	__verbose        bool
 	__inputPath      string
 
+	// internal
+	__panicMode             bool
 	__symbolTable           []string
 	__stack                 []__p_intern__
 	__currentDataFrame      *dataframe.DataFrame
@@ -218,14 +221,14 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 
 	file, err = os.Open(vm.__inputPath)
 	if err != nil {
-		vm.AddError(err.Error())
+		vm.setPanicMode(err.Error())
 		return &vm.__output
 	}
 	defer file.Close()
 
 	stats, err = file.Stat()
 	if err != nil {
-		vm.AddError(err.Error())
+		vm.setPanicMode(err.Error())
 		return &vm.__output
 	}
 
@@ -235,7 +238,7 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	bufr := bufio.NewReader(file)
 	_, err = bufr.Read(bytecode)
 	if err != nil {
-		vm.AddError(err.Error())
+		vm.setPanicMode(err.Error())
 		return &vm.__output
 	}
 
@@ -279,31 +282,34 @@ func (vm *ByteEater) RunFileBytecode() *PreludioOutput {
 	return &vm.__output
 }
 
-func (vm *ByteEater) StackIsEmpty() bool {
+func (vm *ByteEater) setPanicMode(msg string) {
+	vm.__panicMode = true
+	vm.printError(msg)
+}
+
+func (vm *ByteEater) stackIsEmpty() bool {
 	return len(vm.__stack) == 0
 }
 
-func (vm *ByteEater) StackPush(e *__p_intern__) {
+func (vm *ByteEater) stackPush(e *__p_intern__) {
 	vm.__stack = append(vm.__stack, *e)
 }
 
-func (vm *ByteEater) StackPop() *__p_intern__ {
+func (vm *ByteEater) stackPop() *__p_intern__ {
 	e := vm.__stack[len(vm.__stack)-1]
 	vm.__stack = vm.__stack[:len(vm.__stack)-1]
 	return &e
 }
 
-func (vm *ByteEater) StackLast() *__p_intern__ {
+func (vm *ByteEater) stackLast() *__p_intern__ {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
 func (vm *ByteEater) loadResult() {
-	for !vm.StackIsEmpty() {
+	for !vm.stackIsEmpty() {
 
-		internal := vm.StackPop()
+		internal := vm.stackPop()
 		switch internal.tag {
-		case PRELUDIO_INTERNAL_TAG_ERROR:
-
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			val := internal.getValue()
 			switch tval := val.(type) {
@@ -405,13 +411,13 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
-			vm.StackPush(newPInternBeginFrame())
+			vm.stackPush(newPInternBeginFrame())
 
 		case OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
 
 			// Extract BEGIN FRAME
-			vm.StackPop()
+			vm.stackPop()
 
 		case OP_ASSIGN_STMT:
 			vm.printDebug(10, "OP_ASSIGN_STMT", "", "")
@@ -470,10 +476,10 @@ MAIN_LOOP:
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.AddError(fmt.Sprintf("variable '%s' not callable.", funcName))
+						vm.setPanicMode(fmt.Sprintf("variable '%s' not callable.", funcName))
 					}
 				} else {
-					vm.AddError(fmt.Sprintf("variable '%s' not defined.", funcName))
+					vm.setPanicMode(fmt.Sprintf("variable '%s' not defined.", funcName))
 				}
 			}
 
@@ -494,7 +500,7 @@ MAIN_LOOP:
 			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
 
-			vm.StackPush(newPInternTerm(__p_list__(listCopy)))
+			vm.stackPush(newPInternTerm(__p_list__(listCopy)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
@@ -513,7 +519,7 @@ MAIN_LOOP:
 			paramName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_NAMED_PARAM", "", paramName)
 
-			vm.StackLast().setParamName(paramName)
+			vm.stackLast().setParamName(paramName)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////					PUSH ASSIGN IDENT
@@ -524,7 +530,7 @@ MAIN_LOOP:
 			ident := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_ASSIGN_IDENT", "", ident)
 
-			vm.StackLast().setAssignment(ident)
+			vm.stackLast().setAssignment(ident)
 
 		case OP_PUSH_TERM:
 			termType := ""
@@ -542,32 +548,32 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.StackPush(newPInternTerm([]bool{val}))
+				vm.stackPush(newPInternTerm([]bool{val}))
 
 			case TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.StackPush(newPInternTerm([]int{int(val)}))
+				vm.stackPush(newPInternTerm([]int{int(val)}))
 
 			case TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
-				vm.StackPush(newPInternTerm([]float64{val}))
+				vm.stackPush(newPInternTerm([]float64{val}))
 
 			case TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.StackPush(newPInternTerm([]string{termVal}))
+				vm.stackPush(newPInternTerm([]string{termVal}))
 
 			case TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.StackPush(newPInternTerm(__p_symbol__(termVal)))
+				vm.stackPush(newPInternTerm(__p_symbol__(termVal)))
 
 			default:
-				vm.AddError(fmt.Sprintf("ByteEater: unknown term code %d.", param1))
+				vm.setPanicMode(fmt.Sprintf("ByteEater: unknown term code %d.", param1))
 			}
 
 			vm.printDebug(10, "OP_PUSH_TERM", termType, termVal)
@@ -588,38 +594,38 @@ MAIN_LOOP:
 		case OP_BINARY_MUL:
 			vm.printDebug(10, "OP_BINARY_MUL", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_MUL, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_MUL, op2)
 
 		case OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_DIV, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_DIV, op2)
 
 		case OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_MOD, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_MOD, op2)
 
 		case OP_BINARY_ADD:
 			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_ADD, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_ADD, op2)
 
 		case OP_BINARY_SUB:
 			vm.printDebug(10, "OP_BINARY_SUB", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_SUB, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_SUB, op2)
 
 		case OP_BINARY_POW:
 			vm.printDebug(10, "OP_BINARY_POW", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_POW, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_POW, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
@@ -627,50 +633,50 @@ MAIN_LOOP:
 		case OP_BINARY_EQ:
 			vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_EQ, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_EQ, op2)
 
 		case OP_BINARY_NE:
 			vm.printDebug(10, "OP_BINARY_NE", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_NE, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_NE, op2)
 
 		case OP_BINARY_GE:
 			vm.printDebug(10, "OP_BINARY_GE", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_GE, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_GE, op2)
 
 		case OP_BINARY_LE:
 			vm.printDebug(10, "OP_BINARY_LE", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_LE, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_LE, op2)
 
 		case OP_BINARY_GT:
 			vm.printDebug(10, "OP_BINARY_GT", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_GT, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_GT, op2)
 
 		case OP_BINARY_LT:
 			vm.printDebug(10, "OP_BINARY_LT", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_LT, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_LT, op2)
 
 		case OP_BINARY_AND:
 			vm.printDebug(10, "OP_BINARY_AND", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_AND, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_AND, op2)
 
 		case OP_BINARY_OR:
 			vm.printDebug(10, "OP_BINARY_OR", "", "")
 
-			op2 := vm.StackPop()
-			vm.StackLast().appendOperand(OP_BINARY_OR, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(OP_BINARY_OR, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				OTHER OPERATIONS
@@ -698,13 +704,11 @@ MAIN_LOOP:
 
 		case NO_OP:
 			vm.printDebug(10, "NO_OP", "", "")
-
 		}
 
-		if !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
-			for !vm.StackIsEmpty() && vm.StackLast().tag == PRELUDIO_INTERNAL_TAG_ERROR {
-				err := vm.StackPop()
-				vm.printError(err.errorMsg)
+		if vm.__panicMode {
+			for !vm.stackIsEmpty() {
+				vm.stackPop()
 			}
 			break MAIN_LOOP
 		}
@@ -733,12 +737,11 @@ func (vm *ByteEater) GetFunctionParams(funcName string, namedParams *map[string]
 
 LOOP1:
 	for {
-		t1 := *vm.StackLast()
+		t1 := *vm.stackLast()
 		switch t1.tag {
-		case PRELUDIO_INTERNAL_TAG_ERROR:
 		case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 			positionalParams = append([]*__p_intern__{&t1}, positionalParams...)
-			vm.StackPop()
+			vm.stackPop()
 
 		case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 			// Name of parameter is in the given list of names
@@ -747,7 +750,7 @@ LOOP1:
 			} else {
 				vm.printWarning(fmt.Sprintf("%s does not know a parameter named '%s', the value will be ignored.", funcName, t1.name))
 			}
-			vm.StackPop()
+			vm.stackPop()
 
 		case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 			if acceptingAssignments {
@@ -755,7 +758,7 @@ LOOP1:
 			} else {
 				vm.printWarning(fmt.Sprintf("%s does not accept assignements, the value of '%s' will be ignored.", funcName, t1.name))
 			}
-			vm.StackPop()
+			vm.stackPop()
 
 		case PRELUDIO_INTERNAL_TAG_BEGIN_FRAME:
 			break LOOP1
@@ -817,7 +820,7 @@ func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
 // Set the last element inserted into the stack as
 // the current DataFrame
 func (vm *ByteEater) SetCurrentDataFrame() {
-	df, _ := vm.StackLast().getDataframe()
+	df, _ := vm.stackLast().getDataframe()
 	vm.__currentDataFrame = &df
 
 	vm.__currentDataFrameNames = map[string]bool{}
@@ -867,9 +870,4 @@ func (vm *ByteEater) printError(msg string) {
 	if vm.__printToStdout {
 		fmt.Print(msg)
 	}
-}
-
-func (vm *ByteEater) AddError(msg string) {
-	vm.printError(msg)
-	vm.StackPush(&__p_intern__{tag: PRELUDIO_INTERNAL_TAG_ERROR, errorMsg: msg})
 }

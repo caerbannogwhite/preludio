@@ -9,7 +9,7 @@ import (
 type __p_intern_tag__ uint8
 
 const (
-	PRELUDIO_INTERNAL_TAG_ERROR       __p_intern_tag__ = 0
+	// PRELUDIO_INTERNAL_TAG_ERROR       __p_intern_tag__ = 0
 	PRELUDIO_INTERNAL_TAG_EXPRESSION  __p_intern_tag__ = 1
 	PRELUDIO_INTERNAL_TAG_NAMED_PARAM __p_intern_tag__ = 2
 	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  __p_intern_tag__ = 3
@@ -21,7 +21,6 @@ type __p_intern__ struct {
 	operators []OPCODE
 	expr      []interface{}
 	name      string
-	errorMsg  string
 }
 
 func newPInternBeginFrame() *__p_intern__ {
@@ -46,8 +45,6 @@ func (i *__p_intern__) setAssignment(name string) {
 
 func (i *__p_intern__) ToString() string {
 	switch i.tag {
-	case PRELUDIO_INTERNAL_TAG_ERROR:
-		return i.errorMsg
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 		return fmt.Sprintf("%v", i.expr[0])
 	case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
