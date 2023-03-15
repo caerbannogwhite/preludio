@@ -1,4 +1,4 @@
-package preludio
+package preludiocore
 
 import (
 	"fmt"

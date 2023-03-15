@@ -1,4 +1,4 @@
-package preludio
+package preludiocore
 
 func truncate(s string, n int) string {
 	if len(s) > n {

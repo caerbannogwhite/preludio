@@ -2,10 +2,11 @@ package main
 
 import (
 	"bufio"
-	"compiler"
 	"fmt"
 	"os"
-	"preludio"
+	"preludiocli"
+	"preludiocompiler"
+	"preludiocore"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -29,12 +30,12 @@ func main() {
 	arg.MustParse(&args)
 
 	if args.InputPath != "" {
-		be := new(preludio.ByteEater).
+		be := new(preludiocore.ByteEater).
 			InitVM().
 			SetPrintWarning(args.Warnings).
 			SetDebugLevel(args.DebugLevel)
 
-		bytecode := compiler.CompileFile(args.InputPath)
+		bytecode := preludiocompiler.CompileFile(args.InputPath)
 		if args.Verbose {
 			fmt.Println("Bytecode generated")
 		}
@@ -49,12 +50,12 @@ func main() {
 
 func LaunchCodeEditor(args CliArgs) {
 
-	be := new(preludio.ByteEater).
+	be := new(preludiocore.ByteEater).
 		InitVM().
 		SetPrintWarning(args.Warnings).
 		SetDebugLevel(args.DebugLevel)
 
-	codeEditor := NewCodeEditor().
+	codeEditor := preludiocli.NewCodeEditor().
 		SetPreludioByteEater(*be)
 
 	if _, err := tea.NewProgram(codeEditor).Run(); err != nil {
@@ -68,7 +69,7 @@ func LaunchRepl(args CliArgs) {
 	fmt.Println("Welcome to the Preludio REPL!")
 	fmt.Println("Version:", VERSION)
 
-	be := new(preludio.ByteEater).
+	be := new(preludiocore.ByteEater).
 		InitVM().
 		SetPrintWarning(args.Warnings).
 		SetFullOutput(false).
@@ -105,12 +106,12 @@ func LaunchRepl(args CliArgs) {
 		line = strings.TrimSpace(line)
 
 		if line == "" {
-			bytecode := compiler.CompileSource(code)
+			bytecode := preludiocompiler.CompileSource(code)
 			be.RunBytecode(bytecode)
 
 			res := be.GetOutput()
 			for _, log := range res.Log {
-				if log.LogType == preludio.LOG_DEBUG {
+				if log.LogType == preludiocore.LOG_DEBUG {
 					if int(log.Level) < args.DebugLevel {
 						fmt.Println(log.Message)
 					}
@@ -140,7 +141,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(colSize int, columnar []preludio.Columnar) {
+func prettyPrint(colSize int, columnar []preludiocore.Columnar) {
 
 	actualColSize := colSize + 3
 	fmtString := fmt.Sprintf("| %%-%ds ", colSize)

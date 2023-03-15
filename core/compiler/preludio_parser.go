@@ -1,6 +1,6 @@
 // Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
-package compiler // preludio
+package preludiocompiler // preludio
 import (
 	"fmt"
 	"strconv"

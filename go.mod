@@ -1,23 +1,28 @@
-module preludiocli
+module preludio
 
 go 1.20
 
-replace preludiocore => ../core
+replace preludiocore => ./core
 
-replace preludiocompiler => ../core/compiler
+replace preludiocompiler => ./core/compiler
+
+replace preludiocli => ./cli
 
 require (
-	github.com/charmbracelet/bubbles v0.15.0
+	github.com/alexflint/go-arg v1.4.3
 	github.com/charmbracelet/bubbletea v0.23.2
-	github.com/charmbracelet/lipgloss v0.7.1
+	preludiocli v0.0.0-00010101000000-000000000000
 	preludiocompiler v0.0.0-00010101000000-000000000000
 	preludiocore v0.0.0-00010101000000-000000000000
 )
 
 require (
+	github.com/alexflint/go-scalar v1.1.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/charmbracelet/bubbles v0.15.0 // indirect
+	github.com/charmbracelet/lipgloss v0.7.1 // indirect
 	github.com/containerd/console v1.0.3 // indirect
 	github.com/go-gota/gota v0.12.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

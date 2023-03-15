@@ -1,4 +1,4 @@
-package compiler
+package preludiocompiler
 
 import (
 	"encoding/binary"

@@ -1,10 +1,10 @@
-package main
+package preludiocli
 
 import (
-	"compiler"
 	"fmt"
 	"os"
-	"preludio"
+	"preludiocompiler"
+	"preludiocore"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -72,7 +72,7 @@ type CodeEditor struct {
 	rows            []textinput.Model
 	errorMessage    string
 	footerMessage   string
-	byteEater       preludio.ByteEater
+	byteEater       preludiocore.ByteEater
 }
 
 func NewCodeEditor() CodeEditor {
@@ -96,7 +96,7 @@ func NewCodeEditor() CodeEditor {
 	return editor
 }
 
-func (editor CodeEditor) SetPreludioByteEater(be preludio.ByteEater) CodeEditor {
+func (editor CodeEditor) SetPreludioByteEater(be preludiocore.ByteEater) CodeEditor {
 	editor.byteEater = be
 	return editor
 }
@@ -279,7 +279,7 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// RUN CODE
 		case "ctrl+r":
-			bytecode := compiler.CompileSource(editor.GetCurrentEditorCode())
+			bytecode := preludiocompiler.CompileSource(editor.GetCurrentEditorCode())
 			editor.byteEater.RunBytecode(bytecode)
 
 			res := editor.byteEater.GetOutput()

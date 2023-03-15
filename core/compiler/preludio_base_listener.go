@@ -1,6 +1,6 @@
 // Code generated from java-escape by ANTLR 4.11.1. DO NOT EDIT.
 
-package compiler // preludio
+package preludiocompiler // preludio
 import "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 
 // BasepreludioListener is a complete listener for a parse tree produced by preludioParser.
