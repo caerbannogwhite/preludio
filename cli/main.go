@@ -120,7 +120,7 @@ func LaunchRepl(args CliArgs) {
 			}
 
 			for _, c := range res.Data {
-				prettyPrint(c)
+				prettyPrint(10, c)
 			}
 
 			code = ""
@@ -140,15 +140,75 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(columnar []preludio.Columnar) {
+func prettyPrint(colSize int, columnar []preludio.Columnar) {
+
+	actualColSize := colSize + 3
+	fmtString := fmt.Sprintf("| %%-%ds ", colSize)
+
+	// header
+	fmt.Printf("    ")
+	for i := 0; i < len(columnar)*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			fmt.Print("+")
+		} else {
+			fmt.Print("-")
+		}
+	}
+	fmt.Println("+")
+
+	// column names
+	fmt.Printf("    ")
 	for _, c := range columnar {
-		fmt.Printf("| %-10s ", truncate(c.Name, 10))
+		fmt.Printf(fmtString, truncate(c.Name, colSize))
 	}
 	fmt.Println("|")
 
+	// separator
+	fmt.Printf("    ")
+	for i := 0; i < len(columnar)*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			fmt.Print("+")
+		} else {
+			fmt.Print("-")
+		}
+	}
+	fmt.Println("+")
+
+	// column types
+	fmt.Printf("    ")
 	for _, c := range columnar {
-		fmt.Printf("| %-10s ", truncate(c.Type, 10))
+		fmt.Printf(fmtString, truncate(c.Type, colSize))
 	}
 	fmt.Println("|")
 
+	// separator
+	fmt.Printf("    ")
+	for i := 0; i < len(columnar)*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			fmt.Print("+")
+		} else {
+			fmt.Print("-")
+		}
+	}
+	fmt.Println("+")
+
+	// data
+	for i := 0; i < len(columnar[0].Data); i++ {
+		fmt.Printf("    ")
+		for _, c := range columnar {
+			fmt.Printf(fmtString, truncate(c.Data[i], colSize))
+		}
+		fmt.Println("|")
+	}
+
+	// separator
+	fmt.Printf("    ")
+	for i := 0; i < len(columnar)*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			fmt.Print("+")
+		} else {
+			fmt.Print("-")
+		}
+	}
+	fmt.Println("+")
 }
