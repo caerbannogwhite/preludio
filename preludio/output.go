@@ -25,18 +25,18 @@ type PreludioOutput struct {
 	Data [][]Columnar `json:"data"`
 }
 
-func NewColumnarBool(name string, fullOutput bool, data []bool) Columnar {
+func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) Columnar {
 	col := Columnar{}
 	col.Name = name
 	col.Type = "bool"
 	col.ActualLength = len(data)
 	if !fullOutput {
-		col.Data = make([]string, 5)
+		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
 	}
 	for i, v := range data {
-		if !fullOutput && i == 4 {
+		if !fullOutput && i == outputSnippetLength-1 {
 			col.Data[i] = "..."
 			break
 		}
@@ -45,18 +45,18 @@ func NewColumnarBool(name string, fullOutput bool, data []bool) Columnar {
 	return col
 }
 
-func NewColumnarInt(name string, fullOutput bool, data []int) Columnar {
+func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) Columnar {
 	col := Columnar{}
 	col.Name = name
 	col.Type = "int"
 	col.ActualLength = len(data)
 	if !fullOutput {
-		col.Data = make([]string, 5)
+		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
 	}
 	for i, v := range data {
-		if !fullOutput && i == 4 {
+		if !fullOutput && i == outputSnippetLength-1 {
 			col.Data[i] = "..."
 			break
 		}
@@ -65,18 +65,18 @@ func NewColumnarInt(name string, fullOutput bool, data []int) Columnar {
 	return col
 }
 
-func NewColumnarFloat(name string, fullOutput bool, data []float64) Columnar {
+func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) Columnar {
 	col := Columnar{}
 	col.Name = name
 	col.Type = "float"
 	col.ActualLength = len(data)
 	if !fullOutput {
-		col.Data = make([]string, 5)
+		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
 	}
 	for i, v := range data {
-		if !fullOutput && i == 4 {
+		if !fullOutput && i == outputSnippetLength-1 {
 			col.Data[i] = "..."
 			break
 		}
@@ -85,18 +85,18 @@ func NewColumnarFloat(name string, fullOutput bool, data []float64) Columnar {
 	return col
 }
 
-func NewColumnarString(name string, fullOutput bool, data []string) Columnar {
+func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) Columnar {
 	col := Columnar{}
 	col.Name = name
 	col.Type = "string"
 	col.ActualLength = len(data)
 	if !fullOutput {
-		col.Data = make([]string, 5)
+		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
 	}
 	for i, v := range data {
-		if !fullOutput && i == 4 {
+		if !fullOutput && i == outputSnippetLength-1 {
 			col.Data[i] = "..."
 			break
 		}
@@ -105,7 +105,7 @@ func NewColumnarString(name string, fullOutput bool, data []string) Columnar {
 	return col
 }
 
-func DataFrameToColumnar(fullOutput bool, df *dataframe.DataFrame) ([]Columnar, error) {
+func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]Columnar, error) {
 	columns := make([]Columnar, df.Ncol())
 	for i, name := range df.Names() {
 		col := df.Col(name)
@@ -115,17 +115,17 @@ func DataFrameToColumnar(fullOutput bool, df *dataframe.DataFrame) ([]Columnar, 
 			if err != nil {
 				return nil, err
 			}
-			columns[i] = NewColumnarBool(col.Name, fullOutput, val)
+			columns[i] = NewColumnarBool(col.Name, fullOutput, outputSnippetLength, val)
 		case series.Int:
 			val, err := col.Int()
 			if err != nil {
 				return nil, err
 			}
-			columns[i] = NewColumnarInt(col.Name, fullOutput, val)
+			columns[i] = NewColumnarInt(col.Name, fullOutput, outputSnippetLength, val)
 		case series.Float:
-			columns[i] = NewColumnarFloat(col.Name, fullOutput, col.Float())
+			columns[i] = NewColumnarFloat(col.Name, fullOutput, outputSnippetLength, col.Float())
 		case series.String:
-			columns[i] = NewColumnarString(col.Name, fullOutput, col.Records())
+			columns[i] = NewColumnarString(col.Name, fullOutput, outputSnippetLength, col.Records())
 		}
 	}
 	return columns, nil

@@ -74,15 +74,16 @@ const (
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
 	// parameters
-	__printWarnings bool
-	__isCLI         bool
-	__printToStdout bool
-	__fullOutput    bool
-	__verbose       bool
-	__debugLevel    int
-	__inputPath     string
+	__printWarnings       bool
+	__isCLI               bool
+	__printToStdout       bool
+	__fullOutput          bool
+	__verbose             bool
+	__debugLevel          int
+	__outputSnippetLength int
+	__inputPath           string
 
-	// internal
+	// internals
 	__panicMode             bool
 	__symbolTable           []string
 	__stack                 []__p_intern__
@@ -125,7 +126,16 @@ func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
 	return vm
 }
 
+func (vm *ByteEater) SetOutputSnippetLength(length int) *ByteEater {
+	vm.__outputSnippetLength = length
+	return vm
+}
+
 func (vm *ByteEater) InitVM() *ByteEater {
+
+	// set default values
+	vm.__outputSnippetLength = 10
+
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNameSpace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
@@ -294,7 +304,7 @@ func (vm *ByteEater) loadResults() {
 		vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
 
 		internal := vm.stackPop()
-		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__fullOutput)
+		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__fullOutput, vm.__outputSnippetLength)
 	}
 }
 
