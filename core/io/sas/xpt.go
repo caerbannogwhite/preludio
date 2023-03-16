@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+const FIRST_HEADER = "HEADER RECORD*******LIBRARY HEADER RECORD!!!!!!!000000000000000000000000000000"
+
 // This functions writes a SAS XPT file (versions 5/6).
 func ReadXPTv56(path string) error {
 
