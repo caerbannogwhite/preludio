@@ -2,6 +2,7 @@ package sasio
 
 import (
 	"encoding/binary"
+	"fmt"
 	"math"
 	"testing"
 )
@@ -178,6 +179,7 @@ func TestVerySmallMagnitudeFloats(t *testing.T) {
 func TestVeryVerySmallMagnitudeFloats(t *testing.T) {
 	for i := -20; i < 20; i++ {
 		v := float64(i) / 1.0e9
+		fmt.Println(v)
 		res, err := Roundtrip(v)
 		if err != nil {
 			t.Errorf(err.Error())
