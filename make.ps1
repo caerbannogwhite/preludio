@@ -1,5 +1,5 @@
-antlr.bat -listener -no-visitor -Dlanguage=Go -package compiler preludio.g4
+antlr.bat -listener -no-visitor -Dlanguage=Go -package preludiocompiler preludio.g4
 
-Move-Item -force .\preludio_* .\preludio\compiler\
-Move-Item -force .\preludio*.interp .\preludio\compiler\
-Move-Item -force .\preludio*.tokens .\preludio\compiler\
+Move-Item -force .\preludio_* .\core\compiler\
+Move-Item -force .\preludio*.interp .\core\compiler\
+Move-Item -force .\preludio*.tokens .\core\compiler\

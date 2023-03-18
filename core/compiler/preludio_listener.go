@@ -40,6 +40,9 @@ type preludioListener interface {
 	// EnterAssignStmt is called when entering the assignStmt production.
 	EnterAssignStmt(c *AssignStmtContext)
 
+	// EnterVarDefStmt is called when entering the varDefStmt production.
+	EnterVarDefStmt(c *VarDefStmtContext)
+
 	// EnterPipeline is called when entering the pipeline production.
 	EnterPipeline(c *PipelineContext)
 
@@ -117,6 +120,9 @@ type preludioListener interface {
 
 	// ExitAssignStmt is called when exiting the assignStmt production.
 	ExitAssignStmt(c *AssignStmtContext)
+
+	// ExitVarDefStmt is called when exiting the varDefStmt production.
+	ExitVarDefStmt(c *VarDefStmtContext)
 
 	// ExitPipeline is called when exiting the pipeline production.
 	ExitPipeline(c *PipelineContext)

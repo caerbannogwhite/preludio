@@ -86,6 +86,12 @@ func (s *BasepreludioListener) EnterAssignStmt(ctx *AssignStmtContext) {}
 // ExitAssignStmt is called when production assignStmt is exited.
 func (s *BasepreludioListener) ExitAssignStmt(ctx *AssignStmtContext) {}
 
+// EnterVarDefStmt is called when production varDefStmt is entered.
+func (s *BasepreludioListener) EnterVarDefStmt(ctx *VarDefStmtContext) {}
+
+// ExitVarDefStmt is called when production varDefStmt is exited.
+func (s *BasepreludioListener) ExitVarDefStmt(ctx *VarDefStmtContext) {}
+
 // EnterPipeline is called when production pipeline is entered.
 func (s *BasepreludioListener) EnterPipeline(ctx *PipelineContext) {}
 
