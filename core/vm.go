@@ -9,9 +9,6 @@ import (
 	"preludiocompiler"
 	"strconv"
 	"strings"
-
-	"github.com/go-gota/gota/dataframe"
-	"github.com/go-gota/gota/series"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -30,13 +27,13 @@ type ByteEater struct {
 	__panicMode             bool
 	__symbolTable           []string
 	__stack                 []__p_intern__
-	__currentDataFrame      *dataframe.DataFrame
 	__currentDataFrameNames map[string]bool
 	__globalNameSpace       map[string]*__p_intern__
 	__pipelineNameSpace     map[string]*__p_intern__
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                PreludioOutput
+	// __currentDataFrame      *dataframe.DataFrame
 }
 
 func (vm *ByteEater) SetPrintWarning(flag bool) *ByteEater {
@@ -82,7 +79,7 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNameSpace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
-	vm.__currentDataFrame = nil
+	// vm.__currentDataFrame = nil
 
 	return vm
 }
@@ -100,6 +97,7 @@ const (
 func (vm *ByteEater) RunBytecode(bytecode []byte) {
 
 	// clean vm state
+	vm.__panicMode = false
 	vm.__symbolTable = make([]string, 0)
 	vm.__stack = make([]__p_intern__, 0)
 
@@ -153,6 +151,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	var stats fs.FileInfo
 
 	// clean vm state
+	vm.__panicMode = false
 	vm.__symbolTable = make([]string, 0)
 	vm.__stack = make([]__p_intern__, 0)
 
@@ -243,14 +242,19 @@ func (vm *ByteEater) stackLast() *__p_intern__ {
 func (vm *ByteEater) loadResults() {
 	vm.__output.Data = make([][]Columnar, 0)
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
-
 		vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
 
 		internal := vm.stackPop()
-
-		solveExpr(vm, internal)
+		if err := solveExpr(vm, internal); err != nil {
+			vm.setPanicMode(err.Error())
+			break
+		}
 
 		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__fullOutput, vm.__outputSnippetLength)
+	}
+
+	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
+		vm.stackPop()
 	}
 }
 
@@ -285,6 +289,43 @@ MAIN_LOOP:
 
 		switch opCode {
 
+		case preludiocompiler.OP_START_STMT:
+			vm.printDebug(10, "OP_START_STMT", "", "")
+
+			// Insert BEGIN FRAME
+			vm.stackPush(newPInternBeginFrame())
+
+		case preludiocompiler.OP_END_STMT:
+			vm.printDebug(10, "OP_END_STMT", "", "")
+
+			vm.loadResults()
+
+			// Estract BEGIN FRAME
+			vm.stackPop()
+
+		case preludiocompiler.OP_VAR_DECL:
+			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+			vm.printDebug(10, "OP_VAR_DECL", "", varName)
+
+			if _, ok := vm.__globalNameSpace[varName]; ok {
+				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is already declared", varName))
+			} else {
+				vm.__globalNameSpace[varName] = vm.stackLast()
+			}
+
+		case preludiocompiler.OP_VAR_ASSIGN:
+			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
+
+			if _, ok := vm.__globalNameSpace[varName]; ok {
+				vm.__globalNameSpace[varName] = vm.stackLast()
+			}
+
+			vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
+
+		case preludiocompiler.OP_START_FUNC_CALL:
+			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")
+
 		///////////////////////////////////////////////////////////////////////
 		///////////				PIPELINE OPERATIONS					///////////
 		case preludiocompiler.OP_START_PIPELINE:
@@ -300,12 +341,6 @@ MAIN_LOOP:
 
 			// Extract BEGIN FRAME
 			vm.stackPop()
-
-		case preludiocompiler.OP_ASSIGN_STMT:
-			vm.printDebug(10, "OP_ASSIGN_STMT", "", "")
-
-		case preludiocompiler.OP_START_FUNC_CALL:
-			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")
 
 		case preludiocompiler.OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
@@ -675,23 +710,23 @@ LOOP1:
 
 func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
-	if vm.__currentDataFrame != nil {
-		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			ser := vm.__currentDataFrame.Col(string(symbol))
-			switch ser.Type() {
-			case series.Bool:
-				val, _ := ser.Bool()
-				return val
-			case series.Int:
-				val, _ := ser.Int()
-				return val
-			case series.Float:
-				return ser.Float()
-			case series.String:
-				return ser.Records()
-			}
-		}
-	}
+	// if vm.__currentDataFrame != nil {
+	// 	if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
+	// 		ser := vm.__currentDataFrame.Col(string(symbol))
+	// 		switch ser.Type() {
+	// 		case series.Bool:
+	// 			val, _ := ser.Bool()
+	// 			return val
+	// 		case series.Int:
+	// 			val, _ := ser.Int()
+	// 			return val
+	// 		case series.Float:
+	// 			return ser.Float()
+	// 		case series.String:
+	// 			return ser.Records()
+	// 		}
+	// 	}
+	// }
 
 	// 2 - Try to split the symbol into pieces
 	pieces := strings.Split(string(symbol), ".")
@@ -700,15 +735,15 @@ func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
 
 // Set the last element inserted into the stack as
 // the current DataFrame
-func (vm *ByteEater) SetCurrentDataFrame() {
-	df, _ := vm.stackLast().getDataframe()
-	vm.__currentDataFrame = &df
+// func (vm *ByteEater) SetCurrentDataFrame() {
+// 	df, _ := vm.stackLast().getDataframe()
+// 	vm.__currentDataFrame = &df
 
-	vm.__currentDataFrameNames = map[string]bool{}
-	for _, name := range df.Names() {
-		vm.__currentDataFrameNames[name] = true
-	}
-}
+// 	vm.__currentDataFrameNames = map[string]bool{}
+// 	for _, name := range df.Names() {
+// 		vm.__currentDataFrameNames[name] = true
+// 	}
+// }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)

@@ -213,7 +213,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 	}
 
 	vm.stackPush(newPInternTerm(df))
-	vm.SetCurrentDataFrame()
+	// vm.SetCurrentDataFrame()
 }
 
 // Read a Dataframe form CSV file
@@ -264,7 +264,7 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 	}
 
 	vm.stackPush(newPInternTerm(df))
-	vm.SetCurrentDataFrame()
+	// vm.SetCurrentDataFrame()
 }
 
 // Create a new Dataframe
@@ -330,7 +330,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 	}
 
 	vm.stackPush(newPInternTerm(dataframe.New(s...)))
-	vm.SetCurrentDataFrame()
+	// vm.SetCurrentDataFrame()
 }
 
 // Select a subset of the Dataframe's columns
@@ -484,7 +484,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := *vm.__currentDataFrame
+	// df := *vm.__currentDataFrame
 	names := make([]string, 0)
 	for name := range series_ {
 		names = append(names, name)
@@ -497,8 +497,8 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 		i++
 	}
 
-	df = df.Drop(names).CBind(dataframe.New(vals...))
-	vm.__currentDataFrame = &df
+	// df = df.Drop(names).CBind(dataframe.New(vals...))
+	// vm.__currentDataFrame = &df
 }
 
 ///////////////////////////////////////////////////////////////////////////////
