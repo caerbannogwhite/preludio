@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
+	"preludiocompiler"
 	"strconv"
 	"strings"
 )
@@ -50,9 +51,9 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			}
 
 			switch op {
-			case OP_UNARY_ADD:
-			case OP_UNARY_SUB:
-			case OP_UNARY_NOT:
+			case preludiocompiler.OP_UNARY_ADD:
+			case preludiocompiler.OP_UNARY_SUB:
+			case preludiocompiler.OP_UNARY_NOT:
 			}
 		} else
 
@@ -75,7 +76,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					MULTIPLICATION
 
-			case OP_BINARY_MUL:
+			case preludiocompiler.OP_BINARY_MUL:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -385,7 +386,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					DIVISION
 
-			case OP_BINARY_DIV:
+			case preludiocompiler.OP_BINARY_DIV:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -591,7 +592,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					MODULUS
 
-			case OP_BINARY_MOD:
+			case preludiocompiler.OP_BINARY_MOD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -689,7 +690,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					ADDITION
 
-			case OP_BINARY_ADD:
+			case preludiocompiler.OP_BINARY_ADD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1024,7 +1025,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					SUBTRACTION
 
-			case OP_BINARY_SUB:
+			case preludiocompiler.OP_BINARY_SUB:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1218,7 +1219,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 			///////////////////////////////////////////////////////////////////
 			////////					EQUAL
-			case OP_BINARY_EQ:
+			case preludiocompiler.OP_BINARY_EQ:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {

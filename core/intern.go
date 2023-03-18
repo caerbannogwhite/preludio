@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
+	"preludiocompiler"
 
 	"github.com/go-gota/gota/dataframe"
 )
@@ -18,7 +19,7 @@ const (
 
 type __p_intern__ struct {
 	tag       __p_intern_tag__
-	operators []OPCODE
+	operators []preludiocompiler.OPCODE
 	expr      []interface{}
 	name      string
 }
@@ -371,14 +372,14 @@ func (l *__p_list__) listToStringVector() ([]string, error) {
 	return res, nil
 }
 
-func (lhs *__p_intern__) appendOperand(op OPCODE, rhs *__p_intern__) {
+func (lhs *__p_intern__) appendOperand(op preludiocompiler.OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
 	lhs.expr = append(lhs.expr, op)
 }
 
-func isOperator(t interface{}) (OPCODE, bool) {
-	if v, ok := t.(OPCODE); ok {
+func isOperator(t interface{}) (preludiocompiler.OPCODE, bool) {
+	if v, ok := t.(preludiocompiler.OPCODE); ok {
 		return v, true
 	}
-	return NO_OP, false
+	return preludiocompiler.NO_OP, false
 }

@@ -24,7 +24,9 @@ const (
 )
 
 const (
-	OP_START_PIPELINE OPCODE = iota
+	OP_START_STMT OPCODE = iota
+	OP_END_STMT
+	OP_START_PIPELINE
 	OP_END_PIPELINE
 	OP_ASSIGN_STMT
 	OP_START_FUNC_CALL
@@ -236,10 +238,14 @@ func (bf *ByteFeeder) ExitProgram(ctx *ProgramContext) {}
 // func (bf *ByteFeeder) ExitTypeTerm(ctx *TypeTermContext) {}
 
 // // EnterStmt is called when production stmt is entered.
-func (bf *ByteFeeder) EnterStmt(ctx *StmtContext) {}
+func (bf *ByteFeeder) EnterStmt(ctx *StmtContext) {
+	bf.AppendInstruction(OP_START_STMT, 0, 0)
+}
 
 // // ExitStmt is called when production stmt is exited.
-func (bf *ByteFeeder) ExitStmt(ctx *StmtContext) {}
+func (bf *ByteFeeder) ExitStmt(ctx *StmtContext) {
+	bf.AppendInstruction(OP_END_STMT, 0, 0)
+}
 
 // EnterVarAssignStmt is called when production assignStmt is entered.
 func (bf *ByteFeeder) EnterVarAssignStmt(ctx *VarAssignStmtContext) {}
