@@ -30,7 +30,7 @@ func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data
 	col.Name = name
 	col.Type = "bool"
 	col.ActualLength = len(data)
-	if !fullOutput {
+	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
@@ -50,7 +50,7 @@ func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data 
 	col.Name = name
 	col.Type = "int"
 	col.ActualLength = len(data)
-	if !fullOutput {
+	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
@@ -70,7 +70,7 @@ func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, dat
 	col.Name = name
 	col.Type = "float"
 	col.ActualLength = len(data)
-	if !fullOutput {
+	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))
@@ -90,7 +90,7 @@ func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, da
 	col.Name = name
 	col.Type = "string"
 	col.ActualLength = len(data)
-	if !fullOutput {
+	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
 	} else {
 		col.Data = make([]string, len(data))

@@ -144,7 +144,7 @@ func truncate(s string, n int) string {
 func prettyPrint(colSize int, columnar []preludiocore.Columnar) {
 
 	actualColSize := colSize + 3
-	fmtString := fmt.Sprintf("| %%-%ds ", colSize)
+	fmtString := fmt.Sprintf("| %%%ds ", colSize)
 
 	// header
 	fmt.Printf("    ")
@@ -158,22 +158,34 @@ func prettyPrint(colSize int, columnar []preludiocore.Columnar) {
 	fmt.Println("+")
 
 	// column names
-	fmt.Printf("    ")
+	// check if there are any column names
+	colNames := false
 	for _, c := range columnar {
-		fmt.Printf(fmtString, truncate(c.Name, colSize))
-	}
-	fmt.Println("|")
-
-	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
-		if i%actualColSize == 0 {
-			fmt.Print("+")
-		} else {
-			fmt.Print("-")
+		if c.Name != "" {
+			colNames = true
+			break
 		}
 	}
-	fmt.Println("+")
+
+	// only print column names if there are any
+	if colNames {
+		fmt.Printf("    ")
+		for _, c := range columnar {
+			fmt.Printf(fmtString, truncate(c.Name, colSize))
+		}
+		fmt.Println("|")
+
+		// separator
+		fmt.Printf("    ")
+		for i := 0; i < len(columnar)*actualColSize; i++ {
+			if i%actualColSize == 0 {
+				fmt.Print("+")
+			} else {
+				fmt.Print("-")
+			}
+		}
+		fmt.Println("+")
+	}
 
 	// column types
 	fmt.Printf("    ")
