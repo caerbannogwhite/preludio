@@ -142,6 +142,8 @@ func (s GSeriesInt) Copy() GSeries {
 	return GSeriesInt{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
 }
 
+///////////////////////////////  	SERIES OPERATIONS  //////////////////////////////////
+
 func (s GSeriesInt) Filter(filter []bool) GSeries {
 	data := make([]int, 0)
 	nullMap := make([]uint8, len(s.nullMap))
@@ -154,44 +156,4 @@ func (s GSeriesInt) Filter(filter []bool) GSeries {
 		}
 	}
 	return GSeriesInt{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
-}
-
-func (s GSeriesInt) FilterInPlace(filter []bool) {
-	data := make([]int, 0)
-	nullMap := make([]uint8, len(s.nullMap))
-	for i, v := range filter {
-		if v {
-			data = append(data, s.data[i])
-			if s.isNullable {
-				nullMap[i/8] |= 1 << uint(i%8)
-			}
-		}
-	}
-	s.data = data
-	s.nullMap = nullMap
-}
-
-func (s GSeriesInt) FilterByIndex(index []int) GSeries {
-	data := make([]int, len(index))
-	nullMap := make([]uint8, len(s.nullMap))
-	for i, v := range index {
-		data[i] = s.data[v]
-		if s.isNullable {
-			nullMap[i/8] |= 1 << uint(i%8)
-		}
-	}
-	return GSeriesInt{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
-}
-
-func (s GSeriesInt) FilterByIndexInPlace(index []int) {
-	data := make([]int, len(index))
-	nullMap := make([]uint8, len(s.nullMap))
-	for i, v := range index {
-		data[i] = s.data[v]
-		if s.isNullable {
-			nullMap[i/8] |= 1 << uint(i%8)
-		}
-	}
-	s.data = data
-	s.nullMap = nullMap
 }

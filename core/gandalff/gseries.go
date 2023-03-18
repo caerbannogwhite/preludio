@@ -115,16 +115,16 @@ type GSeries interface {
 	// Filters out the elements by the given mask.
 	Filter(mask []bool) GSeries
 	// Filters out the elements by the given mask in place.
-	FilterInPlace(mask []bool)
+	// FilterInPlace(mask []bool)
 	// Filters out the elements by the given indeces.
-	FilterByIndex(indexes []int) GSeries
+	// FilterByIndex(indexes []int) GSeries
 	// Filters out the elements by the given indeces in place.
-	FilterByIndexInPlace(indexes []int)
+	// FilterByIndexInPlace(indexes []int)
 }
 
 type StringPoolEntry struct {
 	Addr  *string
-	Count int
+	Count uint32
 }
 
 type StringPool struct {
@@ -171,16 +171,15 @@ func (sp *StringPool) Get(s string) *string {
 	if ok {
 		return entry.Addr
 	}
-	return nil
 
-	// sp.Lock()
-	// defer sp.Unlock()
-	// if entry, ok := sp.pool[s]; ok {
-	// 	// Someone else inserted the string while we were waiting
-	// 	return entry.Addr
-	// }
+	sp.Lock()
+	defer sp.Unlock()
+	if entry, ok := sp.pool[s]; ok {
+		// Someone else inserted the string while we were waiting
+		return entry.Addr
+	}
 
-	// // Create a new string and add it to the pool
-	// sp.pool[s] = StringPoolEntry{Addr: &s, Count: 1}
-	// return &s
+	// Create a new string and add it to the pool
+	sp.pool[s] = StringPoolEntry{Addr: &s, Count: 1}
+	return sp.pool[s].Addr
 }
