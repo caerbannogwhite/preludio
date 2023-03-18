@@ -1,0 +1,1 @@
+### GANDALFF: Golang (yet ANother) DAta (manipulation?) Library For Fun
