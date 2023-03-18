@@ -122,32 +122,65 @@ type GSeries interface {
 	FilterByIndexInPlace(indexes []int)
 }
 
+type StringPoolEntry struct {
+	Addr  *string
+	Count int
+}
+
 type StringPool struct {
 	sync.RWMutex
-	pool map[string]*string
+	pool map[string]StringPoolEntry
 }
 
 func NewStringPool() *StringPool {
-	return &StringPool{pool: make(map[string]*string)}
+	return &StringPool{pool: make(map[string]StringPoolEntry)}
 }
 
-func (sp *StringPool) Get(s string) *string {
-	sp.RLock()
-	strPtr, ok := sp.pool[s]
-	sp.RUnlock()
-	if ok {
-		return strPtr
-	}
-
+// Add adds the string to the pool if it doesn't exist, otherwise it increments the reference count.
+func (sp *StringPool) Add(s string) *string {
 	sp.Lock()
 	defer sp.Unlock()
-	if strPtr, ok := sp.pool[s]; ok {
-		// Someone else inserted the string while we were waiting
-		return strPtr
+	if entry, ok := sp.pool[s]; ok {
+		entry.Count++ // Increment the reference count
+		return entry.Addr
 	}
 
 	// Create a new string and add it to the pool
-	strPtr = &s
-	sp.pool[s] = strPtr
+	strPtr := &s
+	sp.pool[s] = StringPoolEntry{Addr: strPtr, Count: 1}
 	return strPtr
+}
+
+// Remove removes the string from the pool if it exists and decrements the reference count.
+func (sp *StringPool) Remove(s string) {
+	sp.Lock()
+	defer sp.Unlock()
+	if entry, ok := sp.pool[s]; ok {
+		entry.Count-- // Decrement the reference count
+		if entry.Count == 0 {
+			delete(sp.pool, s)
+		}
+	}
+}
+
+// Get returns the address of the string if it exists in the pool, otherwise nil.
+func (sp *StringPool) Get(s string) *string {
+	sp.RLock()
+	entry, ok := sp.pool[s]
+	sp.RUnlock()
+	if ok {
+		return entry.Addr
+	}
+	return nil
+
+	// sp.Lock()
+	// defer sp.Unlock()
+	// if entry, ok := sp.pool[s]; ok {
+	// 	// Someone else inserted the string while we were waiting
+	// 	return entry.Addr
+	// }
+
+	// // Create a new string and add it to the pool
+	// sp.pool[s] = StringPoolEntry{Addr: &s, Count: 1}
+	// return &s
 }
