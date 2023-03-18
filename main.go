@@ -143,6 +143,10 @@ func truncate(s string, n int) string {
 
 func prettyPrint(colSize int, columnar []preludiocore.Columnar) {
 
+	if len(columnar) == 0 {
+		return
+	}
+
 	actualColSize := colSize + 3
 	fmtString := fmt.Sprintf("| %%%ds ", colSize)
 
