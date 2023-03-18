@@ -8,15 +8,24 @@ type GSeriesFloat struct {
 	nullMap    []uint8
 }
 
-func NewGSeriesFloat(name string, isNullable bool, data []float64) GSeriesFloat {
+func NewGSeriesFloat(name string, isNullable bool, makeCopy bool, data []float64) GSeriesFloat {
 	var nullMap []uint8
 	if isNullable {
 		nullMap = make([]uint8, len(data)/8+1)
 	} else {
 		nullMap = make([]uint8, 0)
 	}
+
+	if makeCopy {
+		actualData := make([]float64, len(data))
+		copy(actualData, data)
+		data = actualData
+	}
+
 	return GSeriesFloat{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
+
+///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
 
 func (s GSeriesFloat) Len() int {
 	return len(s.data)
@@ -26,6 +35,14 @@ func (s GSeriesFloat) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesFloat) Name() string {
+	return s.name
+}
+
+func (s GSeriesFloat) Type() GSeriesType {
+	return FloatType
+}
+
 func (s GSeriesFloat) HasNull() bool {
 	for _, v := range s.nullMap {
 		if v != 0 {
@@ -33,6 +50,18 @@ func (s GSeriesFloat) HasNull() bool {
 		}
 	}
 	return false
+}
+
+func (s GSeriesFloat) NullCount() int {
+	count := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8; i++ {
+			if v&(1<<uint(i)) != 0 {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 func (s GSeriesFloat) IsNull(i int) bool {
@@ -48,23 +77,13 @@ func (s GSeriesFloat) SetNull(i int) {
 	}
 }
 
-func (s GSeriesFloat) Name() string {
-	return s.name
-}
-
-func (s GSeriesFloat) Type() GSeriesType {
-	return FloatType
-}
-
-func (s GSeriesFloat) Data() interface{} {
-	return s.data
-}
-
-func (s GSeriesFloat) NullMask() []bool {
+func (s GSeriesFloat) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
-	for k, v := range s.nullMap {
-		for i := 0; i < 8; i++ {
-			mask[k*8+i] = v&(1<<uint(i)) != 0
+	idx := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8 && idx < len(s.data); i++ {
+			mask[idx] = v&(1<<uint(i)) != 0
+			idx++
 		}
 	}
 	return mask
@@ -78,6 +97,20 @@ func (s GSeriesFloat) SetNullMask(mask []bool) {
 			s.nullMap[k/8] &= ^(1 << uint(k%8))
 		}
 	}
+}
+
+func (s GSeriesFloat) Get(i int) interface{} {
+	return s.data[i]
+}
+
+func (s GSeriesFloat) Set(i int, v interface{}) {
+	s.data[i] = v.(float64)
+}
+
+///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////
+
+func (s GSeriesFloat) Data() interface{} {
+	return s.data
 }
 
 func (s GSeriesFloat) NullableData() interface{} {
@@ -108,6 +141,8 @@ func (s GSeriesFloat) Copy() GSeries {
 
 	return GSeriesFloat{isNullable: s.isNullable, name: s.name, data: data, nullMap: s.nullMap}
 }
+
+///////////////////////////////		SERIES OPERATIONS			/////////////////////////
 
 func (s GSeriesFloat) Filter(mask []bool) GSeries {
 	data := make([]float64, 0)

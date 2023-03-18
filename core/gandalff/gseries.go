@@ -12,10 +12,6 @@ const (
 	IntType
 	FloatType
 	StringType
-	TimeType
-	DurationType
-	ComplexType
-	InterfaceType
 )
 
 func (t GSeriesType) ToString() string {
@@ -28,14 +24,6 @@ func (t GSeriesType) ToString() string {
 		return "float"
 	case StringType:
 		return "string"
-	case TimeType:
-		return "time"
-	case DurationType:
-		return "duration"
-	case ComplexType:
-		return "complex"
-	case InterfaceType:
-		return "interface"
 	}
 	return "unknown"
 }
@@ -54,18 +42,6 @@ func intToString(i int) string {
 
 func floatToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
-}
-
-func timeToString(t int64) string {
-	return strconv.FormatInt(t, 10)
-}
-
-// func durationToString(d int64) string {
-// 	return ""
-// }
-
-func complexToString(c complex128) string {
-	return strconv.FormatComplex(c, 'f', -1, 128)
 }
 
 ///////////////////////////////		NULLABLE TYPES		/////////////////////////////////
@@ -90,55 +66,52 @@ type NullableString struct {
 	Value string
 }
 
-type NullableTime struct {
-	Valid bool
-	Value int64
-}
-
-type NullableDuration struct {
-	Valid bool
-	Value int64
-}
-
-type NullableComplex struct {
-	Valid bool
-	Value complex128
-}
-
-type NullableInterface struct {
-	Valid bool
-	Value interface{}
-}
-
 ///////////////////////////////		GSERIES		/////////////////////////////////
 
 type GSeries interface {
+
+	// Basic accessors.
+
 	// Returns the length of the series.
 	Len() int
 	// Returns if the series admits null values.
 	IsNullable() bool
-	// Returns if the series has null values.
-	HasNull() bool
-	// Returns if the element at index i is null.
-	IsNull(i int) bool
-	// Sets the element at index i to null.
-	SetNull(i int)
 	// Returns the name of the series.
 	Name() string
 	// Returns the type of the series.
 	Type() GSeriesType
-	// Returns the actual data of the series.
-	Data() interface{}
+	// Returns if the series has null values.
+	HasNull() bool
+	// Returns the number of null values in the series.
+	NullCount() int
+	// Returns if the element at index i is null.
+	IsNull(i int) bool
+	// Sets the element at index i to null.
+	SetNull(i int)
 	// Returns the null mask of the series.
-	NullMask() []bool
+	GetNullMask() []bool
 	// Sets the null mask of the series.
 	SetNullMask(mask []bool)
+
+	// Get the element at index i.
+	Get(i int) interface{}
+	// Set the element at index i.
+	Set(i int, v interface{})
+
+	// All-data accessors.
+
+	// Returns the actual data of the series.
+	Data() interface{}
 	// Returns the nullable data of the series.
 	NullableData() interface{}
 	// Returns the data of the series as a slice of strings.
 	StringData() []string
+
 	// Copies the series.
 	Copy() GSeries
+
+	// Series operations.
+
 	// Filters out the elements by the given mask.
 	Filter(mask []bool) GSeries
 	// Filters out the elements by the given mask in place.
@@ -178,114 +151,3 @@ func (sp *StringPool) Get(s string) *string {
 	sp.pool[s] = strPtr
 	return strPtr
 }
-
-// GSeriesString represents a series of strings.
-// type GSeriesString struct {
-// 	isNullable bool
-// 	name       string
-// 	data       []*string
-// 	nullMap    []uint8
-// 	pool       *StringPool
-// }
-
-// func NewGSeriesString(name string, isNullable bool, data []string, pool *StringPool) GSeriesString {
-// 	var nullMap []uint8
-// 	if isNullable {
-// 		nullMap = make([]uint8, len(data)/8+1)
-// 	} else {
-// 		nullMap = make([]uint8, 0)
-// 	}
-
-// 	actualData := make([]*string, len(data))
-// 	for i, v := range data {
-// 		actualData[i] = pool.Get(v)
-// 	}
-
-// 	return GSeriesString{isNullable: isNullable, name: name, data: actualData, nullMap: nullMap, pool: pool}
-// }
-
-// func (s GSeriesString) Len() int {
-// 	return len(s.data)
-// }
-
-// func (s GSeriesString) IsNullable() bool {
-// 	return s.isNullable
-// }
-
-// func (s GSeriesString) HasNull() bool {
-// 	for _, v := range s.nullMap {
-// 		if v != 0 {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
-
-// func (s GSeriesString) IsNull(i int) bool {
-// 	if s.isNullable {
-// 		return s.nullMap[i/8]&(1<<uint(i%8)) != 0
-// 	}
-// 	return false
-// }
-
-// func (s GSeriesString) SetNull(i int) {
-// 	if s.isNullable {
-// 		s.nullMap[i/8] |= 1 << uint(i%8)
-// 	}
-// }
-
-// func (s GSeriesString) Name() string {
-// 	return s.name
-// }
-
-// func (s GSeriesString) Type() GSeriesType {
-// 	return StringType
-// }
-
-// func (s GSeriesString) Data() interface{} {
-// 	data := make([]string, len(s.data))
-// 	for i, v := range s.data {
-// 		data[i] = *v
-// 	}
-// 	return data
-// }
-
-// func (s GSeriesString) NullMask() []bool {
-// 	mask := make([]bool, len(s.data))
-// 	for k, v := range s.nullMap {
-// 		for i := 0; i < 8; i++ {
-// 			mask[k*8+i] = v&(1<<uint(i)) != 0
-// 		}
-// 	}
-// 	return mask
-// }
-
-// func (s GSeriesString) SetNullMask(mask []bool) {
-// 	for k, v := range mask {
-// 		if v {
-// 			s.nullMap[k/8] |= 1 << uint(k%8)
-// 		} else {
-// 			s.nullMap[k/8] &= ^(1 << uint(k%8))
-// 		}
-// 	}
-// }
-
-// func (s GSeriesString) NullableData() interface{} {
-// 	data := make([]NullableString, len(s.data))
-// 	for i, v := range s.data {
-// 		data[i] = NullableString{Valid: !s.IsNull(i), Value: *v}
-// 	}
-// 	return data
-// }
-
-// func (s GSeriesString) StringData() []string {
-// 	data := make([]string, len(s.data))
-// 	for i, v := range s.data {
-// 		if s.IsNull(i) {
-// 			data[i] = NULL_STRING
-// 		} else {
-// 			data[i] = *v
-// 		}
-// 	}
-// 	return data
-// }

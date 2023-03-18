@@ -8,15 +8,24 @@ type GSeriesBool struct {
 	nullMap    []uint8
 }
 
-func NewGSeriesBool(name string, isNullable bool, data []bool) GSeriesBool {
+func NewGSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GSeriesBool {
 	var nullMap []uint8
 	if isNullable {
 		nullMap = make([]uint8, len(data)/8+1)
 	} else {
 		nullMap = make([]uint8, 0)
 	}
+
+	if makeCopy {
+		dataCopy := make([]bool, len(data))
+		copy(dataCopy, data)
+		data = dataCopy
+	}
+
 	return GSeriesBool{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
+
+///////////////////////////////		BASIC ACCESSORS		/////////////////////////////////
 
 func (s GSeriesBool) Len() int {
 	return len(s.data)
@@ -26,6 +35,14 @@ func (s GSeriesBool) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesBool) Name() string {
+	return s.name
+}
+
+func (s GSeriesBool) Type() GSeriesType {
+	return BoolType
+}
+
 func (s GSeriesBool) HasNull() bool {
 	for _, v := range s.nullMap {
 		if v != 0 {
@@ -33,6 +50,18 @@ func (s GSeriesBool) HasNull() bool {
 		}
 	}
 	return false
+}
+
+func (s GSeriesBool) NullCount() int {
+	count := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8; i++ {
+			if v&(1<<uint(i)) != 0 {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 func (s GSeriesBool) IsNull(i int) bool {
@@ -48,23 +77,13 @@ func (s GSeriesBool) SetNull(i int) {
 	}
 }
 
-func (s GSeriesBool) Name() string {
-	return s.name
-}
-
-func (s GSeriesBool) Type() GSeriesType {
-	return BoolType
-}
-
-func (s GSeriesBool) Data() interface{} {
-	return s.data
-}
-
-func (s GSeriesBool) NullMask() []bool {
+func (s GSeriesBool) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
-	for k, v := range s.nullMap {
-		for i := 0; i < 8; i++ {
-			mask[k*8+i] = v&(1<<uint(i)) != 0
+	idx := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8 && idx < len(s.data); i++ {
+			mask[idx] = v&(1<<uint(i)) != 0
+			idx++
 		}
 	}
 	return mask
@@ -78,6 +97,20 @@ func (s GSeriesBool) SetNullMask(mask []bool) {
 			s.nullMap[k/8] &= ^(1 << uint(k%8))
 		}
 	}
+}
+
+func (s GSeriesBool) Get(i int) interface{} {
+	return s.data[i]
+}
+
+func (s GSeriesBool) Set(i int, v interface{}) {
+	s.data[i] = v.(bool)
+}
+
+/////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////
+
+func (s GSeriesBool) Data() interface{} {
+	return s.data
 }
 
 func (s GSeriesBool) NullableData() interface{} {
@@ -113,6 +146,8 @@ func (s GSeriesBool) Copy() GSeries {
 		nullMap:    nullMap,
 	}
 }
+
+///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
 func (s GSeriesBool) Filter(mask []bool) GSeries {
 	if s.isNullable {
@@ -236,5 +271,39 @@ func (s GSeriesBool) FilterByIndexInPlace(indexes []int) {
 
 		s.data = data
 		s.nullMap = make([]uint8, 0)
+	}
+}
+
+///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
+
+func (s GSeriesBool) And(other GSeries) GSeries {
+	if s.isNullable || other.IsNullable() {
+		data := make([]bool, len(s.data))
+		nullMap := make([]uint8, len(s.nullMap))
+		for i := 0; i < len(s.data); i++ {
+			if s.IsNull(i) || other.IsNull(i) {
+				nullMap[i/8] |= 1 << uint(i%8)
+			}
+			data[i] = s.data[i] && other.Get(i).(bool)
+		}
+
+		return GSeriesBool{
+			isNullable: true,
+			name:       s.name,
+			data:       data,
+			nullMap:    nullMap,
+		}
+	}
+
+	data := make([]bool, len(s.data))
+	for i := 0; i < len(s.data); i++ {
+		data[i] = s.data[i] && other.Get(i).(bool)
+	}
+
+	return GSeriesBool{
+		isNullable: false,
+		name:       s.name,
+		data:       data,
+		nullMap:    make([]uint8, 0),
 	}
 }

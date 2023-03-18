@@ -22,18 +22,18 @@ func (df *GDataFrame) AddSeries(series GSeries) {
 	df.series = append(df.series, series)
 }
 
-func (df *GDataFrame) AddSeriesFromBools(name string, isNullable bool, data []bool) {
-	series := NewGSeriesBool(name, isNullable, data)
+func (df *GDataFrame) AddSeriesFromBools(name string, isNullable bool, makeCopy bool, data []bool) {
+	series := NewGSeriesBool(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 
-func (df *GDataFrame) AddSeriesFromInts(name string, isNullable bool, data []int) {
-	series := NewGSeriesInt(name, isNullable, data)
+func (df *GDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) {
+	series := NewGSeriesInt(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 
-func (df *GDataFrame) AddSeriesFromFloats(name string, isNullable bool, data []float64) {
-	series := NewGSeriesFloat(name, isNullable, data)
+func (df *GDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) {
+	series := NewGSeriesFloat(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 

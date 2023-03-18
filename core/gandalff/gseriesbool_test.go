@@ -4,12 +4,12 @@ import (
 	"testing"
 )
 
-func TestGSeriesBool(t *testing.T) {
+func Test_GSeriesBool_Base(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false}
-	mask := []bool{false, false, false, false, true, false, true, false, false, true}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new series.
-	s := NewGSeriesBool("test", true, data)
+	// Create a new GSeriesBool.
+	s := NewGSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -42,9 +42,9 @@ func TestGSeriesBool(t *testing.T) {
 	}
 
 	// Check the null mask.
-	for i, v := range s.NullMask() {
+	for i, v := range s.GetNullMask() {
 		if v != mask[i] {
-			t.Errorf("Expected nullMask of []bool{false, false, false, false, true, false, true, false, false, true}, got %v", s.NullMask())
+			t.Errorf("Expected nullMask of []bool{false, false, false, false, true, false, true, false, false, true}, got %v", s.GetNullMask())
 		}
 	}
 
@@ -56,7 +56,79 @@ func TestGSeriesBool(t *testing.T) {
 	}
 
 	// Check the null count.
-	// if s.NullCount() != 3 {
-	// 	t.Errorf("Expected NullCount() to be 3, got %d", s.NullCount())
-	// }
+	if s.NullCount() != 3 {
+		t.Errorf("Expected NullCount() to be 3, got %d", s.NullCount())
+	}
+
+	// Check the HasNull() method.
+	if !s.HasNull() {
+		t.Errorf("Expected HasNull() to be true, got false")
+	}
+
+	// Check the SetNull() method.
+	for i, _ := range s.Data().([]bool) {
+		s.SetNull(i)
+	}
+
+	// Check the null values.
+	for i, _ := range s.Data().([]bool) {
+		if !s.IsNull(i) {
+			t.Errorf("Expected IsNull(%d) to be true, got false", i)
+		}
+	}
+
+	// Check the null count.
+	if s.NullCount() != 10 {
+		t.Errorf("Expected NullCount() to be 10, got %d", s.NullCount())
+	}
+
+	// Check the Get() method.
+	for i, _ := range s.Data().([]bool) {
+		if s.Get(i) != data[i] {
+			t.Errorf("Expected Get(%d) to be %t, got %t", i, data[i], s.Get(i))
+		}
+	}
+
+	// Check the Set() method.
+	for i, _ := range s.Data().([]bool) {
+		s.Set(i, !data[i])
+	}
+
+	// Check the data.
+	for i, v := range s.Data().([]bool) {
+		if v != !data[i] {
+			t.Errorf("Expected data of []bool{false, true, false, true, false, true, false, true, false, true}, got %v", s.Data())
+		}
+	}
+}
+
+func Test_GSeriesBool_LogicOperators(t *testing.T) {
+	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
+	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
+
+	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
+	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
+
+	// Create two new series.
+	sA := NewGSeriesBool("testA", true, true, dataA)
+	sB := NewGSeriesBool("testB", true, true, dataB)
+
+	// Set the null masks.
+	sA.SetNullMask(maskA)
+	sB.SetNullMask(maskB)
+
+	// Check the And() method.
+	and := sA.And(sB)
+	for i, v := range and.Data().([]bool) {
+		if v != (dataA[i] && dataB[i]) {
+			t.Errorf("Expected data of []bool{false, false, false, false, true, false, false, false, false, false}, got %v", and.Data())
+		}
+	}
+
+	// Check the result null mask.
+	for i, v := range and.GetNullMask() {
+		if v != (maskA[i] || maskB[i]) {
+			t.Errorf("Expected nullMask of []bool{false, false, true, false, true, true, true, false, true, true}, got %v", and.GetNullMask())
+		}
+	}
 }

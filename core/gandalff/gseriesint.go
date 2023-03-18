@@ -8,15 +8,24 @@ type GSeriesInt struct {
 	nullMap    []uint8
 }
 
-func NewGSeriesInt(name string, isNullable bool, data []int) GSeriesInt {
+func NewGSeriesInt(name string, isNullable bool, makeCopy bool, data []int) GSeriesInt {
 	var nullMap []uint8
 	if isNullable {
 		nullMap = make([]uint8, len(data)/8+1)
 	} else {
 		nullMap = make([]uint8, 0)
 	}
+
+	if makeCopy {
+		actualData := make([]int, len(data))
+		copy(actualData, data)
+		data = actualData
+	}
+
 	return GSeriesInt{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
+
+///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
 
 func (s GSeriesInt) Len() int {
 	return len(s.data)
@@ -26,6 +35,14 @@ func (s GSeriesInt) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesInt) Name() string {
+	return s.name
+}
+
+func (s GSeriesInt) Type() GSeriesType {
+	return IntType
+}
+
 func (s GSeriesInt) HasNull() bool {
 	for _, v := range s.nullMap {
 		if v != 0 {
@@ -33,6 +50,18 @@ func (s GSeriesInt) HasNull() bool {
 		}
 	}
 	return false
+}
+
+func (s GSeriesInt) NullCount() int {
+	count := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8; i++ {
+			if v&(1<<uint(i)) != 0 {
+				count++
+			}
+		}
+	}
+	return count
 }
 
 func (s GSeriesInt) IsNull(i int) bool {
@@ -48,23 +77,27 @@ func (s GSeriesInt) SetNull(i int) {
 	}
 }
 
-func (s GSeriesInt) Name() string {
-	return s.name
+func (s GSeriesInt) Get(i int) interface{} {
+	return s.data[i]
 }
 
-func (s GSeriesInt) Type() GSeriesType {
-	return IntType
+func (s GSeriesInt) Set(i int, v interface{}) {
+	s.data[i] = v.(int)
 }
+
+///////////////////////////////  	ALL DATA ACCESSORS  /////////////////////////////////
 
 func (s GSeriesInt) Data() interface{} {
 	return s.data
 }
 
-func (s GSeriesInt) NullMask() []bool {
+func (s GSeriesInt) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
-	for k, v := range s.nullMap {
-		for i := 0; i < 8; i++ {
-			mask[k*8+i] = v&(1<<uint(i)) != 0
+	idx := 0
+	for _, v := range s.nullMap {
+		for i := 0; i < 8 && idx < len(s.data); i++ {
+			mask[idx] = v&(1<<uint(i)) != 0
+			idx++
 		}
 	}
 	return mask
