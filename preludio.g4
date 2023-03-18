@@ -92,9 +92,9 @@ funcDefParam: (namedArg | IDENT) typeDef?;
 typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
-stmt: assignStmt | varDefStmt | expr;
-assignStmt: IDENT ASSIGN expr;
-varDefStmt: LET IDENT ASSIGN expr;
+stmt: varAssignStmt | varDeclStmt | expr;
+varAssignStmt: IDENT ASSIGN expr;
+varDeclStmt: LET IDENT ASSIGN expr;
 
 // pipe: nl | BAR; // original pipeline separator
 pipeline: exprCall (nl funcCall)* (nl | EOF);

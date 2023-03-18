@@ -49,7 +49,7 @@ func preludioParserInit() {
 	}
 	staticData.ruleNames = []string{
 		"nl", "program", "programIntro", "funcDef", "funcDefName", "funcDefParams",
-		"funcDefParam", "typeDef", "typeTerm", "stmt", "assignStmt", "varDefStmt",
+		"funcDefParam", "typeDef", "typeTerm", "stmt", "varAssignStmt", "varDeclStmt",
 		"pipeline", "inlinePipeline", "identBacktick", "funcCall", "funcCallParam",
 		"namedArg", "assign", "multiAssign", "exprCall", "expr", "term", "exprUnary",
 		"literal", "list", "nestedPipeline",
@@ -309,8 +309,8 @@ const (
 	preludioParserRULE_typeDef        = 7
 	preludioParserRULE_typeTerm       = 8
 	preludioParserRULE_stmt           = 9
-	preludioParserRULE_assignStmt     = 10
-	preludioParserRULE_varDefStmt     = 11
+	preludioParserRULE_varAssignStmt  = 10
+	preludioParserRULE_varDeclStmt    = 11
 	preludioParserRULE_pipeline       = 12
 	preludioParserRULE_inlinePipeline = 13
 	preludioParserRULE_identBacktick  = 14
@@ -1874,10 +1874,10 @@ func NewStmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokin
 
 func (s *StmtContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *StmtContext) AssignStmt() IAssignStmtContext {
+func (s *StmtContext) VarAssignStmt() IVarAssignStmtContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignStmtContext); ok {
+		if _, ok := ctx.(IVarAssignStmtContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1887,13 +1887,13 @@ func (s *StmtContext) AssignStmt() IAssignStmtContext {
 		return nil
 	}
 
-	return t.(IAssignStmtContext)
+	return t.(IVarAssignStmtContext)
 }
 
-func (s *StmtContext) VarDefStmt() IVarDefStmtContext {
+func (s *StmtContext) VarDeclStmt() IVarDeclStmtContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IVarDefStmtContext); ok {
+		if _, ok := ctx.(IVarDeclStmtContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1903,7 +1903,7 @@ func (s *StmtContext) VarDefStmt() IVarDefStmtContext {
 		return nil
 	}
 
-	return t.(IVarDefStmtContext)
+	return t.(IVarDeclStmtContext)
 }
 
 func (s *StmtContext) Expr() IExprContext {
@@ -1972,14 +1972,14 @@ func (p *preludioParser) Stmt() (localctx IStmtContext) {
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(136)
-			p.AssignStmt()
+			p.VarAssignStmt()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
 			p.SetState(137)
-			p.VarDefStmt()
+			p.VarDeclStmt()
 		}
 
 	case 3:
@@ -1994,53 +1994,53 @@ func (p *preludioParser) Stmt() (localctx IStmtContext) {
 	return localctx
 }
 
-// IAssignStmtContext is an interface to support dynamic dispatch.
-type IAssignStmtContext interface {
+// IVarAssignStmtContext is an interface to support dynamic dispatch.
+type IVarAssignStmtContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsAssignStmtContext differentiates from other interfaces.
-	IsAssignStmtContext()
+	// IsVarAssignStmtContext differentiates from other interfaces.
+	IsVarAssignStmtContext()
 }
 
-type AssignStmtContext struct {
+type VarAssignStmtContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyAssignStmtContext() *AssignStmtContext {
-	var p = new(AssignStmtContext)
+func NewEmptyVarAssignStmtContext() *VarAssignStmtContext {
+	var p = new(VarAssignStmtContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_assignStmt
+	p.RuleIndex = preludioParserRULE_varAssignStmt
 	return p
 }
 
-func (*AssignStmtContext) IsAssignStmtContext() {}
+func (*VarAssignStmtContext) IsVarAssignStmtContext() {}
 
-func NewAssignStmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *AssignStmtContext {
-	var p = new(AssignStmtContext)
+func NewVarAssignStmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VarAssignStmtContext {
+	var p = new(VarAssignStmtContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = preludioParserRULE_assignStmt
+	p.RuleIndex = preludioParserRULE_varAssignStmt
 
 	return p
 }
 
-func (s *AssignStmtContext) GetParser() antlr.Parser { return s.parser }
+func (s *VarAssignStmtContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *AssignStmtContext) IDENT() antlr.TerminalNode {
+func (s *VarAssignStmtContext) IDENT() antlr.TerminalNode {
 	return s.GetToken(preludioParserIDENT, 0)
 }
 
-func (s *AssignStmtContext) ASSIGN() antlr.TerminalNode {
+func (s *VarAssignStmtContext) ASSIGN() antlr.TerminalNode {
 	return s.GetToken(preludioParserASSIGN, 0)
 }
 
-func (s *AssignStmtContext) Expr() IExprContext {
+func (s *VarAssignStmtContext) Expr() IExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IExprContext); ok {
@@ -2056,32 +2056,32 @@ func (s *AssignStmtContext) Expr() IExprContext {
 	return t.(IExprContext)
 }
 
-func (s *AssignStmtContext) GetRuleContext() antlr.RuleContext {
+func (s *VarAssignStmtContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *AssignStmtContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *VarAssignStmtContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *AssignStmtContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *VarAssignStmtContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(preludioListener); ok {
-		listenerT.EnterAssignStmt(s)
+		listenerT.EnterVarAssignStmt(s)
 	}
 }
 
-func (s *AssignStmtContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *VarAssignStmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(preludioListener); ok {
-		listenerT.ExitAssignStmt(s)
+		listenerT.ExitVarAssignStmt(s)
 	}
 }
 
-func (p *preludioParser) AssignStmt() (localctx IAssignStmtContext) {
+func (p *preludioParser) VarAssignStmt() (localctx IVarAssignStmtContext) {
 	this := p
 	_ = this
 
-	localctx = NewAssignStmtContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 20, preludioParserRULE_assignStmt)
+	localctx = NewVarAssignStmtContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 20, preludioParserRULE_varAssignStmt)
 
 	defer func() {
 		p.ExitRule()
@@ -2116,57 +2116,57 @@ func (p *preludioParser) AssignStmt() (localctx IAssignStmtContext) {
 	return localctx
 }
 
-// IVarDefStmtContext is an interface to support dynamic dispatch.
-type IVarDefStmtContext interface {
+// IVarDeclStmtContext is an interface to support dynamic dispatch.
+type IVarDeclStmtContext interface {
 	antlr.ParserRuleContext
 
 	// GetParser returns the parser.
 	GetParser() antlr.Parser
 
-	// IsVarDefStmtContext differentiates from other interfaces.
-	IsVarDefStmtContext()
+	// IsVarDeclStmtContext differentiates from other interfaces.
+	IsVarDeclStmtContext()
 }
 
-type VarDefStmtContext struct {
+type VarDeclStmtContext struct {
 	*antlr.BaseParserRuleContext
 	parser antlr.Parser
 }
 
-func NewEmptyVarDefStmtContext() *VarDefStmtContext {
-	var p = new(VarDefStmtContext)
+func NewEmptyVarDeclStmtContext() *VarDeclStmtContext {
+	var p = new(VarDeclStmtContext)
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_varDefStmt
+	p.RuleIndex = preludioParserRULE_varDeclStmt
 	return p
 }
 
-func (*VarDefStmtContext) IsVarDefStmtContext() {}
+func (*VarDeclStmtContext) IsVarDeclStmtContext() {}
 
-func NewVarDefStmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VarDefStmtContext {
-	var p = new(VarDefStmtContext)
+func NewVarDeclStmtContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *VarDeclStmtContext {
+	var p = new(VarDeclStmtContext)
 
 	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
 
 	p.parser = parser
-	p.RuleIndex = preludioParserRULE_varDefStmt
+	p.RuleIndex = preludioParserRULE_varDeclStmt
 
 	return p
 }
 
-func (s *VarDefStmtContext) GetParser() antlr.Parser { return s.parser }
+func (s *VarDeclStmtContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *VarDefStmtContext) LET() antlr.TerminalNode {
+func (s *VarDeclStmtContext) LET() antlr.TerminalNode {
 	return s.GetToken(preludioParserLET, 0)
 }
 
-func (s *VarDefStmtContext) IDENT() antlr.TerminalNode {
+func (s *VarDeclStmtContext) IDENT() antlr.TerminalNode {
 	return s.GetToken(preludioParserIDENT, 0)
 }
 
-func (s *VarDefStmtContext) ASSIGN() antlr.TerminalNode {
+func (s *VarDeclStmtContext) ASSIGN() antlr.TerminalNode {
 	return s.GetToken(preludioParserASSIGN, 0)
 }
 
-func (s *VarDefStmtContext) Expr() IExprContext {
+func (s *VarDeclStmtContext) Expr() IExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
 		if _, ok := ctx.(IExprContext); ok {
@@ -2182,32 +2182,32 @@ func (s *VarDefStmtContext) Expr() IExprContext {
 	return t.(IExprContext)
 }
 
-func (s *VarDefStmtContext) GetRuleContext() antlr.RuleContext {
+func (s *VarDeclStmtContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
 
-func (s *VarDefStmtContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+func (s *VarDeclStmtContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
 	return antlr.TreesStringTree(s, ruleNames, recog)
 }
 
-func (s *VarDefStmtContext) EnterRule(listener antlr.ParseTreeListener) {
+func (s *VarDeclStmtContext) EnterRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(preludioListener); ok {
-		listenerT.EnterVarDefStmt(s)
+		listenerT.EnterVarDeclStmt(s)
 	}
 }
 
-func (s *VarDefStmtContext) ExitRule(listener antlr.ParseTreeListener) {
+func (s *VarDeclStmtContext) ExitRule(listener antlr.ParseTreeListener) {
 	if listenerT, ok := listener.(preludioListener); ok {
-		listenerT.ExitVarDefStmt(s)
+		listenerT.ExitVarDeclStmt(s)
 	}
 }
 
-func (p *preludioParser) VarDefStmt() (localctx IVarDefStmtContext) {
+func (p *preludioParser) VarDeclStmt() (localctx IVarDeclStmtContext) {
 	this := p
 	_ = this
 
-	localctx = NewVarDefStmtContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 22, preludioParserRULE_varDefStmt)
+	localctx = NewVarDeclStmtContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 22, preludioParserRULE_varDeclStmt)
 
 	defer func() {
 		p.ExitRule()

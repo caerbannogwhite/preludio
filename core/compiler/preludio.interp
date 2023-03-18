@@ -115,8 +115,8 @@ funcDefParam
 typeDef
 typeTerm
 stmt
-assignStmt
-varDefStmt
+varAssignStmt
+varDeclStmt
 pipeline
 inlinePipeline
 identBacktick

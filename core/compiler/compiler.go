@@ -11,56 +11,60 @@ type OPCODE uint8
 type PARAM1 uint8
 
 const (
-	TERM_NULL     PARAM1 = 0
-	TERM_BOOL     PARAM1 = 1
-	TERM_INTEGER  PARAM1 = 2
-	TERM_FLOAT    PARAM1 = 3
-	TERM_STRING   PARAM1 = 4
-	TERM_INTERVAL PARAM1 = 5
-	TERM_RANGE    PARAM1 = 6
-	TERM_LIST     PARAM1 = 7
-	TERM_PIPELINE PARAM1 = 8
-	TERM_SYMBOL   PARAM1 = 10
+	TERM_NULL PARAM1 = iota
+	TERM_BOOL
+	TERM_INTEGER
+	TERM_FLOAT
+	TERM_STRING
+	TERM_INTERVAL
+	TERM_RANGE
+	TERM_LIST
+	TERM_PIPELINE
+	TERM_SYMBOL
 )
 
 const (
-	OP_START_PIPELINE    OPCODE = 0
-	OP_END_PIPELINE      OPCODE = 1
-	OP_ASSIGN_STMT       OPCODE = 2
-	OP_START_FUNC_CALL   OPCODE = 3
-	OP_MAKE_FUNC_CALL    OPCODE = 4
-	OP_START_LIST        OPCODE = 5
-	OP_END_LIST          OPCODE = 6
-	OP_ADD_FUNC_PARAM    OPCODE = 7
-	OP_ADD_EXPR_TERM     OPCODE = 8
-	OP_PUSH_NAMED_PARAM  OPCODE = 9
-	OP_PUSH_ASSIGN_IDENT OPCODE = 10
-	OP_PUSH_TERM         OPCODE = 11
-	OP_END_CHUNCK        OPCODE = 12
-	OP_GOTO              OPCODE = 50
+	OP_START_PIPELINE OPCODE = iota
+	OP_END_PIPELINE
+	OP_ASSIGN_STMT
+	OP_START_FUNC_CALL
+	OP_MAKE_FUNC_CALL
+	OP_START_LIST
+	OP_END_LIST
+	OP_ADD_FUNC_PARAM
+	OP_ADD_EXPR_TERM
+	OP_PUSH_NAMED_PARAM
+	OP_PUSH_ASSIGN_IDENT
+	OP_PUSH_TERM
+	OP_END_CHUNCK
+	OP_VAR_DECL
+	OP_VAR_ASSIGN
+	OP_GOTO
 
-	OP_BINARY_MUL OPCODE = 100
-	OP_BINARY_DIV OPCODE = 101
-	OP_BINARY_MOD OPCODE = 102
-	OP_BINARY_ADD OPCODE = 103
-	OP_BINARY_SUB OPCODE = 104
-	OP_BINARY_POW OPCODE = 105
+	OP_BINARY_MUL
+	OP_BINARY_DIV
+	OP_BINARY_MOD
+	OP_BINARY_ADD
+	OP_BINARY_SUB
+	OP_BINARY_POW
 
-	OP_BINARY_EQ OPCODE = 110
-	OP_BINARY_NE OPCODE = 111
-	OP_BINARY_GE OPCODE = 112
-	OP_BINARY_LE OPCODE = 113
-	OP_BINARY_GT OPCODE = 114
-	OP_BINARY_LT OPCODE = 115
+	OP_BINARY_EQ
+	OP_BINARY_NE
+	OP_BINARY_GE
+	OP_BINARY_LE
+	OP_BINARY_GT
+	OP_BINARY_LT
 
-	OP_BINARY_AND      OPCODE = 120
-	OP_BINARY_OR       OPCODE = 121
-	OP_BINARY_COALESCE OPCODE = 122
-	OP_BINARY_MODEL    OPCODE = 123
+	OP_BINARY_AND
+	OP_BINARY_OR
+	OP_BINARY_COALESCE
+	OP_BINARY_MODEL
 
-	OP_UNARY_ADD OPCODE = 130
-	OP_UNARY_SUB OPCODE = 131
-	OP_UNARY_NOT OPCODE = 132
+	OP_UNARY_ADD
+	OP_UNARY_SUB
+	OP_UNARY_NOT
+
+	NO_OP = 255
 )
 
 func CompileSource(source string) []byte {
@@ -184,10 +188,10 @@ func (bf *ByteFeeder) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 // func (bf *ByteFeeder) ExitNl(ctx *NlContext) {}
 
 // EnterProgram is called when production program is entered.
-// func (bf *ByteFeeder) EnterProgram(ctx *ProgramContext) {}
+func (bf *ByteFeeder) EnterProgram(ctx *ProgramContext) {}
 
 // ExitProgram is called when production program is exited.
-// func (bf *ByteFeeder) ExitProgram(ctx *ProgramContext) {}
+func (bf *ByteFeeder) ExitProgram(ctx *ProgramContext) {}
 
 // // EnterProgramIntro is called when production programIntro is entered.
 // func (bf *ByteFeeder) EnterProgramIntro(ctx *ProgramIntroContext) {}
@@ -232,18 +236,27 @@ func (bf *ByteFeeder) ExitEveryRule(ctx antlr.ParserRuleContext) {}
 // func (bf *ByteFeeder) ExitTypeTerm(ctx *TypeTermContext) {}
 
 // // EnterStmt is called when production stmt is entered.
-// func (bf *ByteFeeder) EnterStmt(ctx *StmtContext) {}
+func (bf *ByteFeeder) EnterStmt(ctx *StmtContext) {}
 
 // // ExitStmt is called when production stmt is exited.
-// func (bf *ByteFeeder) ExitStmt(ctx *StmtContext) {}
+func (bf *ByteFeeder) ExitStmt(ctx *StmtContext) {}
 
-// EnterAssignStmt is called when production assignStmt is entered.
-func (bf *ByteFeeder) EnterAssignStmt(ctx *AssignStmtContext) {}
+// EnterVarAssignStmt is called when production assignStmt is entered.
+func (bf *ByteFeeder) EnterVarAssignStmt(ctx *VarAssignStmtContext) {}
 
-// ExitAssignStmt is called when production assignStmt is exited.
-func (bf *ByteFeeder) ExitAssignStmt(ctx *AssignStmtContext) {
+// ExitVarAssignStmt is called when production assignStmt is exited.
+func (bf *ByteFeeder) ExitVarAssignStmt(ctx *VarAssignStmtContext) {
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_ASSIGN_STMT, 0, pos)
+	bf.AppendInstruction(OP_VAR_ASSIGN, 0, pos)
+}
+
+// EnterVarDefStmt is called when production varDeclStmt is entered.
+func (bf *ByteFeeder) EnterVarDeclStmt(ctx *VarDeclStmtContext) {}
+
+// ExitVarDeclStmt is called when production varDeclStmt is exited.
+func (bf *ByteFeeder) ExitVarDeclStmt(ctx *VarDeclStmtContext) {
+	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
+	bf.AppendInstruction(OP_VAR_DECL, 0, pos)
 }
 
 // EnterPipeline is called when production pipeline is entered.

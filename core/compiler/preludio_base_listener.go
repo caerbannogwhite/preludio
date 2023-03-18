@@ -80,17 +80,17 @@ func (s *BasepreludioListener) EnterStmt(ctx *StmtContext) {}
 // ExitStmt is called when production stmt is exited.
 func (s *BasepreludioListener) ExitStmt(ctx *StmtContext) {}
 
-// EnterAssignStmt is called when production assignStmt is entered.
-func (s *BasepreludioListener) EnterAssignStmt(ctx *AssignStmtContext) {}
+// EnterVarAssignStmt is called when production varAssignStmt is entered.
+func (s *BasepreludioListener) EnterVarAssignStmt(ctx *VarAssignStmtContext) {}
 
-// ExitAssignStmt is called when production assignStmt is exited.
-func (s *BasepreludioListener) ExitAssignStmt(ctx *AssignStmtContext) {}
+// ExitVarAssignStmt is called when production varAssignStmt is exited.
+func (s *BasepreludioListener) ExitVarAssignStmt(ctx *VarAssignStmtContext) {}
 
-// EnterVarDefStmt is called when production varDefStmt is entered.
-func (s *BasepreludioListener) EnterVarDefStmt(ctx *VarDefStmtContext) {}
+// EnterVarDeclStmt is called when production varDeclStmt is entered.
+func (s *BasepreludioListener) EnterVarDeclStmt(ctx *VarDeclStmtContext) {}
 
-// ExitVarDefStmt is called when production varDefStmt is exited.
-func (s *BasepreludioListener) ExitVarDefStmt(ctx *VarDefStmtContext) {}
+// ExitVarDeclStmt is called when production varDeclStmt is exited.
+func (s *BasepreludioListener) ExitVarDeclStmt(ctx *VarDeclStmtContext) {}
 
 // EnterPipeline is called when production pipeline is entered.
 func (s *BasepreludioListener) EnterPipeline(ctx *PipelineContext) {}
