@@ -14,14 +14,14 @@ import (
 // ByteEater is the name of the Preludio Virtual Machine
 type ByteEater struct {
 	// parameters
-	__printWarnings       bool
-	__isCLI               bool
-	__printToStdout       bool
-	__fullOutput          bool
-	__verbose             bool
-	__debugLevel          int
-	__outputSnippetLength int
-	__inputPath           string
+	__param_printWarnings       bool
+	__param_isCLI               bool
+	__param_printToStdout       bool
+	__param_fullOutput          bool
+	__param_verbose             bool
+	__param_debugLevel          int
+	__param_outputSnippetLength int
+	__param_inputPath           string
 
 	// internals
 	__panicMode             bool
@@ -36,45 +36,73 @@ type ByteEater struct {
 	// __currentDataFrame      *dataframe.DataFrame
 }
 
-func (vm *ByteEater) SetPrintWarning(flag bool) *ByteEater {
-	vm.__printWarnings = flag
+func (vm *ByteEater) GetParamPrintWarning() bool {
+	return vm.__param_printWarnings
+}
+
+func (vm *ByteEater) SetParamPrintWarning(flag bool) *ByteEater {
+	vm.__param_printWarnings = flag
 	return vm
 }
 
-func (vm *ByteEater) SetCLI(flag bool) *ByteEater {
-	vm.__isCLI = flag
+func (vm *ByteEater) GetParamIsCLI() bool {
+	return vm.__param_isCLI
+}
+
+func (vm *ByteEater) SetParamIsCLI(flag bool) *ByteEater {
+	vm.__param_isCLI = flag
 	return vm
 }
 
-func (vm *ByteEater) SetPrintToStdout(flag bool) *ByteEater {
-	vm.__printToStdout = flag
+func (vm *ByteEater) GetParamPrintToStdout() bool {
+	return vm.__param_printToStdout
+}
+
+func (vm *ByteEater) SetParamPrintToStdout(flag bool) *ByteEater {
+	vm.__param_printToStdout = flag
 	return vm
 }
 
-func (vm *ByteEater) SetFullOutput(flag bool) *ByteEater {
-	vm.__fullOutput = flag
+func (vm *ByteEater) GetParamFullOutput() bool {
+	return vm.__param_fullOutput
+}
+
+func (vm *ByteEater) SetParamFullOutput(flag bool) *ByteEater {
+	vm.__param_fullOutput = flag
 	return vm
 }
 
-func (vm *ByteEater) SetVerbose(flag bool) *ByteEater {
-	vm.__verbose = flag
+func (vm *ByteEater) GetParamVerbose() bool {
+	return vm.__param_verbose
+}
+
+func (vm *ByteEater) SetParamVerbose(flag bool) *ByteEater {
+	vm.__param_verbose = flag
 	return vm
 }
 
-func (vm *ByteEater) SetDebugLevel(level int) *ByteEater {
-	vm.__debugLevel = level
+func (vm *ByteEater) GetParamDebugLevel() int {
+	return vm.__param_debugLevel
+}
+
+func (vm *ByteEater) SetParamDebugLevel(level int) *ByteEater {
+	vm.__param_debugLevel = level
 	return vm
 }
 
-func (vm *ByteEater) SetOutputSnippetLength(length int) *ByteEater {
-	vm.__outputSnippetLength = length
+func (vm *ByteEater) GetParamOutputSnippetLength() int {
+	return vm.__param_outputSnippetLength
+}
+
+func (vm *ByteEater) SetParamOutputSnippetLength(length int) *ByteEater {
+	vm.__param_outputSnippetLength = length
 	return vm
 }
 
 func (vm *ByteEater) InitVM() *ByteEater {
 
 	// set default values
-	vm.__outputSnippetLength = 10
+	vm.__param_outputSnippetLength = 10
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNameSpace = map[string]*__p_intern__{}
@@ -107,7 +135,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__debugLevel > 15 {
+	if vm.__param_debugLevel > 15 {
 		vm.printDebug(15, "", "", "")
 		vm.printDebug(15, "BYTECODE INFO", "", "")
 		vm.printDebug(15, "====================", "", "")
@@ -129,7 +157,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 		offset += l
 	}
 
-	if vm.__debugLevel > 15 {
+	if vm.__param_debugLevel > 15 {
 		for _, symbol := range vm.__symbolTable {
 			vm.printDebug(15, "", symbol, "")
 		}
@@ -143,7 +171,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 }
 
 // Run Preludio bytecode from a binary file located
-// at __inputPath with SetInputPath
+// at __param_inputPath with SetInputPath
 // TO DEPRECATE (?)
 func (vm *ByteEater) RunFileBytecode() {
 	var err error
@@ -158,7 +186,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	// set a new output for the new computation
 	vm.__output = PreludioOutput{Log: make([]LogEnty, 0)}
 
-	file, err = os.Open(vm.__inputPath)
+	file, err = os.Open(vm.__param_inputPath)
 	if err != nil {
 		vm.setPanicMode(err.Error())
 	}
@@ -181,7 +209,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__debugLevel > 15 {
+	if vm.__param_debugLevel > 15 {
 		vm.printDebug(15, "", "", "")
 		vm.printDebug(15, "BYTECODE INFO", "", "")
 		vm.printDebug(15, "====================", "", "")
@@ -203,7 +231,7 @@ func (vm *ByteEater) RunFileBytecode() {
 		offset += l
 	}
 
-	if vm.__debugLevel > 15 {
+	if vm.__param_debugLevel > 15 {
 		for _, symbol := range vm.__symbolTable {
 			vm.printDebug(15, "", symbol, "")
 		}
@@ -250,7 +278,7 @@ func (vm *ByteEater) loadResults() {
 			break
 		}
 
-		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__fullOutput, vm.__outputSnippetLength)
+		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
 	}
 
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
@@ -749,7 +777,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_DEBUG, Level: level, Message: msg})
 
-	if vm.__printToStdout && vm.__debugLevel > int(level) {
+	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
 		fmt.Print(msg)
 	}
 }
@@ -758,7 +786,7 @@ func (vm *ByteEater) printInfo(level uint8, msg string) {
 	msg = fmt.Sprintf("[ ℹ️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_INFO, Level: level, Message: msg})
 
-	if vm.__printToStdout {
+	if vm.__param_printToStdout {
 		fmt.Print(msg)
 	}
 }
@@ -767,7 +795,7 @@ func (vm *ByteEater) printWarning(msg string) {
 	msg = fmt.Sprintf("[ ⚠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_WARNING, Message: msg})
 
-	if vm.__printToStdout {
+	if vm.__param_printToStdout {
 		fmt.Print(msg)
 	}
 }
@@ -776,7 +804,7 @@ func (vm *ByteEater) printError(msg string) {
 	msg = fmt.Sprintf("[ ☠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, LogEnty{LogType: LOG_ERROR, Message: msg})
 
-	if vm.__printToStdout {
+	if vm.__param_printToStdout {
 		fmt.Print(msg)
 	}
 }

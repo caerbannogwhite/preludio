@@ -7,6 +7,7 @@ import (
 	"preludiocli"
 	"preludiocompiler"
 	"preludiocore"
+	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -32,8 +33,8 @@ func main() {
 	if args.InputPath != "" {
 		be := new(preludiocore.ByteEater).
 			InitVM().
-			SetPrintWarning(args.Warnings).
-			SetDebugLevel(args.DebugLevel)
+			SetParamPrintWarning(args.Warnings).
+			SetParamDebugLevel(args.DebugLevel)
 
 		bytecode := preludiocompiler.CompileFile(args.InputPath)
 		if args.Verbose {
@@ -52,8 +53,8 @@ func LaunchCodeEditor(args CliArgs) {
 
 	be := new(preludiocore.ByteEater).
 		InitVM().
-		SetPrintWarning(args.Warnings).
-		SetDebugLevel(args.DebugLevel)
+		SetParamPrintWarning(args.Warnings).
+		SetParamDebugLevel(args.DebugLevel)
 
 	codeEditor := preludiocli.NewCodeEditor().
 		SetPreludioByteEater(*be)
@@ -66,21 +67,24 @@ func LaunchCodeEditor(args CliArgs) {
 
 func LaunchRepl(args CliArgs) {
 
+	var outputColumnSize = 10
+
 	fmt.Println("Welcome to the Preludio REPL!")
 	fmt.Println("Version:", VERSION)
 
 	be := new(preludiocore.ByteEater).
 		InitVM().
-		SetPrintWarning(args.Warnings).
-		SetFullOutput(false).
-		SetDebugLevel(args.DebugLevel).
-		SetVerbose(args.Verbose)
+		SetParamPrintWarning(args.Warnings).
+		SetParamFullOutput(false).
+		SetParamDebugLevel(args.DebugLevel).
+		SetParamVerbose(args.Verbose)
 
 	if args.Verbose {
 		fmt.Printf("\nPreludio VM initialized\n")
-		fmt.Printf("%15s %t\n", "Print warnings:", args.Warnings)
-		fmt.Printf("%15s %d\n", "Debug level:", args.DebugLevel)
-		fmt.Printf("%15s %t\n", "Verbose:", args.Verbose)
+		fmt.Printf("%15s %t\n", "Print warnings:", be.GetParamPrintWarning())
+		fmt.Printf("%15s %t\n", "Full output:", be.GetParamFullOutput())
+		fmt.Printf("%15s %d\n", "Debug level:", be.GetParamDebugLevel())
+		fmt.Printf("%15s %t\n", "Verbose:", be.GetParamVerbose())
 	}
 
 	in := bufio.NewReader(os.Stdin)
@@ -103,6 +107,72 @@ func LaunchRepl(args CliArgs) {
 			fmt.Println("Error reading input:", err)
 		}
 
+		// look for magic commands
+		// ignore the rest
+		if strings.HasPrefix(line, "%") {
+			spt := strings.Split(strings.Trim(line, "\t\n\r "), " ")
+			switch spt[0] {
+			case "%setenv":
+				if len(spt) != 3 {
+					fmt.Println("Usage: %setenv <key> <value>")
+					continue
+				}
+
+				switch spt[1] {
+				case "ENV_WARNINGS":
+					if spt[2] == "true" {
+						be.SetParamPrintWarning(true)
+					} else if spt[2] == "false" {
+						be.SetParamPrintWarning(false)
+					}
+					fmt.Printf("Print warnings set to \"%t\"", be.GetParamPrintWarning())
+				case "ENV_DEBUG_LEVEL":
+					l, err := strconv.Atoi(spt[2])
+					if err != nil {
+						fmt.Println("Error parsing debug level:", err)
+						continue
+					}
+					be.SetParamDebugLevel(l)
+					fmt.Println("Debug level set to", be.GetParamDebugLevel())
+				case "ENV_VERBOSE":
+					if spt[2] == "true" {
+						be.SetParamVerbose(true)
+					} else if spt[2] == "false" {
+						be.SetParamVerbose(false)
+					}
+					fmt.Printf("Verbose set to \"%t\"", be.GetParamVerbose())
+				case "ENV_FULL_OUTPUT":
+					if spt[2] == "true" {
+						be.SetParamFullOutput(true)
+					} else if spt[2] == "false" {
+						be.SetParamFullOutput(false)
+					}
+					fmt.Printf("Full output set to \"%t\"", be.GetParamFullOutput())
+				case "ENV_OUTPUT_COLUMN_SIZE":
+					l, err := strconv.Atoi(spt[2])
+					if err != nil {
+						fmt.Println("Error parsing output column size:", err)
+						continue
+					}
+					outputColumnSize = l
+					fmt.Println("Output column size set to", outputColumnSize)
+				default:
+					fmt.Println("Unknown environment variable:", spt[1])
+				}
+
+			// case "%getenv":
+			// 	if len(spt) != 2 {
+			// 		fmt.Println("Usage: %getenv <key>")
+			// 		continue
+			// 	}
+			// 	fmt.Println(be.GetEnv(spt[1]))
+
+			default:
+				fmt.Println("Unknown magic command:", spt[0])
+			}
+			continue
+		}
+
 		line = strings.TrimSpace(line)
 
 		if line == "" {
@@ -112,7 +182,7 @@ func LaunchRepl(args CliArgs) {
 			res := be.GetOutput()
 			for _, log := range res.Log {
 				if log.LogType == preludiocore.LOG_DEBUG {
-					if int(log.Level) < args.DebugLevel {
+					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println(log.Message)
 					}
 				} else {
@@ -121,7 +191,7 @@ func LaunchRepl(args CliArgs) {
 			}
 
 			for _, c := range res.Data {
-				prettyPrint(10, c)
+				prettyPrint(outputColumnSize, c)
 			}
 
 			code = ""
