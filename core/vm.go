@@ -9,6 +9,9 @@ import (
 	"preludiocompiler"
 	"strconv"
 	"strings"
+
+	"github.com/go-gota/gota/dataframe"
+	"github.com/go-gota/gota/series"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -28,12 +31,12 @@ type ByteEater struct {
 	__symbolTable           []string
 	__stack                 []__p_intern__
 	__currentDataFrameNames map[string]bool
-	__globalNameSpace       map[string]*__p_intern__
+	__globalNamespace       map[string]*__p_intern__
 	__pipelineNameSpace     map[string]*__p_intern__
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                PreludioOutput
-	// __currentDataFrame      *dataframe.DataFrame
+	__currentDataFrame      *dataframe.DataFrame
 }
 
 func (vm *ByteEater) GetParamPrintWarning() bool {
@@ -105,9 +108,9 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__param_outputSnippetLength = 10
 
 	vm.__currentDataFrameNames = map[string]bool{}
-	vm.__globalNameSpace = map[string]*__p_intern__{}
+	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
-	// vm.__currentDataFrame = nil
+	vm.__currentDataFrame = nil
 
 	return vm
 }
@@ -335,18 +338,18 @@ MAIN_LOOP:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_DECL", "", varName)
 
-			if _, ok := vm.__globalNameSpace[varName]; ok {
+			if _, ok := vm.__globalNamespace[varName]; ok {
 				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is already declared", varName))
 			} else {
-				vm.__globalNameSpace[varName] = vm.stackLast()
+				vm.__globalNamespace[varName] = vm.stackLast()
 			}
 
 		case preludiocompiler.OP_VAR_ASSIGN:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
 
-			if _, ok := vm.__globalNameSpace[varName]; ok {
-				vm.__globalNameSpace[varName] = vm.stackLast()
+			if _, ok := vm.__globalNamespace[varName]; ok {
+				vm.__globalNamespace[varName] = vm.stackLast()
 			}
 
 			vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
@@ -416,7 +419,7 @@ MAIN_LOOP:
 
 			// User defined functions
 			default:
-				if internal, ok := vm.__globalNameSpace[funcName]; ok {
+				if internal, ok := vm.__globalNamespace[funcName]; ok {
 					switch value := internal.getValue().(type) {
 					case UserDefinedFunction:
 						value(vm)
@@ -736,25 +739,33 @@ LOOP1:
 	return positionalParams, assignments, nil
 }
 
-func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
+func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
-	// if vm.__currentDataFrame != nil {
-	// 	if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-	// 		ser := vm.__currentDataFrame.Col(string(symbol))
-	// 		switch ser.Type() {
-	// 		case series.Bool:
-	// 			val, _ := ser.Bool()
-	// 			return val
-	// 		case series.Int:
-	// 			val, _ := ser.Int()
-	// 			return val
-	// 		case series.Float:
-	// 			return ser.Float()
-	// 		case series.String:
-	// 			return ser.Records()
-	// 		}
-	// 	}
-	// }
+	if vm.__currentDataFrame != nil {
+		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
+			ser := vm.__currentDataFrame.Col(string(symbol))
+			switch ser.Type() {
+			case series.Bool:
+				val, _ := ser.Bool()
+				return val
+			case series.Int:
+				val, _ := ser.Int()
+				return val
+			case series.Float:
+				return ser.Float()
+			case series.String:
+				return ser.Records()
+			}
+		}
+	}
+
+	// 2 - Look at the global Namespace
+	if val, ok := vm.__globalNamespace[string(symbol)]; ok {
+		if len(val.expr) == 1 {
+			return val.expr[0]
+		}
+		return nil
+	}
 
 	// 2 - Try to split the symbol into pieces
 	pieces := strings.Split(string(symbol), ".")
@@ -763,15 +774,15 @@ func (vm *ByteEater) SymbolResolution(symbol __p_symbol__) interface{} {
 
 // Set the last element inserted into the stack as
 // the current DataFrame
-// func (vm *ByteEater) SetCurrentDataFrame() {
-// 	df, _ := vm.stackLast().getDataframe()
-// 	vm.__currentDataFrame = &df
+func (vm *ByteEater) setCurrentDataFrame() {
+	df, _ := vm.stackLast().getDataframe()
+	vm.__currentDataFrame = &df
 
-// 	vm.__currentDataFrameNames = map[string]bool{}
-// 	for _, name := range df.Names() {
-// 		vm.__currentDataFrameNames[name] = true
-// 	}
-// }
+	vm.__currentDataFrameNames = map[string]bool{}
+	for _, name := range df.Names() {
+		vm.__currentDataFrameNames[name] = true
+	}
+}
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)

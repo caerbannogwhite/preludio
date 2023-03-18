@@ -22,7 +22,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 	if len(i.expr) == 1 {
 		switch l := i.expr[0].(type) {
 		case __p_symbol__:
-			i.expr[0] = vm.SymbolResolution(l)
+			i.expr[0] = vm.symbolResolution(l)
 
 		case __p_list__:
 			for idx := range l {
@@ -47,7 +47,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			i.expr = i.expr[2:len(i.expr)]
 
 			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.SymbolResolution(s)
+				t1 = vm.symbolResolution(s)
 			}
 
 			switch op {
@@ -64,11 +64,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 			// Symbo resolution
 			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.SymbolResolution(s)
+				t1 = vm.symbolResolution(s)
 			}
 
 			if s, ok := t2.(__p_symbol__); ok {
-				t2 = vm.SymbolResolution(s)
+				t2 = vm.symbolResolution(s)
 			}
 
 			switch op {
