@@ -4,13 +4,13 @@ import (
 	"testing"
 )
 
-func Test_GSeriesInt_Base(t *testing.T) {
+func Test_GSeriesFloat_Base(t *testing.T) {
 
-	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GSeriesInt.
-	s := NewGSeriesInt("test", true, true, data)
+	// Create a new GSeriesFloat.
+	s := NewGSeriesFloat("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -26,14 +26,14 @@ func Test_GSeriesInt_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != IntType {
-		t.Errorf("Expected type of IntType, got %s", s.Type().ToString())
+	if s.Type() != FloatType {
+		t.Errorf("Expected type of FloatType, got %s", s.Type().ToString())
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]int) {
+	for i, v := range s.Data().([]float64) {
 		if v != data[i] {
-			t.Errorf("Expected data of []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, got %v", s.Data())
+			t.Errorf("Expected data of []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, got %v", s.Data())
 		}
 	}
 
@@ -50,7 +50,7 @@ func Test_GSeriesInt_Base(t *testing.T) {
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]float64) {
 		if s.IsNull(i) != mask[i] {
 			t.Errorf("Expected IsNull(%d) to be %t, got %t", i, mask[i], s.IsNull(i))
 		}
@@ -61,18 +61,18 @@ func Test_GSeriesInt_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 3, got %d", s.NullCount())
 	}
 
-	// Check the HasNull method.
+	// Check the HasNull() method.
 	if !s.HasNull() {
 		t.Errorf("Expected HasNull() to be true, got false")
 	}
 
-	// Check the SetNull method.
-	for i := range s.Data().([]int) {
+	// Check the SetNull() method.
+	for i := range s.Data().([]float64) {
 		s.SetNull(i)
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]float64) {
 		if !s.IsNull(i) {
 			t.Errorf("Expected IsNull(%d) to be true, got false", i)
 		}
@@ -83,22 +83,22 @@ func Test_GSeriesInt_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 10, got %d", s.NullCount())
 	}
 
-	// Check the Get method.
-	for i := range s.Data().([]int) {
-		if s.Get(i).(int) != data[i] {
-			t.Errorf("Expected Get(%d) to be %d, got %d", i, data[i], s.Get(i).(int))
+	// Check the Get() method.
+	for i, v := range s.Data().([]float64) {
+		if s.Get(i).(float64) != v {
+			t.Errorf("Expected Get(%d) to be %f, got %f", i, v, s.Get(i).(float64))
 		}
 	}
 
-	// Check the Set method.
-	for i := range s.Data().([]int) {
-		s.Set(i, i+10)
+	// Check the Set() method.
+	for i := range s.Data().([]float64) {
+		s.Set(i, float64(i+10))
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]int) {
-		if v != i+10 {
-			t.Errorf("Expected data of []int{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}, got %v", s.Data())
+	for i, v := range s.Data().([]float64) {
+		if v != float64(i+10) {
+			t.Errorf("Expected data of []float64{11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0}, got %v", s.Data())
 		}
 	}
 }

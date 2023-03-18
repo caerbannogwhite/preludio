@@ -49,7 +49,7 @@ func Test_GSeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the null values.
-	for i, _ := range s.Data().([]bool) {
+	for i := range s.Data().([]bool) {
 		if s.IsNull(i) != mask[i] {
 			t.Errorf("Expected IsNull(%d) to be %t, got %t", i, mask[i], s.IsNull(i))
 		}
@@ -66,12 +66,12 @@ func Test_GSeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the SetNull() method.
-	for i, _ := range s.Data().([]bool) {
+	for i := range s.Data().([]bool) {
 		s.SetNull(i)
 	}
 
 	// Check the null values.
-	for i, _ := range s.Data().([]bool) {
+	for i := range s.Data().([]bool) {
 		if !s.IsNull(i) {
 			t.Errorf("Expected IsNull(%d) to be true, got false", i)
 		}
@@ -83,14 +83,14 @@ func Test_GSeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the Get() method.
-	for i, _ := range s.Data().([]bool) {
+	for i := range s.Data().([]bool) {
 		if s.Get(i) != data[i] {
 			t.Errorf("Expected Get(%d) to be %t, got %t", i, data[i], s.Get(i))
 		}
 	}
 
 	// Check the Set() method.
-	for i, _ := range s.Data().([]bool) {
+	for i := range s.Data().([]bool) {
 		s.Set(i, !data[i])
 	}
 
