@@ -307,3 +307,69 @@ func (s GSeriesBool) And(other GSeries) GSeries {
 		nullMap:    make([]uint8, 0),
 	}
 }
+
+func (s GSeriesBool) Or(other GSeries) GSeries {
+	if s.isNullable || other.IsNullable() {
+		data := make([]bool, len(s.data))
+		nullMap := make([]uint8, len(s.nullMap))
+		for i := 0; i < len(s.data); i++ {
+			if s.IsNull(i) || other.IsNull(i) {
+				nullMap[i/8] |= 1 << uint(i%8)
+			}
+			data[i] = s.data[i] || other.Get(i).(bool)
+		}
+
+		return GSeriesBool{
+			isNullable: true,
+			name:       s.name,
+			data:       data,
+			nullMap:    nullMap,
+		}
+	}
+
+	data := make([]bool, len(s.data))
+	for i := 0; i < len(s.data); i++ {
+		data[i] = s.data[i] || other.Get(i).(bool)
+	}
+
+	return GSeriesBool{
+		isNullable: false,
+		name:       s.name,
+		data:       data,
+		nullMap:    make([]uint8, 0),
+	}
+}
+
+func (s GSeriesBool) Not() GSeries {
+	if s.isNullable {
+		data := make([]bool, len(s.data))
+		nullMap := make([]uint8, len(s.nullMap))
+		for i := 0; i < len(s.data); i++ {
+			if s.IsNull(i) {
+				nullMap[i/8] |= 1 << uint(i%8)
+			}
+			data[i] = !s.data[i]
+		}
+
+		return GSeriesBool{
+			isNullable: true,
+			name:       s.name,
+			data:       data,
+			nullMap:    nullMap,
+		}
+	}
+
+	data := make([]bool, len(s.data))
+	for i := 0; i < len(s.data); i++ {
+		data[i] = !s.data[i]
+	}
+
+	return GSeriesBool{
+		isNullable: false,
+		name:       s.name,
+		data:       data,
+		nullMap:    make([]uint8, 0),
+	}
+}
+
+///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////////

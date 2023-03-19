@@ -131,4 +131,34 @@ func Test_GSeriesBool_LogicOperators(t *testing.T) {
 			t.Errorf("Expected nullMask of []bool{false, false, true, false, true, true, true, false, true, true}, got %v", and.GetNullMask())
 		}
 	}
+
+	// Check the Or() method.
+	or := sA.Or(sB)
+	for i, v := range or.Data().([]bool) {
+		if v != (dataA[i] || dataB[i]) {
+			t.Errorf("Expected data of []bool{true, true, true, false, true, false, true, true, true, false}, got %v", or.Data())
+		}
+	}
+
+	// Check the result null mask.
+	for i, v := range or.GetNullMask() {
+		if v != (maskA[i] || maskB[i]) {
+			t.Errorf("Expected nullMask of []bool{false, false, true, false, true, true, true, false, true, true}, got %v", or.GetNullMask())
+		}
+	}
+
+	// Check the Not() method.
+	not := sA.Not()
+	for i, v := range not.Data().([]bool) {
+		if v != !dataA[i] {
+			t.Errorf("Expected data of []bool{false, true, false, true, false, true, false, true, false, true}, got %v", not.Data())
+		}
+	}
+
+	// Check the result null mask.
+	for i, v := range not.GetNullMask() {
+		if v != maskA[i] {
+			t.Errorf("Expected nullMask of []bool{false, false, true, false, false, true, false, false, true, false}, got %v", not.GetNullMask())
+		}
+	}
 }
