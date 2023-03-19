@@ -1,5 +1,9 @@
 package gandalff
 
+import (
+	"errors"
+)
+
 // GSeriesString represents a series of strings.
 type GSeriesString struct {
 	isNullable bool
@@ -39,6 +43,17 @@ func (s GSeriesString) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesString) MakeNullable() {
+	if !s.isNullable {
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMap = make([]uint8, len(s.data)/8)
+		} else {
+			s.nullMap = make([]uint8, len(s.data)/8+1)
+		}
+	}
+}
+
 func (s GSeriesString) Name() string {
 	return s.name
 }
@@ -75,10 +90,12 @@ func (s GSeriesString) IsNull(i int) bool {
 	return false
 }
 
-func (s GSeriesString) SetNull(i int) {
+func (s GSeriesString) SetNull(i int) error {
 	if s.isNullable {
 		s.nullMap[i/8] |= 1 << uint(i%8)
+		return nil
 	}
+	return errors.New("GSeriesString.SetNull: series is not nullable")
 }
 
 func (s GSeriesString) GetNullMask() []bool {
@@ -93,7 +110,11 @@ func (s GSeriesString) GetNullMask() []bool {
 	return mask
 }
 
-func (s GSeriesString) SetNullMask(mask []bool) {
+func (s GSeriesString) SetNullMask(mask []bool) error {
+	if !s.isNullable {
+		return errors.New("GSeriesString.SetNull: series is not nullable")
+	}
+
 	for k, v := range mask {
 		if v {
 			s.nullMap[k/8] |= 1 << uint(k%8)
@@ -101,6 +122,8 @@ func (s GSeriesString) SetNullMask(mask []bool) {
 			s.nullMap[k/8] &= ^(1 << uint(k%8))
 		}
 	}
+
+	return nil
 }
 
 func (s GSeriesString) Get(i int) interface{} {
@@ -109,6 +132,69 @@ func (s GSeriesString) Get(i int) interface{} {
 
 func (s GSeriesString) Set(i int, v interface{}) {
 	s.data[i] = s.pool.Get(v.(string))
+}
+
+// Append appends a value or a slice of values to the series.
+func (s GSeriesString) Append(v interface{}) error {
+	if s.isNullable {
+		if b, ok := v.(string); ok {
+			s.data = append(s.data, s.pool.Get(b))
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+		} else if bv, ok := v.([]string); ok {
+			for _, b := range bv {
+				s.data = append(s.data, s.pool.Get(b))
+			}
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
+			}
+		} else {
+			return errors.New("GSeriesString.Append: invalid type")
+		}
+	} else {
+		if b, ok := v.(string); ok {
+			s.data = append(s.data, s.pool.Get(b))
+		} else if bv, ok := v.([]string); ok {
+			for _, b := range bv {
+				s.data = append(s.data, s.pool.Get(b))
+			}
+		} else {
+			return errors.New("GSeriesString.Append: invalid type")
+		}
+	}
+	return nil
+}
+
+// AppendNullable appends a nullable value or a slice of nullable values to the series.
+func (s GSeriesString) AppendNullable(v interface{}) error {
+	if !s.isNullable {
+		return errors.New("GSeriesString.AppendNullable: series is not nullable")
+	}
+
+	if b, ok := v.(NullableString); ok {
+		s.data = append(s.data, s.pool.Get(b.Value))
+		if len(s.data)/8 > len(s.nullMap) {
+			s.nullMap = append(s.nullMap, 0)
+		}
+		if !b.Valid {
+			s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+		}
+	} else if bv, ok := v.([]NullableString); ok {
+		for _, b := range bv {
+			s.data = append(s.data, s.pool.Get(b.Value))
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+			if !b.Valid {
+				s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+			}
+		}
+	} else {
+		return errors.New("GSeriesString.AppendNullable: invalid type")
+	}
+
+	return nil
 }
 
 ///////////////////////////////		ALL DATA ACCESSORS		/////////////////////////////////
@@ -159,4 +245,58 @@ func (s GSeriesString) Filter(mask []bool) GSeries {
 		}
 	}
 	return NewGSeriesString(s.name, s.isNullable, data, s.pool)
+}
+
+type GSeriesStringPartition struct {
+	partition map[*string][]int
+	nullGroup []int
+}
+
+func (p GSeriesStringPartition) GetGroupsCount() int {
+	count := 0
+	for _, v := range p.partition {
+		if len(v) > 0 {
+			count++
+		}
+	}
+	if len(p.nullGroup) > 0 {
+		count++
+	}
+	return count
+}
+
+func (p GSeriesStringPartition) GetNonNullGroups() [][]int {
+	partition := make([][]int, 0)
+	for _, v := range p.partition {
+		if len(v) > 0 {
+			partition = append(partition, v)
+		}
+	}
+	return partition
+}
+
+func (s GSeriesStringPartition) GetNullGroup() []int {
+	return s.nullGroup
+}
+
+func (s GSeriesString) Group() GSeriesPartition {
+	groups := make(map[*string][]int)
+	nullGroup := make([]int, 0)
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				nullGroup = append(nullGroup, i)
+			} else {
+				groups[v] = append(groups[v], i)
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			groups[v] = append(groups[v], i)
+		}
+	}
+	return GSeriesStringPartition{
+		partition: groups,
+		nullGroup: nullGroup,
+	}
 }

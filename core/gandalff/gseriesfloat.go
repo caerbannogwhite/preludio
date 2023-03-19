@@ -1,5 +1,7 @@
 package gandalff
 
+import "errors"
+
 // GSeriesFloat represents a series of floats.
 type GSeriesFloat struct {
 	isNullable bool
@@ -39,6 +41,17 @@ func (s GSeriesFloat) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesFloat) MakeNullable() {
+	if !s.isNullable {
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMap = make([]uint8, len(s.data)/8)
+		} else {
+			s.nullMap = make([]uint8, len(s.data)/8+1)
+		}
+	}
+}
+
 func (s GSeriesFloat) Name() string {
 	return s.name
 }
@@ -75,10 +88,12 @@ func (s GSeriesFloat) IsNull(i int) bool {
 	return false
 }
 
-func (s GSeriesFloat) SetNull(i int) {
+func (s GSeriesFloat) SetNull(i int) error {
 	if s.isNullable {
 		s.nullMap[i/8] |= 1 << uint(i%8)
+		return nil
 	}
+	return errors.New("GSeriesFloat.SetNull: series is not nullable")
 }
 
 func (s GSeriesFloat) GetNullMask() []bool {
@@ -93,7 +108,11 @@ func (s GSeriesFloat) GetNullMask() []bool {
 	return mask
 }
 
-func (s GSeriesFloat) SetNullMask(mask []bool) {
+func (s GSeriesFloat) SetNullMask(mask []bool) error {
+	if !s.isNullable {
+		return errors.New("GSeriesFloat.SetNullMask: series is not nullable")
+	}
+
 	for k, v := range mask {
 		if v {
 			s.nullMap[k/8] |= 1 << uint(k%8)
@@ -101,6 +120,8 @@ func (s GSeriesFloat) SetNullMask(mask []bool) {
 			s.nullMap[k/8] &= ^(1 << uint(k%8))
 		}
 	}
+
+	return nil
 }
 
 func (s GSeriesFloat) Get(i int) interface{} {
@@ -109,6 +130,65 @@ func (s GSeriesFloat) Get(i int) interface{} {
 
 func (s GSeriesFloat) Set(i int, v interface{}) {
 	s.data[i] = v.(float64)
+}
+
+// Append appends a value or a slice of values to the series.
+func (s GSeriesFloat) Append(v interface{}) error {
+	if s.isNullable {
+		if b, ok := v.(float64); ok {
+			s.data = append(s.data, b)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+		} else if bv, ok := v.([]float64); ok {
+			s.data = append(s.data, bv...)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
+			}
+		} else {
+			return errors.New("GSeriesFloat.Append: invalid type")
+		}
+	} else {
+		if b, ok := v.(float64); ok {
+			s.data = append(s.data, b)
+		} else if bv, ok := v.([]float64); ok {
+			s.data = append(s.data, bv...)
+		} else {
+			return errors.New("GSeriesFloat.Append: invalid type")
+		}
+	}
+	return nil
+}
+
+// AppendNullable appends a nullable value or a slice of nullable values to the series.
+func (s GSeriesFloat) AppendNullable(v interface{}) error {
+	if !s.isNullable {
+		return errors.New("GSeriesFloat.AppendNullable: series is not nullable")
+	}
+
+	if b, ok := v.(NullableFloat); ok {
+		s.data = append(s.data, b.Value)
+		if len(s.data)/8 > len(s.nullMap) {
+			s.nullMap = append(s.nullMap, 0)
+		}
+		if !b.Valid {
+			s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+		}
+	} else if bv, ok := v.([]NullableFloat); ok {
+		for _, b := range bv {
+			s.data = append(s.data, b.Value)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+			if !b.Valid {
+				s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+			}
+		}
+	} else {
+		return errors.New("GSeriesFloat.AppendNullable: invalid type")
+	}
+
+	return nil
 }
 
 ///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////

@@ -76,6 +76,8 @@ type GSeries interface {
 	Len() int
 	// Returns if the series admits null values.
 	IsNullable() bool
+	// Makes the series nullable.
+	MakeNullable()
 	// Returns the name of the series.
 	Name() string
 	// Returns the type of the series.
@@ -87,16 +89,21 @@ type GSeries interface {
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
-	SetNull(i int)
+	SetNull(i int) error
 	// Returns the null mask of the series.
 	GetNullMask() []bool
 	// Sets the null mask of the series.
-	SetNullMask(mask []bool)
+	SetNullMask(mask []bool) error
 
 	// Get the element at index i.
 	Get(i int) interface{}
 	// Set the element at index i.
 	Set(i int, v interface{})
+
+	// Append appends a value or a slice of values to the series.
+	Append(v interface{}) error
+	// Append nullable elements to the series.
+	AppendNullable(v interface{}) error
 
 	// All-data accessors.
 
@@ -114,12 +121,9 @@ type GSeries interface {
 
 	// Filters out the elements by the given mask.
 	Filter(mask []bool) GSeries
-	// Filters out the elements by the given mask in place.
-	// FilterInPlace(mask []bool)
-	// Filters out the elements by the given indeces.
-	// FilterByIndex(indexes []int) GSeries
-	// Filters out the elements by the given indeces in place.
-	// FilterByIndexInPlace(indexes []int)
+
+	// Group the elements in the series.
+	// Group() GSeriesPartition
 }
 
 type GSeriesPartition interface {

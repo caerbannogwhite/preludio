@@ -1,5 +1,7 @@
 package gandalff
 
+import "errors"
+
 // GSeriesBool represents a series of bools.
 type GSeriesBool struct {
 	isNullable bool
@@ -39,6 +41,17 @@ func (s GSeriesBool) IsNullable() bool {
 	return s.isNullable
 }
 
+func (s GSeriesBool) MakeNullable() {
+	if !s.isNullable {
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMap = make([]uint8, len(s.data)/8)
+		} else {
+			s.nullMap = make([]uint8, len(s.data)/8+1)
+		}
+	}
+}
+
 func (s GSeriesBool) Name() string {
 	return s.name
 }
@@ -75,10 +88,12 @@ func (s GSeriesBool) IsNull(i int) bool {
 	return false
 }
 
-func (s GSeriesBool) SetNull(i int) {
+func (s GSeriesBool) SetNull(i int) error {
 	if s.isNullable {
 		s.nullMap[i/8] |= 1 << uint(i%8)
+		return nil
 	}
+	return errors.New("GSeriesBool.SetNull: series is not nullable")
 }
 
 func (s GSeriesBool) GetNullMask() []bool {
@@ -93,7 +108,11 @@ func (s GSeriesBool) GetNullMask() []bool {
 	return mask
 }
 
-func (s GSeriesBool) SetNullMask(mask []bool) {
+func (s GSeriesBool) SetNullMask(mask []bool) error {
+	if !s.isNullable {
+		return errors.New("GSeriesBool.SetNullMask: series is not nullable")
+	}
+
 	for k, v := range mask {
 		if v {
 			s.nullMap[k/8] |= 1 << uint(k%8)
@@ -101,6 +120,7 @@ func (s GSeriesBool) SetNullMask(mask []bool) {
 			s.nullMap[k/8] &= ^(1 << uint(k%8))
 		}
 	}
+	return nil
 }
 
 func (s GSeriesBool) Get(i int) interface{} {
@@ -109,6 +129,65 @@ func (s GSeriesBool) Get(i int) interface{} {
 
 func (s GSeriesBool) Set(i int, v interface{}) {
 	s.data[i] = v.(bool)
+}
+
+// Append appends a value or a slice of values to the series.
+func (s GSeriesBool) Append(v interface{}) error {
+	if s.isNullable {
+		if b, ok := v.(bool); ok {
+			s.data = append(s.data, b)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+		} else if bv, ok := v.([]bool); ok {
+			s.data = append(s.data, bv...)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
+			}
+		} else {
+			return errors.New("GSeriesBool.Append: invalid type")
+		}
+	} else {
+		if b, ok := v.(bool); ok {
+			s.data = append(s.data, b)
+		} else if bv, ok := v.([]bool); ok {
+			s.data = append(s.data, bv...)
+		} else {
+			return errors.New("GSeriesBool.Append: invalid type")
+		}
+	}
+	return nil
+}
+
+// AppendNullable appends a nullable value or a slice of nullable values to the series.
+func (s GSeriesBool) AppendNullable(v interface{}) error {
+	if !s.isNullable {
+		return errors.New("GSeriesBool.AppendNullable: series is not nullable")
+	}
+
+	if b, ok := v.(NullableBool); ok {
+		s.data = append(s.data, b.Value)
+		if len(s.data)/8 > len(s.nullMap) {
+			s.nullMap = append(s.nullMap, 0)
+		}
+		if !b.Valid {
+			s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+		}
+	} else if bv, ok := v.([]NullableBool); ok {
+		for _, b := range bv {
+			s.data = append(s.data, b.Value)
+			if len(s.data)/8 > len(s.nullMap) {
+				s.nullMap = append(s.nullMap, 0)
+			}
+			if !b.Valid {
+				s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+			}
+		}
+	} else {
+		return errors.New("GSeriesBool.AppendNullable: invalid type")
+	}
+
+	return nil
 }
 
 /////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////
