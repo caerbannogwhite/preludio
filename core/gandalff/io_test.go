@@ -113,7 +113,7 @@ func Test_TypeGuesser(t *testing.T) {
 
 func Test_FromCSV(t *testing.T) {
 
-	data := `name,age,weight,male
+	data := `name,age,weight,junior
 Alice C,29,75.0,F
 John Doe,30,80.5,true
 Bob,31,85.0,T
@@ -125,9 +125,9 @@ Charlie,33,95.0,t
 `
 
 	// Create a new dataframe from the CSV data.
-	df, err := FromCSV(strings.NewReader(data), ',', true, 3)
-	if err != nil {
-		t.Error(err)
+	df := FromCSV(strings.NewReader(data), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
 	}
 
 	// Check the number of rows.
@@ -153,8 +153,8 @@ Charlie,33,95.0,t
 		t.Error("Expected 'weight', got", df.Names()[2])
 	}
 
-	if df.Names()[3] != "male" {
-		t.Error("Expected 'male', got", df.Names()[3])
+	if df.Names()[3] != "junior" {
+		t.Error("Expected 'junior', got", df.Names()[3])
 	}
 
 	// Check the column types.
@@ -248,9 +248,9 @@ func Test_FromCSV_100000Rows(t *testing.T) {
 	}
 
 	// Create a new dataframe from the CSV data.
-	df, err := FromCSV(f, ',', true, 100)
-	if err != nil {
-		t.Error(err)
+	df := FromCSV(f, ',', true, 100)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
 	}
 
 	// Check the number of rows.
@@ -317,9 +317,9 @@ func Test_FromCSV_500000Rows(t *testing.T) {
 	}
 
 	// Create a new dataframe from the CSV data.
-	df, err := FromCSV(f, ',', true, 100)
-	if err != nil {
-		t.Error(err)
+	df := FromCSV(f, ',', true, 100)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
 	}
 
 	// Check the number of rows.

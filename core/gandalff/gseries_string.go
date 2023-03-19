@@ -33,7 +33,7 @@ func NewGSeriesString(name string, isNullable bool, data []string, pool *StringP
 	return GSeriesString{isNullable: isNullable, name: name, data: actualData, nullMap: nullMap, pool: pool}
 }
 
-///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
+///////////////////////////////		BASIC ACCESSORS			/////////////////////////////
 
 func (s GSeriesString) Len() int {
 	return len(s.data)
@@ -197,7 +197,7 @@ func (s GSeriesString) AppendNullable(v interface{}) error {
 	return nil
 }
 
-///////////////////////////////		ALL DATA ACCESSORS		/////////////////////////////////
+///////////////////////////////		ALL DATA ACCESSORS		/////////////////////////////
 
 func (s GSeriesString) Data() interface{} {
 	data := make([]string, len(s.data))
@@ -235,7 +235,7 @@ func (s GSeriesString) Copy() GSeries {
 	return NewGSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
-/////////////////////////////// 		SERIES OPERATIONS		/////////////////////////////////
+/////////////////////////////// 		SERIES OPERATIONS		/////////////////////////
 
 func (s GSeriesString) Filter(mask []bool) GSeries {
 	data := make([]string, 0)
@@ -246,6 +246,8 @@ func (s GSeriesString) Filter(mask []bool) GSeries {
 	}
 	return NewGSeriesString(s.name, s.isNullable, data, s.pool)
 }
+
+/////////////////////////////// 		GRAPH OPERATIONS		/////////////////////////
 
 type GSeriesStringPartition struct {
 	partition map[*string][]int
@@ -280,6 +282,28 @@ func (s GSeriesStringPartition) GetNullGroup() []int {
 }
 
 func (s GSeriesString) Group() GSeriesPartition {
+	groups := make(map[*string][]int)
+	nullGroup := make([]int, 0)
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				nullGroup = append(nullGroup, i)
+			} else {
+				groups[v] = append(groups[v], i)
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			groups[v] = append(groups[v], i)
+		}
+	}
+	return GSeriesStringPartition{
+		partition: groups,
+		nullGroup: nullGroup,
+	}
+}
+
+func (s GSeriesString) SubGroup(partition GSeriesPartition) GSeriesPartition {
 	groups := make(map[*string][]int)
 	nullGroup := make([]int, 0)
 	if s.isNullable {

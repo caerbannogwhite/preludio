@@ -123,7 +123,8 @@ type GSeries interface {
 	Filter(mask []bool) GSeries
 
 	// Group the elements in the series.
-	// Group() GSeriesPartition
+	Group() GSeriesPartition
+	SubGroup(gp GSeriesPartition) GSeriesPartition
 }
 
 type GSeriesPartition interface {

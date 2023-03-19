@@ -323,6 +323,8 @@ func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
 	}
 }
 
+///////////////////////////////		GROUPING OPERATIONS		/////////////////////////////
+
 type GSeriesBoolPartition struct {
 	partition map[bool][]int
 	nullGroup []int

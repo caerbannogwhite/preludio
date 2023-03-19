@@ -31,7 +31,7 @@ func NewGSeriesInt(name string, isNullable bool, makeCopy bool, data []int) GSer
 	return GSeriesInt{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
 
-///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
+///////////////////////////////		BASIC ACCESSORS			/////////////////////////////
 
 func (s GSeriesInt) Len() int {
 	return len(s.data)
@@ -242,56 +242,12 @@ func (s GSeriesInt) Filter(filter []bool) GSeries {
 	return GSeriesInt{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
 }
 
-type GSeriesIntPartition struct {
-	partition map[int][]int
-	nullGroup []int
-}
-
-func (p GSeriesIntPartition) GetGroupsCount() int {
-	count := 0
-	for _, v := range p.partition {
-		if len(v) > 0 {
-			count++
-		}
-	}
-	if len(p.nullGroup) > 0 {
-		count++
-	}
-	return count
-}
-
-func (p GSeriesIntPartition) GetNonNullGroups() [][]int {
-	partition := make([][]int, 0)
-	for _, v := range p.partition {
-		if len(v) > 0 {
-			partition = append(partition, v)
-		}
-	}
-	return partition
-}
-
-func (s GSeriesIntPartition) GetNullGroup() []int {
-	return s.nullGroup
-}
+///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
 
 func (s GSeriesInt) Group() GSeriesPartition {
-	groups := make(map[int][]int)
-	nullGroup := make([]int, 0)
-	if s.isNullable {
-		for i, v := range s.data {
-			if s.IsNull(i) {
-				nullGroup = append(nullGroup, i)
-			} else {
-				groups[v] = append(groups[v], i)
-			}
-		}
-	} else {
-		for i, v := range s.data {
-			groups[v] = append(groups[v], i)
-		}
-	}
-	return GSeriesIntPartition{
-		partition: groups,
-		nullGroup: nullGroup,
-	}
+	return nil
+}
+
+func (s GSeriesInt) SubGroup(gp GSeriesPartition) GSeriesPartition {
+	return nil
 }

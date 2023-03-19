@@ -241,3 +241,13 @@ func (s GSeriesFloat) Filter(mask []bool) GSeries {
 	}
 	return GSeriesFloat{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
 }
+
+///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
+
+func (s GSeriesFloat) Group() GSeriesPartition {
+	return nil
+}
+
+func (s GSeriesFloat) SubGroup(gp GSeriesPartition) GSeriesPartition {
+	return nil
+}

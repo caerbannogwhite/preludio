@@ -49,7 +49,11 @@ func (tg TypeGuesser) AtoBool(s string) (bool, error) {
 }
 
 // FromCSV reads a CSV file and returns a GDataFrame.
-func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int) (*GDataFrame, error) {
+func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int) *GDataFrame {
+
+	// TODO: Add support for reading CSV files with missing values
+	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
+	//		and guess the data types in parallel
 
 	isNullable := false
 	stringPool := NewStringPool()
@@ -71,7 +75,8 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	if header {
 		names, err = csvReader.Read()
 		if err != nil {
-			return nil, err
+			df.err = err
+			return df
 		}
 	}
 
@@ -123,19 +128,22 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			case BoolType:
 				b, err := tg.AtoBool(v)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]bool), b)
 			case IntType:
 				d, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]int), d)
 			case FloatType:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]float64), f)
 			case StringType:
@@ -144,7 +152,6 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		}
 	}
 
-	// Read data
 	for {
 		record, err := csvReader.Read()
 		if err != nil {
@@ -158,19 +165,22 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			case BoolType:
 				b, err := tg.AtoBool(v)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]bool), b)
 			case IntType:
 				d, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]int), d)
 			case FloatType:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
-					return nil, err
+					df.err = err
+					return df
 				}
 				values[i] = append(values[i].([]float64), f)
 			case StringType:
@@ -200,5 +210,5 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		}
 	}
 
-	return df, nil
+	return df
 }
