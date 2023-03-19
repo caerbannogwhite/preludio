@@ -12,7 +12,11 @@ type GSeriesString struct {
 func NewGSeriesString(name string, isNullable bool, data []string, pool *StringPool) GSeriesString {
 	var nullMap []uint8
 	if isNullable {
-		nullMap = make([]uint8, len(data)/8+1)
+		if len(data)%8 == 0 {
+			nullMap = make([]uint8, len(data)/8)
+		} else {
+			nullMap = make([]uint8, len(data)/8+1)
+		}
 	} else {
 		nullMap = make([]uint8, 0)
 	}

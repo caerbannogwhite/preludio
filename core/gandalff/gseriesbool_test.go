@@ -162,3 +162,7 @@ func Test_GSeriesBool_LogicOperators(t *testing.T) {
 		}
 	}
 }
+
+func Test_GSeriesBool_Filter(t *testing.T) {
+
+}

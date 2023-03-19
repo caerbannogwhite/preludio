@@ -11,7 +11,11 @@ type GSeriesBool struct {
 func NewGSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GSeriesBool {
 	var nullMap []uint8
 	if isNullable {
-		nullMap = make([]uint8, len(data)/8+1)
+		if len(data)%8 == 0 {
+			nullMap = make([]uint8, len(data)/8)
+		} else {
+			nullMap = make([]uint8, len(data)/8+1)
+		}
 	} else {
 		nullMap = make([]uint8, 0)
 	}
@@ -150,13 +154,26 @@ func (s GSeriesBool) Copy() GSeries {
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
 func (s GSeriesBool) Filter(mask []bool) GSeries {
+	elementCount := 0
+	for _, v := range mask {
+		if v {
+			elementCount++
+		}
+	}
+
 	if s.isNullable {
-		data := make([]bool, 0)
-		nullMap := make([]uint8, len(s.nullMap))
+		data := make([]bool, elementCount)
+		var nullMap []uint8
+		if len(data)%8 == 0 {
+			nullMap = make([]uint8, len(data)/8)
+		} else {
+			nullMap = make([]uint8, len(data)/8+1)
+		}
+
 		idx := 0
-		for i, v := range s.data {
-			if mask[i] {
-				data = append(data, v)
+		for i, v := range mask {
+			if v {
+				data[idx] = s.data[i]
 				if s.IsNull(i) {
 					nullMap[idx/8] |= 1 << uint(idx%8)
 				}
@@ -172,11 +189,12 @@ func (s GSeriesBool) Filter(mask []bool) GSeries {
 		}
 	}
 
-	data := make([]bool, 0)
-	nullMap := make([]uint8, 0)
-	for i, v := range s.data {
-		if mask[i] {
-			data = append(data, v)
+	data := make([]bool, elementCount)
+	idx := 0
+	for i, v := range mask {
+		if v {
+			data[idx] = s.data[i]
+			idx++
 		}
 	}
 
@@ -184,37 +202,7 @@ func (s GSeriesBool) Filter(mask []bool) GSeries {
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
-		nullMap:    nullMap,
-	}
-}
-
-func (s GSeriesBool) FilterInPlace(mask []bool) {
-	if s.isNullable {
-		data := make([]bool, 0)
-		nullMap := make([]uint8, len(s.nullMap))
-		idx := 0
-		for i, v := range s.data {
-			if mask[i] {
-				data = append(data, v)
-				if s.IsNull(i) {
-					nullMap[idx/8] |= 1 << uint(idx%8)
-				}
-				idx++
-			}
-		}
-
-		s.data = data
-		s.nullMap = nullMap
-	} else {
-		data := make([]bool, 0)
-		for i, v := range s.data {
-			if mask[i] {
-				data = append(data, v)
-			}
-		}
-
-		s.data = data
-		s.nullMap = make([]uint8, 0)
+		nullMap:    make([]uint8, 0),
 	}
 }
 
@@ -250,27 +238,57 @@ func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
 	}
 }
 
-func (s GSeriesBool) FilterByIndexInPlace(indexes []int) {
+type GSeriesBoolPartition struct {
+	partition map[bool][]int
+	nullGroup []int
+}
+
+func (p GSeriesBoolPartition) GetGroupsCount() int {
+	count := 0
+	for _, v := range p.partition {
+		if len(v) > 0 {
+			count++
+		}
+	}
+	if len(p.nullGroup) > 0 {
+		count++
+	}
+	return count
+}
+
+func (p GSeriesBoolPartition) GetNonNullGroups() [][]int {
+	partition := make([][]int, 0)
+	for _, v := range p.partition {
+		if len(v) > 0 {
+			partition = append(partition, v)
+		}
+	}
+	return partition
+}
+
+func (s GSeriesBoolPartition) GetNullGroup() []int {
+	return s.nullGroup
+}
+
+func (s GSeriesBool) Group() GSeriesPartition {
+	groups := make(map[bool][]int)
+	nullGroup := make([]int, 0)
 	if s.isNullable {
-		data := make([]bool, len(indexes))
-		nullMap := make([]uint8, len(s.nullMap))
-		for i, v := range indexes {
-			data[i] = s.data[v]
-			if s.IsNull(v) {
-				nullMap[i/8] |= 1 << uint(i%8)
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				nullGroup = append(nullGroup, i)
+			} else {
+				groups[v] = append(groups[v], i)
 			}
 		}
-
-		s.data = data
-		s.nullMap = nullMap
 	} else {
-		data := make([]bool, len(indexes))
-		for i, v := range indexes {
-			data[i] = s.data[v]
+		for i, v := range s.data {
+			groups[v] = append(groups[v], i)
 		}
-
-		s.data = data
-		s.nullMap = make([]uint8, 0)
+	}
+	return GSeriesBoolPartition{
+		partition: groups,
+		nullGroup: nullGroup,
 	}
 }
 

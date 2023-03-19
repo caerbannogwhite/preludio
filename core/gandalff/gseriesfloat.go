@@ -11,7 +11,11 @@ type GSeriesFloat struct {
 func NewGSeriesFloat(name string, isNullable bool, makeCopy bool, data []float64) GSeriesFloat {
 	var nullMap []uint8
 	if isNullable {
-		nullMap = make([]uint8, len(data)/8+1)
+		if len(data)%8 == 0 {
+			nullMap = make([]uint8, len(data)/8)
+		} else {
+			nullMap = make([]uint8, len(data)/8+1)
+		}
 	} else {
 		nullMap = make([]uint8, 0)
 	}

@@ -122,6 +122,15 @@ type GSeries interface {
 	// FilterByIndexInPlace(indexes []int)
 }
 
+type GSeriesPartition interface {
+	// Returns the number of groups.
+	GetGroupsCount() int
+	// Returns the non-null groups.
+	GetNonNullGroups() [][]int
+	// Returns the null group.
+	GetNullGroup() []int
+}
+
 type StringPoolEntry struct {
 	Addr  *string
 	Count uint32
