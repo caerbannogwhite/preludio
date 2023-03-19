@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -236,5 +237,144 @@ Charlie,33,95.0,t
 
 	if df.SeriesAt(3).Data().([]bool)[7] != true {
 		t.Error("Expected true, got", df.SeriesAt(3).Data().([]bool)[7])
+	}
+}
+
+func Test_FromCSV_100000Rows(t *testing.T) {
+
+	f, err := os.OpenFile("testFiles\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Create a new dataframe from the CSV data.
+	df, err := FromCSV(f, ',', true, 100)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Check the number of rows.
+	if df.NRows() != 100000 {
+		t.Error("Expected 100000 rows, got", df.NRows())
+	}
+
+	// Check the number of columns.
+	if df.NCols() != 9 {
+		t.Error("Expected 9 columns, got", df.NCols())
+	}
+
+	names := []string{"Index", "Organization Id", "Name", "Website", "Country", "Description", "Founded", "Industry", "Number of employees"}
+
+	// Check the column names.
+	for i := 0; i < len(names); i++ {
+		if df.Names()[i] != names[i] {
+			t.Error("Expected ", names[i], ", got", df.Names()[i])
+		}
+	}
+
+	// Check the column types.
+	if df.Types()[0] != IntType {
+		t.Error("Expected INT, got", df.Types()[0].ToString())
+	}
+
+	if df.Types()[1] != StringType {
+		t.Error("Expected STRING, got", df.Types()[1].ToString())
+	}
+
+	if df.Types()[2] != StringType {
+		t.Error("Expected STRING, got", df.Types()[2].ToString())
+	}
+
+	if df.Types()[3] != StringType {
+		t.Error("Expected STRING, got", df.Types()[3].ToString())
+	}
+
+	if df.Types()[4] != StringType {
+		t.Error("Expected STRING, got", df.Types()[4].ToString())
+	}
+
+	if df.Types()[5] != StringType {
+		t.Error("Expected STRING, got", df.Types()[5].ToString())
+	}
+
+	if df.Types()[6] != IntType {
+		t.Error("Expected INT, got", df.Types()[6].ToString())
+	}
+
+	if df.Types()[7] != StringType {
+		t.Error("Expected STRING, got", df.Types()[7].ToString())
+	}
+
+	if df.Types()[8] != IntType {
+		t.Error("Expected INT, got", df.Types()[8].ToString())
+	}
+}
+
+func Test_FromCSV_500000Rows(t *testing.T) {
+	f, err := os.OpenFile("testFiles\\organizations-500000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Create a new dataframe from the CSV data.
+	df, err := FromCSV(f, ',', true, 100)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Check the number of rows.
+	if df.NRows() != 500000 {
+		t.Error("Expected 100000 rows, got", df.NRows())
+	}
+
+	// Check the number of columns.
+	if df.NCols() != 9 {
+		t.Error("Expected 9 columns, got", df.NCols())
+	}
+
+	names := []string{"Index", "Organization Id", "Name", "Website", "Country", "Description", "Founded", "Industry", "Number of employees"}
+
+	// Check the column names.
+	for i := 0; i < len(names); i++ {
+		if df.Names()[i] != names[i] {
+			t.Error("Expected ", names[i], ", got", df.Names()[i])
+		}
+	}
+
+	// Check the column types.
+	if df.Types()[0] != IntType {
+		t.Error("Expected INT, got", df.Types()[0].ToString())
+	}
+
+	if df.Types()[1] != StringType {
+		t.Error("Expected STRING, got", df.Types()[1].ToString())
+	}
+
+	if df.Types()[2] != StringType {
+		t.Error("Expected STRING, got", df.Types()[2].ToString())
+	}
+
+	if df.Types()[3] != StringType {
+		t.Error("Expected STRING, got", df.Types()[3].ToString())
+	}
+
+	if df.Types()[4] != StringType {
+		t.Error("Expected STRING, got", df.Types()[4].ToString())
+	}
+
+	if df.Types()[5] != StringType {
+		t.Error("Expected STRING, got", df.Types()[5].ToString())
+	}
+
+	if df.Types()[6] != IntType {
+		t.Error("Expected INT, got", df.Types()[6].ToString())
+	}
+
+	if df.Types()[7] != StringType {
+		t.Error("Expected STRING, got", df.Types()[7].ToString())
+	}
+
+	if df.Types()[8] != IntType {
+		t.Error("Expected INT, got", df.Types()[8].ToString())
 	}
 }
