@@ -164,5 +164,35 @@ func Test_GSeriesBool_LogicOperators(t *testing.T) {
 }
 
 func Test_GSeriesBool_Filter(t *testing.T) {
+	data := []bool{true, false, true, false, true, false, true, false, true, false}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
+	// Create a new series.
+	s := NewGSeriesBool("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Filter mask.
+	filter := []bool{true, false, true, true, false, true, true, false, true, true}
+
+	result := []bool{true, true, false, false, true, true, false}
+	resultMask := []bool{false, true, false, true, false, true, false}
+
+	// Check the Filter() method.
+	filtered := s.Filter(filter)
+
+	// Check the data.
+	for i, v := range filtered.Data().([]bool) {
+		if v != result[i] {
+			t.Errorf("Expected data of []bool{true, true, false, false, true, true, false}, got %v", filtered.Data())
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != resultMask[i] {
+			t.Errorf("Expected nullMask of []bool{false, true, false, true, false, true, false}, got %v", filtered.GetNullMask())
+		}
+	}
 }

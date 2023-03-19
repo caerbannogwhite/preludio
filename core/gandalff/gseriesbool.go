@@ -117,6 +117,7 @@ func (s GSeriesBool) Data() interface{} {
 	return s.data
 }
 
+// NullableData returns a slice of NullableBool.
 func (s GSeriesBool) NullableData() interface{} {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
@@ -125,6 +126,7 @@ func (s GSeriesBool) NullableData() interface{} {
 	return data
 }
 
+// StringData returns a slice of strings.
 func (s GSeriesBool) StringData() []string {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
@@ -137,6 +139,7 @@ func (s GSeriesBool) StringData() []string {
 	return data
 }
 
+// Copy returns a copy of the series.
 func (s GSeriesBool) Copy() GSeries {
 	data := make([]bool, len(s.data))
 	copy(data, s.data)
@@ -153,6 +156,7 @@ func (s GSeriesBool) Copy() GSeries {
 
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
+// Filter returns a new series with elements at the indices where mask is true.
 func (s GSeriesBool) Filter(mask []bool) GSeries {
 	elementCount := 0
 	for _, v := range mask {
@@ -294,6 +298,7 @@ func (s GSeriesBool) Group() GSeriesPartition {
 
 ///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
 
+// And performs logical AND operation between two series
 func (s GSeriesBool) And(other GSeries) GSeries {
 	if s.isNullable || other.IsNullable() {
 		data := make([]bool, len(s.data))
@@ -326,6 +331,7 @@ func (s GSeriesBool) And(other GSeries) GSeries {
 	}
 }
 
+// Or performs logical OR operation between two series
 func (s GSeriesBool) Or(other GSeries) GSeries {
 	if s.isNullable || other.IsNullable() {
 		data := make([]bool, len(s.data))
@@ -358,6 +364,7 @@ func (s GSeriesBool) Or(other GSeries) GSeries {
 	}
 }
 
+// Not performs logical NOT operation on series
 func (s GSeriesBool) Not() GSeries {
 	if s.isNullable {
 		data := make([]bool, len(s.data))
