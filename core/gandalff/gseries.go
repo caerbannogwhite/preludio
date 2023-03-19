@@ -17,15 +17,15 @@ const (
 func (t GSeriesType) ToString() string {
 	switch t {
 	case BoolType:
-		return "bool"
+		return "BOOL"
 	case IntType:
-		return "int"
+		return "INT"
 	case FloatType:
-		return "float"
+		return "FLOAT"
 	case StringType:
-		return "string"
+		return "STRING"
 	}
-	return "unknown"
+	return "UNKNOWN"
 }
 
 ///////////////////////////////		TO STRING		/////////////////////////////////

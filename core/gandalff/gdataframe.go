@@ -1,8 +1,9 @@
 package gandalff
 
 type GDataFrame struct {
-	series []GSeries
-	pool   *StringPool
+	isGrouped bool
+	series    []GSeries
+	pool      *StringPool
 }
 
 func NewGDataFrame() *GDataFrame {
@@ -12,10 +13,12 @@ func NewGDataFrame() *GDataFrame {
 	}
 }
 
-func FromCSV(path string, delimiter rune) *GDataFrame {
-	df := NewGDataFrame()
+func (df *GDataFrame) IsGrouped() bool {
+	return df.isGrouped
+}
 
-	return df
+func (df *GDataFrame) GetPool() *StringPool {
+	return df.pool
 }
 
 func (df *GDataFrame) AddSeries(series GSeries) {
@@ -37,11 +40,12 @@ func (df *GDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy
 	df.AddSeries(series)
 }
 
-// func (df *GDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) {
-// 	series := NewGSeriesString(name, isNullable, data, df.pool)
-// 	df.AddSeries(series)
-// }
+func (df *GDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) {
+	series := NewGSeriesString(name, isNullable, data, df.pool)
+	df.AddSeries(series)
+}
 
+// Names returns the names of the series in the dataframe.
 func (df *GDataFrame) Names() []string {
 	names := make([]string, len(df.series))
 	for i, series := range df.series {
@@ -50,6 +54,16 @@ func (df *GDataFrame) Names() []string {
 	return names
 }
 
+// Types returns the types of the series in the dataframe.
+func (df *GDataFrame) Types() []GSeriesType {
+	types := make([]GSeriesType, len(df.series))
+	for i, series := range df.series {
+		types[i] = series.Type()
+	}
+	return types
+}
+
+// Series returns the series with the given name.
 func (df *GDataFrame) Series(name string) GSeries {
 	for _, series := range df.series {
 		if series.Name() == name {
@@ -113,18 +127,6 @@ func (df *GDataFrame) Filter() *GDataFrame {
 	filtered := NewGDataFrame()
 
 	return filtered
-}
-
-func (df *GDataFrame) InnerJoin(other *GDataFrame, on ...string) *GDataFrame {
-	joined := NewGDataFrame()
-
-	return joined
-}
-
-func (df *GDataFrame) Join(other *GDataFrame, on ...string) *GDataFrame {
-	joined := NewGDataFrame()
-
-	return joined
 }
 
 func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
