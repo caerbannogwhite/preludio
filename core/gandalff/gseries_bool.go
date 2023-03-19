@@ -1,6 +1,8 @@
 package gandalff
 
-import "errors"
+import (
+	"errors"
+)
 
 // GSeriesBool represents a series of bools.
 type GSeriesBool struct {
@@ -367,6 +369,32 @@ func (s GSeriesBool) Group() GSeriesPartition {
 	} else {
 		for i, v := range s.data {
 			groups[v] = append(groups[v], i)
+		}
+	}
+	return GSeriesBoolPartition{
+		partition: groups,
+		nullGroup: nullGroup,
+	}
+}
+
+func (s GSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
+	groups := make(map[bool][]int)
+	nullGroup := make([]int, 0)
+	if s.isNullable {
+		for _, v := range gp.GetNonNullGroups() {
+			for _, idx := range v {
+				if s.IsNull(idx) {
+					nullGroup = append(nullGroup, idx)
+				} else {
+					groups[s.data[idx]] = append(groups[s.data[idx]], idx)
+				}
+			}
+		}
+	} else {
+		for _, v := range gp.GetNonNullGroups() {
+			for _, idx := range v {
+				groups[s.data[idx]] = append(groups[s.data[idx]], idx)
+			}
 		}
 	}
 	return GSeriesBoolPartition{
