@@ -208,7 +208,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 
 	df, err = positional[0].getDataframe()
 	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Error()))
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
