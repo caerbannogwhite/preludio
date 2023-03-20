@@ -30,13 +30,14 @@ type ByteEater struct {
 	__panicMode             bool
 	__symbolTable           []string
 	__stack                 []__p_intern__
-	__currentDataFrameNames map[string]bool
 	__globalNamespace       map[string]*__p_intern__
 	__pipelineNameSpace     map[string]*__p_intern__
+	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                PreludioOutput
 	__currentDataFrame      *dataframe.DataFrame
+	__currentResult         *__p_intern__
 }
 
 func (vm *ByteEater) GetParamPrintWarning() bool {
@@ -110,7 +111,6 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
-	vm.__currentDataFrame = nil
 
 	return vm
 }
@@ -131,6 +131,8 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.__panicMode = false
 	vm.__symbolTable = make([]string, 0)
 	vm.__stack = make([]__p_intern__, 0)
+	vm.__currentDataFrame = nil
+	vm.__currentResult = nil
 
 	// set a new output for the new computation
 	vm.__output = PreludioOutput{Log: make([]LogEnty, 0)}
@@ -138,16 +140,16 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__param_debugLevel > 15 {
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "BYTECODE INFO", "", "")
-		vm.printDebug(15, "====================", "", "")
-		vm.printDebug(15, "SIZE", fmt.Sprintf("%d", len(bytecode)), "")
-		vm.printDebug(15, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
-		vm.printDebug(15, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "STRING SYMBOLS", "", "")
-		vm.printDebug(15, "====================", "", "")
+	if vm.__param_debugLevel > 25 {
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "BYTECODE INFO", "", "")
+		vm.printDebug(25, "====================", "", "")
+		vm.printDebug(25, "SIZE", fmt.Sprintf("%d", len(bytecode)), "")
+		vm.printDebug(25, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
+		vm.printDebug(25, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "STRING SYMBOLS", "", "")
+		vm.printDebug(25, "====================", "", "")
 	}
 
 	offset := uint32(8)
@@ -160,14 +162,14 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 		offset += l
 	}
 
-	if vm.__param_debugLevel > 15 {
+	if vm.__param_debugLevel > 25 {
 		for _, symbol := range vm.__symbolTable {
-			vm.printDebug(15, "", symbol, "")
+			vm.printDebug(25, "", symbol, "")
 		}
 
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "INSTRUCTIONS", "", "")
-		vm.printDebug(15, "====================", "", "")
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "INSTRUCTIONS", "", "")
+		vm.printDebug(25, "====================", "", "")
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
@@ -175,7 +177,6 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 
 // Run Preludio bytecode from a binary file located
 // at __param_inputPath with SetInputPath
-// TO DEPRECATE (?)
 func (vm *ByteEater) RunFileBytecode() {
 	var err error
 	var file *os.File
@@ -185,6 +186,8 @@ func (vm *ByteEater) RunFileBytecode() {
 	vm.__panicMode = false
 	vm.__symbolTable = make([]string, 0)
 	vm.__stack = make([]__p_intern__, 0)
+	vm.__currentDataFrame = nil
+	vm.__currentResult = nil
 
 	// set a new output for the new computation
 	vm.__output = PreludioOutput{Log: make([]LogEnty, 0)}
@@ -212,16 +215,16 @@ func (vm *ByteEater) RunFileBytecode() {
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
 
-	if vm.__param_debugLevel > 15 {
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "BYTECODE INFO", "", "")
-		vm.printDebug(15, "====================", "", "")
-		vm.printDebug(15, "SIZE", fmt.Sprintf("%d", size), "")
-		vm.printDebug(15, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
-		vm.printDebug(15, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "STRING SYMBOLS", "", "")
-		vm.printDebug(15, "====================", "", "")
+	if vm.__param_debugLevel > 25 {
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "BYTECODE INFO", "", "")
+		vm.printDebug(25, "====================", "", "")
+		vm.printDebug(25, "SIZE", fmt.Sprintf("%d", size), "")
+		vm.printDebug(25, "BYTE MARK", fmt.Sprintf("%x %x %x %x", bytemark[0], bytemark[1], bytemark[2], bytemark[3]), "")
+		vm.printDebug(25, "SYMBOL TABLE SIZE", fmt.Sprintf("%d", __symbolTableSize), "")
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "STRING SYMBOLS", "", "")
+		vm.printDebug(25, "====================", "", "")
 	}
 
 	offset := uint32(8)
@@ -234,14 +237,14 @@ func (vm *ByteEater) RunFileBytecode() {
 		offset += l
 	}
 
-	if vm.__param_debugLevel > 15 {
+	if vm.__param_debugLevel > 25 {
 		for _, symbol := range vm.__symbolTable {
-			vm.printDebug(15, "", symbol, "")
+			vm.printDebug(25, "", symbol, "")
 		}
 
-		vm.printDebug(15, "", "", "")
-		vm.printDebug(15, "INSTRUCTIONS", "", "")
-		vm.printDebug(15, "====================", "", "")
+		vm.printDebug(25, "", "", "")
+		vm.printDebug(25, "INSTRUCTIONS", "", "")
+		vm.printDebug(25, "====================", "", "")
 	}
 
 	vm.RunPrqlInstructions(bytecode, offset)
@@ -271,25 +274,48 @@ func (vm *ByteEater) stackLast() *__p_intern__ {
 }
 
 func (vm *ByteEater) loadResults() {
-	vm.__output.Data = make([][]Columnar, 0)
+	// get the results from the stack until we find the begin frame
+	results := make([]__p_intern__, 0)
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
-		vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
 
-		internal := vm.stackPop()
-		if err := solveExpr(vm, internal); err != nil {
+		result := vm.stackPop()
+		if err := solveExpr(vm, result); err != nil {
 			vm.setPanicMode(err.Error())
 			break
 		}
 
-		internal.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+		results = append(results, *result)
 	}
 
-	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
-		vm.stackPop()
+	if len(results) > 1 {
+		vm.__currentResult = newPInternTerm(__p_list__(results))
+	} else if len(results) == 1 {
+		vm.__currentResult = &results[0]
 	}
 }
 
 func (vm *ByteEater) GetOutput() *PreludioOutput {
+
+	vm.__output.Data = make([][]Columnar, 0)
+
+	if vm.__currentResult != nil {
+		if vm.__currentResult.isList() {
+			list, err := vm.__currentResult.getList()
+			if err != nil {
+				vm.setPanicMode(err.Error())
+				return &vm.__output
+			}
+
+			for _, result := range list {
+				vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
+				result.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+			}
+		} else {
+			vm.__output.Data = append(vm.__output.Data, make([]Columnar, 0))
+			vm.__currentResult.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+		}
+	}
+
 	return &vm.__output
 }
 
@@ -341,7 +367,11 @@ MAIN_LOOP:
 			if _, ok := vm.__globalNamespace[varName]; ok {
 				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is already declared", varName))
 			} else {
-				vm.__globalNamespace[varName] = vm.stackLast()
+				vm.loadResults()
+				if vm.__currentResult != nil {
+					vm.__globalNamespace[varName] = vm.__currentResult
+					vm.__currentResult = nil
+				}
 			}
 
 		case preludiocompiler.OP_VAR_ASSIGN:
@@ -349,10 +379,14 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
 
 			if _, ok := vm.__globalNamespace[varName]; ok {
-				vm.__globalNamespace[varName] = vm.stackLast()
+				vm.loadResults()
+				if vm.__currentResult != nil {
+					vm.__globalNamespace[varName] = vm.__currentResult
+					vm.__currentResult = nil
+				}
+			} else {
+				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
 			}
-
-			vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
 
 		case preludiocompiler.OP_START_FUNC_CALL:
 			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")

@@ -16,9 +16,9 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 		return nil
 	}
 
-	// Check if the expression is a list
-	// and recursively solve all the expressions
-	// in the list
+	// Check if the expression is:
+	//  - a symbol: resolve it
+	//  - a list: recursively solve all the expressions
 	if len(i.expr) == 1 {
 		switch l := i.expr[0].(type) {
 		case __p_symbol__:
