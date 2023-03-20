@@ -282,7 +282,7 @@ func (df *GDataFrame) Count() *GDataFrame {
 		}
 
 		// Add the count series
-		counts := make([]int, len(df.partitions))
+		counts := make([]int, len(df.partitions[len(df.partitions)-1].partition.GetNonNullGroups()))
 		for i, group := range df.partitions[len(df.partitions)-1].partition.GetNonNullGroups() {
 			counts[i] = len(group)
 		}

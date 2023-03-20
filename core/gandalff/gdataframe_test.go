@@ -28,6 +28,6 @@ Charlie,33,95.0,t,Business
 		t.Error(df.GetError())
 	}
 
-	df.GroupBy("department", "junior").Count().PrettyPrint()
+	df.GroupBy("department").Count().PrettyPrint()
 
 }
