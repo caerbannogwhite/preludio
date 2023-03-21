@@ -12,7 +12,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 	// TODO: check if this is possible and
 	// if it's the case to raise an error
-	if len(i.expr) == 0 {
+	if i == nil || i.expr == nil || len(i.expr) == 0 {
 		return nil
 	}
 
