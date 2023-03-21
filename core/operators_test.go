@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"math"
+	"preludiocompiler"
 	"testing"
 )
 
@@ -11,7 +12,7 @@ func init() {
 	be = new(ByteEater).InitVM()
 }
 
-func TestMul(t *testing.T) {
+func Test_Operator_Mul(t *testing.T) {
 
 	var err error
 
@@ -24,7 +25,7 @@ func TestMul(t *testing.T) {
 	// BOOL
 	{
 		// BOOL * BOOL
-		b1.appendOperand(OP_BINARY_MUL, b2)
+		b1.appendOperand(preludiocompiler.OP_BINARY_MUL, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -42,7 +43,7 @@ func TestMul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * INTEGER
-		b1.appendOperand(OP_BINARY_MUL, in)
+		b1.appendOperand(preludiocompiler.OP_BINARY_MUL, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -60,7 +61,7 @@ func TestMul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * FLOAT
-		b1.appendOperand(OP_BINARY_MUL, fl)
+		b1.appendOperand(preludiocompiler.OP_BINARY_MUL, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -78,7 +79,7 @@ func TestMul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * STRING
-		b1.appendOperand(OP_BINARY_MUL, st)
+		b1.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -96,7 +97,7 @@ func TestMul(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER * BOOL
-		in.appendOperand(OP_BINARY_MUL, b2)
+		in.appendOperand(preludiocompiler.OP_BINARY_MUL, b2)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -114,7 +115,7 @@ func TestMul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * INTEGER
-		in.appendOperand(OP_BINARY_MUL, in)
+		in.appendOperand(preludiocompiler.OP_BINARY_MUL, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -132,7 +133,7 @@ func TestMul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * FLOAT
-		in.appendOperand(OP_BINARY_MUL, fl)
+		in.appendOperand(preludiocompiler.OP_BINARY_MUL, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -150,7 +151,7 @@ func TestMul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * STRING
-		in.appendOperand(OP_BINARY_MUL, st)
+		in.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -171,7 +172,7 @@ func TestMul(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT * BOOL
-		fl.appendOperand(OP_BINARY_MUL, b2)
+		fl.appendOperand(preludiocompiler.OP_BINARY_MUL, b2)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -189,7 +190,7 @@ func TestMul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * INTEGER
-		fl.appendOperand(OP_BINARY_MUL, in)
+		fl.appendOperand(preludiocompiler.OP_BINARY_MUL, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -207,7 +208,7 @@ func TestMul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * FLOAT
-		fl.appendOperand(OP_BINARY_MUL, fl)
+		fl.appendOperand(preludiocompiler.OP_BINARY_MUL, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -225,7 +226,7 @@ func TestMul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * STRING
-		fl.appendOperand(OP_BINARY_MUL, st)
+		fl.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []float64 and []string" {
@@ -239,7 +240,7 @@ func TestMul(t *testing.T) {
 	// STRING
 	{
 		// STRING * BOOL
-		st.appendOperand(OP_BINARY_MUL, b2)
+		st.appendOperand(preludiocompiler.OP_BINARY_MUL, b2)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -257,7 +258,7 @@ func TestMul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * INTEGER
-		st.appendOperand(OP_BINARY_MUL, in)
+		st.appendOperand(preludiocompiler.OP_BINARY_MUL, in)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -275,7 +276,7 @@ func TestMul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * FLOAT
-		st.appendOperand(OP_BINARY_MUL, fl)
+		st.appendOperand(preludiocompiler.OP_BINARY_MUL, fl)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []string and []float64" {
@@ -286,7 +287,7 @@ func TestMul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * STRING
-		st.appendOperand(OP_BINARY_MUL, st)
+		st.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary * operator not implemented for []string and []string" {
@@ -295,7 +296,7 @@ func TestMul(t *testing.T) {
 	}
 }
 
-func TestDiv(t *testing.T) {
+func Test_Operator_Div(t *testing.T) {
 
 	var err error
 
@@ -308,7 +309,7 @@ func TestDiv(t *testing.T) {
 	// BOOL
 	{
 		// BOOL / BOOL
-		b1.appendOperand(OP_BINARY_DIV, b2)
+		b1.appendOperand(preludiocompiler.OP_BINARY_DIV, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -326,7 +327,7 @@ func TestDiv(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / INTEGER
-		b1.appendOperand(OP_BINARY_DIV, in)
+		b1.appendOperand(preludiocompiler.OP_BINARY_DIV, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -344,7 +345,7 @@ func TestDiv(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / FLOAT
-		b1.appendOperand(OP_BINARY_DIV, fl)
+		b1.appendOperand(preludiocompiler.OP_BINARY_DIV, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -362,7 +363,7 @@ func TestDiv(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / STRING
-		b1.appendOperand(OP_BINARY_DIV, st)
+		b1.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, b1)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []bool and []string" {
@@ -376,7 +377,7 @@ func TestDiv(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER / BOOL
-		in.appendOperand(OP_BINARY_DIV, b1)
+		in.appendOperand(preludiocompiler.OP_BINARY_DIV, b1)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -394,7 +395,7 @@ func TestDiv(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / INTEGER
-		in.appendOperand(OP_BINARY_DIV, in)
+		in.appendOperand(preludiocompiler.OP_BINARY_DIV, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -412,7 +413,7 @@ func TestDiv(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / FLOAT
-		in.appendOperand(OP_BINARY_DIV, fl)
+		in.appendOperand(preludiocompiler.OP_BINARY_DIV, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -430,7 +431,7 @@ func TestDiv(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / STRING
-		in.appendOperand(OP_BINARY_DIV, st)
+		in.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, in)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []int and []string" {
@@ -444,7 +445,7 @@ func TestDiv(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT / BOOL
-		fl.appendOperand(OP_BINARY_DIV, b1)
+		fl.appendOperand(preludiocompiler.OP_BINARY_DIV, b1)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -462,7 +463,7 @@ func TestDiv(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / INTEGER
-		fl.appendOperand(OP_BINARY_DIV, in)
+		fl.appendOperand(preludiocompiler.OP_BINARY_DIV, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -480,7 +481,7 @@ func TestDiv(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / FLOAT
-		fl.appendOperand(OP_BINARY_DIV, fl)
+		fl.appendOperand(preludiocompiler.OP_BINARY_DIV, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -498,7 +499,7 @@ func TestDiv(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / STRING
-		fl.appendOperand(OP_BINARY_DIV, st)
+		fl.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary / operator not implemented for []float64 and []string" {
