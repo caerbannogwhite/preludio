@@ -18,6 +18,8 @@ select [Car_Origin, MPG, cylTimes2]
 writeCSV "tests\\Cars1.csv"
 ```
 
+![](media/repl_example.gif)
+
 ### Features
 -  [x] Read and write CSV files
 -  [x] Derive new columns
