@@ -1,8 +1,8 @@
-readCSV "tests\\Cars.csv" delimiter: ";" header:true
+readCSV "test_files\\Cars.csv" delimiter: ";" header:true
 derive [
   cylTimes2 = Cylinders * 2,
   Car_Origin = Car + " - " + Origin
 ]
 take 5
 select [Car_Origin, MPG, cylTimes2]
-writeCSV "tests\\Cars1.csv"
+writeCSV "test_files\\Cars1.csv"
