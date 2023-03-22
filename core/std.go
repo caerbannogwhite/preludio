@@ -255,12 +255,13 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 	}
 
 	// delimiter has to be a single character
-	var del rune
-	if len(delimiter) > 1 && delimiter == "\\t" {
-		del = '\t'
-	} else {
-		vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
-		del = rune(delimiter[0])
+	del := rune(delimiter[0])
+	if len(delimiter) > 1 {
+		if delimiter == "\\t" {
+			del = '\t'
+		} else {
+			vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
+		}
 	}
 
 	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(del))
