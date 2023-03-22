@@ -8,6 +8,9 @@
 # testing
 /coverage
 
+# big files
+/core/gandalff/test_files
+
 # production
 /build
 /dist
