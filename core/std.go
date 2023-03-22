@@ -246,6 +246,7 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
+	defer inputFile.Close()
 
 	delimiter, err = named["delimiter"].getStringScalar()
 	if err != nil {
@@ -253,11 +254,16 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 		return
 	}
 
-	if len(delimiter) > 1 {
+	// delimiter has to be a single character
+	var del rune
+	if len(delimiter) > 1 && delimiter == "\\t" {
+		del = '\t'
+	} else {
 		vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
+		del = rune(delimiter[0])
 	}
 
-	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(rune(delimiter[0])))
+	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(del))
 	if df.Error() != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Error()))
 		return
@@ -674,7 +680,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	// POSITIONAL PARAMETERS
 	switch len(positional) {
 
-	// 1 PARAM
+	// 1 PARAM: string series or list of string series
 	case 1:
 		switch v := positional[0].getValue().(type) {
 
@@ -715,8 +721,42 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			return
 		}
 
+	// 2 PARAMS: dataframe, column name
+	case 2:
+		// df, err := positional[0].getDataframe()
+		// if err != nil {
+		// 	vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		// 	return
+		// }
+
+		switch v := positional[1].getValue().(type) {
+		// case []string:
+		// 	for i := range v {
+		// 		df[v[i]] = strings.Replace(df[v[i]].([]string), strOld, strNew, num)
+		// 	}
+		// 	vm.stackPush(newPInternTerm(df))
+
+		// case __p_list__:
+		// 	for i, e := range v {
+		// 		switch t := e.getValue().(type) {
+		// 		case []string:
+		// 			for j := range v {
+		// 				df[t[j]] = strings.Replace(df[t[j]].([]string), strOld, strNew, num)
+		// 			}
+		// 			v[i] = *newPInternTerm(t)
+
+		// 		default:
+		// 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
+		// 			return
+		// 		}
+		// 	}
+		// 	vm.stackPush(newPInternTerm(v))
+		default:
+			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
+		}
+
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting one positional parameter, received %d.", funcName, len(positional)))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 1 or 2 positional parameters, received %d.", funcName, len(positional)))
 		return
 	}
 }
