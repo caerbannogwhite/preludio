@@ -7,6 +7,12 @@
 Preludio is a data transformation language based on PRQL. It is a language that allows you to transform and
 manipulate data in a simple and intuitive way, batteries included.
 
+No libraries or external dependencies are required to run the language.
+
+### Example
+This is a simple example of what you can already do with Preludio.
+It reads a CSV file, derives two new columns, selects some columns and writes the result to a new CSV file.
+
 ```
 readCSV "tests\\Cars.csv" delimiter: ";" header:true
 derive [
@@ -43,8 +49,9 @@ go run .
 - [ ] Add support for XPT files
 - [ ] Add support for SAS7BDAT files
 - [ ] Database connections (SQL, MongoDB, etc.)
+- [ ] VS Code extension
 
-In case the language became quite successful, I will consider adding:
+In case the language becomes quite successful, I will consider adding:
 
 - [ ] Text editor/Ide (in browser and app)
 - [ ] Plots (https://github.com/gonum/plot)
