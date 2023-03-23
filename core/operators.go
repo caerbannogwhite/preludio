@@ -178,7 +178,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 
 					default:
-						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"*\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -260,7 +260,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"*\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []float64:
@@ -323,7 +323,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"*\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []string:
@@ -379,8 +379,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary * operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"*\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("binary \"*\" operator not implemented for %T and %T", t1, t2)
 				}
 
 			///////////////////////////////////////////////////////////////////
@@ -459,7 +462,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"/\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -522,7 +525,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"/\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []float64:
@@ -585,8 +588,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary / operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"/\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("binary \"/\" operator not implemented for %T and %T", t1, t2)
 				}
 
 			///////////////////////////////////////////////////////////////////
@@ -639,7 +645,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary %% operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"%%\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -683,8 +689,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary %% operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"%%\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("binary \"%%\" operator not implemented for %T and %T", t1, t2)
 				}
 
 			///////////////////////////////////////////////////////////////////
@@ -772,7 +781,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 
 					default:
-						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"+\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -854,7 +863,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"+\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []float64:
@@ -936,7 +945,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"+\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []string:
@@ -1018,8 +1027,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary + operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"+\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("binary \"+\" operator not implemented for %T and %T", t1, t2)
 				}
 
 			///////////////////////////////////////////////////////////////////
@@ -1087,7 +1099,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"-\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -1150,7 +1162,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"-\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []float64:
@@ -1213,8 +1225,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("binary - operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("binary \"-\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("binary \"-\" operator not implemented for %T and %T", t1, t2)
 				}
 
 			///////////////////////////////////////////////////////////////////
@@ -1300,7 +1315,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("bynary \"==\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []int:
@@ -1382,7 +1397,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("bynary \"==\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []float64:
@@ -1454,7 +1469,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("bynary \"==\" operator not implemented for %T and %T", val1, val2)
 					}
 
 				case []string:
@@ -1536,8 +1551,11 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						}
 						result = res
 					default:
-						return fmt.Errorf("bynary == operator not implemented for %T and %T", val1, val2)
+						return fmt.Errorf("bynary \"==\" operator not implemented for %T and %T", val1, val2)
 					}
+
+				default:
+					return fmt.Errorf("bynary \"==\" operator not implemented for %T and %T", t1, t2)
 				}
 			}
 		}

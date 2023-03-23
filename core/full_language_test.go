@@ -12,15 +12,13 @@ func init() {
 	be = new(ByteEater).InitVM()
 }
 
-func TestStmt(t *testing.T) {
+func Test_Expressions(t *testing.T) {
 	var bytecode []byte
 	var source string
 
 	// BOOL
 
-	source = `true`
-
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = preludiocompiler.CompileSource(`true`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -31,9 +29,7 @@ func TestStmt(t *testing.T) {
 		t.Error("Expected true, got", b, err)
 	}
 
-	source = `false`
-
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = preludiocompiler.CompileSource(`false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -46,9 +42,7 @@ func TestStmt(t *testing.T) {
 
 	// INT
 
-	source = `1 + 2`
-
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = preludiocompiler.CompileSource(`1 + 2`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -57,6 +51,28 @@ func TestStmt(t *testing.T) {
 		t.Error("Expected integer scalar, got", be.__currentResult)
 	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 3 {
 		t.Error("Expected 3, got", i, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`1 * 5`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 5 {
+		t.Error("Expected 5, got", i, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`1 - 2`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != -1 {
+		t.Error("Expected -1, got", i, err)
 	}
 
 	// LONG EXPRESSIONS

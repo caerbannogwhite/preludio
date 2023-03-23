@@ -1,6 +1,7 @@
 package preludiocore
 
 import (
+	"fmt"
 	"math"
 	"preludiocompiler"
 	"testing"
@@ -812,6 +813,267 @@ func Test_Operator_Add(t *testing.T) {
 			if v[0] != "aa" || v[1] != "bb" || v[2] != "cc" || v[3] != "dd" {
 				t.Error("Expected [aa, bb, cc, dd] got", v)
 			}
+		}
+	}
+}
+
+func Test_Operator_Sub(t *testing.T) {
+
+	var err error
+
+	b1 := newPInternTerm([]bool{true, false, true, false})
+	b2 := newPInternTerm([]bool{false, false, true, true})
+	in := newPInternTerm([]int{1, 2, 3, 4})
+	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := newPInternTerm([]string{"a", "b", "c", "d"})
+
+	// BOOL
+	{
+		// BOOL - BOOL
+		b1.appendOperand(preludiocompiler.OP_BINARY_SUB, b2)
+		err = solveExpr(be, b1)
+
+		if err != nil {
+			t.Error(err)
+		} else if !b1.isIntegerVector() {
+			t.Error("Expected integer vector type")
+		} else {
+			v, _ := b1.getIntegerVector()
+			if v[0] != 1 || v[1] != 0 || v[2] != 0 || v[3] != -1 {
+				t.Error("Expected [1, 0, 0, -1] got", v)
+			}
+		}
+
+		// reset b1
+		b1 = newPInternTerm([]bool{true, false, true, false})
+
+		// BOOL - INTEGER
+		b1.appendOperand(preludiocompiler.OP_BINARY_SUB, in)
+		err = solveExpr(be, b1)
+
+		if err != nil {
+			t.Error(err)
+		} else if !b1.isIntegerVector() {
+			t.Error("Expected integer vector type")
+		} else {
+			v, _ := b1.getIntegerVector()
+			if v[0] != 0 || v[1] != -2 || v[2] != -2 || v[3] != -4 {
+				t.Error("Expected [0, -2, -2, -4] got", v)
+			}
+		}
+
+		// reset b1
+		b1 = newPInternTerm([]bool{true, false, true, false})
+
+		// BOOL - FLOAT
+		b1.appendOperand(preludiocompiler.OP_BINARY_SUB, fl)
+		err = solveExpr(be, b1)
+
+		if err != nil {
+			t.Error(err)
+		} else if !b1.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := b1.getFloatVector()
+			if v[0] != -4.0 || v[1] != -6.0 || v[2] != -6.0 || v[3] != -8.0 {
+				t.Error("Expected [-4.0, -6.0, -6.0, -8.0] got", v)
+			}
+		}
+
+		// reset b1
+		b1 = newPInternTerm([]bool{true, false, true, false})
+
+		// BOOL - STRING
+		b1.appendOperand(preludiocompiler.OP_BINARY_SUB, st)
+		err = solveExpr(be, b1)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset b1
+		b1 = newPInternTerm([]bool{true, false, true, false})
+	}
+
+	// INTEGER
+	{
+		// INTEGER - BOOL
+		in.appendOperand(preludiocompiler.OP_BINARY_SUB, b1)
+		err = solveExpr(be, in)
+
+		if err != nil {
+			t.Error(err)
+		} else if !in.isIntegerVector() {
+			t.Error("Expected integer vector type")
+		} else {
+			v, _ := in.getIntegerVector()
+			if v[0] != 0 || v[1] != 2 || v[2] != 2 || v[3] != 4 {
+				t.Error("Expected [0, 2, 2, 4] got", v)
+			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER - INTEGER
+		in.appendOperand(preludiocompiler.OP_BINARY_SUB, in)
+		err = solveExpr(be, in)
+
+		if err != nil {
+			t.Error(err)
+		} else if !in.isIntegerVector() {
+			t.Error("Expected integer vector type")
+		} else {
+			v, _ := in.getIntegerVector()
+			if v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 0 {
+				t.Error("Expected [0, 0, 0, 0] got", v)
+			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER - FLOAT
+		in.appendOperand(preludiocompiler.OP_BINARY_SUB, fl)
+		err = solveExpr(be, in)
+
+		if err != nil {
+			t.Error(err)
+		} else if !in.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := in.getFloatVector()
+			if v[0] != -4.0 || v[1] != -4.0 || v[2] != -4.0 || v[3] != -4.0 {
+				t.Error("Expected [-4.0, -4.0, -4.0, -4.0] got", v)
+			}
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+
+		// INTEGER - STRING
+		in.appendOperand(preludiocompiler.OP_BINARY_SUB, st)
+		err = solveExpr(be, in)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset in
+		in = newPInternTerm([]int{1, 2, 3, 4})
+	}
+
+	// FLOAT
+	{
+		// FLOAT - BOOL
+		fl.appendOperand(preludiocompiler.OP_BINARY_SUB, b1)
+		err = solveExpr(be, fl)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 4.0 || v[1] != 6.0 || v[2] != 6.0 || v[3] != 8.0 {
+				t.Error("Expected [4.0, 6.0, 6.0, 8.0] got", v)
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT - INTEGER
+		fl.appendOperand(preludiocompiler.OP_BINARY_SUB, in)
+		err = solveExpr(be, fl)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 4.0 || v[1] != 4.0 || v[2] != 4.0 || v[3] != 4.0 {
+				t.Error("Expected [4.0, 4.0, 4.0, 4.0] got", v)
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT - FLOAT
+		fl.appendOperand(preludiocompiler.OP_BINARY_SUB, fl)
+		err = solveExpr(be, fl)
+
+		if err != nil {
+			t.Error(err)
+		} else if !fl.isFloatVector() {
+			t.Error("Expected float vector type")
+		} else {
+			v, _ := fl.getFloatVector()
+			if v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0 || v[3] != 0.0 {
+				t.Error("Expected [0.0, 0.0, 0.0, 0.0] got", v)
+			}
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+
+		// FLOAT - STRING
+		fl.appendOperand(preludiocompiler.OP_BINARY_SUB, st)
+		err = solveExpr(be, fl)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	}
+
+	// STRING
+	{
+		// STRING - BOOL
+		st.appendOperand(preludiocompiler.OP_BINARY_SUB, b1)
+		err = solveExpr(be, st)
+
+		fmt.Println(st)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING - INTEGER
+		st.appendOperand(preludiocompiler.OP_BINARY_SUB, in)
+		err = solveExpr(be, st)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING - FLOAT
+		st.appendOperand(preludiocompiler.OP_BINARY_SUB, fl)
+		err = solveExpr(be, st)
+
+		if err == nil {
+			t.Error("Expected error")
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING - STRING
+		st.appendOperand(preludiocompiler.OP_BINARY_SUB, st)
+		err = solveExpr(be, st)
+
+		if err == nil {
+			t.Error("Expected error")
 		}
 	}
 }
