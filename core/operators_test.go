@@ -1,7 +1,6 @@
 package preludiocore
 
 import (
-	"fmt"
 	"math"
 	"preludiocompiler"
 	"testing"
@@ -230,7 +229,7 @@ func Test_Operator_Mul(t *testing.T) {
 		fl.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, fl)
 
-		if err == nil || err.Error() != "binary * operator not implemented for []float64 and []string" {
+		if err == nil || err.Error() != "binary \"*\" operator not implemented for Float64 and String" {
 			t.Error(err)
 		}
 
@@ -280,7 +279,7 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_MUL, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary * operator not implemented for []string and []float64" {
+		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and Float64" {
 			t.Error(err)
 		}
 
@@ -291,7 +290,7 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_MUL, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary * operator not implemented for []string and []string" {
+		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and String" {
 			t.Error(err)
 		}
 	}
@@ -367,7 +366,7 @@ func Test_Operator_Div(t *testing.T) {
 		b1.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, b1)
 
-		if err == nil || err.Error() != "binary / operator not implemented for []bool and []string" {
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for Bool and String" {
 			t.Error(err)
 		}
 
@@ -435,7 +434,7 @@ func Test_Operator_Div(t *testing.T) {
 		in.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, in)
 
-		if err == nil || err.Error() != "binary / operator not implemented for []int and []string" {
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for Int32 and String" {
 			t.Error(err)
 		}
 
@@ -503,7 +502,54 @@ func Test_Operator_Div(t *testing.T) {
 		fl.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
 		err = solveExpr(be, fl)
 
-		if err == nil || err.Error() != "binary / operator not implemented for []float64 and []string" {
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for Float64 and String" {
+			t.Error(err)
+		}
+
+		// reset fl
+		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	}
+
+	// STRING
+	{
+		// STRING / BOOL
+		st.appendOperand(preludiocompiler.OP_BINARY_DIV, b1)
+		err = solveExpr(be, st)
+
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Bool" {
+			t.Error(err)
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING / INTEGER
+		st.appendOperand(preludiocompiler.OP_BINARY_DIV, in)
+		err = solveExpr(be, st)
+
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Int32" {
+			t.Error(err)
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING / FLOAT
+		st.appendOperand(preludiocompiler.OP_BINARY_DIV, fl)
+		err = solveExpr(be, st)
+
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Float64" {
+			t.Error(err)
+		}
+
+		// reset st
+		st = newPInternTerm([]string{"a", "b", "c", "d"})
+
+		// STRING / STRING
+		st.appendOperand(preludiocompiler.OP_BINARY_DIV, st)
+		err = solveExpr(be, st)
+
+		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and String" {
 			t.Error(err)
 		}
 	}
@@ -1037,9 +1083,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_SUB, b1)
 		err = solveExpr(be, st)
 
-		fmt.Println(st)
-
-		if err == nil {
+		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Bool" {
 			t.Error("Expected error")
 		}
 
@@ -1050,7 +1094,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_SUB, in)
 		err = solveExpr(be, st)
 
-		if err == nil {
+		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Int32" {
 			t.Error("Expected error")
 		}
 
@@ -1061,7 +1105,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_SUB, fl)
 		err = solveExpr(be, st)
 
-		if err == nil {
+		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Float64" {
 			t.Error("Expected error")
 		}
 
@@ -1072,7 +1116,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(preludiocompiler.OP_BINARY_SUB, st)
 		err = solveExpr(be, st)
 
-		if err == nil {
+		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and String" {
 			t.Error("Expected error")
 		}
 	}
