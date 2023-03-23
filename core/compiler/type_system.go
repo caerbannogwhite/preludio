@@ -24,29 +24,43 @@ const (
 func (bt BaseType) String() string {
 	switch bt {
 	case NullType:
-		return "null"
+		return "Null"
 	case BoolType:
-		return "bool"
+		return "Bool"
 	case Int16Type:
-		return "int16"
+		return "Int16"
 	case Int32Type:
-		return "int32"
+		return "Int32"
 	case Int64Type:
-		return "int64"
+		return "Int64"
 	case Float32Type:
-		return "float32"
+		return "Float32"
 	case Float64Type:
-		return "float64"
+		return "Float64"
 	case StringType:
-		return "string"
+		return "String"
 	case AnyType:
-		return "any"
+		return "Any"
 	case ErrorType:
-		return "error"
+		return "Error"
 	case NonBaseType:
-		return "nonbase"
+		return "Nonbase"
 	}
-	return "unknown"
+	return "Unknown"
+}
+
+func GoToPreludioTypeString(t interface{}) string {
+	switch t.(type) {
+	case []bool:
+		return "Bool"
+	case []int:
+		return "Int32"
+	case []float64:
+		return "Float64"
+	case []string:
+		return "String"
+	}
+	return "Unknown"
 }
 
 type Primitive struct {
