@@ -224,6 +224,28 @@ func Test_Expressions(t *testing.T) {
 	}
 }
 
+func Test_Assignements(t *testing.T) {
+	var bytecode []byte
+	var source string
+
+	source = `let a = 1
+	let b = 2
+	let c = 3
+	c = 6
+	a + b * 3 - 4 + 5 * c`
+
+	bytecode, _, _ = bytefeeder.CompileSource(source)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 33 {
+		t.Error("Expected 33, got", i, err)
+	}
+}
+
 func Test_Function_readCSV(t *testing.T) {
 	var bytecode []byte
 	var source string
