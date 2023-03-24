@@ -279,12 +279,16 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// RUN CODE
 		case "ctrl+r":
-			bytecode := bytefeeder.CompileSource(editor.GetCurrentEditorCode())
+			bytecode, logs, err := bytefeeder.CompileSource(editor.GetCurrentEditorCode())
+			if err != nil {
+				editor.errorMessage = err.Error()
+			}
+
 			editor.byteEater.RunBytecode(bytecode)
 
 			res := editor.byteEater.GetOutput()
 			editor.errorMessage = ""
-			for _, log := range res.Log {
+			for _, log := range append(logs, res.Log...) {
 				editor.errorMessage += log.Message + "\n"
 			}
 

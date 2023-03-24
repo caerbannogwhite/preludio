@@ -17,7 +17,7 @@ func Test_Expressions(t *testing.T) {
 
 	// BOOL
 
-	bytecode = bytefeeder.CompileSource(`true`)
+	bytecode, _, _ = bytefeeder.CompileSource(`true`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -28,7 +28,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected true, got", b, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`false`)
+	bytecode, _, _ = bytefeeder.CompileSource(`false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -39,7 +39,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected false, got", b, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`true + false`)
+	bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -52,7 +52,7 @@ func Test_Expressions(t *testing.T) {
 
 	// INT
 
-	bytecode = bytefeeder.CompileSource(`1 * 5`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 * 5`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -63,7 +63,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 5, got", i, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`1 / 3`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 / 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -74,7 +74,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 0.3333333333333333, got", f, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`4682 % 427`)
+	bytecode, _, _ = bytefeeder.CompileSource(`4682 % 427`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -85,7 +85,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 412, got", i, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`1 - 2`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 - 2`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -96,7 +96,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected -1, got", i, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`1 + 2`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -109,7 +109,7 @@ func Test_Expressions(t *testing.T) {
 
 	// FLOAT
 
-	bytecode = bytefeeder.CompileSource(`1.325235e-3 * 5`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 * 5`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -120,7 +120,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 0.006626175, got", f, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`1.325235e-3 / 3`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 / 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -133,7 +133,7 @@ func Test_Expressions(t *testing.T) {
 
 	// STRING
 
-	bytecode = bytefeeder.CompileSource(`"hello" + "world"`)
+	bytecode, _, _ = bytefeeder.CompileSource(`"hello" + "world"`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -144,7 +144,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected helloworld, got", s, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`"hello" * 3`)
+	bytecode, _, _ = bytefeeder.CompileSource(`"hello" * 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -157,7 +157,7 @@ func Test_Expressions(t *testing.T) {
 
 	// LONG EXPRESSIONS
 
-	bytecode = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -168,7 +168,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 33, got", i, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
+	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -179,7 +179,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 5hello, got", s, err)
 	}
 
-	bytecode = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
+	bytecode, _, _ = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -190,17 +190,38 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 41.16, got", f, err)
 	}
 
-	// bytecode = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
-	// be.RunBytecode(bytecode)
+	bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
+	be.RunBytecode(bytecode)
 
-	// if be.__currentResult == nil {
-	// 	t.Error("Expected result, got nil")
-	// } else if be.__currentResult.isIntegerScalar() == false {
-	// 	t.Error("Expected integer scalar, got", be.__currentResult)
-	// } else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 23 {
-	// 	t.Error("Expected 23, got", i, err)
-	// }
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 27 {
+		t.Error("Expected 27, got", i, err)
+	}
 
+	bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * (6 % 7 + "hello")`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isStringScalar() == false {
+		t.Error("Expected string scalar, got", be.__currentResult)
+	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "-36hello6hello6hello6hello6hello" {
+		t.Error("Expected -36hello6hello6hello6hello6hello, got", s, err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * 3)) - (4 + (5 * (6 % 7 + 8))) / ((9) + (10 * 11 - 12 % 13))`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isFloatScalar() == false {
+		t.Error("Expected float scalar, got", be.__currentResult)
+	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 6.308411214953271 {
+		t.Error("Expected 6.308411214953271, got", f, err)
+	}
 }
 
 func Test_Function_readCSV(t *testing.T) {
@@ -224,7 +245,7 @@ false,"hello again",0.000000000001,0`
 
 	source = `readCSV "csvtest00_read_comma.csv" delimiter: "," header: false`
 
-	bytecode = bytefeeder.CompileSource(source)
+	bytecode, _, _ = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -266,7 +287,7 @@ false;"hello again";0.000000000001;0`
 
 	source = `readCSV "csvtest01_read_semicolon.csv" delimiter: ";" header: false`
 
-	bytecode = bytefeeder.CompileSource(source)
+	bytecode, _, _ = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -309,7 +330,7 @@ false	"hello again"	0.000000000001	0`
 
 	source = `readCSV "csvtest02_read_tab_header.csv" delimiter: "\t" header: true`
 
-	bytecode = bytefeeder.CompileSource(source)
+	bytecode, _, _ = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {

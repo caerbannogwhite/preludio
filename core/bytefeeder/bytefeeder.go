@@ -2,13 +2,14 @@ package bytefeeder
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strings"
 	"types"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
 )
 
-func CompileSource(source string) []byte {
+func CompileSource(source string) ([]byte, []types.LogEnty, error) {
 	inputStream := antlr.NewInputStream(source)
 
 	lexer := NewpreludioLexer(inputStream)
@@ -21,7 +22,7 @@ func CompileSource(source string) []byte {
 	return compiler.GetBytecode()
 }
 
-func CompileFile(path string) []byte {
+func CompileFile(path string) ([]byte, []types.LogEnty, error) {
 	fileStream, err := antlr.NewFileStream(path)
 	if err != nil {
 		panic(err)
@@ -72,11 +73,14 @@ type ByteFeeder struct {
 	instructions []byte
 
 	verbose bool
+	err     error
+	logs    []types.LogEnty
 }
 
 func (bf *ByteFeeder) Init() *ByteFeeder {
 	bf.instructions = make([]byte, 0)
 	bf.symbolTable = make([]string, 0)
+	bf.logs = make([]types.LogEnty, 0)
 
 	return bf
 }
@@ -92,7 +96,7 @@ func (bf *ByteFeeder) AppendInstruction(opcode types.OPCODE, param1 types.PARAM1
 	bf.instructions = binary.BigEndian.AppendUint32(bf.instructions, uint32(param2))
 }
 
-func (bf *ByteFeeder) GetBytecode() []byte {
+func (bf *ByteFeeder) GetBytecode() ([]byte, []types.LogEnty, error) {
 
 	// incipit: 4 bytes mark, 4 empty bytes
 	// and the number of elements in the symbol table
@@ -108,13 +112,22 @@ func (bf *ByteFeeder) GetBytecode() []byte {
 		bytecode = append(bytecode, enc...)
 	}
 
-	return append(bytecode, bf.instructions...)
+	if bf.err == nil {
+		bf.logs = append(bf.logs, types.LogEnty{
+			LogType: types.LOG_DEBUG,
+			Level:   5,
+			Message: "Bytecode generated successfully"})
+	}
+
+	return append(bytecode, bf.instructions...), bf.logs, bf.err
 }
 
 func (bf *ByteFeeder) VisitTerminal(node antlr.TerminalNode) {}
 
 // VisitErrorNode is called when an error node is visited.
-func (bf *ByteFeeder) VisitErrorNode(node antlr.ErrorNode) {}
+func (bf *ByteFeeder) VisitErrorNode(node antlr.ErrorNode) {
+	fmt.Println("Error node: ", node.GetText())
+}
 
 // EnterEveryRule is called when any rule is entered.
 func (bf *ByteFeeder) EnterEveryRule(ctx antlr.ParserRuleContext) {}
@@ -291,7 +304,7 @@ func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
 func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// operation or nested expression
 	if ctx.GetChildCount() == 3 {
-		if ctx.GetChild(0).GetPayload().(*antlr.BaseParserRuleContext).GetText() == "(" {
+		if cmt, ok := ctx.GetChild(0).GetPayload().(*antlr.CommonToken); ok && cmt.GetText() == "(" {
 			// console.log(ctx.children[0].symbol.text);
 		} else {
 			switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {

@@ -38,9 +38,14 @@ func main() {
 			SetParamPrintWarning(args.Warnings).
 			SetParamDebugLevel(args.DebugLevel)
 
-		bytecode := bytefeeder.CompileFile(args.InputPath)
-		if args.Verbose {
-			fmt.Println("Bytecode generated")
+		bytecode, logs, err := bytefeeder.CompileFile(args.InputPath)
+		if err != nil {
+			fmt.Println("Error compiling file:", err)
+			os.Exit(1)
+		}
+
+		for _, log := range logs {
+			fmt.Println(log)
 		}
 
 		be.RunBytecode(bytecode)
@@ -51,9 +56,14 @@ func main() {
 			SetParamPrintWarning(args.Warnings).
 			SetParamDebugLevel(args.DebugLevel)
 
-		bytecode := bytefeeder.CompileSource(args.SourceCode)
-		if args.Verbose {
-			fmt.Println("Bytecode generated")
+		bytecode, logs, err := bytefeeder.CompileSource(args.SourceCode)
+		if err != nil {
+			fmt.Println("Error compiling file:", err)
+			os.Exit(1)
+		}
+
+		for _, log := range logs {
+			fmt.Println(log)
 		}
 
 		be.RunBytecode(bytecode)
@@ -192,11 +202,15 @@ func LaunchRepl(args CliArgs) {
 		line = strings.TrimSpace(line)
 
 		if line == "" {
-			bytecode := bytefeeder.CompileSource(code)
+			bytecode, logs, err := bytefeeder.CompileSource(code)
+			if err != nil {
+				fmt.Println("Error compiling source:", err)
+				continue
+			}
 			be.RunBytecode(bytecode)
 
 			res := be.GetOutput()
-			for _, log := range res.Log {
+			for _, log := range append(logs, res.Log...) {
 				if log.LogType == types.LOG_DEBUG {
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println(log.Message)
