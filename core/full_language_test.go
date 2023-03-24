@@ -14,7 +14,6 @@ func init() {
 
 func Test_Expressions(t *testing.T) {
 	var bytecode []byte
-	var source string
 
 	// BOOL
 
@@ -77,21 +76,18 @@ func Test_Expressions(t *testing.T) {
 
 	// LONG EXPRESSIONS
 
-	source = `1 + 2 * 3 - 4 + 5 * 6`
-
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = preludiocompiler.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isIntegerScalar() == false {
 		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 23 {
-		t.Error("Expected 23, got", i, err)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 33 {
+		t.Error("Expected 33, got", i, err)
 	}
 
-	// source = `1 + (2 * 3) - 4 + 5 * 6`
-	// bytecode = preludiocompiler.CompileSource(source)
+	// bytecode = preludiocompiler.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
 	// be.RunBytecode(bytecode)
 
 	// if be.__currentResult == nil {

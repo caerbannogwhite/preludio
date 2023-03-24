@@ -18,10 +18,9 @@ const (
 )
 
 type __p_intern__ struct {
-	tag       __p_intern_tag__
-	operators []preludiocompiler.OPCODE
-	expr      []interface{}
-	name      string
+	tag  __p_intern_tag__
+	expr []interface{}
+	name string
 }
 
 func newPInternBeginFrame() *__p_intern__ {
