@@ -581,9 +581,9 @@ MAIN_LOOP:
 
 		case preludiocompiler.OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
-			op2 := vm.stackPop()
 
-			vm.stackPop().appendOperand(preludiocompiler.OP_BINARY_DIV, op2)
+			op2 := vm.stackPop()
+			vm.stackLast().appendOperand(preludiocompiler.OP_BINARY_DIV, op2)
 
 		case preludiocompiler.OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")

@@ -39,18 +39,18 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected false, got", b, err)
 	}
 
-	// INT
-
-	bytecode = preludiocompiler.CompileSource(`1 + 2`)
+	bytecode = preludiocompiler.CompileSource(`true + false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isIntegerScalar() == false {
 		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 3 {
-		t.Error("Expected 3, got", i, err)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 1 {
+		t.Error("Expected 1, got", i, err)
 	}
+
+	// INT
 
 	bytecode = preludiocompiler.CompileSource(`1 * 5`)
 	be.RunBytecode(bytecode)
@@ -61,6 +61,28 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected integer scalar, got", be.__currentResult)
 	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 5 {
 		t.Error("Expected 5, got", i, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`1 / 3`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isFloatScalar() == false {
+		t.Error("Expected float scalar, got", be.__currentResult)
+	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.3333333333333333 {
+		t.Error("Expected 0.3333333333333333, got", f, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`4682 % 427`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 412 {
+		t.Error("Expected 412, got", i, err)
 	}
 
 	bytecode = preludiocompiler.CompileSource(`1 - 2`)
@@ -74,6 +96,65 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected -1, got", i, err)
 	}
 
+	bytecode = preludiocompiler.CompileSource(`1 + 2`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isIntegerScalar() == false {
+		t.Error("Expected integer scalar, got", be.__currentResult)
+	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 3 {
+		t.Error("Expected 3, got", i, err)
+	}
+
+	// FLOAT
+
+	bytecode = preludiocompiler.CompileSource(`1.325235e-3 * 5`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isFloatScalar() == false {
+		t.Error("Expected float scalar, got", be.__currentResult)
+	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.006626175 {
+		t.Error("Expected 0.006626175, got", f, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`1.325235e-3 / 3`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isFloatScalar() == false {
+		t.Error("Expected float scalar, got", be.__currentResult)
+	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.00044174499999999995 {
+		t.Error("Expected 0.00044174499999999995, got", f, err)
+	}
+
+	// STRING
+
+	bytecode = preludiocompiler.CompileSource(`"hello" + "world"`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isStringScalar() == false {
+		t.Error("Expected string scalar, got", be.__currentResult)
+	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "helloworld" {
+		t.Error("Expected helloworld, got", s, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`"hello" * 3`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isStringScalar() == false {
+		t.Error("Expected string scalar, got", be.__currentResult)
+	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "hellohellohello" {
+		t.Error("Expected hellohellohello, got", s, err)
+	}
+
 	// LONG EXPRESSIONS
 
 	bytecode = preludiocompiler.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
@@ -85,6 +166,28 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected integer scalar, got", be.__currentResult)
 	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 33 {
 		t.Error("Expected 33, got", i, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isStringScalar() == false {
+		t.Error("Expected string scalar, got", be.__currentResult)
+	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "5hello" {
+		t.Error("Expected 5hello, got", s, err)
+	}
+
+	bytecode = preludiocompiler.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
+	be.RunBytecode(bytecode)
+
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isFloatScalar() == false {
+		t.Error("Expected float scalar, got", be.__currentResult)
+	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 41.16 {
+		t.Error("Expected 41.16, got", f, err)
 	}
 
 	// bytecode = preludiocompiler.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
