@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"types"
@@ -256,18 +257,38 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 					case []string:
 						var res []string
 						if len(val1) == 1 {
+							if val1[0] < 0 {
+								return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s",
+									types.GoToPreludioTypeString(val1),
+									types.GoToPreludioTypeString(val2))
+							}
 							res = make([]string, len(val2))
 							for j, s := range val2 {
-								res[j] = strings.Repeat(s, int(val1[0]))
+								if val1[0]*len(s) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to %s and %s when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
+								res[j] = strings.Repeat(s, val1[0])
 							}
 						} else if len(val2) == 1 {
 							res = make([]string, len(val1))
 							for j, n := range val1 {
+								if n < 0 || n*len(val2[0]) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s or when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
 								res[j] = strings.Repeat(val2[0], n)
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
 							for j, s := range val2 {
+								if val1[j] < 0 || val1[j]*len(s) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s or when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
 								res[j] = strings.Repeat(s, val1[j])
 							}
 						}
@@ -381,16 +402,40 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						if len(val1) == 1 {
 							res = make([]string, len(val2))
 							for j, n := range val2 {
+								if n < 0 || n*len(val1[0]) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
+
 								res[j] = strings.Repeat(val1[0], n)
 							}
 						} else if len(val2) == 1 {
+							if val2[0] < 0 {
+								return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s",
+									types.GoToPreludioTypeString(val1),
+									types.GoToPreludioTypeString(val2))
+							}
+
 							res = make([]string, len(val1))
-							for j, n := range val2 {
-								res[j] = strings.Repeat(val1[0], n)
+							for j, s := range val1 {
+								if val2[0]*len(s) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to %s and %s when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
+
+								res[j] = strings.Repeat(s, val2[0])
 							}
 						} else if len(val1) == len(val2) {
 							res = make([]string, len(val2))
 							for j, s := range val1 {
+								// negative values are not allowed
+								if val2[j] < 0 || val2[j]*len(s) > math.MaxInt {
+									return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s or when the result overflows",
+										types.GoToPreludioTypeString(val1),
+										types.GoToPreludioTypeString(val2))
+								}
 								res[j] = strings.Repeat(s, val2[j])
 							}
 						}
