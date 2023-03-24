@@ -2,31 +2,14 @@ package preludiocore
 
 import (
 	"strconv"
+	"types"
 
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
 
-type LogEnty struct {
-	LogType LOG_TYPE `json:"logType"`
-	Level   uint8    `json:"level"`
-	Message string   `json:"message"`
-}
-
-type Columnar struct {
-	Name         string   `json:"name"`
-	Type         string   `json:"type"`
-	ActualLength int      `json:"actualLength"` // actual length of the column
-	Data         []string `json:"data"`
-}
-
-type PreludioOutput struct {
-	Log  []LogEnty    `json:"log"`
-	Data [][]Columnar `json:"data"`
-}
-
-func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) Columnar {
-	col := Columnar{}
+func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) types.Columnar {
+	col := types.Columnar{}
 	col.Name = name
 	col.Type = "bool"
 	col.ActualLength = len(data)
@@ -45,8 +28,8 @@ func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data
 	return col
 }
 
-func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) Columnar {
-	col := Columnar{}
+func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) types.Columnar {
+	col := types.Columnar{}
 	col.Name = name
 	col.Type = "int"
 	col.ActualLength = len(data)
@@ -65,8 +48,8 @@ func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data 
 	return col
 }
 
-func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) Columnar {
-	col := Columnar{}
+func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) types.Columnar {
+	col := types.Columnar{}
 	col.Name = name
 	col.Type = "float"
 	col.ActualLength = len(data)
@@ -85,8 +68,8 @@ func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, dat
 	return col
 }
 
-func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) Columnar {
-	col := Columnar{}
+func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) types.Columnar {
+	col := types.Columnar{}
 	col.Name = name
 	col.Type = "string"
 	col.ActualLength = len(data)
@@ -105,8 +88,8 @@ func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, da
 	return col
 }
 
-func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]Columnar, error) {
-	columns := make([]Columnar, df.Ncol())
+func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]types.Columnar, error) {
+	columns := make([]types.Columnar, df.Ncol())
 	for i, name := range df.Names() {
 		col := df.Col(name)
 		switch col.Type() {

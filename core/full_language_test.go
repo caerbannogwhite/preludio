@@ -1,8 +1,8 @@
 package preludiocore
 
 import (
+	"bytefeeder"
 	"os"
-	"preludiocompiler"
 	"testing"
 
 	"github.com/go-gota/gota/dataframe"
@@ -17,7 +17,7 @@ func Test_Expressions(t *testing.T) {
 
 	// BOOL
 
-	bytecode = preludiocompiler.CompileSource(`true`)
+	bytecode = bytefeeder.CompileSource(`true`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -28,7 +28,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected true, got", b, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`false`)
+	bytecode = bytefeeder.CompileSource(`false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -39,7 +39,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected false, got", b, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`true + false`)
+	bytecode = bytefeeder.CompileSource(`true + false`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -52,7 +52,7 @@ func Test_Expressions(t *testing.T) {
 
 	// INT
 
-	bytecode = preludiocompiler.CompileSource(`1 * 5`)
+	bytecode = bytefeeder.CompileSource(`1 * 5`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -63,7 +63,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 5, got", i, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`1 / 3`)
+	bytecode = bytefeeder.CompileSource(`1 / 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -74,7 +74,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 0.3333333333333333, got", f, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`4682 % 427`)
+	bytecode = bytefeeder.CompileSource(`4682 % 427`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -85,7 +85,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 412, got", i, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`1 - 2`)
+	bytecode = bytefeeder.CompileSource(`1 - 2`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -96,7 +96,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected -1, got", i, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`1 + 2`)
+	bytecode = bytefeeder.CompileSource(`1 + 2`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -109,7 +109,7 @@ func Test_Expressions(t *testing.T) {
 
 	// FLOAT
 
-	bytecode = preludiocompiler.CompileSource(`1.325235e-3 * 5`)
+	bytecode = bytefeeder.CompileSource(`1.325235e-3 * 5`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -120,7 +120,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 0.006626175, got", f, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`1.325235e-3 / 3`)
+	bytecode = bytefeeder.CompileSource(`1.325235e-3 / 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -133,7 +133,7 @@ func Test_Expressions(t *testing.T) {
 
 	// STRING
 
-	bytecode = preludiocompiler.CompileSource(`"hello" + "world"`)
+	bytecode = bytefeeder.CompileSource(`"hello" + "world"`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -144,7 +144,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected helloworld, got", s, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`"hello" * 3`)
+	bytecode = bytefeeder.CompileSource(`"hello" * 3`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -157,7 +157,7 @@ func Test_Expressions(t *testing.T) {
 
 	// LONG EXPRESSIONS
 
-	bytecode = preludiocompiler.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
+	bytecode = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -168,7 +168,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 33, got", i, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
+	bytecode = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -179,7 +179,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 5hello, got", s, err)
 	}
 
-	bytecode = preludiocompiler.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
+	bytecode = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -190,7 +190,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error("Expected 41.16, got", f, err)
 	}
 
-	// bytecode = preludiocompiler.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
+	// bytecode = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
 	// be.RunBytecode(bytecode)
 
 	// if be.__currentResult == nil {
@@ -224,7 +224,7 @@ false,"hello again",0.000000000001,0`
 
 	source = `readCSV "csvtest00_read_comma.csv" delimiter: "," header: false`
 
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -266,7 +266,7 @@ false;"hello again";0.000000000001;0`
 
 	source = `readCSV "csvtest01_read_semicolon.csv" delimiter: ";" header: false`
 
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
@@ -309,7 +309,7 @@ false	"hello again"	0.000000000001	0`
 
 	source = `readCSV "csvtest02_read_tab_header.csv" delimiter: "\t" header: true`
 
-	bytecode = preludiocompiler.CompileSource(source)
+	bytecode = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {

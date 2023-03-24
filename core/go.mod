@@ -2,11 +2,14 @@ module preludiocore
 
 go 1.20
 
-replace preludiocompiler => ./compiler
+replace bytefeeder => ./bytefeeder
+
+replace types => ./types
 
 require (
+	bytefeeder v0.0.0-00010101000000-000000000000
 	github.com/go-gota/gota v0.12.0
-	preludiocompiler v0.0.0-00010101000000-000000000000
+	types v0.0.0-00010101000000-000000000000
 )
 
 require (

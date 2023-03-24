@@ -4,13 +4,15 @@ go 1.20
 
 replace preludiocore => ../core
 
-replace preludiocompiler => ../core/compiler
+replace types => ../core/types
+
+replace bytefeeder => ../core/bytefeeder
 
 require (
+	bytefeeder v0.0.0-00010101000000-000000000000
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.2
 	github.com/charmbracelet/lipgloss v0.7.1
-	preludiocompiler v0.0.0-00010101000000-000000000000
 	preludiocore v0.0.0-00010101000000-000000000000
 )
 
@@ -36,4 +38,5 @@ require (
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gonum.org/v1/gonum v0.9.1 // indirect
+	types v0.0.0-00010101000000-000000000000 // indirect
 )

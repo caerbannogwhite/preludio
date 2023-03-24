@@ -2,13 +2,14 @@ package main
 
 import (
 	"bufio"
+	"bytefeeder"
 	"fmt"
 	"os"
 	"preludiocli"
-	"preludiocompiler"
 	"preludiocore"
 	"strconv"
 	"strings"
+	"types"
 
 	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
@@ -37,7 +38,7 @@ func main() {
 			SetParamPrintWarning(args.Warnings).
 			SetParamDebugLevel(args.DebugLevel)
 
-		bytecode := preludiocompiler.CompileFile(args.InputPath)
+		bytecode := bytefeeder.CompileFile(args.InputPath)
 		if args.Verbose {
 			fmt.Println("Bytecode generated")
 		}
@@ -50,7 +51,7 @@ func main() {
 			SetParamPrintWarning(args.Warnings).
 			SetParamDebugLevel(args.DebugLevel)
 
-		bytecode := preludiocompiler.CompileSource(args.SourceCode)
+		bytecode := bytefeeder.CompileSource(args.SourceCode)
 		if args.Verbose {
 			fmt.Println("Bytecode generated")
 		}
@@ -191,12 +192,12 @@ func LaunchRepl(args CliArgs) {
 		line = strings.TrimSpace(line)
 
 		if line == "" {
-			bytecode := preludiocompiler.CompileSource(code)
+			bytecode := bytefeeder.CompileSource(code)
 			be.RunBytecode(bytecode)
 
 			res := be.GetOutput()
 			for _, log := range res.Log {
-				if log.LogType == preludiocore.LOG_DEBUG {
+				if log.LogType == types.LOG_DEBUG {
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println(log.Message)
 					}
@@ -226,7 +227,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(colSize int, columnar []preludiocore.Columnar) {
+func prettyPrint(colSize int, columnar []types.Columnar) {
 
 	if len(columnar) == 0 {
 		return

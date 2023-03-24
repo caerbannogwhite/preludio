@@ -1,9 +1,9 @@
 package preludiocli
 
 import (
+	"bytefeeder"
 	"fmt"
 	"os"
-	"preludiocompiler"
 	"preludiocore"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -279,7 +279,7 @@ func (editor CodeEditor) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// RUN CODE
 		case "ctrl+r":
-			bytecode := preludiocompiler.CompileSource(editor.GetCurrentEditorCode())
+			bytecode := bytefeeder.CompileSource(editor.GetCurrentEditorCode())
 			editor.byteEater.RunBytecode(bytecode)
 
 			res := editor.byteEater.GetOutput()

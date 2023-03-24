@@ -1,4 +1,4 @@
-package preludiocompiler
+package types
 
 type BOOL []bool
 type INT32 []int

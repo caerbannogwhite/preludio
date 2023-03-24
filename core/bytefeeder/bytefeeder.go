@@ -1,71 +1,11 @@
-package preludiocompiler
+package bytefeeder
 
 import (
 	"encoding/binary"
 	"strings"
+	"types"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
-)
-
-type OPCODE uint8
-type PARAM1 uint8
-
-const (
-	TERM_NULL PARAM1 = iota
-	TERM_BOOL
-	TERM_INTEGER
-	TERM_FLOAT
-	TERM_STRING
-	TERM_INTERVAL
-	TERM_RANGE
-	TERM_LIST
-	TERM_PIPELINE
-	TERM_SYMBOL
-)
-
-const (
-	OP_START_STMT OPCODE = iota
-	OP_END_STMT
-	OP_START_PIPELINE
-	OP_END_PIPELINE
-	OP_START_FUNC_CALL
-	OP_MAKE_FUNC_CALL
-	OP_START_LIST
-	OP_END_LIST
-	OP_ADD_FUNC_PARAM
-	OP_ADD_EXPR_TERM
-	OP_PUSH_NAMED_PARAM
-	OP_PUSH_ASSIGN_IDENT
-	OP_PUSH_TERM
-	OP_END_CHUNCK
-	OP_VAR_DECL
-	OP_VAR_ASSIGN
-	OP_GOTO
-
-	OP_BINARY_MUL
-	OP_BINARY_DIV
-	OP_BINARY_MOD
-	OP_BINARY_ADD
-	OP_BINARY_SUB
-	OP_BINARY_POW
-
-	OP_BINARY_EQ
-	OP_BINARY_NE
-	OP_BINARY_GE
-	OP_BINARY_LE
-	OP_BINARY_GT
-	OP_BINARY_LT
-
-	OP_BINARY_AND
-	OP_BINARY_OR
-	OP_BINARY_COALESCE
-	OP_BINARY_MODEL
-
-	OP_UNARY_ADD
-	OP_UNARY_SUB
-	OP_UNARY_NOT
-
-	NO_OP = 255
 )
 
 func CompileSource(source string) []byte {
@@ -146,7 +86,7 @@ func (bf *ByteFeeder) SetVerbose(flag bool) *ByteFeeder {
 	return bf
 }
 
-func (bf *ByteFeeder) AppendInstruction(opcode OPCODE, param1 PARAM1, param2 int) {
+func (bf *ByteFeeder) AppendInstruction(opcode types.OPCODE, param1 types.PARAM1, param2 int) {
 	bf.instructions = append(bf.instructions, byte(opcode))
 	bf.instructions = append(bf.instructions, byte(param1))
 	bf.instructions = binary.BigEndian.AppendUint32(bf.instructions, uint32(param2))
@@ -238,12 +178,12 @@ func (bf *ByteFeeder) ExitProgram(ctx *ProgramContext) {}
 
 // // EnterStmt is called when production stmt is entered.
 func (bf *ByteFeeder) EnterStmt(ctx *StmtContext) {
-	bf.AppendInstruction(OP_START_STMT, 0, 0)
+	bf.AppendInstruction(types.OP_START_STMT, 0, 0)
 }
 
 // // ExitStmt is called when production stmt is exited.
 func (bf *ByteFeeder) ExitStmt(ctx *StmtContext) {
-	bf.AppendInstruction(OP_END_STMT, 0, 0)
+	bf.AppendInstruction(types.OP_END_STMT, 0, 0)
 }
 
 // EnterVarAssignStmt is called when production assignStmt is entered.
@@ -252,7 +192,7 @@ func (bf *ByteFeeder) EnterVarAssignStmt(ctx *VarAssignStmtContext) {}
 // ExitVarAssignStmt is called when production assignStmt is exited.
 func (bf *ByteFeeder) ExitVarAssignStmt(ctx *VarAssignStmtContext) {
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_VAR_ASSIGN, 0, pos)
+	bf.AppendInstruction(types.OP_VAR_ASSIGN, 0, pos)
 }
 
 // EnterVarDefStmt is called when production varDeclStmt is entered.
@@ -261,27 +201,27 @@ func (bf *ByteFeeder) EnterVarDeclStmt(ctx *VarDeclStmtContext) {}
 // ExitVarDeclStmt is called when production varDeclStmt is exited.
 func (bf *ByteFeeder) ExitVarDeclStmt(ctx *VarDeclStmtContext) {
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_VAR_DECL, 0, pos)
+	bf.AppendInstruction(types.OP_VAR_DECL, 0, pos)
 }
 
 // EnterPipeline is called when production pipeline is entered.
 func (bf *ByteFeeder) EnterPipeline(ctx *PipelineContext) {
-	bf.AppendInstruction(OP_START_PIPELINE, 0, 0)
+	bf.AppendInstruction(types.OP_START_PIPELINE, 0, 0)
 }
 
 // ExitPipeline is called when production pipeline is exited.
 func (bf *ByteFeeder) ExitPipeline(ctx *PipelineContext) {
-	bf.AppendInstruction(OP_END_PIPELINE, 0, 0)
+	bf.AppendInstruction(types.OP_END_PIPELINE, 0, 0)
 }
 
 // EnterInlinePipeline is called when production inlinePipeline is entered.
 func (bf *ByteFeeder) EnterInlinePipeline(ctx *InlinePipelineContext) {
-	bf.AppendInstruction(OP_START_PIPELINE, 0, 0)
+	bf.AppendInstruction(types.OP_START_PIPELINE, 0, 0)
 }
 
 // ExitInlinePipeline is called when production inlinePipeline is exited.
 func (bf *ByteFeeder) ExitInlinePipeline(ctx *InlinePipelineContext) {
-	bf.AppendInstruction(OP_END_PIPELINE, 0, 0)
+	bf.AppendInstruction(types.OP_END_PIPELINE, 0, 0)
 }
 
 // EnterIdentBacktick is called when production identBacktick is entered.
@@ -292,14 +232,14 @@ func (bf *ByteFeeder) ExitIdentBacktick(ctx *IdentBacktickContext) {}
 
 // EnterFuncCall is called when production funcCall is entered.
 func (bf *ByteFeeder) EnterFuncCall(ctx *FuncCallContext) {
-	bf.AppendInstruction(OP_START_FUNC_CALL, 0, 0)
+	bf.AppendInstruction(types.OP_START_FUNC_CALL, 0, 0)
 }
 
 // ExitFuncCall is called when production funcCall is exited.
 func (bf *ByteFeeder) ExitFuncCall(ctx *FuncCallContext) {
 	// funcName := ctx.IDENT().GetSymbol().GetText()
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_MAKE_FUNC_CALL, 0, pos)
+	bf.AppendInstruction(types.OP_MAKE_FUNC_CALL, 0, pos)
 }
 
 // EnterFuncCallParam is called when production funcCallParam is entered.
@@ -307,7 +247,7 @@ func (bf *ByteFeeder) EnterFuncCallParam(ctx *FuncCallParamContext) {}
 
 // ExitFuncCallParam is called when production funcCallParam is exited.
 func (bf *ByteFeeder) ExitFuncCallParam(ctx *FuncCallParamContext) {
-	bf.AppendInstruction(OP_END_CHUNCK, 0, 0)
+	bf.AppendInstruction(types.OP_END_CHUNCK, 0, 0)
 }
 
 // EnterNamedArg is called when production namedArg is entered.
@@ -317,7 +257,7 @@ func (bf *ByteFeeder) EnterNamedArg(ctx *NamedArgContext) {}
 func (bf *ByteFeeder) ExitNamedArg(ctx *NamedArgContext) {
 	// paramName := ctx.IDENT().GetSymbol().GetText()
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_PUSH_NAMED_PARAM, 0, pos)
+	bf.AppendInstruction(types.OP_PUSH_NAMED_PARAM, 0, pos)
 }
 
 // EnterAssign is called when production assign is entered.
@@ -327,7 +267,7 @@ func (bf *ByteFeeder) EnterAssign(ctx *AssignContext) {}
 func (bf *ByteFeeder) ExitAssign(ctx *AssignContext) {
 	// identName := ctx.IDENT().GetSymbol().GetText()
 	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(OP_PUSH_ASSIGN_IDENT, 0, pos)
+	bf.AppendInstruction(types.OP_PUSH_ASSIGN_IDENT, 0, pos)
 }
 
 // EnterMultiAssign is called when production multiAssign is entered.
@@ -341,7 +281,7 @@ func (bf *ByteFeeder) EnterExprCall(ctx *ExprCallContext) {}
 
 // ExitExprCall is called when production exprCall is exited.
 func (bf *ByteFeeder) ExitExprCall(ctx *ExprCallContext) {
-	bf.AppendInstruction(OP_END_CHUNCK, 0, 0)
+	bf.AppendInstruction(types.OP_END_CHUNCK, 0, 0)
 }
 
 // EnterExpr is called when production expr is entered.
@@ -356,43 +296,43 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 		} else {
 			switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
 			case "*":
-				bf.AppendInstruction(OP_BINARY_MUL, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_MUL, 0, 0)
 
 			case "/":
-				bf.AppendInstruction(OP_BINARY_DIV, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_DIV, 0, 0)
 
 			case "%":
-				bf.AppendInstruction(OP_BINARY_MOD, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_MOD, 0, 0)
 
 			case "+":
-				bf.AppendInstruction(OP_BINARY_ADD, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_ADD, 0, 0)
 
 			case "-":
-				bf.AppendInstruction(OP_BINARY_SUB, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_SUB, 0, 0)
 
 			case "==":
-				bf.AppendInstruction(OP_BINARY_EQ, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_EQ, 0, 0)
 
 			case "!=":
-				bf.AppendInstruction(OP_BINARY_NE, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_NE, 0, 0)
 
 			case ">=":
-				bf.AppendInstruction(OP_BINARY_GE, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_GE, 0, 0)
 
 			case "<=":
-				bf.AppendInstruction(OP_BINARY_LE, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_LE, 0, 0)
 
 			case ">":
-				bf.AppendInstruction(OP_BINARY_GT, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_GT, 0, 0)
 
 			case "<":
-				bf.AppendInstruction(OP_BINARY_LT, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_LT, 0, 0)
 
 			case "**":
-				bf.AppendInstruction(OP_BINARY_POW, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_POW, 0, 0)
 
 			case "~":
-				bf.AppendInstruction(OP_BINARY_MODEL, 0, 0)
+				bf.AppendInstruction(types.OP_BINARY_MODEL, 0, 0)
 
 			}
 		}
@@ -413,13 +353,13 @@ func (bf *ByteFeeder) ExitExprUnary(ctx *ExprUnaryContext) {
 	if ctx.GetChildCount() == 2 {
 		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
 		case "-":
-			bf.AppendInstruction(OP_UNARY_SUB, 0, 0)
+			bf.AppendInstruction(types.OP_UNARY_SUB, 0, 0)
 
 		case "+":
-			bf.AppendInstruction(OP_UNARY_ADD, 0, 0)
+			bf.AppendInstruction(types.OP_UNARY_ADD, 0, 0)
 
 		case "not":
-			bf.AppendInstruction(OP_UNARY_NOT, 0, 0)
+			bf.AppendInstruction(types.OP_UNARY_NOT, 0, 0)
 
 		}
 	}
@@ -434,15 +374,15 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 	case 1:
 		// NULL
 		if ctx.NULL_() != nil {
-			bf.AppendInstruction(OP_PUSH_TERM, TERM_NULL, 0)
+			bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_NULL, 0)
 		} else
 
 		// BOOLEAN
 		if ctx.BOOLEAN() != nil {
 			if ctx.BOOLEAN().GetSymbol().GetText() == "true" {
-				bf.AppendInstruction(OP_PUSH_TERM, TERM_BOOL, 1)
+				bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_BOOL, 1)
 			} else {
-				bf.AppendInstruction(OP_PUSH_TERM, TERM_BOOL, 0)
+				bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_BOOL, 0)
 			}
 		} else
 
@@ -450,14 +390,14 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		if ctx.INTEGER(0) != nil {
 			num := ctx.INTEGER(0).GetSymbol().GetText()
 			pos := bf.symbolTable.Add(num)
-			bf.AppendInstruction(OP_PUSH_TERM, TERM_INTEGER, pos)
+			bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_INTEGER, pos)
 		} else
 
 		// // FLOAT
 		if ctx.FLOAT(0) != nil {
 			num := ctx.FLOAT(0).GetSymbol().GetText()
 			pos := bf.symbolTable.Add(num)
-			bf.AppendInstruction(OP_PUSH_TERM, TERM_FLOAT, pos)
+			bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_FLOAT, pos)
 		} else
 
 		// STRING
@@ -465,20 +405,20 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 			replacer := strings.NewReplacer("\"", "", "'", "")
 			str := replacer.Replace(ctx.STRING().GetText())
 			pos := bf.symbolTable.Add(str)
-			bf.AppendInstruction(OP_PUSH_TERM, TERM_STRING, pos)
+			bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_STRING, pos)
 		}
 
 		// IDENT
 		if ctx.IDENT(0) != nil {
 			id := ctx.IDENT(0).GetSymbol().GetText()
 			pos := bf.symbolTable.Add(id)
-			bf.AppendInstruction(OP_PUSH_TERM, TERM_SYMBOL, pos)
+			bf.AppendInstruction(types.OP_PUSH_TERM, types.TERM_SYMBOL, pos)
 		}
 
 	// time interval
 	case 2:
 		// this.term = {
-		//   type: TERM_INTERVAL,
+		//   type: types.TERM_INTERVAL,
 		//   num: parseFloat(ctx.children[0].getText()),
 		//   kind: ctx.children[1].getText(),
 		// };
@@ -487,20 +427,20 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 	case 3:
 		// const s = ctx.children[0].getText();
 		// if (s === NaN) {
-		//   const start = { type: TERM_SYMBOL, value: ctx.children[0].getText() };
+		//   const start = { type: types.TERM_SYMBOL, value: ctx.children[0].getText() };
 		// } else {
-		//   const start = { type: TERM_FLOAT, value: s };
+		//   const start = { type: types.TERM_FLOAT, value: s };
 		// }
 
 		// const e = ctx.children[2].getText();
 		// if (end === NaN) {
-		//   const end = { type: TERM_SYMBOL, value: ctx.children[2].getText() };
+		//   const end = { type: types.TERM_SYMBOL, value: ctx.children[2].getText() };
 		// } else {
-		//   const end = { type: TERM_FLOAT, value: e };
+		//   const end = { type: types.TERM_FLOAT, value: e };
 		// }
 
 		// this.term = {
-		//   type: TERM_RANGE,
+		//   type: types.TERM_RANGE,
 		//   start: start,
 		//   end: end,
 		// };
@@ -510,12 +450,12 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 
 // EnterList is called when production list is entered.
 func (bf *ByteFeeder) EnterList(ctx *ListContext) {
-	bf.AppendInstruction(OP_START_LIST, 0, 0)
+	bf.AppendInstruction(types.OP_START_LIST, 0, 0)
 }
 
 // ExitList is called when production list is exited.
 func (bf *ByteFeeder) ExitList(ctx *ListContext) {
-	bf.AppendInstruction(OP_END_LIST, 0, 0)
+	bf.AppendInstruction(types.OP_END_LIST, 0, 0)
 }
 
 // EnterNestedPipeline is called when production nestedPipeline is entered.
