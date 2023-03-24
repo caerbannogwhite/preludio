@@ -17,6 +17,7 @@ import (
 const VERSION = "0.1.0-alpha"
 
 type CliArgs struct {
+	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
 	Editor     bool   `arg:"-e, --editor" help:"launch the text editor" default:"false"`
@@ -40,6 +41,20 @@ func main() {
 		if args.Verbose {
 			fmt.Println("Bytecode generated")
 		}
+
+		be.RunBytecode(bytecode)
+
+	} else if args.SourceCode != "" {
+		be := new(preludiocore.ByteEater).
+			InitVM().
+			SetParamPrintWarning(args.Warnings).
+			SetParamDebugLevel(args.DebugLevel)
+
+		bytecode := preludiocompiler.CompileSource(args.SourceCode)
+		if args.Verbose {
+			fmt.Println("Bytecode generated")
+		}
+
 		be.RunBytecode(bytecode)
 
 	} else if args.Editor {
