@@ -9,6 +9,8 @@ import (
 ///////////////////////////////		TO STRING		/////////////////////////////////
 
 const NULL_STRING = "NA"
+const BOOL_TRUE_STRING = "true"
+const BOOL_FALSE_STRING = "false"
 
 func boolToString(b bool) string {
 	return strconv.FormatBool(b)
@@ -44,9 +46,9 @@ type NullableString struct {
 	Value string
 }
 
-///////////////////////////////		GSERIES		/////////////////////////////////
+///////////////////////////////		GDLSERIES		/////////////////////////////////
 
-type GSeries interface {
+type GDLSeries interface {
 
 	// Basic accessors.
 
@@ -93,19 +95,19 @@ type GSeries interface {
 	StringData() []string
 
 	// Copies the series.
-	Copy() GSeries
+	Copy() GDLSeries
 
 	// Series operations.
 
 	// Filters out the elements by the given mask.
-	Filter(mask []bool) GSeries
+	Filter(mask []bool) GDLSeries
 
 	// Group the elements in the series.
-	Group() GSeriesPartition
-	SubGroup(gp GSeriesPartition) GSeriesPartition
+	Group() GDLSeriesPartition
+	SubGroup(gp GDLSeriesPartition) GDLSeriesPartition
 }
 
-type GSeriesPartition interface {
+type GDLSeriesPartition interface {
 	// Returns the number of groups.
 	GetGroupsCount() int
 	// Returns the non-null groups.

@@ -8,20 +8,20 @@ import (
 type GDLDataFramePartitionEntry struct {
 	index     int
 	name      string
-	partition GSeriesPartition
+	partition GDLSeriesPartition
 }
 
 type GDLDataFrame struct {
 	isGrouped  bool
 	err        error
-	series     []GSeries
+	series     []GDLSeries
 	pool       *StringPool
 	partitions []GDLDataFramePartitionEntry
 }
 
 func NewGDLDataFrame() *GDLDataFrame {
 	return &GDLDataFrame{
-		series: make([]GSeries, 0),
+		series: make([]GDLSeries, 0),
 		pool:   NewStringPool(),
 	}
 }
@@ -42,12 +42,12 @@ func (df *GDLDataFrame) GetPool() *StringPool {
 	return df.pool
 }
 
-func (df *GDLDataFrame) AddSeries(series GSeries) {
+func (df *GDLDataFrame) AddSeries(series GDLSeries) {
 	df.series = append(df.series, series)
 }
 
-func (df *GDLDataFrame) AddSeriesFromBools(name string, isNullable bool, makeCopy bool, data []bool) {
-	series := NewGDLSeriesBool(name, isNullable, makeCopy, data)
+func (df *GDLDataFrame) AddSeriesFromBools(name string, isNullable bool, data []bool) {
+	series := NewGDLSeriesBool(name, isNullable, data)
 	df.AddSeries(series)
 }
 
@@ -96,7 +96,7 @@ func (df *GDLDataFrame) NRows() int {
 }
 
 // Returns the series with the given name.
-func (df *GDLDataFrame) Series(name string) GSeries {
+func (df *GDLDataFrame) Series(name string) GDLSeries {
 	for _, series := range df.series {
 		if series.Name() == name {
 			return series
@@ -106,7 +106,7 @@ func (df *GDLDataFrame) Series(name string) GSeries {
 }
 
 // Returns the series at the given index.
-func (df *GDLDataFrame) SeriesAt(index int) GSeries {
+func (df *GDLDataFrame) SeriesAt(index int) GDLSeries {
 	if index < 0 || index >= len(df.series) {
 		return nil
 	}

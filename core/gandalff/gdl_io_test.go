@@ -243,7 +243,7 @@ Charlie,33,95.0,t
 
 func Test_FromCSV_100000Rows(t *testing.T) {
 
-	f, err := os.OpenFile("testFiles\\organizations-100000.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
 	if err != nil {
 		t.Error(err)
 	}
@@ -312,7 +312,7 @@ func Test_FromCSV_100000Rows(t *testing.T) {
 }
 
 func Test_FromCSV_500000Rows(t *testing.T) {
-	f, err := os.OpenFile("testFiles\\organizations-500000.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
 	if err != nil {
 		t.Error(err)
 	}

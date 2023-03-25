@@ -201,7 +201,7 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			df.AddSeries(NewGDLSeriesBool(name, isNullable, false, values[i].([]bool)))
+			df.AddSeries(NewGDLSeriesBool(name, isNullable, values[i].([]bool)))
 		case typesys.Int32Type:
 			df.AddSeries(NewGDLSeriesInt32(name, isNullable, false, values[i].([]int)))
 		case typesys.Float64Type:
