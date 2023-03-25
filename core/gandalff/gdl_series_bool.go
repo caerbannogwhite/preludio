@@ -1,43 +1,54 @@
 package gandalff
 
 import (
-	"errors"
+	"fmt"
 	"typesys"
 )
 
 // GDLSeriesBool represents a series of bools.
+// The data is stored as a byte array, with each bit representing a bool.
 type GDLSeriesBool struct {
 	isNullable bool
 	name       string
-	data       []bool
-	nullMap    []uint8
+	size       int
+	data       []uint8
+	nullMask   []uint8
 }
 
-func NewGDLSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GDLSeriesBool {
-	var nullMap []uint8
-	if isNullable {
-		if len(data)%8 == 0 {
-			nullMap = make([]uint8, len(data)/8)
-		} else {
-			nullMap = make([]uint8, len(data)/8+1)
+func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeriesBool {
+	size := len(data)
+	var actualData []uint8
+	if size%8 == 0 {
+		actualData = make([]uint8, size/8)
+		for i := 0; i < size; i++ {
+			if data[i] {
+				actualData[i/8] |= 1 << uint(i%8)
+			}
 		}
 	} else {
-		nullMap = make([]uint8, 0)
+		actualData = make([]uint8, size/8+1)
+		for i := 0; i < size; i++ {
+			if data[i] {
+				actualData[i/8] |= 1 << uint(i%8)
+			}
+		}
 	}
 
-	if makeCopy {
-		dataCopy := make([]bool, len(data))
-		copy(dataCopy, data)
-		data = dataCopy
+	var nullMask []uint8
+	if isNullable {
+		nullMask = make([]uint8, len(actualData))
+
+	} else {
+		nullMask = make([]uint8, 0)
 	}
 
-	return GDLSeriesBool{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
+	return GDLSeriesBool{isNullable: isNullable, name: name, size: size, data: actualData, nullMask: nullMask}
 }
 
 ///////////////////////////////		BASIC ACCESSORS		/////////////////////////////////
 
 func (s GDLSeriesBool) Len() int {
-	return len(s.data)
+	return s.size
 }
 
 func (s GDLSeriesBool) IsNullable() bool {
@@ -47,11 +58,7 @@ func (s GDLSeriesBool) IsNullable() bool {
 func (s GDLSeriesBool) MakeNullable() {
 	if !s.isNullable {
 		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMap = make([]uint8, len(s.data)/8)
-		} else {
-			s.nullMap = make([]uint8, len(s.data)/8+1)
-		}
+		s.nullMask = make([]uint8, len(s.data))
 	}
 }
 
@@ -64,7 +71,7 @@ func (s GDLSeriesBool) Type() typesys.BaseType {
 }
 
 func (s GDLSeriesBool) HasNull() bool {
-	for _, v := range s.nullMap {
+	for _, v := range s.nullMask {
 		if v != 0 {
 			return true
 		}
@@ -74,7 +81,7 @@ func (s GDLSeriesBool) HasNull() bool {
 
 func (s GDLSeriesBool) NullCount() int {
 	count := 0
-	for _, v := range s.nullMap {
+	for _, v := range s.nullMask {
 		for i := 0; i < 8; i++ {
 			if v&(1<<uint(i)) != 0 {
 				count++
@@ -86,24 +93,24 @@ func (s GDLSeriesBool) NullCount() int {
 
 func (s GDLSeriesBool) IsNull(i int) bool {
 	if s.isNullable {
-		return s.nullMap[i/8]&(1<<uint(i%8)) != 0
+		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
 	}
 	return false
 }
 
 func (s GDLSeriesBool) SetNull(i int) error {
 	if s.isNullable {
-		s.nullMap[i/8] |= 1 << uint(i%8)
+		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
 	}
-	return errors.New("GDLSeriesBool.SetNull: series is not nullable")
+	return fmt.Errorf("GDLSeriesBool.SetNull: series is not nullable")
 }
 
 func (s GDLSeriesBool) GetNullMask() []bool {
-	mask := make([]bool, len(s.data))
+	mask := make([]bool, s.size)
 	idx := 0
-	for _, v := range s.nullMap {
-		for i := 0; i < 8 && idx < len(s.data); i++ {
+	for _, v := range s.nullMask {
+		for i := 0; i < 8 && idx < s.size; i++ {
 			mask[idx] = v&(1<<uint(i)) != 0
 			idx++
 		}
@@ -113,50 +120,116 @@ func (s GDLSeriesBool) GetNullMask() []bool {
 
 func (s GDLSeriesBool) SetNullMask(mask []bool) error {
 	if !s.isNullable {
-		return errors.New("GDLSeriesBool.SetNullMask: series is not nullable")
+		return fmt.Errorf("GDLSeriesBool.SetNullMask: series is not nullable")
 	}
 
 	for k, v := range mask {
 		if v {
-			s.nullMap[k/8] |= 1 << uint(k%8)
+			s.nullMask[k/8] |= 1 << uint(k%8)
 		} else {
-			s.nullMap[k/8] &= ^(1 << uint(k%8))
+			s.nullMask[k/8] &= ^(1 << uint(k%8))
 		}
 	}
 	return nil
 }
 
 func (s GDLSeriesBool) Get(i int) interface{} {
-	return s.data[i]
+	return s.data[i/8]&(1<<uint(i%8)) != 0
 }
 
 func (s GDLSeriesBool) Set(i int, v interface{}) {
-	s.data[i] = v.(bool)
+	if b, ok := v.(bool); ok {
+		if b {
+			s.data[i/8] |= 1 << uint(i%8)
+		} else {
+			s.data[i/8] &= ^(1 << uint(i%8))
+		}
+	}
 }
 
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesBool) Append(v interface{}) error {
 	if s.isNullable {
 		if b, ok := v.(bool); ok {
-			s.data = append(s.data, b)
-			if len(s.data)/8 > len(s.nullMap) {
-				s.nullMap = append(s.nullMap, 0)
+
+			// adjust size of data and nullMask if necessary
+			s.size++
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, 0)
+				s.nullMask = append(s.nullMask, 0)
 			}
+
+			// set value
+			if b {
+				s.data[s.size/8] |= 1 << uint(s.size%8)
+			}
+			// this should not be necessary, because the data slice is initialized with 0
+			// else {
+			// 	s.data[s.size/8] &= ^(1 << uint(s.size%8))
+			// }
 		} else if bv, ok := v.([]bool); ok {
-			s.data = append(s.data, bv...)
-			if len(s.data)/8 > len(s.nullMap) {
-				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
+
+			// adjust size of data and nullMask if necessary
+			s.size += len(bv)
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+				s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range bv {
+				if v {
+					s.data[idx/8] |= 1 << uint(idx%8)
+				}
+				// this should not be necessary, because the data slice is initialized with 0
+				// else {
+				// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+				// }
+				idx++
 			}
 		} else {
-			return errors.New("GDLSeriesBool.Append: invalid type")
+			return fmt.Errorf("GDLSeriesBool.Append: invalid type")
 		}
 	} else {
 		if b, ok := v.(bool); ok {
-			s.data = append(s.data, b)
+
+			// adjust size of data if necessary
+			s.size++
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, 0)
+			}
+
+			// set value
+			if b {
+				s.data[s.size/8] |= 1 << uint(s.size%8)
+			}
+			// this should not be necessary, because the data slice is initialized with 0
+			// else {
+			// 	s.data[s.size/8] &= ^(1 << uint(s.size%8))
+			// }
 		} else if bv, ok := v.([]bool); ok {
-			s.data = append(s.data, bv...)
+
+			// adjust size of data if necessary
+			s.size += len(bv)
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range bv {
+				if v {
+					s.data[idx/8] |= 1 << uint(idx%8)
+				}
+				// this should not be necessary, because the data slice is initialized with 0
+				// else {
+				// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+				// }
+				idx++
+			}
 		} else {
-			return errors.New("GDLSeriesBool.Append: invalid type")
+			return fmt.Errorf("GDLSeriesBool.Append: invalid type")
 		}
 	}
 	return nil
@@ -165,29 +238,166 @@ func (s GDLSeriesBool) Append(v interface{}) error {
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
 func (s GDLSeriesBool) AppendNullable(v interface{}) error {
 	if !s.isNullable {
-		return errors.New("GDLSeriesBool.AppendNullable: series is not nullable")
+		return fmt.Errorf("GDLSeriesBool.AppendNullable: series is not nullable")
 	}
 
 	if b, ok := v.(NullableBool); ok {
-		s.data = append(s.data, b.Value)
-		if len(s.data)/8 > len(s.nullMap) {
-			s.nullMap = append(s.nullMap, 0)
+		// adjust size of data and nullMask if necessary
+		s.size++
+		if s.size/8 > len(s.data) {
+			s.data = append(s.data, 0)
+			s.nullMask = append(s.nullMask, 0)
 		}
-		if !b.Valid {
-			s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+
+		// set value
+		if b.Valid {
+			if b.Value {
+				s.data[s.size/8] |= 1 << uint(s.size%8)
+			}
+			// this should not be necessary, because the data slice is initialized with 0
+			// else {
+			// 	s.data[s.size/8] &= ^(1 << uint(s.size%8))
+			// }
+		} else {
+			s.nullMask[s.size/8] |= 1 << uint(s.size%8)
 		}
 	} else if bv, ok := v.([]NullableBool); ok {
-		for _, b := range bv {
-			s.data = append(s.data, b.Value)
-			if len(s.data)/8 > len(s.nullMap) {
-				s.nullMap = append(s.nullMap, 0)
+		// adjust size of data and nullMask if necessary
+		s.size += len(bv)
+		if s.size/8 > len(s.data) {
+			s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+			s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
+		}
+
+		// set values
+		idx := s.size
+		for _, v := range bv {
+			if v.Valid {
+				if v.Value {
+					s.data[idx/8] |= 1 << uint(idx%8)
+				}
+				// this should not be necessary, because the data slice is initialized with 0
+				// else {
+				// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+				// }
+			} else {
+				s.nullMask[idx/8] |= 1 << uint(idx%8)
 			}
-			if !b.Valid {
-				s.nullMap[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+			idx++
+		}
+	} else {
+		return fmt.Errorf("GDLSeriesBool.AppendNullable: invalid type")
+	}
+
+	return nil
+}
+
+func (s GDLSeriesBool) AppendSeries(other GDLSeries) error {
+	var ok bool
+	var o GDLSeriesBool
+	if o, ok = other.(GDLSeriesBool); !ok {
+		return fmt.Errorf("GDLSeriesBool.AppendSeries: invalid type")
+	}
+
+	if s.isNullable {
+		if o.isNullable {
+			// adjust size of data and nullMask if necessary
+			s.size += o.size
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+				s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range o.data {
+				for j := 0; j < 8 && idx > 0; j++ {
+					if o.nullMask[idx/8]&(1<<uint(j)) != 0 {
+						s.nullMask[idx/8] |= 1 << uint(idx%8)
+					} else {
+						if v&(1<<uint(j)) != 0 {
+							s.data[idx/8] |= 1 << uint(idx%8)
+						}
+						// this should not be necessary, because the data slice is initialized with 0
+						// else {
+						// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+						// }
+					}
+					idx--
+				}
+			}
+		} else {
+			// adjust size of data and nullMask if necessary
+			s.size += o.size
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+				s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range o.data {
+				for j := 0; j < 8 && idx > 0; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s.data[idx/8] |= 1 << uint(idx%8)
+					}
+					// this should not be necessary, because the data slice is initialized with 0
+					// else {
+					// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+					// }
+					idx--
+				}
 			}
 		}
 	} else {
-		return errors.New("GDLSeriesBool.AppendNullable: invalid type")
+		if o.isNullable {
+			// adjust size of data and nullMask if necessary
+			s.size += o.size
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+				s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range o.data {
+				for j := 0; j < 8 && idx > 0; j++ {
+					if o.nullMask[idx/8]&(1<<uint(j)) != 0 {
+						s.nullMask[idx/8] |= 1 << uint(idx%8)
+					} else {
+						if v&(1<<uint(j)) != 0 {
+							s.data[idx/8] |= 1 << uint(idx%8)
+						}
+						// this should not be necessary, because the data slice is initialized with 0
+						// else {
+						// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+						// }
+					}
+					idx--
+				}
+			}
+		} else {
+			// adjust size of data and nullMask if necessary
+			s.size += o.size
+			if s.size/8 > len(s.data) {
+				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
+			}
+
+			// set values
+			idx := s.size
+			for _, v := range o.data {
+				for j := 0; j < 8 && idx > 0; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s.data[idx/8] |= 1 << uint(idx%8)
+					}
+					// this should not be necessary, because the data slice is initialized with 0
+					// else {
+					// 	s.data[idx/8] &= ^(1 << uint(idx%8))
+					// }
+					idx--
+				}
+			}
+		}
 	}
 
 	return nil
@@ -196,14 +406,26 @@ func (s GDLSeriesBool) AppendNullable(v interface{}) error {
 /////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////
 
 func (s GDLSeriesBool) Data() interface{} {
-	return s.data
+	data := make([]bool, s.size)
+	for i, v := range s.data {
+		for j := 0; j < 8 && i*8+j < s.size; j++ {
+			data[i*8+j] = v&(1<<uint(j)) != 0
+		}
+	}
+	return data
 }
 
 // NullableData returns a slice of NullableBool.
 func (s GDLSeriesBool) NullableData() interface{} {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableBool{Valid: !s.IsNull(i), Value: v}
+		for j := 0; j < 8 && i*8+j < len(s.data); j++ {
+			if s.nullMask[i]&(1<<uint(j)) != 0 {
+				data[i*8+j] = NullableBool{false, false}
+			} else {
+				data[i*8+j] = NullableBool{v&(1<<uint(j)) != 0, true}
+			}
+		}
 	}
 	return data
 }
@@ -212,34 +434,40 @@ func (s GDLSeriesBool) NullableData() interface{} {
 func (s GDLSeriesBool) StringData() []string {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
-		if s.IsNull(i) {
-			data[i] = NULL_STRING
-		} else {
-			data[i] = boolToString(v)
+		for j := 0; j < 8 && i*8+j < len(s.data); j++ {
+			if s.nullMask[i]&(1<<uint(j)) != 0 {
+				data[i*8+j] = NULL_STRING
+			} else {
+				if v&(1<<uint(j)) != 0 {
+					data[i*8+j] = BOOL_TRUE_STRING
+				} else {
+					data[i*8+j] = BOOL_FALSE_STRING
+				}
+			}
 		}
 	}
 	return data
 }
 
 // Copy returns a copy of the series.
-func (s GDLSeriesBool) Copy() GSeries {
-	data := make([]bool, len(s.data))
+func (s GDLSeriesBool) Copy() GDLSeries {
+	data := make([]uint8, len(s.data))
 	copy(data, s.data)
-	nullMap := make([]uint8, len(s.nullMap))
-	copy(nullMap, s.nullMap)
+	nullMask := make([]uint8, len(s.nullMask))
+	copy(nullMask, s.nullMask)
 
 	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
-		nullMap:    nullMap,
+		nullMask:   nullMask,
 	}
 }
 
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
 // Filter returns a new series with elements at the indices where mask is true.
-func (s GDLSeriesBool) Filter(mask []bool) GSeries {
+func (s GDLSeriesBool) Filter(mask []bool) GDLSeries {
 	elementCount := 0
 	for _, v := range mask {
 		if v {
@@ -248,21 +476,21 @@ func (s GDLSeriesBool) Filter(mask []bool) GSeries {
 	}
 
 	if s.isNullable {
-		data := make([]bool, elementCount)
-		var nullMap []uint8
-		if len(data)%8 == 0 {
-			nullMap = make([]uint8, len(data)/8)
+		var data []uint8
+		var nullMask []uint8
+		if elementCount%8 == 0 {
+			data = make([]uint8, elementCount/8)
+			nullMask = make([]uint8, elementCount/8)
 		} else {
-			nullMap = make([]uint8, len(data)/8+1)
+			data = make([]uint8, elementCount/8+1)
+			nullMask = make([]uint8, elementCount/8+1)
 		}
 
 		idx := 0
 		for i, v := range mask {
 			if v {
-				data[idx] = s.data[i]
-				if s.IsNull(i) {
-					nullMap[idx/8] |= 1 << uint(idx%8)
-				}
+				data[idx/8] |= s.data[i/8] & (1 << uint(i%8))
+				nullMask[idx/8] |= s.nullMask[i/8] & (1 << uint(i%8))
 				idx++
 			}
 		}
@@ -271,15 +499,15 @@ func (s GDLSeriesBool) Filter(mask []bool) GSeries {
 			isNullable: s.isNullable,
 			name:       s.name,
 			data:       data,
-			nullMap:    nullMap,
+			nullMask:   nullMask,
 		}
 	}
 
-	data := make([]bool, elementCount)
+	data := make([]uint8, elementCount/8+1)
 	idx := 0
 	for i, v := range mask {
 		if v {
-			data[idx] = s.data[i]
+			data[idx/8] |= s.data[i/8] & (1 << uint(i%8))
 			idx++
 		}
 	}
@@ -288,39 +516,45 @@ func (s GDLSeriesBool) Filter(mask []bool) GSeries {
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
-		nullMap:    make([]uint8, 0),
+		nullMask:   nil,
 	}
 }
 
-func (s GDLSeriesBool) FilterByIndex(indexes []int) GSeries {
+func (s GDLSeriesBool) FilterByIndex(indexes []int) GDLSeries {
 	if s.isNullable {
-		data := make([]bool, len(indexes))
-		nullMap := make([]uint8, len(s.nullMap))
+		var data []uint8
+		var nullMask []uint8
+		if len(indexes)%8 == 0 {
+			data = make([]uint8, len(indexes)/8)
+			nullMask = make([]uint8, len(indexes)/8)
+		} else {
+			data = make([]uint8, len(indexes)/8+1)
+			nullMask = make([]uint8, len(indexes)/8+1)
+		}
+
 		for i, v := range indexes {
-			data[i] = s.data[v]
-			if s.IsNull(v) {
-				nullMap[i/8] |= 1 << uint(i%8)
-			}
+			data[i/8] |= s.data[v/8] & (1 << uint(v%8))
+			nullMask[i/8] |= s.nullMask[v/8] & (1 << uint(v%8))
 		}
 
 		return GDLSeriesBool{
 			isNullable: s.isNullable,
 			name:       s.name,
 			data:       data,
-			nullMap:    nullMap,
+			nullMask:   nullMask,
 		}
 	}
 
-	data := make([]bool, len(indexes))
+	data := make([]uint8, len(indexes)/8+1)
 	for i, v := range indexes {
-		data[i] = s.data[v]
+		data[i/8] |= s.data[v/8] & (1 << uint(v%8))
 	}
 
 	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
-		nullMap:    make([]uint8, 0),
+		nullMask:   nil,
 	}
 }
 
@@ -358,48 +592,48 @@ func (s GDLSeriesBoolPartition) GetNullGroup() []int {
 	return s.nullGroup
 }
 
-func (s GDLSeriesBool) Group() GSeriesPartition {
+func (s GDLSeriesBool) Group() GDLSeriesPartition {
 	groups := make(map[bool][]int)
 	nullGroup := make([]int, 0)
-	if s.isNullable {
-		for i, v := range s.data {
-			if s.IsNull(i) {
-				nullGroup = append(nullGroup, i)
-			} else {
-				groups[v] = append(groups[v], i)
-			}
-		}
-	} else {
-		for i, v := range s.data {
-			groups[v] = append(groups[v], i)
-		}
-	}
+	// if s.isNullable {
+	// 	for i, v := range s.data {
+	// 		if s.IsNull(i) {
+	// 			nullGroup = append(nullGroup, i)
+	// 		} else {
+	// 			groups[v] = append(groups[v], i)
+	// 		}
+	// 	}
+	// } else {
+	// 	for i, v := range s.data {
+	// 		groups[v] = append(groups[v], i)
+	// 	}
+	// }
 	return GDLSeriesBoolPartition{
 		partition: groups,
 		nullGroup: nullGroup,
 	}
 }
 
-func (s GDLSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
+func (s GDLSeriesBool) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
 	groups := make(map[bool][]int)
 	nullGroup := make([]int, 0)
-	if s.isNullable {
-		for _, v := range gp.GetNonNullGroups() {
-			for _, idx := range v {
-				if s.IsNull(idx) {
-					nullGroup = append(nullGroup, idx)
-				} else {
-					groups[s.data[idx]] = append(groups[s.data[idx]], idx)
-				}
-			}
-		}
-	} else {
-		for _, v := range gp.GetNonNullGroups() {
-			for _, idx := range v {
-				groups[s.data[idx]] = append(groups[s.data[idx]], idx)
-			}
-		}
-	}
+	// if s.isNullable {
+	// 	for _, v := range gp.GetNonNullGroups() {
+	// 		for _, idx := range v {
+	// 			if s.IsNull(idx) {
+	// 				nullGroup = append(nullGroup, idx)
+	// 			} else {
+	// 				groups[s.data[idx]] = append(groups[s.data[idx]], idx)
+	// 			}
+	// 		}
+	// 	}
+	// } else {
+	// 	for _, v := range gp.GetNonNullGroups() {
+	// 		for _, idx := range v {
+	// 			groups[s.data[idx]] = append(groups[s.data[idx]], idx)
+	// 		}
+	// 	}
+	// }
 	return GDLSeriesBoolPartition{
 		partition: groups,
 		nullGroup: nullGroup,
@@ -409,101 +643,93 @@ func (s GDLSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
 ///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
 
 // And performs logical AND operation between two series
-func (s GDLSeriesBool) And(other GSeries) GSeries {
+// If one of the series is nullable, the result series will be nullable
+// If the other series is not a boolean series, the result will be nil
+func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
+	if other.Type() != typesys.BoolType {
+		return nil
+	}
+	o := other.(GDLSeriesBool)
+
 	if s.isNullable || other.IsNullable() {
-		data := make([]bool, len(s.data))
-		nullMap := make([]uint8, len(s.nullMap))
+		data := make([]uint8, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			if s.IsNull(i) || other.IsNull(i) {
-				nullMap[i/8] |= 1 << uint(i%8)
-			}
-			data[i] = s.data[i] && other.Get(i).(bool)
+			nullMask[i] = s.nullMask[i] | o.nullMask[i]
+			data[i] = s.data[i] & o.data[i]
 		}
 
 		return GDLSeriesBool{
 			isNullable: true,
 			name:       s.name,
 			data:       data,
-			nullMap:    nullMap,
+			nullMask:   nullMask,
 		}
 	}
 
-	data := make([]bool, len(s.data))
+	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] = s.data[i] && other.Get(i).(bool)
+		data[i] = s.data[i] & o.data[i]
 	}
 
 	return GDLSeriesBool{
 		isNullable: false,
 		name:       s.name,
 		data:       data,
-		nullMap:    make([]uint8, 0),
+		nullMask:   make([]uint8, 0),
 	}
 }
 
 // Or performs logical OR operation between two series
-func (s GDLSeriesBool) Or(other GSeries) GSeries {
+// If one of the series is nullable, the result series will be nullable
+// If the other series is not a boolean series, the result will be nil
+func (s GDLSeriesBool) Or(other GDLSeries) GDLSeries {
+	if other.Type() != typesys.BoolType {
+		return nil
+	}
+	o := other.(GDLSeriesBool)
+
 	if s.isNullable || other.IsNullable() {
-		data := make([]bool, len(s.data))
-		nullMap := make([]uint8, len(s.nullMap))
+		data := make([]uint8, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			if s.IsNull(i) || other.IsNull(i) {
-				nullMap[i/8] |= 1 << uint(i%8)
-			}
-			data[i] = s.data[i] || other.Get(i).(bool)
+			nullMask[i] = s.nullMask[i] | o.nullMask[i]
+			data[i] = s.data[i] | o.data[i]
 		}
 
 		return GDLSeriesBool{
 			isNullable: true,
 			name:       s.name,
 			data:       data,
-			nullMap:    nullMap,
+			nullMask:   nullMask,
 		}
 	}
 
-	data := make([]bool, len(s.data))
+	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] = s.data[i] || other.Get(i).(bool)
+		data[i] = s.data[i] | o.data[i]
 	}
 
 	return GDLSeriesBool{
 		isNullable: false,
 		name:       s.name,
 		data:       data,
-		nullMap:    make([]uint8, 0),
+		nullMask:   make([]uint8, 0),
 	}
 }
 
 // Not performs logical NOT operation on series
-func (s GDLSeriesBool) Not() GSeries {
-	if s.isNullable {
-		data := make([]bool, len(s.data))
-		nullMap := make([]uint8, len(s.nullMap))
-		for i := 0; i < len(s.data); i++ {
-			if s.IsNull(i) {
-				nullMap[i/8] |= 1 << uint(i%8)
-			}
-			data[i] = !s.data[i]
-		}
-
-		return GDLSeriesBool{
-			isNullable: true,
-			name:       s.name,
-			data:       data,
-			nullMap:    nullMap,
-		}
-	}
-
-	data := make([]bool, len(s.data))
+func (s GDLSeriesBool) Not() GDLSeries {
+	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] = !s.data[i]
+		data[i] ^= s.data[i]
 	}
 
 	return GDLSeriesBool{
-		isNullable: false,
+		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
-		nullMap:    make([]uint8, 0),
+		nullMask:   s.nullMask,
 	}
 }
 

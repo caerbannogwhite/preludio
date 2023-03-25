@@ -10,7 +10,7 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new GDLSeriesBool.
-	s := NewGDLSeriesBool("test", true, true, data)
+	s := NewGDLSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -111,8 +111,8 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesBool("testA", true, true, dataA)
-	sB := NewGDLSeriesBool("testB", true, true, dataB)
+	sA := NewGDLSeriesBool("testA", true, dataA)
+	sB := NewGDLSeriesBool("testB", true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -169,7 +169,7 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesBool("test", true, true, data)
+	s := NewGDLSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
