@@ -4,12 +4,13 @@ go 1.20
 
 replace bytefeeder => ./bytefeeder
 
-replace types => ./types
+replace typesys => ./typesys
 
 require (
 	bytefeeder v0.0.0-00010101000000-000000000000
 	github.com/go-gota/gota v0.12.0
-	types v0.0.0-00010101000000-000000000000
+	typesys v0.0.0-00010101000000-000000000000
+
 )
 
 require (

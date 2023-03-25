@@ -9,7 +9,7 @@ import (
 	"preludiocore"
 	"strconv"
 	"strings"
-	"types"
+	"typesys"
 
 	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
@@ -211,7 +211,7 @@ func LaunchRepl(args CliArgs) {
 
 			res := be.GetOutput()
 			for _, log := range append(logs, res.Log...) {
-				if log.LogType == types.LOG_DEBUG {
+				if log.LogType == typesys.LOG_DEBUG {
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println(log.Message)
 					}
@@ -241,7 +241,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(colSize int, columnar []types.Columnar) {
+func prettyPrint(colSize int, columnar []typesys.Columnar) {
 
 	if len(columnar) == 0 {
 		return
@@ -291,7 +291,7 @@ func prettyPrint(colSize int, columnar []types.Columnar) {
 		fmt.Println("+")
 	}
 
-	// column types
+	// column typesys
 	fmt.Printf("    ")
 	for _, c := range columnar {
 		fmt.Printf(fmtString, truncate(c.Type, colSize))

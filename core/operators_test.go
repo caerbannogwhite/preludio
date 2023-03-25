@@ -3,7 +3,7 @@ package preludiocore
 import (
 	"math"
 	"testing"
-	"types"
+	"typesys"
 )
 
 var be *ByteEater
@@ -25,7 +25,7 @@ func Test_Operator_Mul(t *testing.T) {
 	// BOOL
 	{
 		// BOOL * BOOL
-		b1.appendOperand(types.OP_BINARY_MUL, b2)
+		b1.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -43,7 +43,7 @@ func Test_Operator_Mul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * INTEGER
-		b1.appendOperand(types.OP_BINARY_MUL, in)
+		b1.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -61,7 +61,7 @@ func Test_Operator_Mul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * FLOAT
-		b1.appendOperand(types.OP_BINARY_MUL, fl)
+		b1.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -79,7 +79,7 @@ func Test_Operator_Mul(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * STRING
-		b1.appendOperand(types.OP_BINARY_MUL, st)
+		b1.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -97,7 +97,7 @@ func Test_Operator_Mul(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER * BOOL
-		in.appendOperand(types.OP_BINARY_MUL, b2)
+		in.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -115,7 +115,7 @@ func Test_Operator_Mul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * INTEGER
-		in.appendOperand(types.OP_BINARY_MUL, in)
+		in.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -133,7 +133,7 @@ func Test_Operator_Mul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * FLOAT
-		in.appendOperand(types.OP_BINARY_MUL, fl)
+		in.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -151,7 +151,7 @@ func Test_Operator_Mul(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * STRING
-		in.appendOperand(types.OP_BINARY_MUL, st)
+		in.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -172,7 +172,7 @@ func Test_Operator_Mul(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT * BOOL
-		fl.appendOperand(types.OP_BINARY_MUL, b2)
+		fl.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -190,7 +190,7 @@ func Test_Operator_Mul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * INTEGER
-		fl.appendOperand(types.OP_BINARY_MUL, in)
+		fl.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -208,7 +208,7 @@ func Test_Operator_Mul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * FLOAT
-		fl.appendOperand(types.OP_BINARY_MUL, fl)
+		fl.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -226,7 +226,7 @@ func Test_Operator_Mul(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * STRING
-		fl.appendOperand(types.OP_BINARY_MUL, st)
+		fl.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary \"*\" operator not implemented for Float64 and String" {
@@ -240,7 +240,7 @@ func Test_Operator_Mul(t *testing.T) {
 	// STRING
 	{
 		// STRING * BOOL
-		st.appendOperand(types.OP_BINARY_MUL, b2)
+		st.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -258,7 +258,7 @@ func Test_Operator_Mul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * INTEGER
-		st.appendOperand(types.OP_BINARY_MUL, in)
+		st.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -276,7 +276,7 @@ func Test_Operator_Mul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * FLOAT
-		st.appendOperand(types.OP_BINARY_MUL, fl)
+		st.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and Float64" {
@@ -287,7 +287,7 @@ func Test_Operator_Mul(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * STRING
-		st.appendOperand(types.OP_BINARY_MUL, st)
+		st.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and String" {
@@ -309,7 +309,7 @@ func Test_Operator_Div(t *testing.T) {
 	// BOOL
 	{
 		// BOOL / BOOL
-		b1.appendOperand(types.OP_BINARY_DIV, b2)
+		b1.appendOperand(typesys.OP_BINARY_DIV, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -327,7 +327,7 @@ func Test_Operator_Div(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / INTEGER
-		b1.appendOperand(types.OP_BINARY_DIV, in)
+		b1.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -345,7 +345,7 @@ func Test_Operator_Div(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / FLOAT
-		b1.appendOperand(types.OP_BINARY_DIV, fl)
+		b1.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -363,7 +363,7 @@ func Test_Operator_Div(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / STRING
-		b1.appendOperand(types.OP_BINARY_DIV, st)
+		b1.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, b1)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for Bool and String" {
@@ -377,7 +377,7 @@ func Test_Operator_Div(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER / BOOL
-		in.appendOperand(types.OP_BINARY_DIV, b1)
+		in.appendOperand(typesys.OP_BINARY_DIV, b1)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -395,7 +395,7 @@ func Test_Operator_Div(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / INTEGER
-		in.appendOperand(types.OP_BINARY_DIV, in)
+		in.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -413,7 +413,7 @@ func Test_Operator_Div(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / FLOAT
-		in.appendOperand(types.OP_BINARY_DIV, fl)
+		in.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -431,7 +431,7 @@ func Test_Operator_Div(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / STRING
-		in.appendOperand(types.OP_BINARY_DIV, st)
+		in.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, in)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for Int32 and String" {
@@ -445,7 +445,7 @@ func Test_Operator_Div(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT / BOOL
-		fl.appendOperand(types.OP_BINARY_DIV, b1)
+		fl.appendOperand(typesys.OP_BINARY_DIV, b1)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -463,7 +463,7 @@ func Test_Operator_Div(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / INTEGER
-		fl.appendOperand(types.OP_BINARY_DIV, in)
+		fl.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -481,7 +481,7 @@ func Test_Operator_Div(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / FLOAT
-		fl.appendOperand(types.OP_BINARY_DIV, fl)
+		fl.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -499,7 +499,7 @@ func Test_Operator_Div(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / STRING
-		fl.appendOperand(types.OP_BINARY_DIV, st)
+		fl.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, fl)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for Float64 and String" {
@@ -513,7 +513,7 @@ func Test_Operator_Div(t *testing.T) {
 	// STRING
 	{
 		// STRING / BOOL
-		st.appendOperand(types.OP_BINARY_DIV, b1)
+		st.appendOperand(typesys.OP_BINARY_DIV, b1)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Bool" {
@@ -524,7 +524,7 @@ func Test_Operator_Div(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / INTEGER
-		st.appendOperand(types.OP_BINARY_DIV, in)
+		st.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Int32" {
@@ -535,7 +535,7 @@ func Test_Operator_Div(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / FLOAT
-		st.appendOperand(types.OP_BINARY_DIV, fl)
+		st.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Float64" {
@@ -546,7 +546,7 @@ func Test_Operator_Div(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / STRING
-		st.appendOperand(types.OP_BINARY_DIV, st)
+		st.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and String" {
@@ -568,7 +568,7 @@ func Test_Operator_Add(t *testing.T) {
 	// BOOL
 	{
 		// BOOL + BOOL
-		b1.appendOperand(types.OP_BINARY_ADD, b2)
+		b1.appendOperand(typesys.OP_BINARY_ADD, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -586,7 +586,7 @@ func Test_Operator_Add(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + INTEGER
-		b1.appendOperand(types.OP_BINARY_ADD, in)
+		b1.appendOperand(typesys.OP_BINARY_ADD, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -604,7 +604,7 @@ func Test_Operator_Add(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + FLOAT
-		b1.appendOperand(types.OP_BINARY_ADD, fl)
+		b1.appendOperand(typesys.OP_BINARY_ADD, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -622,7 +622,7 @@ func Test_Operator_Add(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + STRING
-		b1.appendOperand(types.OP_BINARY_ADD, st)
+		b1.appendOperand(typesys.OP_BINARY_ADD, st)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -643,7 +643,7 @@ func Test_Operator_Add(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER + BOOL
-		in.appendOperand(types.OP_BINARY_ADD, b1)
+		in.appendOperand(typesys.OP_BINARY_ADD, b1)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -661,7 +661,7 @@ func Test_Operator_Add(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + INTEGER
-		in.appendOperand(types.OP_BINARY_ADD, in)
+		in.appendOperand(typesys.OP_BINARY_ADD, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -679,7 +679,7 @@ func Test_Operator_Add(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + FLOAT
-		in.appendOperand(types.OP_BINARY_ADD, fl)
+		in.appendOperand(typesys.OP_BINARY_ADD, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -697,7 +697,7 @@ func Test_Operator_Add(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + STRING
-		in.appendOperand(types.OP_BINARY_ADD, st)
+		in.appendOperand(typesys.OP_BINARY_ADD, st)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -718,7 +718,7 @@ func Test_Operator_Add(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT + BOOL
-		fl.appendOperand(types.OP_BINARY_ADD, b1)
+		fl.appendOperand(typesys.OP_BINARY_ADD, b1)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -736,7 +736,7 @@ func Test_Operator_Add(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + INTEGER
-		fl.appendOperand(types.OP_BINARY_ADD, in)
+		fl.appendOperand(typesys.OP_BINARY_ADD, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -754,7 +754,7 @@ func Test_Operator_Add(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + FLOAT
-		fl.appendOperand(types.OP_BINARY_ADD, fl)
+		fl.appendOperand(typesys.OP_BINARY_ADD, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -772,7 +772,7 @@ func Test_Operator_Add(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + STRING
-		fl.appendOperand(types.OP_BINARY_ADD, st)
+		fl.appendOperand(typesys.OP_BINARY_ADD, st)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -793,7 +793,7 @@ func Test_Operator_Add(t *testing.T) {
 	// STRING
 	{
 		// STRING + BOOL
-		st.appendOperand(types.OP_BINARY_ADD, b1)
+		st.appendOperand(typesys.OP_BINARY_ADD, b1)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -811,7 +811,7 @@ func Test_Operator_Add(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + INTEGER
-		st.appendOperand(types.OP_BINARY_ADD, in)
+		st.appendOperand(typesys.OP_BINARY_ADD, in)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -829,7 +829,7 @@ func Test_Operator_Add(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + FLOAT
-		st.appendOperand(types.OP_BINARY_ADD, fl)
+		st.appendOperand(typesys.OP_BINARY_ADD, fl)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -847,7 +847,7 @@ func Test_Operator_Add(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + STRING
-		st.appendOperand(types.OP_BINARY_ADD, st)
+		st.appendOperand(typesys.OP_BINARY_ADD, st)
 		err = solveExpr(be, st)
 
 		if err != nil {
@@ -876,7 +876,7 @@ func Test_Operator_Sub(t *testing.T) {
 	// BOOL
 	{
 		// BOOL - BOOL
-		b1.appendOperand(types.OP_BINARY_SUB, b2)
+		b1.appendOperand(typesys.OP_BINARY_SUB, b2)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -894,7 +894,7 @@ func Test_Operator_Sub(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - INTEGER
-		b1.appendOperand(types.OP_BINARY_SUB, in)
+		b1.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -912,7 +912,7 @@ func Test_Operator_Sub(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - FLOAT
-		b1.appendOperand(types.OP_BINARY_SUB, fl)
+		b1.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, b1)
 
 		if err != nil {
@@ -930,7 +930,7 @@ func Test_Operator_Sub(t *testing.T) {
 		b1 = newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - STRING
-		b1.appendOperand(types.OP_BINARY_SUB, st)
+		b1.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, b1)
 
 		if err == nil {
@@ -944,7 +944,7 @@ func Test_Operator_Sub(t *testing.T) {
 	// INTEGER
 	{
 		// INTEGER - BOOL
-		in.appendOperand(types.OP_BINARY_SUB, b1)
+		in.appendOperand(typesys.OP_BINARY_SUB, b1)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -962,7 +962,7 @@ func Test_Operator_Sub(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - INTEGER
-		in.appendOperand(types.OP_BINARY_SUB, in)
+		in.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -980,7 +980,7 @@ func Test_Operator_Sub(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - FLOAT
-		in.appendOperand(types.OP_BINARY_SUB, fl)
+		in.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, in)
 
 		if err != nil {
@@ -998,7 +998,7 @@ func Test_Operator_Sub(t *testing.T) {
 		in = newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - STRING
-		in.appendOperand(types.OP_BINARY_SUB, st)
+		in.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, in)
 
 		if err == nil {
@@ -1012,7 +1012,7 @@ func Test_Operator_Sub(t *testing.T) {
 	// FLOAT
 	{
 		// FLOAT - BOOL
-		fl.appendOperand(types.OP_BINARY_SUB, b1)
+		fl.appendOperand(typesys.OP_BINARY_SUB, b1)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -1030,7 +1030,7 @@ func Test_Operator_Sub(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - INTEGER
-		fl.appendOperand(types.OP_BINARY_SUB, in)
+		fl.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -1048,7 +1048,7 @@ func Test_Operator_Sub(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - FLOAT
-		fl.appendOperand(types.OP_BINARY_SUB, fl)
+		fl.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, fl)
 
 		if err != nil {
@@ -1066,7 +1066,7 @@ func Test_Operator_Sub(t *testing.T) {
 		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - STRING
-		fl.appendOperand(types.OP_BINARY_SUB, st)
+		fl.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, fl)
 
 		if err == nil {
@@ -1080,7 +1080,7 @@ func Test_Operator_Sub(t *testing.T) {
 	// STRING
 	{
 		// STRING - BOOL
-		st.appendOperand(types.OP_BINARY_SUB, b1)
+		st.appendOperand(typesys.OP_BINARY_SUB, b1)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Bool" {
@@ -1091,7 +1091,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - INTEGER
-		st.appendOperand(types.OP_BINARY_SUB, in)
+		st.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Int32" {
@@ -1102,7 +1102,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - FLOAT
-		st.appendOperand(types.OP_BINARY_SUB, fl)
+		st.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Float64" {
@@ -1113,7 +1113,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st = newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - STRING
-		st.appendOperand(types.OP_BINARY_SUB, st)
+		st.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, st)
 
 		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and String" {

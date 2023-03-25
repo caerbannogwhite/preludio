@@ -1,4 +1,4 @@
-package types
+package typesys
 
 type OPCODE uint8
 

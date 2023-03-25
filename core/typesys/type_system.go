@@ -1,7 +1,10 @@
-package types
+package typesys
 
 type BOOL []bool
+type INT16 []int16
 type INT32 []int
+type INT64 []int64
+type FLOAT32 []float32
 type FLOAT64 []float64
 type STRING []string
 
@@ -21,7 +24,7 @@ const (
 	NonBaseType
 )
 
-func (bt BaseType) String() string {
+func (bt BaseType) ToString() string {
 	switch bt {
 	case NullType:
 		return "Null"

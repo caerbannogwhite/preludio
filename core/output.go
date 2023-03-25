@@ -2,14 +2,14 @@ package preludiocore
 
 import (
 	"strconv"
-	"types"
+	"typesys"
 
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
 
-func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) types.Columnar {
-	col := types.Columnar{}
+func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) typesys.Columnar {
+	col := typesys.Columnar{}
 	col.Name = name
 	col.Type = "bool"
 	col.ActualLength = len(data)
@@ -28,8 +28,8 @@ func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data
 	return col
 }
 
-func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) types.Columnar {
-	col := types.Columnar{}
+func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) typesys.Columnar {
+	col := typesys.Columnar{}
 	col.Name = name
 	col.Type = "int"
 	col.ActualLength = len(data)
@@ -48,8 +48,8 @@ func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data 
 	return col
 }
 
-func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) types.Columnar {
-	col := types.Columnar{}
+func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) typesys.Columnar {
+	col := typesys.Columnar{}
 	col.Name = name
 	col.Type = "float"
 	col.ActualLength = len(data)
@@ -68,8 +68,8 @@ func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, dat
 	return col
 }
 
-func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) types.Columnar {
-	col := types.Columnar{}
+func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) typesys.Columnar {
+	col := typesys.Columnar{}
 	col.Name = name
 	col.Type = "string"
 	col.ActualLength = len(data)
@@ -88,8 +88,8 @@ func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, da
 	return col
 }
 
-func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]types.Columnar, error) {
-	columns := make([]types.Columnar, df.Ncol())
+func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]typesys.Columnar, error) {
+	columns := make([]typesys.Columnar, df.Ncol())
 	for i, name := range df.Names() {
 		col := df.Col(name)
 		switch col.Type() {

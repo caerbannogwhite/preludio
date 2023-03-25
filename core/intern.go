@@ -2,7 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
-	"types"
+	"typesys"
 
 	"github.com/go-gota/gota/dataframe"
 )
@@ -43,7 +43,7 @@ func (i *__p_intern__) setAssignment(name string) {
 	i.name = name
 }
 
-func (i *__p_intern__) toResult(res *[]types.Columnar, fullOutput bool, outputSnippetLength int) error {
+func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, outputSnippetLength int) error {
 	switch i.tag {
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 		switch v := i.expr[0].(type) {
@@ -371,14 +371,14 @@ func (l *__p_list__) listToStringVector() ([]string, error) {
 	return res, nil
 }
 
-func (lhs *__p_intern__) appendOperand(op types.OPCODE, rhs *__p_intern__) {
+func (lhs *__p_intern__) appendOperand(op typesys.OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
 	lhs.expr = append(lhs.expr, op)
 }
 
-func isOperator(t interface{}) (types.OPCODE, bool) {
-	if v, ok := t.(types.OPCODE); ok {
+func isOperator(t interface{}) (typesys.OPCODE, bool) {
+	if v, ok := t.(typesys.OPCODE); ok {
 		return v, true
 	}
-	return types.NO_OP, false
+	return typesys.NO_OP, false
 }

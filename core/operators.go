@@ -5,7 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
-	"types"
+	"typesys"
 )
 
 func solveExpr(vm *ByteEater, i *__p_intern__) error {
@@ -40,7 +40,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 		// Load the stack until we find an operators
 		var ok bool
-		var op types.OPCODE
+		var op typesys.OPCODE
 		for {
 			if op, ok = isOperator(i.expr[0]); ok {
 				i.expr = i.expr[1:len(i.expr)]
@@ -62,9 +62,9 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 		// 	}
 
 		// 	switch op {
-		// 	case types.OP_UNARY_ADD:
-		// 	case types.OP_UNARY_SUB:
-		// 	case types.OP_UNARY_NOT:
+		// 	case typesys.OP_UNARY_ADD:
+		// 	case typesys.OP_UNARY_SUB:
+		// 	case typesys.OP_UNARY_NOT:
 		// 	}
 		// } else
 
@@ -88,7 +88,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			///////////////////////////////////////////////////////////////////
 			////////					MULTIPLICATION
 
-			case types.OP_BINARY_MUL:
+			case typesys.OP_BINARY_MUL:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -191,8 +191,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 					default:
 						return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -259,15 +259,15 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						if len(val1) == 1 {
 							if val1[0] < 0 {
 								return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s",
-									types.GoToPreludioTypeString(val1),
-									types.GoToPreludioTypeString(val2))
+									typesys.GoToPreludioTypeString(val1),
+									typesys.GoToPreludioTypeString(val2))
 							}
 							res = make([]string, len(val2))
 							for j, s := range val2 {
 								if val1[0]*len(s) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to %s and %s when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 								res[j] = strings.Repeat(s, val1[0])
 							}
@@ -276,8 +276,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 							for j, n := range val1 {
 								if n < 0 || n*len(val2[0]) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s or when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 								res[j] = strings.Repeat(val2[0], n)
 							}
@@ -286,8 +286,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 							for j, s := range val2 {
 								if val1[j] < 0 || val1[j]*len(s) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to negative %s and %s or when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 								res[j] = strings.Repeat(s, val1[j])
 							}
@@ -295,8 +295,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []float64:
@@ -360,8 +360,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []string:
@@ -404,8 +404,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 							for j, n := range val2 {
 								if n < 0 || n*len(val1[0]) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 
 								res[j] = strings.Repeat(val1[0], n)
@@ -413,16 +413,16 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						} else if len(val2) == 1 {
 							if val2[0] < 0 {
 								return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s",
-									types.GoToPreludioTypeString(val1),
-									types.GoToPreludioTypeString(val2))
+									typesys.GoToPreludioTypeString(val1),
+									typesys.GoToPreludioTypeString(val2))
 							}
 
 							res = make([]string, len(val1))
 							for j, s := range val1 {
 								if val2[0]*len(s) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to %s and %s when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 
 								res[j] = strings.Repeat(s, val2[0])
@@ -433,8 +433,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 								// negative values are not allowed
 								if val2[j] < 0 || val2[j]*len(s) > math.MaxInt {
 									return fmt.Errorf("cannot apply binary \"*\" operator to %s and negative %s or when the result overflows",
-										types.GoToPreludioTypeString(val1),
-										types.GoToPreludioTypeString(val2))
+										typesys.GoToPreludioTypeString(val1),
+										typesys.GoToPreludioTypeString(val2))
 								}
 								res[j] = strings.Repeat(s, val2[j])
 							}
@@ -442,20 +442,20 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					DIVISION
 
-			case types.OP_BINARY_DIV:
+			case typesys.OP_BINARY_DIV:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -529,8 +529,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"/\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -594,8 +594,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"/\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []float64:
@@ -659,20 +659,20 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"/\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("binary \"/\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					MODULUS
 
-			case types.OP_BINARY_MOD:
+			case typesys.OP_BINARY_MOD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -720,8 +720,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"%%\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -766,20 +766,20 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"%%\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("binary \"%%\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					ADDITION
 
-			case types.OP_BINARY_ADD:
+			case typesys.OP_BINARY_ADD:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -862,8 +862,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 
 					default:
 						return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -946,8 +946,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []float64:
@@ -1030,8 +1030,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []string:
@@ -1114,20 +1114,20 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					SUBTRACTION
 
-			case types.OP_BINARY_SUB:
+			case typesys.OP_BINARY_SUB:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1190,8 +1190,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"-\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -1255,8 +1255,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"-\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []float64:
@@ -1320,19 +1320,19 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("binary \"-\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("binary \"-\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 
 			///////////////////////////////////////////////////////////////////
 			////////					EQUAL
-			case types.OP_BINARY_EQ:
+			case typesys.OP_BINARY_EQ:
 				switch val1 := t1.(type) {
 				case []bool:
 					switch val2 := t2.(type) {
@@ -1414,8 +1414,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("bynary \"==\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []int:
@@ -1498,8 +1498,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("bynary \"==\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []float64:
@@ -1572,8 +1572,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("bynary \"==\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				case []string:
@@ -1656,14 +1656,14 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 						result = res
 					default:
 						return fmt.Errorf("bynary \"==\" operator not implemented for %s and %s",
-							types.GoToPreludioTypeString(val1),
-							types.GoToPreludioTypeString(val2))
+							typesys.GoToPreludioTypeString(val1),
+							typesys.GoToPreludioTypeString(val2))
 					}
 
 				default:
 					return fmt.Errorf("bynary \"==\" operator not implemented for %s and %s",
-						types.GoToPreludioTypeString(t1),
-						types.GoToPreludioTypeString(t2))
+						typesys.GoToPreludioTypeString(t1),
+						typesys.GoToPreludioTypeString(t2))
 				}
 			}
 		}

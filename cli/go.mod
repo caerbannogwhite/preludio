@@ -4,7 +4,7 @@ go 1.20
 
 replace preludiocore => ../core
 
-replace types => ../core/types
+replace typesys => ../core/typesys
 
 replace bytefeeder => ../core/bytefeeder
 
