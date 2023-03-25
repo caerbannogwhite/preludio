@@ -135,8 +135,27 @@ func (s GDLSeriesFloat64) Set(i int, v interface{}) {
 	s.data[i] = v.(float64)
 }
 
+func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
+	switch v.(type) {
+	case float64:
+		return s.AppendRaw(v)
+	case []float64:
+		return s.AppendRaw(v)
+	case NullableFloat64:
+		return s.AppendNullable(v)
+	case []NullableFloat64:
+		return s.AppendNullable(v)
+	case GDLSeriesFloat64:
+		return s.AppendSeries(v.(GDLSeriesFloat64))
+	case GDLSeriesError:
+		return s
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
+	}
+}
+
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesFloat64) Append(v interface{}) error {
+func (s GDLSeriesFloat64) AppendRaw(v interface{}) GDLSeries {
 	if s.isNullable {
 		if b, ok := v.(float64); ok {
 			s.data = append(s.data, b)
@@ -149,7 +168,7 @@ func (s GDLSeriesFloat64) Append(v interface{}) error {
 				s.nullMask = append(s.nullMask, make([]uint8, len(s.data)/8-len(s.nullMask))...)
 			}
 		} else {
-			return fmt.Errorf("GDLSeriesFloat64.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
 		}
 	} else {
 		if b, ok := v.(float64); ok {
@@ -157,19 +176,19 @@ func (s GDLSeriesFloat64) Append(v interface{}) error {
 		} else if bv, ok := v.([]float64); ok {
 			s.data = append(s.data, bv...)
 		} else {
-			return fmt.Errorf("GDLSeriesFloat64.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
 		}
 	}
 	return nil
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesFloat64) AppendNullable(v interface{}) error {
+func (s GDLSeriesFloat64) AppendNullable(v interface{}) GDLSeries {
 	if !s.isNullable {
-		return fmt.Errorf("GDLSeriesFloat64.AppendNullable: series is not nullable")
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendNullable: series is not nullable")}
 	}
 
-	if b, ok := v.(NullableFloat); ok {
+	if b, ok := v.(NullableFloat64); ok {
 		s.data = append(s.data, b.Value)
 		if len(s.data)/8 > len(s.nullMask) {
 			s.nullMask = append(s.nullMask, 0)
@@ -177,7 +196,7 @@ func (s GDLSeriesFloat64) AppendNullable(v interface{}) error {
 		if !b.Valid {
 			s.nullMask[len(s.data)/8] |= 1 << uint(len(s.data)%8)
 		}
-	} else if bv, ok := v.([]NullableFloat); ok {
+	} else if bv, ok := v.([]NullableFloat64); ok {
 		for _, b := range bv {
 			s.data = append(s.data, b.Value)
 			if len(s.data)/8 > len(s.nullMask) {
@@ -188,8 +207,13 @@ func (s GDLSeriesFloat64) AppendNullable(v interface{}) error {
 			}
 		}
 	} else {
-		return fmt.Errorf("GDLSeriesFloat64.AppendNullable: invalid type")
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendNullable: invalid type, %T", v)}
 	}
+
+	return nil
+}
+
+func (s GDLSeriesFloat64) AppendSeries(v GDLSeries) GDLSeries {
 
 	return nil
 }
@@ -201,9 +225,9 @@ func (s GDLSeriesFloat64) Data() interface{} {
 }
 
 func (s GDLSeriesFloat64) NullableData() interface{} {
-	data := make([]NullableFloat, len(s.data))
+	data := make([]NullableFloat64, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableFloat{Valid: !s.IsNull(i), Value: v}
+		data[i] = NullableFloat64{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }

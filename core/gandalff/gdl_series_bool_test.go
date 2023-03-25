@@ -103,6 +103,56 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 	}
 }
 
+func Test_GDLSeriesBool_Append(t *testing.T) {
+	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
+	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
+
+	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
+	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
+
+	// Create two new series.
+	sA := NewGDLSeriesBool("testA", true, dataA)
+	sB := NewGDLSeriesBool("testB", true, dataB)
+
+	// Set the null masks.
+	sA.SetNullMask(maskA)
+	sB.SetNullMask(maskB)
+
+	// Append the series.
+	sC := sA.AppendSeries(sB)
+
+	// Check the length.
+	if sC.Len() != 20 {
+		t.Errorf("Expected length of 20, got %d", sC.Len())
+	}
+
+	// Check the data.
+	for i, v := range sC.Data().([]bool) {
+		if i < 10 {
+			if v != dataA[i] {
+				t.Errorf("Expected %t, got %t at index %d", sC.Data().([]bool)[i], dataA[i], i)
+			}
+		} else {
+			if v != dataB[i-10] {
+				t.Errorf("Expected %t, got %t at index %d", sC.Data().([]bool)[i], dataB[i-10], i)
+			}
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range sC.GetNullMask() {
+		if i < 10 {
+			if v != maskA[i] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", sC.GetNullMask()[i], maskA[i], i)
+			}
+		} else {
+			if v != maskB[i-10] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", sC.GetNullMask()[i], maskB[i-10], i)
+			}
+		}
+	}
+}
+
 func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}

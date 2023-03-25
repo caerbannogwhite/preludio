@@ -136,7 +136,27 @@ func (s GDLSeriesString) Set(i int, v interface{}) {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesString) Append(v interface{}) error {
+func (s GDLSeriesString) Append(v interface{}) GDLSeries {
+	switch v.(type) {
+	case string:
+		return s.AppendRaw(v)
+	case []string:
+		return s.AppendRaw(v)
+	case NullableString:
+		return s.AppendNullable(v)
+	case []NullableString:
+		return s.AppendNullable(v)
+	case GDLSeriesString:
+		return s.AppendSeries(v.(GDLSeriesString))
+	case GDLSeriesError:
+		return v.(GDLSeriesError)
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Append: invalid type, %T", v)}
+	}
+}
+
+// Append appends a value or a slice of values to the series.
+func (s GDLSeriesString) AppendRaw(v interface{}) GDLSeries {
 	if s.isNullable {
 		if b, ok := v.(string); ok {
 			s.data = append(s.data, s.pool.Get(b))
@@ -151,7 +171,7 @@ func (s GDLSeriesString) Append(v interface{}) error {
 				s.nullMask = append(s.nullMask, make([]uint8, len(s.data)/8-len(s.nullMask))...)
 			}
 		} else {
-			return fmt.Errorf("GDLSeriesString.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Append: invalid type, %T", v)}
 		}
 	} else {
 		if b, ok := v.(string); ok {
@@ -161,16 +181,16 @@ func (s GDLSeriesString) Append(v interface{}) error {
 				s.data = append(s.data, s.pool.Get(b))
 			}
 		} else {
-			return fmt.Errorf("GDLSeriesString.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Append: invalid type, %T", v)}
 		}
 	}
 	return nil
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesString) AppendNullable(v interface{}) error {
+func (s GDLSeriesString) AppendNullable(v interface{}) GDLSeries {
 	if !s.isNullable {
-		return fmt.Errorf("GDLSeriesString.AppendNullable: series is not nullable")
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.AppendNullable: series is not nullable")}
 	}
 
 	if b, ok := v.(NullableString); ok {
@@ -192,9 +212,14 @@ func (s GDLSeriesString) AppendNullable(v interface{}) error {
 			}
 		}
 	} else {
-		return fmt.Errorf("GDLSeriesString.AppendNullable: invalid type")
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.AppendNullable: invalid type")}
 	}
 
+	return nil
+}
+
+// AppendSeries appends a series to the series.
+func (s GDLSeriesString) AppendSeries(v GDLSeries) GDLSeries {
 	return nil
 }
 

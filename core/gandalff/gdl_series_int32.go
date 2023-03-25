@@ -135,8 +135,27 @@ func (s GDLSeriesInt32) Set(i int, v interface{}) {
 	s.data[i] = v.(int)
 }
 
+func (s GDLSeriesInt32) Append(v interface{}) GDLSeries {
+	switch v.(type) {
+	case int:
+		return s.AppendRaw(v)
+	case []int:
+		return s.AppendRaw(v)
+	case NullableInt32:
+		return s.AppendNullable(v)
+	case []NullableInt32:
+		return s.AppendNullable(v)
+	case GDLSeriesInt32:
+		return s.AppendSeries(v.(GDLSeriesInt32))
+	case GDLSeriesError:
+		return v.(GDLSeriesError)
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Append: invalid type %T", v)}
+	}
+}
+
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesInt32) Append(v interface{}) error {
+func (s GDLSeriesInt32) AppendRaw(v interface{}) GDLSeries {
 	if s.isNullable {
 		if b, ok := v.(int); ok {
 			s.data = append(s.data, b)
@@ -149,7 +168,7 @@ func (s GDLSeriesInt32) Append(v interface{}) error {
 				s.nullMask = append(s.nullMask, make([]uint8, len(s.data)/8-len(s.nullMask))...)
 			}
 		} else {
-			return fmt.Errorf("GDLSeriesInt32.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendRaw: invalid type %T", v)}
 		}
 	} else {
 		if b, ok := v.(int); ok {
@@ -157,19 +176,19 @@ func (s GDLSeriesInt32) Append(v interface{}) error {
 		} else if bv, ok := v.([]int); ok {
 			s.data = append(s.data, bv...)
 		} else {
-			return fmt.Errorf("GDLSeriesInt32.Append: invalid type")
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendRaw: invalid type %T", v)}
 		}
 	}
 	return nil
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesInt32) AppendNullable(v interface{}) error {
+func (s GDLSeriesInt32) AppendNullable(v interface{}) GDLSeries {
 	if !s.isNullable {
-		return fmt.Errorf("GDLSeriesInt32.AppendNullable: series is not nullable")
+		return GDLSeriesError{"GDLSeriesInt32.AppendNullable: series is not nullable"}
 	}
 
-	if b, ok := v.(NullableInt); ok {
+	if b, ok := v.(NullableInt32); ok {
 		s.data = append(s.data, b.Value)
 		if len(s.data)/8 > len(s.nullMask) {
 			s.nullMask = append(s.nullMask, 0)
@@ -177,7 +196,7 @@ func (s GDLSeriesInt32) AppendNullable(v interface{}) error {
 		if !b.Valid {
 			s.nullMask[len(s.data)/8] |= 1 << uint(len(s.data)%8)
 		}
-	} else if bv, ok := v.([]NullableInt); ok {
+	} else if bv, ok := v.([]NullableInt32); ok {
 		for _, b := range bv {
 			s.data = append(s.data, b.Value)
 			if len(s.data)/8 > len(s.nullMask) {
@@ -188,7 +207,23 @@ func (s GDLSeriesInt32) AppendNullable(v interface{}) error {
 			}
 		}
 	} else {
-		return fmt.Errorf("GDLSeriesInt32.AppendNullable: invalid type")
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendNullable: invalid type %T", v)}
+	}
+
+	return nil
+}
+
+// AppendSeries appends a series to the series.
+func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
+	var ok bool
+	var o GDLSeriesInt32
+	if o, ok = other.(GDLSeriesInt32); !ok {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendSeries: invalid type %T", other)}
+	}
+
+	if s.isNullable {
+		if o.isNullable {
+		}
 	}
 
 	return nil
@@ -201,9 +236,9 @@ func (s GDLSeriesInt32) Data() interface{} {
 }
 
 func (s GDLSeriesInt32) NullableData() interface{} {
-	data := make([]NullableInt, len(s.data))
+	data := make([]NullableInt32, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableInt{Valid: !s.IsNull(i), Value: v}
+		data[i] = NullableInt32{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }

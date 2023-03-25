@@ -31,12 +31,27 @@ type NullableBool struct {
 	Value bool
 }
 
-type NullableInt struct {
+type NullableInt16 struct {
+	Valid bool
+	Value int16
+}
+
+type NullableInt32 struct {
 	Valid bool
 	Value int
 }
 
-type NullableFloat struct {
+type NullableInt64 struct {
+	Valid bool
+	Value int64
+}
+
+type NullableFloat32 struct {
+	Valid bool
+	Value float32
+}
+
+type NullableFloat64 struct {
 	Valid bool
 	Value float64
 }
@@ -80,10 +95,14 @@ type GDLSeries interface {
 	// Set the element at index i.
 	Set(i int, v interface{})
 
-	// Append appends a value or a slice of values to the series.
-	Append(v interface{}) error
+	// Append elements to the series.
+	Append(v interface{}) GDLSeries
+	// AppendRaw appends a value or a slice of values to the series.
+	AppendRaw(v interface{}) GDLSeries
 	// Append nullable elements to the series.
-	AppendNullable(v interface{}) error
+	AppendNullable(v interface{}) GDLSeries
+	// Append a series to the series.
+	AppendSeries(other GDLSeries) GDLSeries
 
 	// All-data accessors.
 
@@ -176,4 +195,128 @@ func (sp *StringPool) Get(s string) *string {
 	// Create a new string and add it to the pool
 	sp.pool[s] = StringPoolEntry{Addr: &s, Count: 1}
 	return sp.pool[s].Addr
+}
+
+// Dummy series for error handling.
+type GDLSeriesError struct {
+	Msg string
+}
+
+// Returns the length of the series.
+func (s GDLSeriesError) Len() int {
+	return 0
+}
+
+// Returns if the series admits null values.
+func (s GDLSeriesError) IsNullable() bool {
+	return false
+}
+
+// Makes the series nullable.
+func (s GDLSeriesError) MakeNullable() {}
+
+// Returns the name of the series.
+func (s GDLSeriesError) Name() string {
+	return ""
+}
+
+// Returns the type of the series.
+func (s GDLSeriesError) Type() typesys.BaseType {
+	return typesys.ErrorType
+}
+
+// Returns if the series has null values.
+func (s GDLSeriesError) HasNull() bool {
+	return false
+}
+
+// Returns the number of null values in the series.
+func (s GDLSeriesError) NullCount() int {
+	return 0
+}
+
+// Returns if the element at index i is null.
+func (s GDLSeriesError) IsNull(i int) bool {
+	return false
+}
+
+// Sets the element at index i to null.
+func (s GDLSeriesError) SetNull(i int) error {
+	return nil
+}
+
+// Returns the null mask of the series.
+func (s GDLSeriesError) GetNullMask() []bool {
+	return []bool{}
+}
+
+// Sets the null mask of the series.
+func (s GDLSeriesError) SetNullMask(mask []bool) error {
+	return nil
+}
+
+// Get the element at index i.
+func (s GDLSeriesError) Get(i int) interface{} {
+	return nil
+}
+
+// Set the element at index i.
+func (s GDLSeriesError) Set(i int, v interface{}) {}
+
+// Append elements to the series.
+func (s GDLSeriesError) Append(v interface{}) GDLSeries {
+	return s
+}
+
+// AppendRaw appends a value or a slice of values to the series.
+func (s GDLSeriesError) AppendRaw(v interface{}) GDLSeries {
+	return s
+}
+
+// Append nullable elements to the series.
+func (s GDLSeriesError) AppendNullable(v interface{}) GDLSeries {
+	return s
+}
+
+// Append a series to the series.
+func (s GDLSeriesError) AppendSeries(other GDLSeries) GDLSeries {
+	return s
+}
+
+// All-data accessors.
+
+// Returns the actual data of the series.
+func (s GDLSeriesError) Data() interface{} {
+	return nil
+}
+
+// Returns the nullable data of the series.
+func (s GDLSeriesError) NullableData() interface{} {
+	return nil
+}
+
+// Returns the data of the series as a slice of strings.
+func (s GDLSeriesError) StringData() []string {
+	return []string{}
+}
+
+// Copies the series.
+func (s GDLSeriesError) Copy() GDLSeries {
+	return s
+}
+
+// Series operations.
+
+// Filters out the elements by the given mask.
+func (s GDLSeriesError) Filter(mask []bool) GDLSeries {
+	return s
+}
+
+// Group the elements in the series.
+func (s GDLSeriesError) Group() GDLSeriesPartition {
+	return nil
+}
+
+func (s GDLSeriesError) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
+	return nil
 }
