@@ -2,14 +2,15 @@ package gandalff
 
 import (
 	"testing"
+	"typesys"
 )
 
-func Test_GSeriesBool_Base(t *testing.T) {
+func Test_GDLSeriesBool_Base(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GSeriesBool.
-	s := NewGSeriesBool("test", true, true, data)
+	// Create a new GDLSeriesBool.
+	s := NewGDLSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -25,7 +26,7 @@ func Test_GSeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != BoolType {
+	if s.Type() != typesys.BoolType {
 		t.Errorf("Expected type of BoolType, got %s", s.Type().ToString())
 	}
 
@@ -102,7 +103,7 @@ func Test_GSeriesBool_Base(t *testing.T) {
 	}
 }
 
-func Test_GSeriesBool_LogicOperators(t *testing.T) {
+func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
 
@@ -110,8 +111,8 @@ func Test_GSeriesBool_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewGSeriesBool("testA", true, true, dataA)
-	sB := NewGSeriesBool("testB", true, true, dataB)
+	sA := NewGDLSeriesBool("testA", true, true, dataA)
+	sB := NewGDLSeriesBool("testB", true, true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -163,12 +164,12 @@ func Test_GSeriesBool_LogicOperators(t *testing.T) {
 	}
 }
 
-func Test_GSeriesBool_Filter(t *testing.T) {
+func Test_GDLSeriesBool_Filter(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGSeriesBool("test", true, true, data)
+	s := NewGDLSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)

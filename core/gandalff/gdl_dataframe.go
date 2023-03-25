@@ -2,71 +2,72 @@ package gandalff
 
 import (
 	"fmt"
+	"typesys"
 )
 
-type GDataFramePartitionEntry struct {
+type GDLDataFramePartitionEntry struct {
 	index     int
 	name      string
 	partition GSeriesPartition
 }
 
-type GDataFrame struct {
+type GDLDataFrame struct {
 	isGrouped  bool
 	err        error
 	series     []GSeries
 	pool       *StringPool
-	partitions []GDataFramePartitionEntry
+	partitions []GDLDataFramePartitionEntry
 }
 
-func NewGDataFrame() *GDataFrame {
-	return &GDataFrame{
+func NewGDLDataFrame() *GDLDataFrame {
+	return &GDLDataFrame{
 		series: make([]GSeries, 0),
 		pool:   NewStringPool(),
 	}
 }
 
-func (df *GDataFrame) IsErrored() bool {
+func (df *GDLDataFrame) IsErrored() bool {
 	return df.err != nil
 }
 
-func (df *GDataFrame) IsGrouped() bool {
+func (df *GDLDataFrame) IsGrouped() bool {
 	return df.isGrouped
 }
 
-func (df *GDataFrame) GetError() error {
+func (df *GDLDataFrame) GetError() error {
 	return df.err
 }
 
-func (df *GDataFrame) GetPool() *StringPool {
+func (df *GDLDataFrame) GetPool() *StringPool {
 	return df.pool
 }
 
-func (df *GDataFrame) AddSeries(series GSeries) {
+func (df *GDLDataFrame) AddSeries(series GSeries) {
 	df.series = append(df.series, series)
 }
 
-func (df *GDataFrame) AddSeriesFromBools(name string, isNullable bool, makeCopy bool, data []bool) {
-	series := NewGSeriesBool(name, isNullable, makeCopy, data)
+func (df *GDLDataFrame) AddSeriesFromBools(name string, isNullable bool, makeCopy bool, data []bool) {
+	series := NewGDLSeriesBool(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 
-func (df *GDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) {
-	series := NewGSeriesInt(name, isNullable, makeCopy, data)
+func (df *GDLDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) {
+	series := NewGDLSeriesInt32(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 
-func (df *GDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) {
-	series := NewGSeriesFloat(name, isNullable, makeCopy, data)
+func (df *GDLDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) {
+	series := NewGDLSeriesFloat64(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
 
-func (df *GDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) {
-	series := NewGSeriesString(name, isNullable, data, df.pool)
+func (df *GDLDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) {
+	series := NewGDLSeriesString(name, isNullable, data, df.pool)
 	df.AddSeries(series)
 }
 
 // Names returns the names of the series in the dataframe.
-func (df *GDataFrame) Names() []string {
+func (df *GDLDataFrame) Names() []string {
 	names := make([]string, len(df.series))
 	for i, series := range df.series {
 		names[i] = series.Name()
@@ -75,19 +76,19 @@ func (df *GDataFrame) Names() []string {
 }
 
 // Types returns the types of the series in the dataframe.
-func (df *GDataFrame) Types() []GSeriesType {
-	types := make([]GSeriesType, len(df.series))
+func (df *GDLDataFrame) Types() []typesys.BaseType {
+	types := make([]typesys.BaseType, len(df.series))
 	for i, series := range df.series {
 		types[i] = series.Type()
 	}
 	return types
 }
 
-func (df *GDataFrame) NCols() int {
+func (df *GDLDataFrame) NCols() int {
 	return len(df.series)
 }
 
-func (df *GDataFrame) NRows() int {
+func (df *GDLDataFrame) NRows() int {
 	if len(df.series) == 0 {
 		return 0
 	}
@@ -95,7 +96,7 @@ func (df *GDataFrame) NRows() int {
 }
 
 // Returns the series with the given name.
-func (df *GDataFrame) Series(name string) GSeries {
+func (df *GDLDataFrame) Series(name string) GSeries {
 	for _, series := range df.series {
 		if series.Name() == name {
 			return series
@@ -105,25 +106,25 @@ func (df *GDataFrame) Series(name string) GSeries {
 }
 
 // Returns the series at the given index.
-func (df *GDataFrame) SeriesAt(index int) GSeries {
+func (df *GDLDataFrame) SeriesAt(index int) GSeries {
 	if index < 0 || index >= len(df.series) {
 		return nil
 	}
 	return df.series[index]
 }
 
-func (df *GDataFrame) Select(names ...string) *GDataFrame {
+func (df *GDLDataFrame) Select(names ...string) *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
 
-	selected := NewGDataFrame()
+	selected := NewGDLDataFrame()
 	for _, name := range names {
 		series := df.Series(name)
 		if series != nil {
 			selected.AddSeries(series)
 		} else {
-			selected.err = fmt.Errorf("GDataFrame.Select: series \"%s\" not found", name)
+			selected.err = fmt.Errorf("GDLDataFrame.Select: series \"%s\" not found", name)
 			return selected
 		}
 	}
@@ -131,7 +132,7 @@ func (df *GDataFrame) Select(names ...string) *GDataFrame {
 	return selected
 }
 
-func (df *GDataFrame) InPlaceSelect(names ...string) error {
+func (df *GDLDataFrame) InPlaceSelect(names ...string) error {
 	if df.err != nil {
 		return df.err
 	}
@@ -145,18 +146,18 @@ func (df *GDataFrame) InPlaceSelect(names ...string) error {
 	return nil
 }
 
-func (df *GDataFrame) SelectAt(indices ...int) *GDataFrame {
+func (df *GDLDataFrame) SelectAt(indices ...int) *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
 
-	selected := NewGDataFrame()
+	selected := NewGDLDataFrame()
 	for _, index := range indices {
 		series := df.SeriesAt(index)
 		if series != nil {
 			selected.AddSeries(series)
 		} else {
-			selected.err = fmt.Errorf("GDataFrame.SelectAt: series at index %d not found", index)
+			selected.err = fmt.Errorf("GDLDataFrame.SelectAt: series at index %d not found", index)
 			return selected
 		}
 	}
@@ -164,7 +165,7 @@ func (df *GDataFrame) SelectAt(indices ...int) *GDataFrame {
 	return selected
 }
 
-func (df *GDataFrame) InPlaceSelectAt(indices ...int) error {
+func (df *GDLDataFrame) InPlaceSelectAt(indices ...int) error {
 	if df.err != nil {
 		return df.err
 	}
@@ -178,17 +179,17 @@ func (df *GDataFrame) InPlaceSelectAt(indices ...int) error {
 	return nil
 }
 
-func (df *GDataFrame) Filter() *GDataFrame {
+func (df *GDLDataFrame) Filter() *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
 
-	filtered := NewGDataFrame()
+	filtered := NewGDLDataFrame()
 
 	return filtered
 }
 
-func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
+func (df *GDLDataFrame) GroupBy(by ...string) *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -208,14 +209,14 @@ func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
 				}
 			}
 			if !found {
-				df.err = fmt.Errorf("GDataFrame.GroupBy: column \"%s\" not found", name)
+				df.err = fmt.Errorf("GDLDataFrame.GroupBy: column \"%s\" not found", name)
 				return df
 			}
 		}
 
-		grouped := NewGDataFrame()
+		grouped := NewGDLDataFrame()
 		grouped.isGrouped = true
-		grouped.partitions = make([]GDataFramePartitionEntry, len(by))
+		grouped.partitions = make([]GDLDataFramePartitionEntry, len(by))
 
 		partitionsIndex := 0
 
@@ -225,7 +226,7 @@ func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
 
 					// First partition: group the series
 					if partitionsIndex == 0 {
-						grouped.partitions[partitionsIndex] = GDataFramePartitionEntry{
+						grouped.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
 							index:     i,
 							name:      name,
 							partition: series.Group(),
@@ -234,7 +235,7 @@ func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
 
 					// Subsequent partitions: sub-group the series
 					{
-						grouped.partitions[partitionsIndex] = GDataFramePartitionEntry{
+						grouped.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
 							index:     i,
 							name:      name,
 							partition: series.SubGroup(grouped.partitions[partitionsIndex-1].partition),
@@ -255,7 +256,7 @@ func (df *GDataFrame) GroupBy(by ...string) *GDataFrame {
 	}
 }
 
-func (df *GDataFrame) Ungroup() *GDataFrame {
+func (df *GDLDataFrame) Ungroup() *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -267,12 +268,12 @@ func (df *GDataFrame) Ungroup() *GDataFrame {
 
 ///////////////////////////////		SUMMARY		/////////////////////////////////////////
 
-func (df *GDataFrame) Count() *GDataFrame {
+func (df *GDLDataFrame) Count() *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
 
-	result := NewGDataFrame()
+	result := NewGDLDataFrame()
 
 	if df.isGrouped {
 
@@ -291,10 +292,10 @@ func (df *GDataFrame) Count() *GDataFrame {
 			counts = append(counts, len(df.partitions[len(df.partitions)-1].partition.GetNullGroup()))
 		}
 
-		result.AddSeries(NewGSeriesInt("count", false, false, counts))
+		result.AddSeries(NewGDLSeriesInt32("count", false, false, counts))
 
 	} else {
-		result.AddSeries(NewGSeriesInt("count", false, false, []int{df.NRows()}))
+		result.AddSeries(NewGDLSeriesInt32("count", false, false, []int{df.NRows()}))
 	}
 
 	return result
@@ -309,7 +310,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func (df *GDataFrame) PrettyPrint() {
+func (df *GDLDataFrame) PrettyPrint() {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return
@@ -389,13 +390,13 @@ func (df *GDataFrame) PrettyPrint() {
 		fmt.Printf("    ")
 		for _, c := range df.series {
 			switch c.Type() {
-			case BoolType:
+			case typesys.BoolType:
 				fmt.Printf(fmtString, truncate(fmt.Sprintf("%t", c.Data().([]bool)[i]), colSize))
-			case IntType:
+			case typesys.Int32Type:
 				fmt.Printf(fmtString, truncate(fmt.Sprintf("%d", c.Data().([]int)[i]), colSize))
-			case FloatType:
+			case typesys.Float64Type:
 				fmt.Printf(fmtString, truncate(fmt.Sprintf("%f", c.Data().([]float64)[i]), colSize))
-			case StringType:
+			case typesys.StringType:
 				fmt.Printf(fmtString, truncate(c.Data().([]string)[i], colSize))
 			}
 		}

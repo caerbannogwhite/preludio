@@ -1,16 +1,19 @@
 package gandalff
 
-import "errors"
+import (
+	"errors"
+	"typesys"
+)
 
-// GSeriesFloat represents a series of floats.
-type GSeriesFloat struct {
+// GDLSeriesFloat64 represents a series of floats.
+type GDLSeriesFloat64 struct {
 	isNullable bool
 	name       string
 	data       []float64
 	nullMap    []uint8
 }
 
-func NewGSeriesFloat(name string, isNullable bool, makeCopy bool, data []float64) GSeriesFloat {
+func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
 	var nullMap []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
@@ -28,20 +31,20 @@ func NewGSeriesFloat(name string, isNullable bool, makeCopy bool, data []float64
 		data = actualData
 	}
 
-	return GSeriesFloat{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
+	return GDLSeriesFloat64{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
 
 ///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
 
-func (s GSeriesFloat) Len() int {
+func (s GDLSeriesFloat64) Len() int {
 	return len(s.data)
 }
 
-func (s GSeriesFloat) IsNullable() bool {
+func (s GDLSeriesFloat64) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GSeriesFloat) MakeNullable() {
+func (s GDLSeriesFloat64) MakeNullable() {
 	if !s.isNullable {
 		s.isNullable = true
 		if len(s.data)%8 == 0 {
@@ -52,15 +55,15 @@ func (s GSeriesFloat) MakeNullable() {
 	}
 }
 
-func (s GSeriesFloat) Name() string {
+func (s GDLSeriesFloat64) Name() string {
 	return s.name
 }
 
-func (s GSeriesFloat) Type() GSeriesType {
-	return FloatType
+func (s GDLSeriesFloat64) Type() typesys.BaseType {
+	return typesys.Float64Type
 }
 
-func (s GSeriesFloat) HasNull() bool {
+func (s GDLSeriesFloat64) HasNull() bool {
 	for _, v := range s.nullMap {
 		if v != 0 {
 			return true
@@ -69,7 +72,7 @@ func (s GSeriesFloat) HasNull() bool {
 	return false
 }
 
-func (s GSeriesFloat) NullCount() int {
+func (s GDLSeriesFloat64) NullCount() int {
 	count := 0
 	for _, v := range s.nullMap {
 		for i := 0; i < 8; i++ {
@@ -81,22 +84,22 @@ func (s GSeriesFloat) NullCount() int {
 	return count
 }
 
-func (s GSeriesFloat) IsNull(i int) bool {
+func (s GDLSeriesFloat64) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMap[i/8]&(1<<uint(i%8)) != 0
 	}
 	return false
 }
 
-func (s GSeriesFloat) SetNull(i int) error {
+func (s GDLSeriesFloat64) SetNull(i int) error {
 	if s.isNullable {
 		s.nullMap[i/8] |= 1 << uint(i%8)
 		return nil
 	}
-	return errors.New("GSeriesFloat.SetNull: series is not nullable")
+	return errors.New("GDLSeriesFloat64.SetNull: series is not nullable")
 }
 
-func (s GSeriesFloat) GetNullMask() []bool {
+func (s GDLSeriesFloat64) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
 	for _, v := range s.nullMap {
@@ -108,9 +111,9 @@ func (s GSeriesFloat) GetNullMask() []bool {
 	return mask
 }
 
-func (s GSeriesFloat) SetNullMask(mask []bool) error {
+func (s GDLSeriesFloat64) SetNullMask(mask []bool) error {
 	if !s.isNullable {
-		return errors.New("GSeriesFloat.SetNullMask: series is not nullable")
+		return errors.New("GDLSeriesFloat64.SetNullMask: series is not nullable")
 	}
 
 	for k, v := range mask {
@@ -124,16 +127,16 @@ func (s GSeriesFloat) SetNullMask(mask []bool) error {
 	return nil
 }
 
-func (s GSeriesFloat) Get(i int) interface{} {
+func (s GDLSeriesFloat64) Get(i int) interface{} {
 	return s.data[i]
 }
 
-func (s GSeriesFloat) Set(i int, v interface{}) {
+func (s GDLSeriesFloat64) Set(i int, v interface{}) {
 	s.data[i] = v.(float64)
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GSeriesFloat) Append(v interface{}) error {
+func (s GDLSeriesFloat64) Append(v interface{}) error {
 	if s.isNullable {
 		if b, ok := v.(float64); ok {
 			s.data = append(s.data, b)
@@ -146,7 +149,7 @@ func (s GSeriesFloat) Append(v interface{}) error {
 				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
 			}
 		} else {
-			return errors.New("GSeriesFloat.Append: invalid type")
+			return errors.New("GDLSeriesFloat64.Append: invalid type")
 		}
 	} else {
 		if b, ok := v.(float64); ok {
@@ -154,16 +157,16 @@ func (s GSeriesFloat) Append(v interface{}) error {
 		} else if bv, ok := v.([]float64); ok {
 			s.data = append(s.data, bv...)
 		} else {
-			return errors.New("GSeriesFloat.Append: invalid type")
+			return errors.New("GDLSeriesFloat64.Append: invalid type")
 		}
 	}
 	return nil
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GSeriesFloat) AppendNullable(v interface{}) error {
+func (s GDLSeriesFloat64) AppendNullable(v interface{}) error {
 	if !s.isNullable {
-		return errors.New("GSeriesFloat.AppendNullable: series is not nullable")
+		return errors.New("GDLSeriesFloat64.AppendNullable: series is not nullable")
 	}
 
 	if b, ok := v.(NullableFloat); ok {
@@ -185,7 +188,7 @@ func (s GSeriesFloat) AppendNullable(v interface{}) error {
 			}
 		}
 	} else {
-		return errors.New("GSeriesFloat.AppendNullable: invalid type")
+		return errors.New("GDLSeriesFloat64.AppendNullable: invalid type")
 	}
 
 	return nil
@@ -193,11 +196,11 @@ func (s GSeriesFloat) AppendNullable(v interface{}) error {
 
 ///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////
 
-func (s GSeriesFloat) Data() interface{} {
+func (s GDLSeriesFloat64) Data() interface{} {
 	return s.data
 }
 
-func (s GSeriesFloat) NullableData() interface{} {
+func (s GDLSeriesFloat64) NullableData() interface{} {
 	data := make([]NullableFloat, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableFloat{Valid: !s.IsNull(i), Value: v}
@@ -205,7 +208,7 @@ func (s GSeriesFloat) NullableData() interface{} {
 	return data
 }
 
-func (s GSeriesFloat) StringData() []string {
+func (s GDLSeriesFloat64) StringData() []string {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
 		if s.IsNull(i) {
@@ -217,18 +220,18 @@ func (s GSeriesFloat) StringData() []string {
 	return data
 }
 
-func (s GSeriesFloat) Copy() GSeries {
+func (s GDLSeriesFloat64) Copy() GSeries {
 	data := make([]float64, len(s.data))
 	copy(data, s.data)
 	nullMap := make([]uint8, len(s.nullMap))
 	copy(nullMap, s.nullMap)
 
-	return GSeriesFloat{isNullable: s.isNullable, name: s.name, data: data, nullMap: s.nullMap}
+	return GDLSeriesFloat64{isNullable: s.isNullable, name: s.name, data: data, nullMap: s.nullMap}
 }
 
 ///////////////////////////////		SERIES OPERATIONS			/////////////////////////
 
-func (s GSeriesFloat) Filter(mask []bool) GSeries {
+func (s GDLSeriesFloat64) Filter(mask []bool) GSeries {
 	data := make([]float64, 0)
 	nullMap := make([]uint8, len(s.nullMap))
 	for i, v := range mask {
@@ -239,15 +242,15 @@ func (s GSeriesFloat) Filter(mask []bool) GSeries {
 			}
 		}
 	}
-	return GSeriesFloat{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
+	return GDLSeriesFloat64{isNullable: s.isNullable, name: s.name, data: data, nullMap: nullMap}
 }
 
 ///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
 
-func (s GSeriesFloat) Group() GSeriesPartition {
+func (s GDLSeriesFloat64) Group() GSeriesPartition {
 	return nil
 }
 
-func (s GSeriesFloat) SubGroup(gp GSeriesPartition) GSeriesPartition {
+func (s GDLSeriesFloat64) SubGroup(gp GSeriesPartition) GSeriesPartition {
 	return nil
 }

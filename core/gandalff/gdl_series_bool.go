@@ -2,17 +2,18 @@ package gandalff
 
 import (
 	"errors"
+	"typesys"
 )
 
-// GSeriesBool represents a series of bools.
-type GSeriesBool struct {
+// GDLSeriesBool represents a series of bools.
+type GDLSeriesBool struct {
 	isNullable bool
 	name       string
 	data       []bool
 	nullMap    []uint8
 }
 
-func NewGSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GSeriesBool {
+func NewGDLSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GDLSeriesBool {
 	var nullMap []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
@@ -30,20 +31,20 @@ func NewGSeriesBool(name string, isNullable bool, makeCopy bool, data []bool) GS
 		data = dataCopy
 	}
 
-	return GSeriesBool{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
+	return GDLSeriesBool{isNullable: isNullable, name: name, data: data, nullMap: nullMap}
 }
 
 ///////////////////////////////		BASIC ACCESSORS		/////////////////////////////////
 
-func (s GSeriesBool) Len() int {
+func (s GDLSeriesBool) Len() int {
 	return len(s.data)
 }
 
-func (s GSeriesBool) IsNullable() bool {
+func (s GDLSeriesBool) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GSeriesBool) MakeNullable() {
+func (s GDLSeriesBool) MakeNullable() {
 	if !s.isNullable {
 		s.isNullable = true
 		if len(s.data)%8 == 0 {
@@ -54,15 +55,15 @@ func (s GSeriesBool) MakeNullable() {
 	}
 }
 
-func (s GSeriesBool) Name() string {
+func (s GDLSeriesBool) Name() string {
 	return s.name
 }
 
-func (s GSeriesBool) Type() GSeriesType {
-	return BoolType
+func (s GDLSeriesBool) Type() typesys.BaseType {
+	return typesys.BoolType
 }
 
-func (s GSeriesBool) HasNull() bool {
+func (s GDLSeriesBool) HasNull() bool {
 	for _, v := range s.nullMap {
 		if v != 0 {
 			return true
@@ -71,7 +72,7 @@ func (s GSeriesBool) HasNull() bool {
 	return false
 }
 
-func (s GSeriesBool) NullCount() int {
+func (s GDLSeriesBool) NullCount() int {
 	count := 0
 	for _, v := range s.nullMap {
 		for i := 0; i < 8; i++ {
@@ -83,22 +84,22 @@ func (s GSeriesBool) NullCount() int {
 	return count
 }
 
-func (s GSeriesBool) IsNull(i int) bool {
+func (s GDLSeriesBool) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMap[i/8]&(1<<uint(i%8)) != 0
 	}
 	return false
 }
 
-func (s GSeriesBool) SetNull(i int) error {
+func (s GDLSeriesBool) SetNull(i int) error {
 	if s.isNullable {
 		s.nullMap[i/8] |= 1 << uint(i%8)
 		return nil
 	}
-	return errors.New("GSeriesBool.SetNull: series is not nullable")
+	return errors.New("GDLSeriesBool.SetNull: series is not nullable")
 }
 
-func (s GSeriesBool) GetNullMask() []bool {
+func (s GDLSeriesBool) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
 	for _, v := range s.nullMap {
@@ -110,9 +111,9 @@ func (s GSeriesBool) GetNullMask() []bool {
 	return mask
 }
 
-func (s GSeriesBool) SetNullMask(mask []bool) error {
+func (s GDLSeriesBool) SetNullMask(mask []bool) error {
 	if !s.isNullable {
-		return errors.New("GSeriesBool.SetNullMask: series is not nullable")
+		return errors.New("GDLSeriesBool.SetNullMask: series is not nullable")
 	}
 
 	for k, v := range mask {
@@ -125,16 +126,16 @@ func (s GSeriesBool) SetNullMask(mask []bool) error {
 	return nil
 }
 
-func (s GSeriesBool) Get(i int) interface{} {
+func (s GDLSeriesBool) Get(i int) interface{} {
 	return s.data[i]
 }
 
-func (s GSeriesBool) Set(i int, v interface{}) {
+func (s GDLSeriesBool) Set(i int, v interface{}) {
 	s.data[i] = v.(bool)
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GSeriesBool) Append(v interface{}) error {
+func (s GDLSeriesBool) Append(v interface{}) error {
 	if s.isNullable {
 		if b, ok := v.(bool); ok {
 			s.data = append(s.data, b)
@@ -147,7 +148,7 @@ func (s GSeriesBool) Append(v interface{}) error {
 				s.nullMap = append(s.nullMap, make([]uint8, len(s.data)/8-len(s.nullMap))...)
 			}
 		} else {
-			return errors.New("GSeriesBool.Append: invalid type")
+			return errors.New("GDLSeriesBool.Append: invalid type")
 		}
 	} else {
 		if b, ok := v.(bool); ok {
@@ -155,16 +156,16 @@ func (s GSeriesBool) Append(v interface{}) error {
 		} else if bv, ok := v.([]bool); ok {
 			s.data = append(s.data, bv...)
 		} else {
-			return errors.New("GSeriesBool.Append: invalid type")
+			return errors.New("GDLSeriesBool.Append: invalid type")
 		}
 	}
 	return nil
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GSeriesBool) AppendNullable(v interface{}) error {
+func (s GDLSeriesBool) AppendNullable(v interface{}) error {
 	if !s.isNullable {
-		return errors.New("GSeriesBool.AppendNullable: series is not nullable")
+		return errors.New("GDLSeriesBool.AppendNullable: series is not nullable")
 	}
 
 	if b, ok := v.(NullableBool); ok {
@@ -186,7 +187,7 @@ func (s GSeriesBool) AppendNullable(v interface{}) error {
 			}
 		}
 	} else {
-		return errors.New("GSeriesBool.AppendNullable: invalid type")
+		return errors.New("GDLSeriesBool.AppendNullable: invalid type")
 	}
 
 	return nil
@@ -194,12 +195,12 @@ func (s GSeriesBool) AppendNullable(v interface{}) error {
 
 /////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////
 
-func (s GSeriesBool) Data() interface{} {
+func (s GDLSeriesBool) Data() interface{} {
 	return s.data
 }
 
 // NullableData returns a slice of NullableBool.
-func (s GSeriesBool) NullableData() interface{} {
+func (s GDLSeriesBool) NullableData() interface{} {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableBool{Valid: !s.IsNull(i), Value: v}
@@ -208,7 +209,7 @@ func (s GSeriesBool) NullableData() interface{} {
 }
 
 // StringData returns a slice of strings.
-func (s GSeriesBool) StringData() []string {
+func (s GDLSeriesBool) StringData() []string {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
 		if s.IsNull(i) {
@@ -221,13 +222,13 @@ func (s GSeriesBool) StringData() []string {
 }
 
 // Copy returns a copy of the series.
-func (s GSeriesBool) Copy() GSeries {
+func (s GDLSeriesBool) Copy() GSeries {
 	data := make([]bool, len(s.data))
 	copy(data, s.data)
 	nullMap := make([]uint8, len(s.nullMap))
 	copy(nullMap, s.nullMap)
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
@@ -238,7 +239,7 @@ func (s GSeriesBool) Copy() GSeries {
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
 // Filter returns a new series with elements at the indices where mask is true.
-func (s GSeriesBool) Filter(mask []bool) GSeries {
+func (s GDLSeriesBool) Filter(mask []bool) GSeries {
 	elementCount := 0
 	for _, v := range mask {
 		if v {
@@ -266,7 +267,7 @@ func (s GSeriesBool) Filter(mask []bool) GSeries {
 			}
 		}
 
-		return GSeriesBool{
+		return GDLSeriesBool{
 			isNullable: s.isNullable,
 			name:       s.name,
 			data:       data,
@@ -283,7 +284,7 @@ func (s GSeriesBool) Filter(mask []bool) GSeries {
 		}
 	}
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
@@ -291,7 +292,7 @@ func (s GSeriesBool) Filter(mask []bool) GSeries {
 	}
 }
 
-func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
+func (s GDLSeriesBool) FilterByIndex(indexes []int) GSeries {
 	if s.isNullable {
 		data := make([]bool, len(indexes))
 		nullMap := make([]uint8, len(s.nullMap))
@@ -302,7 +303,7 @@ func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
 			}
 		}
 
-		return GSeriesBool{
+		return GDLSeriesBool{
 			isNullable: s.isNullable,
 			name:       s.name,
 			data:       data,
@@ -315,7 +316,7 @@ func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
 		data[i] = s.data[v]
 	}
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
 		data:       data,
@@ -325,12 +326,12 @@ func (s GSeriesBool) FilterByIndex(indexes []int) GSeries {
 
 ///////////////////////////////		GROUPING OPERATIONS		/////////////////////////////
 
-type GSeriesBoolPartition struct {
+type GDLSeriesBoolPartition struct {
 	partition map[bool][]int
 	nullGroup []int
 }
 
-func (p GSeriesBoolPartition) GetGroupsCount() int {
+func (p GDLSeriesBoolPartition) GetGroupsCount() int {
 	count := 0
 	for _, v := range p.partition {
 		if len(v) > 0 {
@@ -343,7 +344,7 @@ func (p GSeriesBoolPartition) GetGroupsCount() int {
 	return count
 }
 
-func (p GSeriesBoolPartition) GetNonNullGroups() [][]int {
+func (p GDLSeriesBoolPartition) GetNonNullGroups() [][]int {
 	partition := make([][]int, 0)
 	for _, v := range p.partition {
 		if len(v) > 0 {
@@ -353,11 +354,11 @@ func (p GSeriesBoolPartition) GetNonNullGroups() [][]int {
 	return partition
 }
 
-func (s GSeriesBoolPartition) GetNullGroup() []int {
+func (s GDLSeriesBoolPartition) GetNullGroup() []int {
 	return s.nullGroup
 }
 
-func (s GSeriesBool) Group() GSeriesPartition {
+func (s GDLSeriesBool) Group() GSeriesPartition {
 	groups := make(map[bool][]int)
 	nullGroup := make([]int, 0)
 	if s.isNullable {
@@ -373,13 +374,13 @@ func (s GSeriesBool) Group() GSeriesPartition {
 			groups[v] = append(groups[v], i)
 		}
 	}
-	return GSeriesBoolPartition{
+	return GDLSeriesBoolPartition{
 		partition: groups,
 		nullGroup: nullGroup,
 	}
 }
 
-func (s GSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
+func (s GDLSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
 	groups := make(map[bool][]int)
 	nullGroup := make([]int, 0)
 	if s.isNullable {
@@ -399,7 +400,7 @@ func (s GSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
 			}
 		}
 	}
-	return GSeriesBoolPartition{
+	return GDLSeriesBoolPartition{
 		partition: groups,
 		nullGroup: nullGroup,
 	}
@@ -408,7 +409,7 @@ func (s GSeriesBool) SubGroup(gp GSeriesPartition) GSeriesPartition {
 ///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
 
 // And performs logical AND operation between two series
-func (s GSeriesBool) And(other GSeries) GSeries {
+func (s GDLSeriesBool) And(other GSeries) GSeries {
 	if s.isNullable || other.IsNullable() {
 		data := make([]bool, len(s.data))
 		nullMap := make([]uint8, len(s.nullMap))
@@ -419,7 +420,7 @@ func (s GSeriesBool) And(other GSeries) GSeries {
 			data[i] = s.data[i] && other.Get(i).(bool)
 		}
 
-		return GSeriesBool{
+		return GDLSeriesBool{
 			isNullable: true,
 			name:       s.name,
 			data:       data,
@@ -432,7 +433,7 @@ func (s GSeriesBool) And(other GSeries) GSeries {
 		data[i] = s.data[i] && other.Get(i).(bool)
 	}
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: false,
 		name:       s.name,
 		data:       data,
@@ -441,7 +442,7 @@ func (s GSeriesBool) And(other GSeries) GSeries {
 }
 
 // Or performs logical OR operation between two series
-func (s GSeriesBool) Or(other GSeries) GSeries {
+func (s GDLSeriesBool) Or(other GSeries) GSeries {
 	if s.isNullable || other.IsNullable() {
 		data := make([]bool, len(s.data))
 		nullMap := make([]uint8, len(s.nullMap))
@@ -452,7 +453,7 @@ func (s GSeriesBool) Or(other GSeries) GSeries {
 			data[i] = s.data[i] || other.Get(i).(bool)
 		}
 
-		return GSeriesBool{
+		return GDLSeriesBool{
 			isNullable: true,
 			name:       s.name,
 			data:       data,
@@ -465,7 +466,7 @@ func (s GSeriesBool) Or(other GSeries) GSeries {
 		data[i] = s.data[i] || other.Get(i).(bool)
 	}
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: false,
 		name:       s.name,
 		data:       data,
@@ -474,7 +475,7 @@ func (s GSeriesBool) Or(other GSeries) GSeries {
 }
 
 // Not performs logical NOT operation on series
-func (s GSeriesBool) Not() GSeries {
+func (s GDLSeriesBool) Not() GSeries {
 	if s.isNullable {
 		data := make([]bool, len(s.data))
 		nullMap := make([]uint8, len(s.nullMap))
@@ -485,7 +486,7 @@ func (s GSeriesBool) Not() GSeries {
 			data[i] = !s.data[i]
 		}
 
-		return GSeriesBool{
+		return GDLSeriesBool{
 			isNullable: true,
 			name:       s.name,
 			data:       data,
@@ -498,7 +499,7 @@ func (s GSeriesBool) Not() GSeries {
 		data[i] = !s.data[i]
 	}
 
-	return GSeriesBool{
+	return GDLSeriesBool{
 		isNullable: false,
 		name:       s.name,
 		data:       data,

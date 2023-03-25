@@ -2,15 +2,17 @@ package gandalff
 
 import (
 	"testing"
+	"typesys"
 )
 
-func Test_GSeriesFloat_Base(t *testing.T) {
-
-	data := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
+func Test_GDLSeriesString_Base(t *testing.T) {
+	data := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GSeriesFloat.
-	s := NewGSeriesFloat("test", true, true, data)
+	stringPool := NewStringPool()
+
+	// Create a new GDLSeriesString.
+	s := NewGDLSeriesString("test", true, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -26,14 +28,14 @@ func Test_GSeriesFloat_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != FloatType {
-		t.Errorf("Expected type of FloatType, got %s", s.Type().ToString())
+	if s.Type() != typesys.StringType {
+		t.Errorf("Expected type of StringType, got %s", s.Type().ToString())
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]float64) {
+	for i, v := range s.Data().([]string) {
 		if v != data[i] {
-			t.Errorf("Expected data of []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}, got %v", s.Data())
+			t.Errorf("Expected data of []string{\"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\", \"i\", \"j\"}, got %v", s.Data())
 		}
 	}
 
@@ -50,7 +52,7 @@ func Test_GSeriesFloat_Base(t *testing.T) {
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]float64) {
+	for i := range s.Data().([]string) {
 		if s.IsNull(i) != mask[i] {
 			t.Errorf("Expected IsNull(%d) to be %t, got %t", i, mask[i], s.IsNull(i))
 		}
@@ -61,18 +63,18 @@ func Test_GSeriesFloat_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 3, got %d", s.NullCount())
 	}
 
-	// Check the HasNull() method.
+	// Check the HasNull method.
 	if !s.HasNull() {
 		t.Errorf("Expected HasNull() to be true, got false")
 	}
 
 	// Check the SetNull() method.
-	for i := range s.Data().([]float64) {
+	for i := range s.Data().([]string) {
 		s.SetNull(i)
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]float64) {
+	for i := range s.Data().([]string) {
 		if !s.IsNull(i) {
 			t.Errorf("Expected IsNull(%d) to be true, got false", i)
 		}
@@ -83,22 +85,22 @@ func Test_GSeriesFloat_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 10, got %d", s.NullCount())
 	}
 
-	// Check the Get() method.
-	for i, v := range s.Data().([]float64) {
-		if s.Get(i).(float64) != v {
-			t.Errorf("Expected Get(%d) to be %f, got %f", i, v, s.Get(i).(float64))
+	// Check the Get method.
+	for i, v := range s.Data().([]string) {
+		if s.Get(i) != v {
+			t.Errorf("Expected Get(%d) to be %s, got %s", i, v, s.Get(i))
 		}
 	}
 
-	// Check the Set() method.
-	for i := range s.Data().([]float64) {
-		s.Set(i, float64(i+10))
+	// Check the Set method.
+	for i, v := range s.Data().([]string) {
+		s.Set(i, v+"x")
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]float64) {
-		if v != float64(i+10) {
-			t.Errorf("Expected data of []float64{11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0}, got %v", s.Data())
+	for i, v := range s.Data().([]string) {
+		if v != data[i]+"x" {
+			t.Errorf("Expected data of []string{\"ax\", \"bx\", \"cx\", \"dx\", \"ex\", \"fx\", \"gx\", \"hx\", \"ix\", \"jx\"}, got %v", s.Data())
 		}
 	}
 }

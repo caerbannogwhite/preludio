@@ -2,16 +2,16 @@ package gandalff
 
 import (
 	"testing"
+	"typesys"
 )
 
-func Test_GSeriesString_Base(t *testing.T) {
-	data := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
+func Test_GDLSeriesInt32_Base(t *testing.T) {
+
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	stringPool := NewStringPool()
-
-	// Create a new GSeriesString.
-	s := NewGSeriesString("test", true, data, stringPool)
+	// Create a new GDLSeriesInt32.
+	s := NewGDLSeriesInt32("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -27,14 +27,14 @@ func Test_GSeriesString_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != StringType {
-		t.Errorf("Expected type of StringType, got %s", s.Type().ToString())
+	if s.Type() != typesys.Int32Type {
+		t.Errorf("Expected type of Int32Type, got %s", s.Type().ToString())
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]string) {
+	for i, v := range s.Data().([]int) {
 		if v != data[i] {
-			t.Errorf("Expected data of []string{\"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\", \"i\", \"j\"}, got %v", s.Data())
+			t.Errorf("Expected data of []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, got %v", s.Data())
 		}
 	}
 
@@ -51,7 +51,7 @@ func Test_GSeriesString_Base(t *testing.T) {
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]string) {
+	for i := range s.Data().([]int) {
 		if s.IsNull(i) != mask[i] {
 			t.Errorf("Expected IsNull(%d) to be %t, got %t", i, mask[i], s.IsNull(i))
 		}
@@ -67,13 +67,13 @@ func Test_GSeriesString_Base(t *testing.T) {
 		t.Errorf("Expected HasNull() to be true, got false")
 	}
 
-	// Check the SetNull() method.
-	for i := range s.Data().([]string) {
+	// Check the SetNull method.
+	for i := range s.Data().([]int) {
 		s.SetNull(i)
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]string) {
+	for i := range s.Data().([]int) {
 		if !s.IsNull(i) {
 			t.Errorf("Expected IsNull(%d) to be true, got false", i)
 		}
@@ -85,21 +85,21 @@ func Test_GSeriesString_Base(t *testing.T) {
 	}
 
 	// Check the Get method.
-	for i, v := range s.Data().([]string) {
-		if s.Get(i) != v {
-			t.Errorf("Expected Get(%d) to be %s, got %s", i, v, s.Get(i))
+	for i := range s.Data().([]int) {
+		if s.Get(i).(int) != data[i] {
+			t.Errorf("Expected Get(%d) to be %d, got %d", i, data[i], s.Get(i).(int))
 		}
 	}
 
 	// Check the Set method.
-	for i, v := range s.Data().([]string) {
-		s.Set(i, v+"x")
+	for i := range s.Data().([]int) {
+		s.Set(i, i+10)
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]string) {
-		if v != data[i]+"x" {
-			t.Errorf("Expected data of []string{\"ax\", \"bx\", \"cx\", \"dx\", \"ex\", \"fx\", \"gx\", \"hx\", \"ix\", \"jx\"}, got %v", s.Data())
+	for i, v := range s.Data().([]int) {
+		if v != i+10 {
+			t.Errorf("Expected data of []int{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}, got %v", s.Data())
 		}
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"io"
 	"regexp"
 	"strconv"
+	"typesys"
 )
 
 type TypeGuesser struct {
@@ -28,15 +29,15 @@ func NewTypeGuesser() TypeGuesser {
 	return TypeGuesser{boolRegex, boolTrueRegex, boolFalseRegex, intRegex, floatRegex}
 }
 
-func (tg TypeGuesser) GuessType(s string) GSeriesType {
+func (tg TypeGuesser) GuessType(s string) typesys.BaseType {
 	if tg.boolRegex.MatchString(s) {
-		return BoolType
+		return typesys.BoolType
 	} else if tg.intRegex.MatchString(s) {
-		return IntType
+		return typesys.Int32Type
 	} else if tg.floatRegex.MatchString(s) {
-		return FloatType
+		return typesys.Float64Type
 	}
-	return StringType
+	return typesys.StringType
 }
 
 func (tg TypeGuesser) AtoBool(s string) (bool, error) {
@@ -48,8 +49,8 @@ func (tg TypeGuesser) AtoBool(s string) (bool, error) {
 	return false, fmt.Errorf("cannot convert \"%s\" to bool", s)
 }
 
-// FromCSV reads a CSV file and returns a GDataFrame.
-func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int) *GDataFrame {
+// FromCSV reads a CSV file and returns a GDLDataFrame.
+func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int) *GDLDataFrame {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
@@ -61,8 +62,8 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	// Initialize TypeGuesser
 	tg := NewTypeGuesser()
 
-	// Initialize GDataFrame
-	df := NewGDataFrame()
+	// Initialize GDLDataFrame
+	df := NewGDLDataFrame()
 
 	// Initialize CSV reader
 	csvReader := csv.NewReader(reader)
@@ -81,7 +82,7 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	// Guess data types
-	var dataTypes []GSeriesType
+	var dataTypes []typesys.BaseType
 	recordsForGuessing := make([][]string, 0)
 
 	for i := 0; i < guessDataTypeLen; i++ {
@@ -97,11 +98,11 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			if i == 0 {
 				dataTypes = append(dataTypes, tg.GuessType(v))
 			} else {
-				if dataTypes[j] == StringType {
+				if dataTypes[j] == typesys.StringType {
 					continue
 				}
 				if tg.GuessType(v) != dataTypes[j] {
-					dataTypes[j] = StringType
+					dataTypes[j] = typesys.StringType
 				}
 			}
 		}
@@ -110,13 +111,13 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	values := make([]interface{}, len(dataTypes))
 	for i := range values {
 		switch dataTypes[i] {
-		case BoolType:
+		case typesys.BoolType:
 			values[i] = make([]bool, 0)
-		case IntType:
+		case typesys.Int32Type:
 			values[i] = make([]int, 0)
-		case FloatType:
+		case typesys.Float64Type:
 			values[i] = make([]float64, 0)
-		case StringType:
+		case typesys.StringType:
 			values[i] = make([]string, 0)
 		}
 	}
@@ -125,28 +126,28 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for _, record := range recordsForGuessing {
 		for i, v := range record {
 			switch dataTypes[i] {
-			case BoolType:
+			case typesys.BoolType:
 				b, err := tg.AtoBool(v)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]bool), b)
-			case IntType:
+			case typesys.Int32Type:
 				d, err := strconv.Atoi(v)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]int), d)
-			case FloatType:
+			case typesys.Float64Type:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]float64), f)
-			case StringType:
+			case typesys.StringType:
 				values[i] = append(values[i].([]string), v)
 			}
 		}
@@ -162,28 +163,28 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 		for i, v := range record {
 			switch dataTypes[i] {
-			case BoolType:
+			case typesys.BoolType:
 				b, err := tg.AtoBool(v)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]bool), b)
-			case IntType:
+			case typesys.Int32Type:
 				d, err := strconv.Atoi(v)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]int), d)
-			case FloatType:
+			case typesys.Float64Type:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					df.err = err
 					return df
 				}
 				values[i] = append(values[i].([]float64), f)
-			case StringType:
+			case typesys.StringType:
 				values[i] = append(values[i].([]string), v)
 			}
 		}
@@ -199,14 +200,14 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	// Create series
 	for i, name := range names {
 		switch dataTypes[i] {
-		case BoolType:
-			df.AddSeries(NewGSeriesBool(name, isNullable, false, values[i].([]bool)))
-		case IntType:
-			df.AddSeries(NewGSeriesInt(name, isNullable, false, values[i].([]int)))
-		case FloatType:
-			df.AddSeries(NewGSeriesFloat(name, isNullable, false, values[i].([]float64)))
-		case StringType:
-			df.AddSeries(NewGSeriesString(name, isNullable, values[i].([]string), stringPool))
+		case typesys.BoolType:
+			df.AddSeries(NewGDLSeriesBool(name, isNullable, false, values[i].([]bool)))
+		case typesys.Int32Type:
+			df.AddSeries(NewGDLSeriesInt32(name, isNullable, false, values[i].([]int)))
+		case typesys.Float64Type:
+			df.AddSeries(NewGDLSeriesFloat64(name, isNullable, false, values[i].([]float64)))
+		case typesys.StringType:
+			df.AddSeries(NewGDLSeriesString(name, isNullable, values[i].([]string), stringPool))
 		}
 	}
 

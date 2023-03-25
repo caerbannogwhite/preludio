@@ -3,30 +3,8 @@ package gandalff
 import (
 	"strconv"
 	"sync"
+	"typesys"
 )
-
-type GSeriesType uint8
-
-const (
-	BoolType GSeriesType = iota
-	IntType
-	FloatType
-	StringType
-)
-
-func (t GSeriesType) ToString() string {
-	switch t {
-	case BoolType:
-		return "BOOL"
-	case IntType:
-		return "INT"
-	case FloatType:
-		return "FLOAT"
-	case StringType:
-		return "STRING"
-	}
-	return "UNKNOWN"
-}
 
 ///////////////////////////////		TO STRING		/////////////////////////////////
 
@@ -81,7 +59,7 @@ type GSeries interface {
 	// Returns the name of the series.
 	Name() string
 	// Returns the type of the series.
-	Type() GSeriesType
+	Type() typesys.BaseType
 	// Returns if the series has null values.
 	HasNull() bool
 	// Returns the number of null values in the series.
