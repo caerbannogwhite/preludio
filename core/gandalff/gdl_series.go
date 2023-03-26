@@ -73,7 +73,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Makes the series nullable.
-	MakeNullable()
+	MakeNullable() GDLSeries
 	// Returns the name of the series.
 	Name() string
 	// Returns the type of the series.
@@ -235,7 +235,9 @@ func (s GDLSeriesError) IsNullable() bool {
 }
 
 // Makes the series nullable.
-func (s GDLSeriesError) MakeNullable() {}
+func (s GDLSeriesError) MakeNullable() GDLSeries {
+	return s
+}
 
 // Returns the name of the series.
 func (s GDLSeriesError) Name() string {

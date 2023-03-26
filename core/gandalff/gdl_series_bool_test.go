@@ -102,6 +102,46 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 			t.Errorf("Expected data of []bool{false, true, false, true, false, true, false, true, false, true}, got %v", s.Data())
 		}
 	}
+
+	// Check the MakeNullable() method.
+	p := NewGDLSeriesBool("test", false, data)
+
+	// Check the nullability.
+	if p.IsNullable() {
+		t.Errorf("Expected IsNullable() to be false, got true")
+	}
+
+	// Set values to null.
+	p.SetNull(1)
+	p.SetNull(3)
+	p.SetNull(5)
+
+	// Check the null count.
+	if p.NullCount() != 0 {
+		t.Errorf("Expected NullCount() to be 0, got %d", p.NullCount())
+	}
+
+	// Make the series nullable.
+	p = p.MakeNullable().(GDLSeriesBool)
+
+	// Check the nullability.
+	if !p.IsNullable() {
+		t.Errorf("Expected IsNullable() to be true, got false")
+	}
+
+	// Check the null count.
+	if p.NullCount() != 0 {
+		t.Errorf("Expected NullCount() to be 0, got %d", p.NullCount())
+	}
+
+	p.SetNull(1)
+	p.SetNull(3)
+	p.SetNull(5)
+
+	// Check the null count.
+	if p.NullCount() != 3 {
+		t.Errorf("Expected NullCount() to be 3, got %d", p.NullCount())
+	}
 }
 
 func Test_GDLSeriesBool_Append(t *testing.T) {

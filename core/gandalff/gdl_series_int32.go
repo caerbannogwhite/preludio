@@ -17,9 +17,9 @@ func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) 
 	var nullMask []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
-			nullMask = make([]uint8, len(data)/8)
+			nullMask = make([]uint8, (len(data) >> 3))
 		} else {
-			nullMask = make([]uint8, len(data)/8+1)
+			nullMask = make([]uint8, (len(data)>>3)+1)
 		}
 	} else {
 		nullMask = make([]uint8, 0)
@@ -44,15 +44,16 @@ func (s GDLSeriesInt32) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GDLSeriesInt32) MakeNullable() {
+func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, len(s.data)/8)
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
 		} else {
-			s.nullMask = make([]uint8, len(s.data)/8+1)
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
 		}
 		s.isNullable = true
 	}
+	return s
 }
 
 func (s GDLSeriesInt32) Name() string {

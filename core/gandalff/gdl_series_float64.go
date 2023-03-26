@@ -17,9 +17,9 @@ func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []flo
 	var nullMask []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
-			nullMask = make([]uint8, len(data)/8)
+			nullMask = make([]uint8, (len(data) >> 3))
 		} else {
-			nullMask = make([]uint8, len(data)/8+1)
+			nullMask = make([]uint8, (len(data)>>3)+1)
 		}
 	} else {
 		nullMask = make([]uint8, 0)
@@ -44,15 +44,16 @@ func (s GDLSeriesFloat64) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GDLSeriesFloat64) MakeNullable() {
+func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
 		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, len(s.data)/8)
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
 		} else {
-			s.nullMask = make([]uint8, len(s.data)/8+1)
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
 		}
 	}
+	return s
 }
 
 func (s GDLSeriesFloat64) Name() string {

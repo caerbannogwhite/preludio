@@ -18,9 +18,9 @@ func NewGDLSeriesString(name string, isNullable bool, data []string, pool *Strin
 	var nullMask []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
-			nullMask = make([]uint8, len(data)/8)
+			nullMask = make([]uint8, (len(data) >> 3))
 		} else {
-			nullMask = make([]uint8, len(data)/8+1)
+			nullMask = make([]uint8, (len(data)>>3)+1)
 		}
 	} else {
 		nullMask = make([]uint8, 0)
@@ -44,15 +44,16 @@ func (s GDLSeriesString) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GDLSeriesString) MakeNullable() {
+func (s GDLSeriesString) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
 		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, len(s.data)/8)
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
 		} else {
-			s.nullMask = make([]uint8, len(s.data)/8+1)
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
 		}
 	}
+	return s
 }
 
 func (s GDLSeriesString) Name() string {

@@ -19,17 +19,17 @@ func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeriesBool {
 	size := len(data)
 	var actualData []uint8
 	if size%8 == 0 {
-		actualData = make([]uint8, size/8)
+		actualData = make([]uint8, (size >> 3))
 		for i := 0; i < size; i++ {
 			if data[i] {
-				actualData[i/8] |= 1 << uint(i%8)
+				actualData[i>>3] |= 1 << uint(i%8)
 			}
 		}
 	} else {
-		actualData = make([]uint8, size/8+1)
+		actualData = make([]uint8, (size>>3)+1)
 		for i := 0; i < size; i++ {
 			if data[i] {
-				actualData[i/8] |= 1 << uint(i%8)
+				actualData[i>>3] |= 1 << uint(i%8)
 			}
 		}
 	}
@@ -55,11 +55,12 @@ func (s GDLSeriesBool) IsNullable() bool {
 	return s.isNullable
 }
 
-func (s GDLSeriesBool) MakeNullable() {
+func (s GDLSeriesBool) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
 		s.nullMask = make([]uint8, len(s.data))
 	}
+	return s
 }
 
 func (s GDLSeriesBool) Name() string {
