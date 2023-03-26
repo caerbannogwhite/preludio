@@ -158,65 +158,122 @@ func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesFloat64) AppendRaw(v interface{}) GDLSeries {
 	if s.isNullable {
-		if b, ok := v.(float64); ok {
-			s.data = append(s.data, b)
-			if len(s.data)/8 > len(s.nullMask) {
+		if f, ok := v.(float64); ok {
+			s.data = append(s.data, f)
+			if len(s.data) > len(s.nullMask)<<3 {
 				s.nullMask = append(s.nullMask, 0)
 			}
-		} else if bv, ok := v.([]float64); ok {
-			s.data = append(s.data, bv...)
-			if len(s.data)/8 > len(s.nullMask) {
-				s.nullMask = append(s.nullMask, make([]uint8, len(s.data)/8-len(s.nullMask))...)
+		} else if fv, ok := v.([]float64); ok {
+			s.data = append(s.data, fv...)
+			if len(s.data) > len(s.nullMask)<<3 {
+				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 			}
 		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendRaw: invalid type %T", v)}
 		}
 	} else {
-		if b, ok := v.(float64); ok {
-			s.data = append(s.data, b)
-		} else if bv, ok := v.([]float64); ok {
-			s.data = append(s.data, bv...)
+		if f, ok := v.(float64); ok {
+			s.data = append(s.data, f)
+		} else if fv, ok := v.([]float64); ok {
+			s.data = append(s.data, fv...)
 		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
+			return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendRaw: invalid type %T", v)}
 		}
 	}
-	return nil
+	return s
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
 func (s GDLSeriesFloat64) AppendNullable(v interface{}) GDLSeries {
 	if !s.isNullable {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendNullable: series is not nullable")}
+		return GDLSeriesError{"GDLSeriesFloat64.AppendNullable: series is not nullable"}
 	}
 
-	if b, ok := v.(NullableFloat64); ok {
-		s.data = append(s.data, b.Value)
-		if len(s.data)/8 > len(s.nullMask) {
+	if f, ok := v.(NullableFloat64); ok {
+		s.data = append(s.data, f.Value)
+		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
-		if !b.Valid {
-			s.nullMask[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+		if !f.Valid {
+			s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 		}
-	} else if bv, ok := v.([]NullableFloat64); ok {
-		for _, b := range bv {
-			s.data = append(s.data, b.Value)
-			if len(s.data)/8 > len(s.nullMask) {
-				s.nullMask = append(s.nullMask, 0)
-			}
-			if !b.Valid {
-				s.nullMask[len(s.data)/8] |= 1 << uint(len(s.data)%8)
+	} else if fv, ok := v.([]NullableFloat64); ok {
+		if len(s.data) > len(s.nullMask)<<8 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
+		}
+		for _, f := range fv {
+			s.data = append(s.data, f.Value)
+			if !f.Valid {
+				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 			}
 		}
 	} else {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendNullable: invalid type, %T", v)}
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendNullable: invalid type %T", v)}
 	}
 
-	return nil
+	return s
 }
 
-func (s GDLSeriesFloat64) AppendSeries(v GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) AppendSeries(other GDLSeries) GDLSeries {
+	var ok bool
+	var o GDLSeriesFloat64
+	if o, ok = other.(GDLSeriesFloat64); !ok {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.AppendSeries: invalid type %T", other)}
+	}
 
-	return nil
+	if s.isNullable {
+		if o.isNullable {
+			s.data = append(s.data, o.data...)
+			if len(s.data) > len(s.nullMask)<<3 {
+				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
+			}
+
+			// merge null masks
+			sIdx := len(s.data) - len(o.data)
+			oIdx := 0
+			for _, v := range o.nullMask {
+				for j := 0; j < 8; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
+					}
+					sIdx++
+					oIdx++
+				}
+			}
+		} else {
+			s.data = append(s.data, o.data...)
+			if len(s.data) > len(s.nullMask)<<3 {
+				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
+			}
+		}
+	} else {
+		if o.isNullable {
+			s.data = append(s.data, o.data...)
+			if len(s.data)%8 == 0 {
+				s.nullMask = make([]uint8, (len(s.data) >> 3))
+			} else {
+				s.nullMask = make([]uint8, (len(s.data)>>3)+1)
+			}
+			s.isNullable = true
+
+			// merge null masks
+			sIdx := len(s.data) - len(o.data)
+			oIdx := 0
+			for _, v := range o.nullMask {
+				for j := 0; j < 8; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
+					}
+					sIdx++
+					oIdx++
+				}
+			}
+		} else {
+			s.data = append(s.data, o.data...)
+		}
+	}
+
+	return s
 }
 
 ///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////
