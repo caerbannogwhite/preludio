@@ -328,13 +328,15 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	s.SetNullMask(mask)
 
 	// Filter mask.
-	filter := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true}
+	filterMask := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true}
+	filterIndeces := []int{0, 2, 3, 5, 6, 8, 9, 10, 12}
 
 	result := []bool{true, true, false, false, true, true, false, false, true}
 	resultMask := []bool{false, true, false, true, false, true, false, false, true}
 
-	// Check the Filter() method.
-	filtered := s.FilterByMask(filter)
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByMask() method.
+	filtered := s.FilterByMask(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -355,10 +357,35 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 		}
 	}
 
-	// try to filter by a series with a different length.
-	filtered = filtered.FilterByMask(filter)
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByIndeces() method.
+	filtered = s.FilterByIndeces(filterIndeces)
 
-	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesBool.Filter: mask length (13) does not match series length (9)" {
+	// Check the length.
+	if filtered.Len() != 9 {
+		t.Errorf("Expected length of 9, got %d", filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]bool) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != resultMask[i] {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+
+	// try to filter by a series with a different length.
+	filtered = filtered.FilterByMask(filterMask)
+
+	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesBool.FilterByMask: mask length (13) does not match series length (9)" {
 		t.Errorf("Expected GDLSeriesError, got %v", filtered)
 	}
 
@@ -373,12 +400,37 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	s.SetNullMask(mask)
 
 	// Filter mask.
-	filter = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
+	filterMask = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
+	filterIndeces = []int{0, 15, 22}
 
 	result = []bool{true, true, true}
 
-	// Check the Filter() method.
-	filtered = s.FilterByMask(filter)
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByMask() method.
+	filtered = s.FilterByMask(filterMask)
+
+	// Check the length.
+	if filtered.Len() != 3 {
+		t.Errorf("Expected length of 3, got %d", filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]bool) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != true {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByIndeces() method.
+	filtered = s.FilterByIndeces(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 3 {

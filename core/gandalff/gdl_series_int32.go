@@ -315,18 +315,96 @@ func (s GDLSeriesInt32) Copy() GDLSeries {
 ///////////////////////////////  	SERIES OPERATIONS  //////////////////////////////////
 
 // FilterByMask returns a new series with elements filtered by the mask.
-func (s GDLSeriesInt32) FilterByMask(filter []bool) GDLSeries {
-	data := make([]int, 0)
-	nullMask := make([]uint8, len(s.nullMask))
-	for i, v := range filter {
+func (s GDLSeriesInt32) FilterByMask(mask []bool) GDLSeries {
+	if len(mask) != len(s.data) {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+	}
+
+	elementCount := 0
+	for _, v := range mask {
 		if v {
-			data = append(data, s.data[i])
-			if s.isNullable {
-				nullMask[i/8] |= 1 << uint(i%8)
+			elementCount++
+		}
+	}
+
+	var data []int
+	var nullMask []uint8
+
+	data = make([]int, elementCount)
+
+	if s.isNullable {
+
+		if elementCount%8 == 0 {
+			nullMask = make([]uint8, (elementCount >> 3))
+		} else {
+			nullMask = make([]uint8, (elementCount>>3)+1)
+		}
+
+		dstIdx := 0
+		for srcIdx, v := range mask {
+			if v {
+				data[dstIdx] = s.data[srcIdx]
+				if srcIdx%8 > dstIdx%8 {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	} else {
+		dstIdx := 0
+		for srcIdx, v := range mask {
+			if v {
+				data[dstIdx] = s.data[srcIdx]
+				dstIdx++
 			}
 		}
 	}
-	return GDLSeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
+
+	return GDLSeriesInt32{
+		isNullable: s.isNullable,
+		name:       s.name,
+		data:       data,
+		nullMask:   nullMask,
+	}
+}
+
+func (s GDLSeriesInt32) FilterByIndeces(indexes []int) GDLSeries {
+	var data []int
+	var nullMask []uint8
+
+	size := len(indexes)
+	data = make([]int, size)
+
+	if s.isNullable {
+
+		if size%8 == 0 {
+			nullMask = make([]uint8, (size >> 3))
+		} else {
+			nullMask = make([]uint8, (size>>3)+1)
+		}
+
+		for dstIdx, srcIdx := range indexes {
+			data[dstIdx] = s.data[srcIdx]
+			if srcIdx%8 > dstIdx%8 {
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+			} else {
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+			}
+		}
+	} else {
+		for dstIdx, srcIdx := range indexes {
+			data[dstIdx] = s.data[srcIdx]
+		}
+	}
+
+	return GDLSeriesInt32{
+		isNullable: s.isNullable,
+		name:       s.name,
+		data:       data,
+		nullMask:   nullMask,
+	}
 }
 
 ///////////////////////////////		GROUPING OPERATIONS			/////////////////////////

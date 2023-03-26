@@ -240,3 +240,138 @@ func Test_GDLSeriesInt32_Append(t *testing.T) {
 		}
 	}
 }
+
+func Test_GDLSeriesInt32_Filter(t *testing.T) {
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
+
+	// Create a new series.
+	s := NewGDLSeriesInt32("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Filter mask.
+	filterMask := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, true}
+	filterIndeces := []int{0, 2, 3, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19}
+
+	result := []int{1, 3, 4, 6, 7, 9, 10, 11, 13, 14, 16, 17, 19, 20}
+	resultMask := []bool{false, false, false, false, false, false, false, true, false, true, false, true, false, true}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByMask() method.
+	filtered := s.FilterByMask(filterMask)
+
+	// Check the length.
+	if filtered.Len() != len(result) {
+		t.Errorf("Expected length of %d, got %d", len(result), filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != resultMask[i] {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByIndeces() method.
+	filtered = s.FilterByIndeces(filterIndeces)
+
+	// Check the length.
+	if filtered.Len() != len(result) {
+		t.Errorf("Expected length of %d, got %d", len(result), filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != resultMask[i] {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+
+	// try to filter by a series with a different length.
+	filtered = filtered.FilterByMask(filterMask)
+
+	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesInt32.FilterByMask: mask length (20) does not match series length (14)" {
+		t.Errorf("Expected GDLSeriesError, got %v", filtered)
+	}
+
+	// Another test.
+	data = []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
+	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
+
+	// Create a new series.
+	s = NewGDLSeriesInt32("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Filter mask.
+	filterMask = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
+	filterIndeces = []int{0, 15, 22}
+
+	result = []int{2, -28, 2}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByMask() method.
+	filtered = s.FilterByMask(filterMask)
+
+	// Check the length.
+	if filtered.Len() != 3 {
+		t.Errorf("Expected length of 3, got %d", filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != true {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the FilterByIndeces() method.
+	filtered = s.FilterByIndeces(filterIndeces)
+
+	// Check the length.
+	if filtered.Len() != 3 {
+		t.Errorf("Expected length of 3, got %d", filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != true {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+		}
+	}
+}

@@ -117,6 +117,8 @@ type GDLSeries interface {
 
 	// Filters out the elements by the given mask.
 	FilterByMask(mask []bool) GDLSeries
+	// Filters out the elements by the given indices.
+	FilterByIndeces(indices []int) GDLSeries
 
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
@@ -333,6 +335,11 @@ func (s GDLSeriesError) Copy() GDLSeries {
 
 // FilterByMask returns a new series with elements filtered by the mask.
 func (s GDLSeriesError) FilterByMask(mask []bool) GDLSeries {
+	return s
+}
+
+// FilterByIndeces returns a new series with elements filtered by the indeces.
+func (s GDLSeriesError) FilterByIndeces(indeces []int) GDLSeries {
 	return s
 }
 

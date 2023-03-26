@@ -430,7 +430,7 @@ func (s GDLSeriesBool) Copy() GDLSeries {
 // FilterByMask returns a new series with elements filtered by the mask.
 func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 	if len(mask) != s.size {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Filter: mask length (%d) does not match series length (%d)", len(mask), s.size)}
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), s.size)}
 	}
 
 	elementCount := 0
@@ -457,35 +457,35 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 			nullMask = make([]uint8, (elementCount>>3)+1)
 		}
 
-		dsdIdx := 0
+		dstIdx := 0
 		for srcIdx, v := range mask {
 			if v {
 
 				// s.data[srcIdx>>3] 			-> 	selects the byte in s.data that contains the bit
 				// 1 << uint(srcIdx%8)			-> 	shifts a 1 to the position of the bit
-				// >> uint(srcIdx%8-dsdIdx%8))	-> 	shifts the bit to the position of the bit in the destination byte
+				// >> uint(srcIdx%8-dstIdx%8))	-> 	shifts the bit to the position of the bit in the destination byte
 				//
 				// TODO: optimize? is there a better way to select the destination bit?
-				if srcIdx%8 > dsdIdx%8 {
-					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
-					nullMask[dsdIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
+				if srcIdx%8 > dstIdx%8 {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
 				} else {
-					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
-					nullMask[dsdIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
 				}
-				dsdIdx++
+				dstIdx++
 			}
 		}
 	} else {
-		dsdIdx := 0
+		dstIdx := 0
 		for srcIdx, v := range mask {
 			if v {
-				if srcIdx%8 > dsdIdx%8 {
-					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
+				if srcIdx%8 > dstIdx%8 {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
 				} else {
-					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
 				}
-				dsdIdx++
+				dstIdx++
 			}
 		}
 	}
@@ -499,41 +499,50 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 	}
 }
 
-func (s GDLSeriesBool) FilterByIndex(indexes []int) GDLSeries {
-	if s.isNullable {
-		var data []uint8
-		var nullMask []uint8
-		if len(indexes)%8 == 0 {
-			data = make([]uint8, len(indexes)/8)
-			nullMask = make([]uint8, len(indexes)/8)
-		} else {
-			data = make([]uint8, len(indexes)/8+1)
-			nullMask = make([]uint8, len(indexes)/8+1)
-		}
+func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
+	var data []uint8
+	var nullMask []uint8
 
-		for i, v := range indexes {
-			data[i/8] |= s.data[v/8] & (1 << uint(v%8))
-			nullMask[i/8] |= s.nullMask[v/8] & (1 << uint(v%8))
-		}
-
-		return GDLSeriesBool{
-			isNullable: s.isNullable,
-			name:       s.name,
-			data:       data,
-			nullMask:   nullMask,
-		}
+	size := len(indexes)
+	if size%8 == 0 {
+		data = make([]uint8, (size >> 3))
+	} else {
+		data = make([]uint8, (size>>3)+1)
 	}
 
-	data := make([]uint8, len(indexes)/8+1)
-	for i, v := range indexes {
-		data[i/8] |= s.data[v/8] & (1 << uint(v%8))
+	if s.isNullable {
+
+		if size%8 == 0 {
+			nullMask = make([]uint8, (size >> 3))
+		} else {
+			nullMask = make([]uint8, (size>>3)+1)
+		}
+
+		for dstIdx, srcIdx := range indexes {
+			if srcIdx%8 > dstIdx%8 {
+				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+			} else {
+				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+			}
+		}
+	} else {
+		for dstIdx, srcIdx := range indexes {
+			if srcIdx%8 > dstIdx%8 {
+				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+			} else {
+				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+			}
+		}
 	}
 
 	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
+		size:       size,
 		data:       data,
-		nullMask:   nil,
+		nullMask:   nullMask,
 	}
 }
 

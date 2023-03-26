@@ -328,6 +328,18 @@ func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 	return GDLSeriesFloat64{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
+func (s GDLSeriesFloat64) FilterByIndeces(indices []int) GDLSeries {
+	data := make([]float64, len(indices))
+	nullMask := make([]uint8, len(s.nullMask))
+	for i, v := range indices {
+		data[i] = s.data[v]
+		if s.isNullable {
+			nullMask[i/8] |= 1 << uint(i%8)
+		}
+	}
+	return GDLSeriesFloat64{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
+}
+
 ///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
 
 func (s GDLSeriesFloat64) Group() GDLSeriesPartition {

@@ -333,6 +333,14 @@ func (s GDLSeriesString) FilterByMask(mask []bool) GDLSeries {
 	return NewGDLSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
+func (s GDLSeriesString) FilterByIndeces(indices []int) GDLSeries {
+	data := make([]string, len(indices))
+	for i, v := range indices {
+		data[i] = *s.data[v]
+	}
+	return NewGDLSeriesString(s.name, s.isNullable, data, s.pool)
+}
+
 /////////////////////////////// 		GRAPH OPERATIONS		/////////////////////////
 
 type GDLSeriesStringPartition struct {
