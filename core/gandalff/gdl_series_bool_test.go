@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"math/rand"
 	"testing"
 	"typesys"
 )
@@ -106,48 +107,102 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 func Test_GDLSeriesBool_Append(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
+	dataC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
+	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
 	sA := NewGDLSeriesBool("testA", true, dataA)
 	sB := NewGDLSeriesBool("testB", true, dataB)
+	sC := NewGDLSeriesBool("testC", true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
 	sB.SetNullMask(maskB)
+	sC.SetNullMask(maskC)
 
 	// Append the series.
-	sC := sA.AppendSeries(sB)
+	result := sA.AppendSeries(sB).AppendSeries(sC)
+
+	// Check the name.
+	if result.Name() != "testA" {
+		t.Errorf("Expected name of \"testA\", got %s", result.Name())
+	}
 
 	// Check the length.
-	if sC.Len() != 20 {
-		t.Errorf("Expected length of 20, got %d", sC.Len())
+	if result.Len() != 30 {
+		t.Errorf("Expected length of 30, got %d", result.Len())
 	}
 
 	// Check the data.
-	for i, v := range sC.Data().([]bool) {
+	for i, v := range result.Data().([]bool) {
 		if i < 10 {
 			if v != dataA[i] {
-				t.Errorf("Expected %t, got %t at index %d", sC.Data().([]bool)[i], dataA[i], i)
+				t.Errorf("Expected %t, got %t at index %d", dataA[i], v, i)
+			}
+		} else if i < 20 {
+			if v != dataB[i-10] {
+				t.Errorf("Expected %t, got %t at index %d", dataB[i-10], v, i)
 			}
 		} else {
-			if v != dataB[i-10] {
-				t.Errorf("Expected %t, got %t at index %d", sC.Data().([]bool)[i], dataB[i-10], i)
+			if v != dataC[i-20] {
+				t.Errorf("Expected %t, got %t at index %d", dataC[i-20], v, i)
 			}
 		}
 	}
 
 	// Check the null mask.
-	for i, v := range sC.GetNullMask() {
+	for i, v := range result.GetNullMask() {
 		if i < 10 {
 			if v != maskA[i] {
-				t.Errorf("Expected nullMask %t, got %t at index %d", sC.GetNullMask()[i], maskA[i], i)
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskA[i], v, i)
+			}
+		} else if i < 20 {
+			if v != maskB[i-10] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskB[i-10], v, i)
 			}
 		} else {
-			if v != maskB[i-10] {
-				t.Errorf("Expected nullMask %t, got %t at index %d", sC.GetNullMask()[i], maskB[i-10], i)
+			if v != maskC[i-20] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskC[i-20], v, i)
+			}
+		}
+	}
+
+	// Append random values.
+	sD := NewGDLSeriesBool("testD", true, []bool{true, false, true, false, true, false, true, false, true, false})
+
+	for i := 0; i < 100; i++ {
+		if rand.Float32() > 0.5 {
+			switch i % 4 {
+			case 0:
+				sD = sD.Append(true).(GDLSeriesBool)
+			case 1:
+				sD = sD.Append([]bool{true}).(GDLSeriesBool)
+			case 2:
+				sD = sD.Append(NullableBool{true, true}).(GDLSeriesBool)
+			case 3:
+				sD = sD.Append([]NullableBool{{true, false}}).(GDLSeriesBool)
+			}
+
+			if sD.Get(i+10) != true {
+				t.Errorf("Expected %t, got %t at index %d", true, sD.Get(i+10), i+10)
+			}
+		} else {
+			switch i % 4 {
+			case 0:
+				sD = sD.Append(false).(GDLSeriesBool)
+			case 1:
+				sD = sD.Append([]bool{false}).(GDLSeriesBool)
+			case 2:
+				sD = sD.Append(NullableBool{false, true}).(GDLSeriesBool)
+			case 3:
+				sD = sD.Append([]NullableBool{{false, false}}).(GDLSeriesBool)
+			}
+
+			if sD.Get(i+10) != false {
+				t.Errorf("Expected %t, got %t at index %d", false, sD.Get(i+10), i+10)
 			}
 		}
 	}

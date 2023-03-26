@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"fmt"
 	"strconv"
 	"sync"
 	"typesys"
@@ -124,6 +125,27 @@ type GDLSeries interface {
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
 	SubGroup(gp GDLSeriesPartition) GDLSeriesPartition
+}
+
+func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data interface{}, pool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		return NewGDLSeriesBool(name, nullable, data.([]bool))
+	// case typesys.Int16Type:
+	// 	return NewGDLSeriesInt16(name, nullable, data.([]int16))
+	case typesys.Int32Type:
+		return NewGDLSeriesInt32(name, nullable, makeCopy, data.([]int))
+	// case typesys.Int64Type:
+	// 	return NewGDLSeriesInt64(name, nullable, data.([]int64))
+	// case typesys.Float32Type:
+	// 	return NewGDLSeriesFloat32(name, nullable, data.([]float32))
+	case typesys.Float64Type:
+		return NewGDLSeriesFloat64(name, nullable, makeCopy, data.([]float64))
+	case typesys.StringType:
+		return NewGDLSeriesString(name, nullable, data.([]string), pool)
+	default:
+		return GDLSeriesError{fmt.Sprintf("NewGDLSeries: unknown type: %v", t)}
+	}
 }
 
 type GDLSeriesPartition interface {
