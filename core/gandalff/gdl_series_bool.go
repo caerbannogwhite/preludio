@@ -457,20 +457,35 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 			nullMask = make([]uint8, (elementCount>>3)+1)
 		}
 
-		idx := 0
-		for i, v := range mask {
+		dsdIdx := 0
+		for srcIdx, v := range mask {
 			if v {
-				data[idx>>3] |= s.data[i>>3] & (1 << uint(i%8))
-				nullMask[idx>>3] |= s.nullMask[i>>3] & (1 << uint(i%8))
-				idx++
+
+				// s.data[srcIdx>>3] 			-> 	selects the byte in s.data that contains the bit
+				// 1 << uint(srcIdx%8)			-> 	shifts a 1 to the position of the bit
+				// >> uint(srcIdx%8-dsdIdx%8))	-> 	shifts the bit to the position of the bit in the destination byte
+				//
+				// TODO: optimize? is there a better way to select the destination bit?
+				if srcIdx%8 > dsdIdx%8 {
+					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
+					nullMask[dsdIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
+				} else {
+					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
+					nullMask[dsdIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
+				}
+				dsdIdx++
 			}
 		}
 	} else {
-		idx := 0
-		for i, v := range mask {
+		dsdIdx := 0
+		for srcIdx, v := range mask {
 			if v {
-				data[idx>>3] |= s.data[i>>3] & (1 << uint(i%8))
-				idx++
+				if srcIdx%8 > dsdIdx%8 {
+					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dsdIdx%8))
+				} else {
+					data[dsdIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dsdIdx%8-srcIdx%8))
+				}
+				dsdIdx++
 			}
 		}
 	}
