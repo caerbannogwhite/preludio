@@ -313,7 +313,8 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 
 ///////////////////////////////		SERIES OPERATIONS			/////////////////////////
 
-func (s GDLSeriesFloat64) Filter(mask []bool) GDLSeries {
+// FilterByMask returns a new series with elements filtered by the mask.
+func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 	data := make([]float64, 0)
 	nullMask := make([]uint8, len(s.nullMask))
 	for i, v := range mask {

@@ -334,7 +334,12 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	resultMask := []bool{false, true, false, true, false, true, false}
 
 	// Check the Filter() method.
-	filtered := s.Filter(filter)
+	filtered := s.FilterByMask(filter)
+
+	// Check the length.
+	if filtered.Len() != 7 {
+		t.Errorf("Expected length of 7, got %d", filtered.Len())
+	}
 
 	// Check the data.
 	for i, v := range filtered.Data().([]bool) {

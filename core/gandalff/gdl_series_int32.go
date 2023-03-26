@@ -314,7 +314,8 @@ func (s GDLSeriesInt32) Copy() GDLSeries {
 
 ///////////////////////////////  	SERIES OPERATIONS  //////////////////////////////////
 
-func (s GDLSeriesInt32) Filter(filter []bool) GDLSeries {
+// FilterByMask returns a new series with elements filtered by the mask.
+func (s GDLSeriesInt32) FilterByMask(filter []bool) GDLSeries {
 	data := make([]int, 0)
 	nullMask := make([]uint8, len(s.nullMask))
 	for i, v := range filter {

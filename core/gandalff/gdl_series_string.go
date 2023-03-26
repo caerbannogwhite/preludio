@@ -322,7 +322,8 @@ func (s GDLSeriesString) Copy() GDLSeries {
 
 /////////////////////////////// 		SERIES OPERATIONS		/////////////////////////
 
-func (s GDLSeriesString) Filter(mask []bool) GDLSeries {
+// FilterByMask returns a new series with elements filtered by the mask.
+func (s GDLSeriesString) FilterByMask(mask []bool) GDLSeries {
 	data := make([]string, 0)
 	for i, v := range s.data {
 		if mask[i] {

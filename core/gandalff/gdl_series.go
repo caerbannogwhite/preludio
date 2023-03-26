@@ -13,10 +13,6 @@ const NULL_STRING = "NA"
 const BOOL_TRUE_STRING = "true"
 const BOOL_FALSE_STRING = "false"
 
-func boolToString(b bool) string {
-	return strconv.FormatBool(b)
-}
-
 func intToString(i int) string {
 	return strconv.FormatInt(int64(i), 10)
 }
@@ -120,7 +116,7 @@ type GDLSeries interface {
 	// Series operations.
 
 	// Filters out the elements by the given mask.
-	Filter(mask []bool) GDLSeries
+	FilterByMask(mask []bool) GDLSeries
 
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
@@ -221,7 +217,11 @@ func (sp *StringPool) Get(s string) *string {
 
 // Dummy series for error handling.
 type GDLSeriesError struct {
-	Msg string
+	msg string
+}
+
+func (s GDLSeriesError) Error() string {
+	return s.msg
 }
 
 // Returns the length of the series.
@@ -331,8 +331,8 @@ func (s GDLSeriesError) Copy() GDLSeries {
 
 // Series operations.
 
-// Filters out the elements by the given mask.
-func (s GDLSeriesError) Filter(mask []bool) GDLSeries {
+// FilterByMask returns a new series with elements filtered by the mask.
+func (s GDLSeriesError) FilterByMask(mask []bool) GDLSeries {
 	return s
 }
 

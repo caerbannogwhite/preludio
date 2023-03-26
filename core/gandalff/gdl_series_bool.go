@@ -427,8 +427,12 @@ func (s GDLSeriesBool) Copy() GDLSeries {
 
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
-// Filter returns a new series with elements at the indices where mask is true.
-func (s GDLSeriesBool) Filter(mask []bool) GDLSeries {
+// FilterByMask returns a new series with elements filtered by the mask.
+func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
+	if len(mask) != s.size {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Filter: mask length (%d) does not match series length (%d)", len(mask), s.size)}
+	}
+
 	elementCount := 0
 	for _, v := range mask {
 		if v {
@@ -436,48 +440,47 @@ func (s GDLSeriesBool) Filter(mask []bool) GDLSeries {
 		}
 	}
 
+	var data []uint8
+	var nullMask []uint8
+
+	if elementCount%8 == 0 {
+		data = make([]uint8, (elementCount >> 3))
+	} else {
+		data = make([]uint8, (elementCount>>3)+1)
+	}
+
 	if s.isNullable {
-		var data []uint8
-		var nullMask []uint8
+
 		if elementCount%8 == 0 {
-			data = make([]uint8, elementCount/8)
-			nullMask = make([]uint8, elementCount/8)
+			nullMask = make([]uint8, (elementCount >> 3))
 		} else {
-			data = make([]uint8, elementCount/8+1)
-			nullMask = make([]uint8, elementCount/8+1)
+			nullMask = make([]uint8, (elementCount>>3)+1)
 		}
 
 		idx := 0
 		for i, v := range mask {
 			if v {
-				data[idx/8] |= s.data[i/8] & (1 << uint(i%8))
-				nullMask[idx/8] |= s.nullMask[i/8] & (1 << uint(i%8))
+				data[idx>>3] |= s.data[i>>3] & (1 << uint(i%8))
+				nullMask[idx>>3] |= s.nullMask[i>>3] & (1 << uint(i%8))
 				idx++
 			}
 		}
-
-		return GDLSeriesBool{
-			isNullable: s.isNullable,
-			name:       s.name,
-			data:       data,
-			nullMask:   nullMask,
-		}
-	}
-
-	data := make([]uint8, elementCount/8+1)
-	idx := 0
-	for i, v := range mask {
-		if v {
-			data[idx/8] |= s.data[i/8] & (1 << uint(i%8))
-			idx++
+	} else {
+		idx := 0
+		for i, v := range mask {
+			if v {
+				data[idx>>3] |= s.data[i>>3] & (1 << uint(i%8))
+				idx++
+			}
 		}
 	}
 
 	return GDLSeriesBool{
 		isNullable: s.isNullable,
 		name:       s.name,
+		size:       elementCount,
 		data:       data,
-		nullMask:   nil,
+		nullMask:   nullMask,
 	}
 }
 
@@ -608,9 +611,13 @@ func (s GDLSeriesBool) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
 // If the other series is not a boolean series, the result will be nil
 func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
 	if other.Type() != typesys.BoolType {
-		return nil
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform AND operation between %T and %T", s, other)}
 	}
+
 	o := other.(GDLSeriesBool)
+	if s.size != o.size {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform AND operation between series of different sizes: %d and %d", s.size, o.size)}
+	}
 
 	if s.isNullable || other.IsNullable() {
 		data := make([]uint8, len(s.data))
@@ -646,9 +653,13 @@ func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
 // If the other series is not a boolean series, the result will be nil
 func (s GDLSeriesBool) Or(other GDLSeries) GDLSeries {
 	if other.Type() != typesys.BoolType {
-		return nil
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform OR operation between %T and %T", s, other)}
 	}
+
 	o := other.(GDLSeriesBool)
+	if s.size != o.size {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform OR operation between series of different sizes: %d and %d", s.size, o.size)}
+	}
 
 	if s.isNullable || other.IsNullable() {
 		data := make([]uint8, len(s.data))
