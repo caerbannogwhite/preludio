@@ -171,7 +171,15 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	sD := NewGDLSeriesBool("testD", true, []bool{true, false, true, false, true, false, true, false, true, false})
+	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
+	sD := NewGDLSeriesBool("testD", true, dataD)
+
+	// Check the original data.
+	for i, v := range sD.Data().([]bool) {
+		if v != dataD[i] {
+			t.Errorf("Expected %t, got %t at index %d", dataD[i], v, i)
+		}
+	}
 
 	for i := 0; i < 100; i++ {
 		if rand.Float32() > 0.5 {
@@ -183,11 +191,11 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 			case 2:
 				sD = sD.Append(NullableBool{true, true}).(GDLSeriesBool)
 			case 3:
-				sD = sD.Append([]NullableBool{{true, false}}).(GDLSeriesBool)
+				sD = sD.Append([]NullableBool{{false, true}}).(GDLSeriesBool)
 			}
 
 			if sD.Get(i+10) != true {
-				t.Errorf("Expected %t, got %t at index %d", true, sD.Get(i+10), i+10)
+				t.Errorf("Expected %t, got %t at index %d (case %d)", true, sD.Get(i+10), i+10, i%4)
 			}
 		} else {
 			switch i % 4 {
@@ -196,13 +204,13 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 			case 1:
 				sD = sD.Append([]bool{false}).(GDLSeriesBool)
 			case 2:
-				sD = sD.Append(NullableBool{false, true}).(GDLSeriesBool)
+				sD = sD.Append(NullableBool{true, false}).(GDLSeriesBool)
 			case 3:
 				sD = sD.Append([]NullableBool{{false, false}}).(GDLSeriesBool)
 			}
 
 			if sD.Get(i+10) != false {
-				t.Errorf("Expected %t, got %t at index %d", false, sD.Get(i+10), i+10)
+				t.Errorf("Expected %t, got %t at index %d (case %d)", false, sD.Get(i+10), i+10, i%4)
 			}
 		}
 	}

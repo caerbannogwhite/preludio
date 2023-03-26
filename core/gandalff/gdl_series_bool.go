@@ -93,14 +93,14 @@ func (s GDLSeriesBool) NullCount() int {
 
 func (s GDLSeriesBool) IsNull(i int) bool {
 	if s.isNullable {
-		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
+		return s.nullMask[i>>3]&(1<<uint(i%8)) != 0
 	}
 	return false
 }
 
 func (s GDLSeriesBool) SetNull(i int) error {
 	if s.isNullable {
-		s.nullMask[i/8] |= 1 << uint(i%8)
+		s.nullMask[i>>3] |= 1 << uint(i%8)
 		return nil
 	}
 	return fmt.Errorf("GDLSeriesBool.SetNull: series is not nullable")
@@ -125,31 +125,31 @@ func (s GDLSeriesBool) SetNullMask(mask []bool) error {
 
 	for k, v := range mask {
 		if v {
-			s.nullMask[k/8] |= 1 << uint(k%8)
+			s.nullMask[k>>3] |= 1 << uint(k%8)
 		} else {
-			s.nullMask[k/8] &= ^(1 << uint(k%8))
+			s.nullMask[k>>3] &= ^(1 << uint(k%8))
 		}
 	}
 	return nil
 }
 
 func (s GDLSeriesBool) Get(i int) interface{} {
-	return s.data[i/8]&(1<<uint(i%8)) != 0
+	return s.data[i>>3]&(1<<uint(i%8)) != 0
 }
 
 func (s GDLSeriesBool) Set(i int, v interface{}) {
 	if b, ok := v.(bool); ok {
 		if b {
-			s.data[i/8] |= 1 << uint(i%8)
+			s.data[i>>3] |= 1 << uint(i%8)
 		} else {
-			s.data[i/8] &= ^(1 << uint(i%8))
+			s.data[i>>3] &= ^(1 << uint(i%8))
 		}
 	}
 }
 
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesBool) Append(v interface{}) GDLSeries {
-	switch v.(type) {
+	switch v := v.(type) {
 	case bool:
 		return s.AppendRaw(v)
 	case []bool:
@@ -159,9 +159,9 @@ func (s GDLSeriesBool) Append(v interface{}) GDLSeries {
 	case []NullableBool:
 		return s.AppendNullable(v)
 	case GDLSeriesBool:
-		return s.AppendSeries(v.(GDLSeriesBool))
+		return s.AppendSeries(v)
 	case GDLSeriesError:
-		return v.(GDLSeriesError)
+		return v
 	default:
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Append: invalid type %T", v)}
 	}
@@ -169,89 +169,44 @@ func (s GDLSeriesBool) Append(v interface{}) GDLSeries {
 
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesBool) AppendRaw(v interface{}) GDLSeries {
-	if s.isNullable {
-		if b, ok := v.(bool); ok {
+	var size int
+	if b, ok := v.(bool); ok {
 
-			// adjust size of data and nullMask if necessary
-			s.size++
-			if s.size/8 > len(s.data) {
-				s.data = append(s.data, 0)
+		// adjust size of data and nullMask if necessary
+		size = s.size + 1
+		if size > len(s.data)<<3 {
+			s.data = append(s.data, 0)
+			if s.isNullable {
 				s.nullMask = append(s.nullMask, 0)
 			}
+		}
 
-			// set value
+		if b {
+			s.data[len(s.data)-1] |= 1 << uint(s.size%8)
+		}
+	} else if bv, ok := v.([]bool); ok {
+
+		// adjust size of data and nullMask if necessary
+		size = s.size + len(bv)
+		if size > len(s.data)<<3 {
+			s.data = append(s.data, make([]uint8, (size>>3)-len(s.data)+1)...)
+			if s.isNullable {
+				s.nullMask = append(s.nullMask, make([]uint8, (size>>3)-len(s.nullMask)+1)...)
+			}
+		}
+
+		idx := s.size
+		for _, b := range bv {
 			if b {
-				s.data[s.size/8] |= 1 << uint(s.size%8)
+				s.data[idx>>3] |= 1 << uint(idx%8)
 			}
-			// this should not be necessary, because the data slice is initialized with 0
-			// else {
-			// 	s.data[s.size/8] &= ^(1 << uint(s.size%8))
-			// }
-		} else if bv, ok := v.([]bool); ok {
-
-			// adjust size of data and nullMask if necessary
-			s.size += len(bv)
-			if s.size/8 > len(s.data) {
-				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
-				s.nullMask = append(s.nullMask, make([]uint8, s.size/8-len(s.nullMask))...)
-			}
-
-			// set values
-			idx := s.size
-			for _, v := range bv {
-				if v {
-					s.data[idx/8] |= 1 << uint(idx%8)
-				}
-				// this should not be necessary, because the data slice is initialized with 0
-				// else {
-				// 	s.data[idx/8] &= ^(1 << uint(idx%8))
-				// }
-				idx++
-			}
-		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Append: invalid type %T", v)}
+			idx++
 		}
 	} else {
-		if b, ok := v.(bool); ok {
-
-			// adjust size of data if necessary
-			s.size++
-			if s.size/8 > len(s.data) {
-				s.data = append(s.data, 0)
-			}
-
-			// set value
-			if b {
-				s.data[s.size/8] |= 1 << uint(s.size%8)
-			}
-			// this should not be necessary, because the data slice is initialized with 0
-			// else {
-			// 	s.data[s.size/8] &= ^(1 << uint(s.size%8))
-			// }
-		} else if bv, ok := v.([]bool); ok {
-
-			// adjust size of data if necessary
-			s.size += len(bv)
-			if s.size/8 > len(s.data) {
-				s.data = append(s.data, make([]uint8, s.size/8-len(s.data))...)
-			}
-
-			// set values
-			idx := s.size
-			for _, v := range bv {
-				if v {
-					s.data[idx/8] |= 1 << uint(idx%8)
-				}
-				// this should not be necessary, because the data slice is initialized with 0
-				// else {
-				// 	s.data[idx/8] &= ^(1 << uint(idx%8))
-				// }
-				idx++
-			}
-		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Append: invalid type %T", v)}
-		}
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Append: invalid type %T", v)}
 	}
+
+	s.size = size
 	return s
 }
 
@@ -265,43 +220,41 @@ func (s GDLSeriesBool) AppendNullable(v interface{}) GDLSeries {
 	if b, ok := v.(NullableBool); ok {
 		// adjust size of data and nullMask if necessary
 		size = s.size + 1
-		if size > len(s.data)*8 {
+		if size > len(s.data)<<3 {
 			s.data = append(s.data, 0)
 			s.nullMask = append(s.nullMask, 0)
 		}
 
-		// set value
-		s.data[s.size/8] |= 1 << uint(s.size%8)
 		if !b.Valid {
-			s.nullMask[s.size/8] |= 1 << uint(s.size%8)
+			s.nullMask[len(s.nullMask)-1] |= 1 << uint(s.size%8)
+		}
+		if b.Value {
+			s.data[len(s.data)-1] |= 1 << uint(s.size%8)
 		}
 	} else if bv, ok := v.([]NullableBool); ok {
 		// adjust size of data and nullMask if necessary
 		size = s.size + len(bv)
-		if size > len(s.data)*8 {
-			s.data = append(s.data, make([]uint8, size/8-len(s.data)+1)...)
-			s.nullMask = append(s.nullMask, make([]uint8, size/8-len(s.nullMask)+1)...)
+		if size > len(s.data)<<3 {
+			s.data = append(s.data, make([]uint8, (size>>3)-len(s.data)+1)...)
+			s.nullMask = append(s.nullMask, make([]uint8, (size>>3)-len(s.nullMask)+1)...)
 		}
 
-		sIdx := s.size
-		for _, v := range bv {
-			s.data[sIdx/8] |= 1 << uint(sIdx%8)
-			if !v.Valid {
-				s.nullMask[sIdx/8] |= 1 << uint(sIdx%8)
+		idx := s.size
+		for _, b := range bv {
+			if !b.Valid {
+				s.nullMask[idx>>3] |= 1 << uint(idx%8)
 			}
-			sIdx++
+			if b.Value {
+				s.data[idx>>3] |= 1 << uint(idx%8)
+			}
+			idx++
 		}
 	} else {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.AppendNullable: invalid type %T", v)}
 	}
 
-	return GDLSeriesBool{
-		isNullable: s.isNullable,
-		name:       s.name,
-		size:       size,
-		data:       s.data,
-		nullMask:   s.nullMask,
-	}
+	s.size = size
+	return s
 }
 
 // AppendSeries appends a series to the series.
@@ -316,9 +269,9 @@ func (s GDLSeriesBool) AppendSeries(other GDLSeries) GDLSeries {
 
 	if s.isNullable {
 		// adjust size of data and nullMask if necessary
-		if size > len(s.data)*8 {
-			s.data = append(s.data, make([]uint8, size/8-len(s.data)+1)...)
-			s.nullMask = append(s.nullMask, make([]uint8, size/8-len(s.nullMask)+1)...)
+		if size > len(s.data)<<3 {
+			s.data = append(s.data, make([]uint8, (size>>3)-len(s.data)+1)...)
+			s.nullMask = append(s.nullMask, make([]uint8, (size>>3)-len(s.nullMask)+1)...)
 		}
 
 		// both series are nullable
@@ -327,24 +280,16 @@ func (s GDLSeriesBool) AppendSeries(other GDLSeries) GDLSeries {
 			oIdx := 0
 			for _, v := range o.data {
 				for j := 0; j < 8 && sIdx < size; j++ {
-					// TODO: optimize
+					// TODO: optimize?
 					if v&(1<<uint(j)) != 0 {
-						s.data[sIdx/8] |= 1 << uint(sIdx%8)
+						s.data[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
-					if o.nullMask[oIdx/8]&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx/8] |= 1 << uint(sIdx%8)
+					if o.nullMask[oIdx>>3]&(1<<uint(j)) != 0 {
+						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
 					sIdx++
 					oIdx++
 				}
-			}
-
-			return GDLSeriesBool{
-				isNullable: true,
-				name:       s.name,
-				size:       size,
-				data:       s.data,
-				nullMask:   s.nullMask,
 			}
 		} else
 
@@ -354,28 +299,20 @@ func (s GDLSeriesBool) AppendSeries(other GDLSeries) GDLSeries {
 			oIdx := 0
 			for _, v := range o.data {
 				for j := 0; j < 8 && sIdx < size; j++ {
-					// TODO: optimize
+					// TODO: optimize?
 					if v&(1<<uint(j)) != 0 {
-						s.data[sIdx/8] |= 1 << uint(sIdx%8)
+						s.data[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
 					sIdx++
 					oIdx++
 				}
 			}
-
-			return GDLSeriesBool{
-				isNullable: true,
-				name:       s.name,
-				size:       size,
-				data:       s.data,
-				nullMask:   s.nullMask,
-			}
 		}
 	} else {
 		// s is not nullable, o is nullable
 		if o.isNullable {
-			if s.size > len(s.data)*8 {
-				s.data = append(s.data, make([]uint8, s.size/8-len(s.data)+1)...)
+			if s.size > len(s.data)<<3 {
+				s.data = append(s.data, make([]uint8, (s.size>>3)-len(s.data)+1)...)
 				s.nullMask = make([]uint8, len(s.data))
 			}
 
@@ -383,58 +320,47 @@ func (s GDLSeriesBool) AppendSeries(other GDLSeries) GDLSeries {
 			oIdx := 0
 			for _, v := range o.data {
 				for j := 0; j < 8; j++ {
-					if o.nullMask[oIdx/8]&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx/8] |= 1 << uint(sIdx%8)
-					} else {
-						if v&(1<<uint(j)) != 0 {
-							s.data[sIdx/8] |= 1 << uint(sIdx%8)
-						}
+					if v&(1<<uint(j)) != 0 {
+						s.data[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
+					if o.nullMask[oIdx>>3]&(1<<uint(j)) != 0 {
+						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
+					}
+
 					sIdx++
 					oIdx++
 				}
 			}
 
-			return GDLSeriesBool{
-				isNullable: true,
-				name:       s.name,
-				size:       size,
-				data:       s.data,
-				nullMask:   s.nullMask,
-			}
+			s.isNullable = true
 		} else
 
 		// both series are not nullable
 		{
-			if s.size > len(s.data)*8 {
-				s.data = append(s.data, make([]uint8, s.size/8-len(s.data)+1)...)
+			if s.size > len(s.data)<<3 {
+				s.data = append(s.data, make([]uint8, (s.size>>3)-len(s.data)+1)...)
 			}
 
 			sIdx := s.size
 			oIdx := 0
 			for _, v := range o.data {
 				for j := 0; j < 8 && sIdx < size; j++ {
-					// TODO: optimize
+					// TODO: optimize?
 					if v&(1<<uint(j)) != 0 {
-						s.data[sIdx/8] |= 1 << uint(sIdx%8)
+						s.data[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
-					if o.nullMask[oIdx/8]&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx/8] |= 1 << uint(sIdx%8)
+					if o.nullMask[oIdx>>3]&(1<<uint(j)) != 0 {
+						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
 					}
 					sIdx++
 					oIdx++
 				}
 			}
-
-			return GDLSeriesBool{
-				isNullable: false,
-				name:       s.name,
-				size:       size,
-				data:       s.data,
-				nullMask:   s.nullMask,
-			}
 		}
 	}
+
+	s.size = size
+	return s
 }
 
 /////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////

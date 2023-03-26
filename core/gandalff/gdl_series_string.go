@@ -137,7 +137,7 @@ func (s GDLSeriesString) Set(i int, v interface{}) {
 
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesString) Append(v interface{}) GDLSeries {
-	switch v.(type) {
+	switch v := v.(type) {
 	case string:
 		return s.AppendRaw(v)
 	case []string:
@@ -147,9 +147,9 @@ func (s GDLSeriesString) Append(v interface{}) GDLSeries {
 	case []NullableString:
 		return s.AppendNullable(v)
 	case GDLSeriesString:
-		return s.AppendSeries(v.(GDLSeriesString))
+		return s.AppendSeries(v)
 	case GDLSeriesError:
-		return v.(GDLSeriesError)
+		return v
 	default:
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Append: invalid type, %T", v)}
 	}

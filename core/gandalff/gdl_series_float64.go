@@ -136,7 +136,7 @@ func (s GDLSeriesFloat64) Set(i int, v interface{}) {
 }
 
 func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
-	switch v.(type) {
+	switch v := v.(type) {
 	case float64:
 		return s.AppendRaw(v)
 	case []float64:
@@ -146,9 +146,9 @@ func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
 	case []NullableFloat64:
 		return s.AppendNullable(v)
 	case GDLSeriesFloat64:
-		return s.AppendSeries(v.(GDLSeriesFloat64))
+		return s.AppendSeries(v)
 	case GDLSeriesError:
-		return s
+		return v
 	default:
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Append: invalid type, %T", v)}
 	}
