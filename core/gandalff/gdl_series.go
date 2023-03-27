@@ -120,6 +120,9 @@ type GDLSeries interface {
 	// Filters out the elements by the given indices.
 	FilterByIndeces(indices []int) GDLSeries
 
+	// Maps the elements of the series.
+	// Map(f func(interface{}) interface{}) GDLSeries
+
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
 	SubGroup(gp GDLSeriesPartition) GDLSeriesPartition
