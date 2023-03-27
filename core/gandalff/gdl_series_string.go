@@ -415,7 +415,11 @@ func (s GDLSeriesString) FilterByIndeces(indexes []int) GDLSeries {
 	}
 }
 
-/////////////////////////////// 		GRAPH OPERATIONS		/////////////////////////
+func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
+	return s
+}
+
+/////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
 
 type GDLSeriesStringPartition struct {
 	partition map[*string][]int

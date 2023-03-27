@@ -546,6 +546,71 @@ func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
 	}
 }
 
+func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
+	if s.size == 0 {
+		return s
+	}
+
+	v := f(s.Get(0))
+	switch v.(type) {
+	case bool:
+		data := make([]uint8, len(s.data))
+		for i := 0; i < s.size; i++ {
+			if f(s.Get(i)).(bool) {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+		return GDLSeriesBool{
+			isNullable: s.isNullable,
+			name:       s.name,
+			size:       s.size,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+	case int:
+		data := make([]int, s.size)
+		for i := 0; i < s.size; i++ {
+			data[i] = f(s.Get(i)).(int)
+		}
+		return GDLSeriesInt32{
+			isNullable: s.isNullable,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+	case float64:
+		data := make([]float64, s.size)
+		for i := 0; i < s.size; i++ {
+			data[i] = f(s.Get(i)).(float64)
+		}
+		return GDLSeriesFloat64{
+			isNullable: s.isNullable,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+	case string:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesBool.Map: StringPool is nil"}
+		}
+
+		data := make([]*string, s.size)
+		for i := 0; i < s.size; i++ {
+			data[i] = stringPool.Add(f(s.Get(i)).(string))
+		}
+		return GDLSeriesString{
+			isNullable: s.isNullable,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       stringPool,
+		}
+
+	}
+
+	return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Map: Unsupported type %T", v)}
+}
+
 ///////////////////////////////		GROUPING OPERATIONS		/////////////////////////////
 
 type GDLSeriesBoolPartition struct {

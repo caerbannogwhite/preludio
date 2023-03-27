@@ -406,6 +406,10 @@ func (s GDLSeriesFloat64) FilterByIndeces(indexes []int) GDLSeries {
 	}
 }
 
+func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
+	return s
+}
+
 ///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
 
 func (s GDLSeriesFloat64) Group() GDLSeriesPartition {

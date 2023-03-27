@@ -451,3 +451,104 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 		}
 	}
 }
+
+func Test_GDLSeriesBool_Map(t *testing.T) {
+	data := []bool{true, false, true, false, true, false, true, false, true, false, false, true, true}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
+
+	// Create a new series.
+	s := NewGDLSeriesBool("test", true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// MAP TO BOOL
+
+	mappedBool := s.Map(func(v interface{}) interface{} {
+		return !v.(bool)
+	}, nil)
+
+	resultBool := []bool{false, true, false, true, false, true, false, true, false, true, true, false, false}
+
+	// Check the length.
+	if mappedBool.Len() != 13 {
+		t.Errorf("Expected length of 13, got %d", mappedBool.Len())
+	}
+
+	// Check the data.
+	for i, v := range mappedBool.Data().([]bool) {
+		if v != resultBool[i] {
+			t.Errorf("Expected %v, got %v at index %d", resultBool[i], v, i)
+		}
+	}
+
+	// MAP TO INT
+
+	mappedInt := s.Map(func(v interface{}) interface{} {
+		if v.(bool) {
+			return 1
+		}
+		return 0
+	}, nil)
+
+	resultInt := []int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
+
+	// Check the length.
+	if mappedInt.Len() != 13 {
+		t.Errorf("Expected length of 13, got %d", mappedInt.Len())
+	}
+
+	// Check the data.
+	for i, v := range mappedInt.Data().([]int) {
+		if v != resultInt[i] {
+			t.Errorf("Expected %v, got %v at index %d", resultInt[i], v, i)
+		}
+	}
+
+	// MAP TO FLOAT
+
+	mappedFloat := s.Map(func(v interface{}) interface{} {
+		if v.(bool) {
+			return 1.0
+		}
+		return 0.0
+	}, nil)
+
+	resultFloat := []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
+
+	// Check the length.
+	if mappedFloat.Len() != 13 {
+		t.Errorf("Expected length of 13, got %d", mappedFloat.Len())
+	}
+
+	// Check the data.
+	for i, v := range mappedFloat.Data().([]float64) {
+		if v != resultFloat[i] {
+			t.Errorf("Expected %v, got %v at index %d", resultFloat[i], v, i)
+		}
+	}
+
+	// MAP TO STRING
+
+	pool := NewStringPool()
+	mappedString := s.Map(func(v interface{}) interface{} {
+		if v.(bool) {
+			return "true"
+		}
+		return "false"
+	}, pool)
+
+	resultString := []string{"true", "false", "true", "false", "true", "false", "true", "false", "true", "false", "false", "true", "true"}
+
+	// Check the length.
+	if mappedString.Len() != 13 {
+		t.Errorf("Expected length of 13, got %d", mappedString.Len())
+	}
+
+	// Check the data.
+	for i, v := range mappedString.Data().([]string) {
+		if v != resultString[i] {
+			t.Errorf("Expected %v, got %v at index %d", resultString[i], v, i)
+		}
+	}
+}

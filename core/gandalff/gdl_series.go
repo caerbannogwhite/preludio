@@ -60,6 +60,8 @@ type NullableString struct {
 
 ///////////////////////////////		GDLSERIES		/////////////////////////////////
 
+type GDLMapFunc func(interface{}) interface{}
+
 type GDLSeries interface {
 
 	// Basic accessors.
@@ -121,7 +123,7 @@ type GDLSeries interface {
 	FilterByIndeces(indices []int) GDLSeries
 
 	// Maps the elements of the series.
-	// Map(f func(interface{}) interface{}) GDLSeries
+	Map(f GDLMapFunc, stringPool *StringPool) GDLSeries
 
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
@@ -343,6 +345,10 @@ func (s GDLSeriesError) FilterByMask(mask []bool) GDLSeries {
 
 // FilterByIndeces returns a new series with elements filtered by the indeces.
 func (s GDLSeriesError) FilterByIndeces(indeces []int) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesError) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return s
 }
 
