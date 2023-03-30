@@ -499,10 +499,10 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartiti
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
 
-func (s GDLSeriesString) Mul(o GDLSeries) GDLSeries {
+func (s GDLSeriesString) Mul(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesString) Add(o GDLSeries) GDLSeries {
+func (s GDLSeriesString) Add(other GDLSeries) GDLSeries {
 	return s
 }

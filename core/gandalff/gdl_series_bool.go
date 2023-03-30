@@ -796,22 +796,22 @@ func (s GDLSeriesBool) Not() GDLSeries {
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
 
-func (s GDLSeriesBool) Mul(o GDLSeries) GDLSeries {
+func (s GDLSeriesBool) Mul(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesBool) Div(o GDLSeries) GDLSeries {
+func (s GDLSeriesBool) Div(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesBool) Mod(o GDLSeries) GDLSeries {
+func (s GDLSeriesBool) Mod(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesBool) Add(o GDLSeries) GDLSeries {
+func (s GDLSeriesBool) Add(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesBool) Sub(o GDLSeries) GDLSeries {
+func (s GDLSeriesBool) Sub(other GDLSeries) GDLSeries {
 	return s
 }

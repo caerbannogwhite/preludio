@@ -422,22 +422,22 @@ func (s GDLSeriesFloat64) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
 
-func (s GDLSeriesFloat64) Mul(o GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) Mul(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesFloat64) Div(o GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) Div(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesFloat64) Mod(o GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) Mod(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesFloat64) Add(o GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) Add(other GDLSeries) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesFloat64) Sub(o GDLSeries) GDLSeries {
+func (s GDLSeriesFloat64) Sub(other GDLSeries) GDLSeries {
 	return s
 }
