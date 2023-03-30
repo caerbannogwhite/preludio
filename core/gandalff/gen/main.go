@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 )
 
-const OP1_SIZE = "op1.size"
-const OP2_SIZE = "op2.size"
-
-const VECTORIZATION = 4
+const (
+	VECTORIZATION    = 4
+	FINAL_RETURN_FMT = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
+)
 
 var data = []struct{ Operation, Op1Type, Op2Type, ResultType string }{
 	{"*", "int", "int", "int"},
@@ -346,14 +346,22 @@ func computeResType(op1Type, op2Type string) string {
 func main() {
 
 	filenames := []string{
-		"gdl_series_bool.go",
-		"gdl_series_float64.go",
+		// "gdl_series_bool.go",
+		// "gdl_series_float64.go",
 		"gdl_series_int32.go",
-		"gdl_series_string.go",
+		// "gdl_series_string.go",
 	}
 
 	for _, filename := range filenames {
-		fast, err := parser.ParseFile(token.NewFileSet(), filepath.Join("..", filename), nil, parser.ParseComments)
+
+		src, err := ioutil.ReadFile(filepath.Join("..", filename))
+		if err != nil {
+			panic(err)
+		}
+
+		// Parse the file.
+		fset := token.NewFileSet()
+		fast, err := parser.ParseFile(fset, filepath.Join("..", filename), src, parser.ParseComments)
 		if err != nil {
 			panic(err)
 		}
@@ -362,24 +370,55 @@ func main() {
 			if funcDecl, ok := decl.(*ast.FuncDecl); ok {
 				switch funcDecl.Name.Name {
 				case "Mul":
-					fmt.Println(funcDecl.Body.List)
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType("s", "GDLSeriesInt32", "[]int",
 							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
+						},
 					}
+
 				case "Div":
-					fmt.Println(funcDecl.Body.List)
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType("s", "GDLSeriesInt32", "[]int",
+							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
+						},
+					}
+
 				case "Mod":
-					fmt.Println(funcDecl.Body.List)
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType("s", "GDLSeriesInt32", "[]int",
+							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use modulo"))},
+						},
+					}
+
 				case "Add":
-					fmt.Println(funcDecl.Body.List)
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType("s", "GDLSeriesInt32", "[]int",
+							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
+						},
+					}
+
 				case "Sub":
-					fmt.Println(funcDecl.Body.List)
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType("s", "GDLSeriesInt32", "[]int",
+							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
+						},
+					}
+
 				}
 			}
 
 			buf := new(bytes.Buffer)
-			err = format.Node(buf, token.NewFileSet(), fast)
+			err = format.Node(buf, fset, fast)
 			if err != nil {
 				panic(err)
 			}
@@ -390,38 +429,4 @@ func main() {
 			}
 		}
 	}
-
-	// fmt.Println(data)
-
-	// res := generateSwitchType(
-	// 	"s", "GDLSeriesInt32", "[]int",
-	// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2)
-
-	// outputFileSet := token.NewFileSet()
-	// outputGoFile := &ast.File{
-	// 	Name: ast.NewIdent("testgen"),
-	// 	Decls: []ast.Decl{
-	// 		&ast.FuncDecl{
-	// 			Name: ast.NewIdent("main"),
-	// 			Type: &ast.FuncType{
-	// 				Params:  &ast.FieldList{},
-	// 				Results: &ast.FieldList{},
-	// 			},
-
-	// 			Body: &ast.BlockStmt{
-	// 				List: []ast.Stmt{
-	// 					res,
-	// 				},
-	// 			},
-	// 		},
-	// 	},
-	// }
-
-	// buf := new(bytes.Buffer)
-	// err := format.Node(buf, outputFileSet, outputGoFile)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// fmt.Println(buf.String())
 }
