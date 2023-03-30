@@ -419,3 +419,25 @@ func (s GDLSeriesFloat64) Group() GDLSeriesPartition {
 func (s GDLSeriesFloat64) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
 	return nil
 }
+
+///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+
+func (s GDLSeriesFloat64) Mul(o GDLSeries) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesFloat64) Div(o GDLSeries) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesFloat64) Mod(o GDLSeries) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesFloat64) Add(o GDLSeries) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesFloat64) Sub(o GDLSeries) GDLSeries {
+	return s
+}

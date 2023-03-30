@@ -496,3 +496,13 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartiti
 		nullGroup: nullGroup,
 	}
 }
+
+///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+
+func (s GDLSeriesString) Mul(o GDLSeries) GDLSeries {
+	return s
+}
+
+func (s GDLSeriesString) Add(o GDLSeries) GDLSeries {
+	return s
+}
