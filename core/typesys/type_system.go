@@ -52,12 +52,46 @@ func (bt BaseType) ToString() string {
 	return "Unknown"
 }
 
+func (bt BaseType) ToGoType() string {
+	switch bt {
+	case NullType:
+		return "nil"
+	case BoolType:
+		return "[]bool"
+	case Int16Type:
+		return "[]int16"
+	case Int32Type:
+		return "[]int"
+	case Int64Type:
+		return "[]int64"
+	case Float32Type:
+		return "[]float32"
+	case Float64Type:
+		return "[]float64"
+	case StringType:
+		return "[]string"
+	case AnyType:
+		return "interface{}"
+	case ErrorType:
+		return "error"
+	case NonBaseType:
+		return "interface{}"
+	}
+	return "Unknown"
+}
+
 func GoToPreludioTypeString(t interface{}) string {
 	switch t.(type) {
 	case []bool:
 		return "Bool"
+	case []int16:
+		return "Int16"
 	case []int:
 		return "Int32"
+	case []int64:
+		return "Int64"
+	case []float32:
+		return "Float32"
 	case []float64:
 		return "Float64"
 	case []string:
@@ -81,170 +115,439 @@ func (p *Primitive) IsBaseType() bool {
 	return p.schema.primitives == nil || len(p.schema.primitives) == 0
 }
 
-func (p *Primitive) ApplyBinaryOp(op OPCODE, o Primitive) Primitive {
+func (op OPCODE) GetBinaryOpResultSize(lop, rop Primitive) int {
+	// If one of the operands is null, the result is null
+	if lop.size == 0 || rop.size == 0 {
+		return -1
+	}
+
+	// If one of the operands is a scalar, the result is a vector
+	var size int
+	if lop.size == 1 {
+		size = rop.size
+	} else if rop.size == 1 {
+		size = lop.size
+	} else if lop.size == rop.size {
+		size = lop.size
+	} else {
+		return -1
+	}
+
+	return size
+}
+
+func (op OPCODE) CommuteOperands(lop, rop Primitive) (Primitive, Primitive) {
+	if op.IsCommutative() && lop.base > rop.base {
+		return rop, lop
+	}
+	return lop, rop
+}
+
+func (op OPCODE) IsCommutative() bool {
+	switch op {
+	case OP_BINARY_ADD, OP_BINARY_MUL, OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR:
+		return true
+	}
+	return false
+}
+
+func (op OPCODE) IsBinaryOp() bool {
+	switch op {
+	case OP_BINARY_ADD, OP_BINARY_SUB, OP_BINARY_MUL, OP_BINARY_DIV, OP_BINARY_MOD,
+		OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR, OP_BINARY_LSHIFT, OP_BINARY_RSHIFT:
+		return true
+	}
+	return false
+}
+
+func (op OPCODE) IsUnaryOp() bool {
+	switch op {
+	case OP_UNARY_ADD, OP_UNARY_SUB, OP_UNARY_NOT:
+		return true
+	}
+	return false
+}
+
+func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
+
+	lop, rop = op.CommuteOperands(lop, rop)
+	size := op.GetBinaryOpResultSize(lop, rop)
+
 	switch op {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////				BINARY MULTIPLICATION
 
 	case OP_BINARY_MUL:
-
-		if p.size == 0 || o.size == 0 {
-			return Primitive{base: ErrorType}
-		}
-
-		switch p.base {
+		switch lop.base {
 		case BoolType:
-			switch o.base {
-			case BoolType:
-				if p.size == o.size {
-					return Primitive{base: Int32Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int32Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int32Type, size: p.size}
-				}
-
+			switch rop.base {
+			case BoolType, Int32Type:
+				return Primitive{base: Int32Type, size: size}
 			case Int16Type:
-				if p.size == o.size {
-					return Primitive{base: Int16Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int16Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int16Type, size: p.size}
-				}
-
-			case Int32Type:
-				if p.size == o.size {
-					return Primitive{base: Int32Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int32Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int32Type, size: p.size}
-				}
-
+				return Primitive{base: Int16Type, size: size}
 			case Int64Type:
-				if p.size == o.size {
-					return Primitive{base: Int64Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int64Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int64Type, size: p.size}
-				}
-
+				return Primitive{base: Int64Type, size: size}
 			case Float32Type:
-				if p.size == o.size {
-					return Primitive{base: Float32Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Float32Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Float32Type, size: p.size}
-				}
-
+				return Primitive{base: Float32Type, size: size}
 			case Float64Type:
-				if p.size == o.size {
-					return Primitive{base: Float64Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Float64Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Float64Type, size: p.size}
-				}
-
+				return Primitive{base: Float64Type, size: size}
 			case StringType:
-				if p.size == o.size {
-					return Primitive{base: StringType, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: StringType, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: StringType, size: p.size}
-				}
-
-			case AnyType:
-				return Primitive{base: ErrorType}
-
-			case ErrorType:
-				return Primitive{base: ErrorType}
-
-			case NonBaseType:
+				return Primitive{base: StringType, size: size}
+			default:
 				return Primitive{base: ErrorType}
 			}
 
 		case Int16Type:
-			switch o.base {
-			case BoolType:
-				if p.size == o.size {
-					return Primitive{base: Int16Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int16Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int16Type, size: p.size}
-				}
-
+			switch rop.base {
 			case Int16Type:
-				if p.size == o.size {
-					return Primitive{base: Int16Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int16Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int16Type, size: p.size}
-				}
-
+				return Primitive{base: Int16Type, size: size}
 			case Int32Type:
-				if p.size == o.size {
-					return Primitive{base: Int32Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int32Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int32Type, size: p.size}
-				}
-
+				return Primitive{base: Int32Type, size: size}
 			case Int64Type:
-				if p.size == o.size {
-					return Primitive{base: Int64Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Int64Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Int64Type, size: p.size}
-				}
-
+				return Primitive{base: Int64Type, size: size}
 			case Float32Type:
-				if p.size == o.size {
-					return Primitive{base: Float32Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Float32Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Float32Type, size: p.size}
-				}
-
+				return Primitive{base: Float32Type, size: size}
 			case Float64Type:
-				if p.size == o.size {
-					return Primitive{base: Float64Type, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: Float64Type, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: Float64Type, size: p.size}
-				}
-
+				return Primitive{base: Float64Type, size: size}
 			case StringType:
-				if p.size == o.size {
-					return Primitive{base: StringType, size: p.size}
-				} else if p.size == 1 {
-					return Primitive{base: StringType, size: o.size}
-				} else if o.size == 1 {
-					return Primitive{base: StringType, size: p.size}
-				}
-
-			case AnyType:
-				return Primitive{base: ErrorType}
-
-			case ErrorType:
-				return Primitive{base: ErrorType}
-
-			case NonBaseType:
+				return Primitive{base: StringType, size: size}
+			default:
 				return Primitive{base: ErrorType}
 			}
+
+		case Int32Type:
+			switch rop.base {
+			case Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.base {
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.base {
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.base {
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		default:
+			return Primitive{base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY DIVISION
+
+	case OP_BINARY_DIV:
+		switch lop.base {
+		case BoolType:
+			switch rop.base {
+			case BoolType, Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int16Type:
+			switch rop.base {
+			case BoolType, Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type, Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		default:
+			return Primitive{base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY ADDITION
+
+	case OP_BINARY_ADD:
+		switch lop.base {
+		case BoolType:
+			switch rop.base {
+			case BoolType, Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int16Type:
+			switch rop.base {
+			case Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.base {
+			case Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.base {
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.base {
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.base {
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.base {
+			case StringType:
+				return Primitive{base: StringType, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		default:
+			return Primitive{base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY SUBTRACTION
+
+	case OP_BINARY_SUB:
+		switch lop.base {
+		case BoolType:
+			switch rop.base {
+			case BoolType, Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int16Type:
+			switch rop.base {
+			case BoolType, Int16Type:
+				return Primitive{base: Int16Type, size: size}
+			case Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type:
+				return Primitive{base: Int32Type, size: size}
+			case Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type:
+				return Primitive{base: Int64Type, size: size}
+			case Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type, Float32Type:
+				return Primitive{base: Float32Type, size: size}
+			case Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.base {
+			case BoolType, Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{base: Float64Type, size: size}
+			default:
+				return Primitive{base: ErrorType}
+			}
+
+		default:
+			return Primitive{base: ErrorType}
 		}
 	}
+
 	return Primitive{base: ErrorType}
 }
 
