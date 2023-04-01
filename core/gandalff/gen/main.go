@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"io/ioutil"
 	"path/filepath"
+	"typesys"
 )
 
 const (
@@ -16,26 +17,21 @@ const (
 	FINAL_RETURN_FMT = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
 )
 
-var data = []struct{ Operation, Op1Type, Op2Type, ResultType string }{
-	{"*", "int", "int", "int"},
-	{"*", "int", "float64", "float64"},
-}
-
 type BuildInfo struct {
 	Op1Nullable   bool
 	Op1Scalar     bool
 	Op2Nullable   bool
 	Op2Scalar     bool
 	Vectorization int
-	Op1           string
-	Op1Type       string
-	Op1InnerType  string
-	Op2           string
-	Op2Type       string
-	Op2InnerType  string
-	Res           string
-	ResType       string
-	ResInnerType  string
+	Op1VarName    string
+	Op1SeriesType string
+	Op1InnerType  typesys.BaseType
+	Op2VarName    string
+	Op2SeriesType string
+	Op2InnerType  typesys.BaseType
+	ResVarName    string
+	ResSeriesType string
+	ResInnerType  typesys.BaseType
 	Operation     func(op1, op2, res, index string) ast.Stmt
 }
 
@@ -300,35 +296,31 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 	}
 }
 
-func generateSwitchType(
-	op1, op1Type, op1InnerType string,
-	op2 string, op2Tpes, op2InnerTypes []string,
-	vectorization int,
-) ast.Stmt {
+func generateSwitchType(op Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string, vectorization int) ast.Stmt {
 
 	bigSwitch := &ast.TypeSwitchStmt{
 		Assign: &ast.AssignStmt{
 			Lhs: []ast.Expr{ast.NewIdent("o")},
 			Tok: token.DEFINE,
-			Rhs: []ast.Expr{ast.NewIdent(fmt.Sprintf("%s.(type)", op2))},
+			Rhs: []ast.Expr{ast.NewIdent(fmt.Sprintf("%s.(type)", op2VarName))},
 		},
 		Body: &ast.BlockStmt{
 			List: []ast.Stmt{},
 		},
 	}
 
-	for i, op2Type := range op2Tpes {
+	for i, op2 := range op.ApplyTo {
 		bigSwitch.Body.List = append(bigSwitch.Body.List,
 			&ast.CaseClause{
-				List: []ast.Expr{ast.NewIdent(op2Type)},
+				List: []ast.Expr{ast.NewIdent(op2.SeriesType)},
 				Body: []ast.Stmt{
 					generateSizeCheck(BuildInfo{
-						Op1:           op1,
-						Op1Type:       op1Type,
+						Op1VarName:    op1VarName,
+						Op1SeriesType: op1SeriesType,
 						Op1InnerType:  op1InnerType,
-						Op2:           "o",
-						Op2Type:       op2Type,
-						Op2InnerType:  op2InnerTypes[i],
+						Op2VarName:    "o",
+						Op2SeriesType: op2.SeriesType,
+						Op2InnerType:  op2.InnerType,
 						Vectorization: vectorization,
 						ResType:       computeResType(op1Type, op2Type),
 					}),
@@ -339,20 +331,17 @@ func generateSwitchType(
 	return bigSwitch
 }
 
-func computeResType(op1Type, op2Type string) string {
+func computeResSeriesType(op1, op2 string) string {
+	return ""
+}
+
+func computeResInnerType(op1, op2 typesys.BaseType) typesys.BaseType {
 	return ""
 }
 
 func main() {
 
-	filenames := []string{
-		// "gdl_series_bool.go",
-		// "gdl_series_float64.go",
-		"gdl_series_int32.go",
-		// "gdl_series_string.go",
-	}
-
-	for _, filename := range filenames {
+	for filename, info := range DATA {
 
 		src, err := ioutil.ReadFile(filepath.Join("..", filename))
 		if err != nil {
@@ -371,8 +360,9 @@ func main() {
 				switch funcDecl.Name.Name {
 				case "Mul":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType("s", "GDLSeriesInt32", "[]int",
-							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						generateSwitchType(info.Operations["Mul"], info.SeriesType, info.InnerType, "s", "other", VECTORIZATION),
+
+						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
 						},
@@ -380,8 +370,10 @@ func main() {
 
 				case "Div":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType("s", "GDLSeriesInt32", "[]int",
-							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+
+						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
 						},
@@ -389,8 +381,10 @@ func main() {
 
 				case "Mod":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType("s", "GDLSeriesInt32", "[]int",
-							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+
+						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use modulo"))},
 						},
@@ -398,8 +392,10 @@ func main() {
 
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType("s", "GDLSeriesInt32", "[]int",
-							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+
+						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
 						},
@@ -407,13 +403,14 @@ func main() {
 
 				case "Sub":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType("s", "GDLSeriesInt32", "[]int",
-							"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, 2),
+						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+
+						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
 						},
 					}
-
 				}
 			}
 
