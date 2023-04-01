@@ -35,6 +35,12 @@ type BuildInfo struct {
 	Operation     func(op1, op2, res, index string) ast.Stmt
 }
 
+func (bi BuildInfo) UpdateScalarInfo(Op1Scalar, Op2Scalar bool) BuildInfo {
+	bi.Op1Scalar = Op1Scalar
+	bi.Op2Scalar = Op2Scalar
+	return bi
+}
+
 func generateOperation(info BuildInfo) []ast.Stmt {
 	var upperBound *ast.Ident
 	var mainLoop ast.Stmt
@@ -50,7 +56,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 		if info.Op1Nullable {
 			statements = append(statements, &ast.IfStmt{
 				Cond: &ast.BinaryExpr{
-					X:  &ast.Ident{Name: info.Op1 + ".Valid"},
+					X:  &ast.Ident{Name: info.Op1VarName + ".Valid"},
 					Op: token.EQL,
 					Y:  &ast.Ident{Name: "false"},
 				},
@@ -74,14 +80,14 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 	// })
 
 	if info.Vectorization == 1 {
-		upperBound = &ast.Ident{Name: info.Op1 + ".Len()"}
+		upperBound = &ast.Ident{Name: info.Op1VarName + ".Len()"}
 		increment = &ast.ExprStmt{
 			X: &ast.UnaryExpr{
 				X:  &ast.Ident{Name: "i"},
 				Op: token.INC,
 			}}
 
-		operations = append(operations, info.Operation(info.Op1, info.Op2, info.Res, "i"))
+		operations = append(operations, info.Operation(info.Op1VarName, info.Op2VarName, info.ResVarName, "i"))
 
 		mainLoop = &ast.ForStmt{
 			Init: &ast.AssignStmt{
@@ -105,7 +111,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 		statements = append(statements, &ast.AssignStmt{
 			Lhs: []ast.Expr{&ast.Ident{Name: "upperBound"}},
 			Tok: token.DEFINE,
-			Rhs: []ast.Expr{&ast.Ident{Name: info.Op1 + ".Len() / " + fmt.Sprint(info.Vectorization) + " * " + fmt.Sprint(info.Vectorization)}},
+			Rhs: []ast.Expr{&ast.Ident{Name: info.Op1VarName + ".Len() / " + fmt.Sprint(info.Vectorization) + " * " + fmt.Sprint(info.Vectorization)}},
 		})
 
 		upperBound = &ast.Ident{Name: "upperBound"}
@@ -118,12 +124,12 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 
 		operations = make([]ast.Stmt, 0)
 		for i := 0; i < info.Vectorization; i++ {
-			operations = append(operations, info.Operation(info.Op1, info.Op2, info.Res, fmt.Sprint(i)))
+			operations = append(operations, info.Operation(info.Op1VarName, info.Op2VarName, info.ResVarName, fmt.Sprint(i)))
 		}
 
 		mainLoop = &ast.IfStmt{
 			Cond: &ast.BinaryExpr{
-				X:  &ast.Ident{Name: info.Op1 + ".Len()"},
+				X:  &ast.Ident{Name: info.Op1VarName + ".Len()"},
 				Op: token.GTR,
 				Y:  &ast.Ident{Name: "upperBound"},
 			},
@@ -158,7 +164,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 			Cond: &ast.BinaryExpr{
 				X:  &ast.Ident{Name: "i"},
 				Op: token.LSS,
-				Y:  &ast.Ident{Name: info.Op1 + ".Len()"},
+				Y:  &ast.Ident{Name: info.Op1VarName + ".Len()"},
 			},
 			Post: &ast.ExprStmt{
 				X: &ast.UnaryExpr{
@@ -173,9 +179,9 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 						Tok: token.ASSIGN,
 						Rhs: []ast.Expr{
 							&ast.BinaryExpr{
-								X:  &ast.Ident{Name: info.Op1 + ".data[i]"},
+								X:  &ast.Ident{Name: info.Op1VarName + ".data[i]"},
 								Op: token.MUL,
-								Y:  &ast.Ident{Name: info.Op2 + ".data[i]"},
+								Y:  &ast.Ident{Name: info.Op2VarName + ".data[i]"},
 							},
 						},
 					},
@@ -193,11 +199,11 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 	return []ast.Stmt{
 		&ast.IfStmt{
-			Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op1)),
+			Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op1VarName)),
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
 					&ast.IfStmt{
-						Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op2)),
+						Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op2VarName)),
 						Body: &ast.BlockStmt{
 							// 	List: generateOperation(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
 							// 		Op1Nullable: true, Op2Nullable: true, Op1Scalar: info.Op1Scalar, Op2Scalar: info.Op2Scalar,
@@ -214,7 +220,7 @@ func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 			Else: &ast.BlockStmt{
 				List: []ast.Stmt{
 					&ast.IfStmt{
-						Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op2)),
+						Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", info.Op2VarName)),
 						Body: &ast.BlockStmt{
 							// 	List: generateOperation(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
 							// 		Op1Nullable: false, Op2Nullable: true, Op1Scalar: info.Op1Scalar, Op2Scalar: info.Op2Scalar,
@@ -235,7 +241,7 @@ func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 func generateSizeCheck(info BuildInfo) ast.Stmt {
 	return &ast.IfStmt{
 		Cond: &ast.BinaryExpr{
-			X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op1)},
+			X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op1VarName)},
 			Op: token.EQL,
 			Y:  &ast.Ident{Name: "1"},
 		},
@@ -245,23 +251,19 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 			List: []ast.Stmt{
 				&ast.IfStmt{
 					Cond: &ast.BinaryExpr{
-						X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op2)},
+						X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op2VarName)},
 						Op: token.EQL,
 						Y:  &ast.Ident{Name: "1"},
 					},
 
 					// CASE OP1_SIZE == 1 AND OP2_SIZE == 1
 					Body: &ast.BlockStmt{
-						List: generateNullabilityCheck(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
-							Op1Nullable: info.Op1Nullable, Op2Nullable: info.Op2Nullable, Op1Scalar: true, Op2Scalar: true,
-						}),
+						List: generateNullabilityCheck(info.UpdateScalarInfo(true, true)),
 					},
 
 					// CASE OP1_SIZE == 1 AND OP2_SIZE != 1
 					Else: &ast.BlockStmt{
-						List: generateNullabilityCheck(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
-							Op1Nullable: info.Op1Nullable, Op2Nullable: info.Op2Nullable, Op1Scalar: true, Op2Scalar: false,
-						}),
+						List: generateNullabilityCheck(info.UpdateScalarInfo(true, false)),
 					},
 				},
 			},
@@ -272,23 +274,19 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 			List: []ast.Stmt{
 				&ast.IfStmt{
 					Cond: &ast.BinaryExpr{
-						X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op2)},
+						X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op2VarName)},
 						Op: token.EQL,
 						Y:  &ast.Ident{Name: "1"},
 					},
 
 					// CASE OP1_SIZE != 1 AND OP2_SIZE == 1
 					Body: &ast.BlockStmt{
-						List: generateNullabilityCheck(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
-							Op1Nullable: info.Op1Nullable, Op2Nullable: info.Op2Nullable, Op1Scalar: false, Op2Scalar: true,
-						}),
+						List: generateNullabilityCheck(info.UpdateScalarInfo(false, true)),
 					},
 
 					// CASE OP1_SIZE != 1 AND OP2_SIZE != 1
 					Else: &ast.BlockStmt{
-						List: generateNullabilityCheck(BuildInfo{Op1: info.Op1, Op2: info.Op2, Res: info.Res, Vectorization: info.Vectorization,
-							Op1Nullable: info.Op1Nullable, Op2Nullable: info.Op2Nullable, Op1Scalar: false, Op2Scalar: false,
-						}),
+						List: generateNullabilityCheck(info.UpdateScalarInfo(false, false)),
 					},
 				},
 			},
@@ -296,7 +294,7 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 	}
 }
 
-func generateSwitchType(op Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string, vectorization int) ast.Stmt {
+func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string, vectorization int) ast.Stmt {
 
 	bigSwitch := &ast.TypeSwitchStmt{
 		Assign: &ast.AssignStmt{
@@ -309,7 +307,7 @@ func generateSwitchType(op Operation, op1SeriesType string, op1InnerType typesys
 		},
 	}
 
-	for i, op2 := range op.ApplyTo {
+	for _, op2 := range operation.ApplyTo {
 		bigSwitch.Body.List = append(bigSwitch.Body.List,
 			&ast.CaseClause{
 				List: []ast.Expr{ast.NewIdent(op2.SeriesType)},
@@ -322,7 +320,8 @@ func generateSwitchType(op Operation, op1SeriesType string, op1InnerType typesys
 						Op2SeriesType: op2.SeriesType,
 						Op2InnerType:  op2.InnerType,
 						Vectorization: vectorization,
-						ResType:       computeResType(op1Type, op2Type),
+						ResSeriesType: computeResSeriesType(operation.OpCode, op1InnerType, op2.InnerType),
+						ResInnerType:  computeResInnerType(operation.OpCode, op1InnerType, op2.InnerType),
 					}),
 				},
 			},
@@ -331,12 +330,28 @@ func generateSwitchType(op Operation, op1SeriesType string, op1InnerType typesys
 	return bigSwitch
 }
 
-func computeResSeriesType(op1, op2 string) string {
-	return ""
+func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) string {
+	switch computeResInnerType(opCode, op1, op2) {
+	case typesys.BoolType:
+		return "GDLSeriesBool"
+	case typesys.Int16Type:
+		return "GDLSeriesInt16"
+	case typesys.Int32Type:
+		return "GDLSeriesInt32"
+	case typesys.Int64Type:
+		return "GDLSeriesInt64"
+	case typesys.Float32Type:
+		return "GDLSeriesFloat32"
+	case typesys.Float64Type:
+		return "GDLSeriesFloat64"
+	case typesys.StringType:
+		return "GDLSeriesString"
+	}
+	return "GDLSeriesError"
 }
 
-func computeResInnerType(op1, op2 typesys.BaseType) typesys.BaseType {
-	return ""
+func computeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) typesys.BaseType {
+	return opCode.GetBinaryOpResultType(typesys.Primitive{Base: op1}, typesys.Primitive{Base: op1}).Base
 }
 
 func main() {

@@ -8,6 +8,7 @@ type OperationApplyTo struct {
 }
 
 type Operation struct {
+	OpCode  typesys.OPCODE
 	ApplyTo []OperationApplyTo
 }
 
@@ -23,6 +24,7 @@ var DATA = map[string]SeriesFile{
 		InnerType:  typesys.Int32Type,
 		Operations: map[string]Operation{
 			"Mul": {
+				OpCode: typesys.OP_BINARY_MUL,
 				ApplyTo: []OperationApplyTo{
 					{
 						SeriesType: "GDLSeriesInt32",
@@ -41,6 +43,7 @@ var DATA = map[string]SeriesFile{
 		InnerType:  typesys.Float64Type,
 		Operations: map[string]Operation{
 			"Mul": {
+				OpCode: typesys.OP_BINARY_MUL,
 				ApplyTo: []OperationApplyTo{
 					{
 						SeriesType: "GDLSeriesInt32",
