@@ -416,7 +416,7 @@ func TestGDLSeriesFloat64_Multiplication(t *testing.T) {
 	}
 }
 
-func BenchmarkGDLSeriesFloat64_Multiplication_Perf(b *testing.B) {
+func BenchmarkGDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 
 	N := 1_000_000
 	data := make([]float64, N)
@@ -428,12 +428,41 @@ func BenchmarkGDLSeriesFloat64_Multiplication_Perf(b *testing.B) {
 	scal := NewGDLSeriesFloat64("test", true, false, []float64{1.5})
 
 	// s * 1.5
-	b.StartTimer()
 	var res GDLSeries
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		res = ser.Mul(scal)
 	}
-	b.StopTimer()
+
+	if e, ok := res.(GDLSeriesError); ok {
+		b.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != N {
+		b.Errorf("Expected length of %d, got %d", N, res.Len())
+	}
+}
+
+func BenchmarkGDLSeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
+
+	N := 1_000_000
+	data1 := make([]float64, N)
+	data2 := make([]float64, N)
+	for i := 0; i < N; i++ {
+		data1[i] = float64(i)
+		data2[i] = float64(N - i - 1)
+	}
+
+	ser1 := NewGDLSeriesFloat64("test", true, false, data1)
+	ser2 := NewGDLSeriesFloat64("test", true, false, data2)
+
+	// s * 1.5
+	var res GDLSeries
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		res = ser1.Mul(ser2)
+	}
 
 	if e, ok := res.(GDLSeriesError); ok {
 		b.Errorf("Got error: %v", e)
