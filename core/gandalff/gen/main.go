@@ -31,7 +31,7 @@ type BuildInfo struct {
 	Op2VarName    string
 	Op2SeriesType string
 	Op2InnerType  typesys.BaseType
-	MakeOperation func(op1, op2, res, index string) ast.Expr
+	MakeOperation MakeOperationType
 }
 
 func (bi BuildInfo) UpdateScalarInfo(Op1Scalar, Op2Scalar bool) BuildInfo {
@@ -172,9 +172,20 @@ func generateOperationLoop(info BuildInfo) []ast.Stmt {
 
 	if info.Op1Scalar && info.Op2Scalar {
 		statements = append(statements, &ast.ExprStmt{
-			info.MakeOperation(info.Op1VarName, info.Op2VarName, RES_VAR_NAME, "0"),
+			info.MakeOperation(RES_VAR_NAME, "0", info.Op1VarName, "0", info.Op2VarName, "0"),
 		})
 	} else {
+
+		op1Index := "i"
+		op2Index := "i"
+		if info.Op1Scalar {
+			op1Index = "0"
+		}
+
+		if info.Op2Scalar {
+			op2Index = "0"
+		}
+
 		statements = append(statements, &ast.ForStmt{
 			Init: &ast.AssignStmt{
 				Lhs: []ast.Expr{
@@ -197,7 +208,7 @@ func generateOperationLoop(info BuildInfo) []ast.Stmt {
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
 					&ast.ExprStmt{
-						info.MakeOperation(info.Op1VarName, info.Op2VarName, RES_VAR_NAME, "i"),
+						info.MakeOperation(RES_VAR_NAME, "i", info.Op1VarName, op1Index, info.Op2VarName, op2Index),
 					},
 				},
 			},
@@ -249,6 +260,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 	return statements
 }
 
+// Generate the if statement to check the nullability of the operands
 func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 	return []ast.Stmt{
 		&ast.IfStmt{
@@ -283,6 +295,7 @@ func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 	}
 }
 
+// Generate the if statement to check the size of the series
 func generateSizeCheck(info BuildInfo) ast.Stmt {
 	return &ast.IfStmt{
 		Cond: &ast.BinaryExpr{
@@ -339,6 +352,7 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 	}
 }
 
+// Generate the switch statement to handle the different types of the second operand
 func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string, vectorization int) ast.Stmt {
 
 	bigSwitch := &ast.TypeSwitchStmt{

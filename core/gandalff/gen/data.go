@@ -6,10 +6,12 @@ import (
 	"typesys"
 )
 
+type MakeOperationType func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr
+
 type OperationApplyTo struct {
 	SeriesType    string
 	InnerType     typesys.BaseType
-	MakeOperation func(op1, op2, res, index string) ast.Expr
+	MakeOperation MakeOperationType
 }
 
 type Operation struct {
@@ -34,15 +36,15 @@ var DATA = map[string]SeriesFile{
 					{
 						SeriesType: "GDLSeriesInt32",
 						InnerType:  typesys.Int32Type,
-						MakeOperation: func(op1, op2, res, index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * %s.data[%s]", res, index, op1, index, op2, index)}
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
 					{
 						SeriesType: "GDLSeriesFloat64",
 						InnerType:  typesys.Float64Type,
-						MakeOperation: func(op1, op2, res, index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) * %s.data[%s]", res, index, op1, index, op2, index)}
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) * %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
@@ -60,15 +62,15 @@ var DATA = map[string]SeriesFile{
 					{
 						SeriesType: "GDLSeriesInt32",
 						InnerType:  typesys.Int32Type,
-						MakeOperation: func(op1, op2, res, index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * float64(%s.data[%s])", res, index, op1, index, op2, index)}
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
 					{
 						SeriesType: "GDLSeriesFloat64",
 						InnerType:  typesys.Float64Type,
-						MakeOperation: func(op1, op2, res, index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * %s.data[%s]", res, index, op1, index, op2, index)}
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
