@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	VECTORIZATION    = 4
-	RES_VAR_NAME     = "result"
-	FINAL_RETURN_FMT = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
+	VECTORIZATION        = 4
+	RESULT_VAR_NAME      = "result"
+	RESULT_SIZE_VAR_NAME = "resultSize"
+	FINAL_RETURN_FMT     = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
 )
 
 type BuildInfo struct {
@@ -47,35 +48,48 @@ func (bi BuildInfo) UpdateNullableInfo(Op1Nullable, Op2Nullable bool) BuildInfo 
 }
 
 // Generate the code to define the result inner array
-func generateMakeResultStmt(info BuildInfo) ast.Stmt {
+func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 	resInnerType := computeResInnerType(info.OpCode, info.Op1InnerType, info.Op2InnerType)
 
 	if resInnerType == info.Op1InnerType {
 		if info.Op1Scalar {
 			if info.Op2Scalar {
 				// TYPE1 | SCALAR | SCALAR
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
-					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+						},
 					},
 				}
 			} else {
 				// TYPE1 | SCALAR | SERIES
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op2VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.CallExpr{
-							Fun: &ast.Ident{Name: "make"},
-							Args: []ast.Expr{
-								&ast.Ident{Name: resInnerType.ToGoType()},
-								&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op2VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.CallExpr{
+								Fun: &ast.Ident{Name: "make"},
+								Args: []ast.Expr{
+									&ast.Ident{Name: resInnerType.ToGoType()},
+									&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+								},
 							},
 						},
 					},
@@ -84,24 +98,46 @@ func generateMakeResultStmt(info BuildInfo) ast.Stmt {
 		} else {
 			if info.Op2Scalar {
 				// TYPE1 | SERIES | SCALAR
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+						},
 					},
 				}
 			} else {
 				// TYPE1 | SERIES | SERIES
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op1VarName)},
+						},
 					},
 				}
 			}
@@ -110,54 +146,89 @@ func generateMakeResultStmt(info BuildInfo) ast.Stmt {
 		if info.Op1Scalar {
 			if info.Op2Scalar {
 				// TYPE2 | SCALAR | SCALAR
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
-					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+						},
 					},
 				}
 			} else {
 				// TYPE2 | SCALAR | SERIES
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op2VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+						},
 					},
 				}
 			}
 		} else {
 			if info.Op2Scalar {
 				// TYPE2 | SERIES | SCALAR
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.CallExpr{
-							Fun: &ast.Ident{Name: "make"},
-							Args: []ast.Expr{
-								&ast.Ident{Name: resInnerType.ToGoType()},
-								&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.CallExpr{
+								Fun: &ast.Ident{Name: "make"},
+								Args: []ast.Expr{
+									&ast.Ident{Name: resInnerType.ToGoType()},
+									&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+								},
 							},
 						},
 					},
 				}
 			} else {
 				// TYPE2 | SERIES | SERIES
-				return &ast.AssignStmt{
-					Lhs: []ast.Expr{
-						&ast.Ident{Name: RES_VAR_NAME},
+				return []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op2VarName)},
+						},
 					},
-					Tok: token.DEFINE,
-					Rhs: []ast.Expr{
-						&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{
+							&ast.Ident{Name: RESULT_VAR_NAME},
+						},
+						Tok: token.DEFINE,
+						Rhs: []ast.Expr{
+							&ast.Ident{Name: fmt.Sprintf("%s.data", info.Op2VarName)},
+						},
 					},
 				}
 			}
@@ -172,7 +243,7 @@ func generateOperationLoop(info BuildInfo) []ast.Stmt {
 
 	if info.Op1Scalar && info.Op2Scalar {
 		statements = append(statements, &ast.ExprStmt{
-			info.MakeOperation(RES_VAR_NAME, "0", info.Op1VarName, "0", info.Op2VarName, "0"),
+			info.MakeOperation(RESULT_VAR_NAME, "0", info.Op1VarName, "0", info.Op2VarName, "0"),
 		})
 	} else {
 
@@ -199,7 +270,7 @@ func generateOperationLoop(info BuildInfo) []ast.Stmt {
 			Cond: &ast.BinaryExpr{
 				X:  &ast.Ident{Name: "i"},
 				Op: token.LSS,
-				Y:  &ast.Ident{Name: fmt.Sprintf("len(%s.data)", info.Op1VarName)},
+				Y:  &ast.Ident{Name: RESULT_SIZE_VAR_NAME},
 			},
 			Post: &ast.IncDecStmt{
 				X:   &ast.Ident{Name: "i"},
@@ -208,7 +279,7 @@ func generateOperationLoop(info BuildInfo) []ast.Stmt {
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
 					&ast.ExprStmt{
-						info.MakeOperation(RES_VAR_NAME, "i", info.Op1VarName, op1Index, info.Op2VarName, op2Index),
+						info.MakeOperation(RESULT_VAR_NAME, "i", info.Op1VarName, op1Index, info.Op2VarName, op2Index),
 					},
 				},
 			},
@@ -225,7 +296,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 	statements := make([]ast.Stmt, 0)
 
 	// 1 - Generate the result inner data array
-	statements = append(statements, generateMakeResultStmt(info))
+	statements = append(statements, generateMakeResultStmt(info)...)
 
 	// 2 - Generate the loop to compute the operation
 	statements = append(statements, generateOperationLoop(info)...)
@@ -246,7 +317,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 					},
 					&ast.KeyValueExpr{
 						Key:   &ast.Ident{Name: "data"},
-						Value: &ast.Ident{Name: RES_VAR_NAME},
+						Value: &ast.Ident{Name: RESULT_VAR_NAME},
 					},
 					&ast.KeyValueExpr{
 						Key:   &ast.Ident{Name: "nullMask"},
