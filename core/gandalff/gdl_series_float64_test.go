@@ -375,3 +375,72 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 		}
 	}
 }
+
+func TestGDLSeriesFloat64_Multiplication(t *testing.T) {
+	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+
+	// s * 1.5
+	res := NewGDLSeriesFloat64("test", true, true, data).Mul(NewGDLSeriesFloat64("test", true, true, []float64{1.5}))
+	if e, ok := res.(GDLSeriesError); ok {
+		t.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != 20 {
+		t.Errorf("Expected length of 20, got %d", res.Len())
+	}
+
+	// Check the data.
+	for i, v := range res.Data().([]float64) {
+		if v != data[i]*1.5 {
+			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
+		}
+	}
+
+	// 1.5 * s
+	res = NewGDLSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewGDLSeriesFloat64("test", true, true, data))
+	if e, ok := res.(GDLSeriesError); ok {
+		t.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != 20 {
+		t.Errorf("Expected length of 20, got %d", res.Len())
+	}
+
+	// Check the data.
+	for i, v := range res.Data().([]float64) {
+		if v != data[i]*1.5 {
+			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
+		}
+	}
+}
+
+func BenchmarkGDLSeriesFloat64_Multiplication_Perf(b *testing.B) {
+
+	N := 1_000_000
+	data := make([]float64, N)
+	for i := 0; i < N; i++ {
+		data[i] = float64(i)
+	}
+
+	ser := NewGDLSeriesFloat64("test", true, false, data)
+	scal := NewGDLSeriesFloat64("test", true, false, []float64{1.5})
+
+	// s * 1.5
+	b.StartTimer()
+	var res GDLSeries
+	for i := 0; i < b.N; i++ {
+		res = ser.Mul(scal)
+	}
+	b.StopTimer()
+
+	if e, ok := res.(GDLSeriesError); ok {
+		b.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != N {
+		b.Errorf("Expected length of %d, got %d", N, res.Len())
+	}
+}

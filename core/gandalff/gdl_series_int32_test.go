@@ -375,3 +375,44 @@ func Test_GDLSeriesInt32_Filter(t *testing.T) {
 		}
 	}
 }
+
+func TestGDLSeriesInt32_Multiplication(t *testing.T) {
+
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+
+	// s * 2
+	res := NewGDLSeriesInt32("test", true, true, data).Mul(NewGDLSeriesInt32("test", true, true, []int{2}))
+	if e, ok := res.(GDLSeriesError); ok {
+		t.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != 20 {
+		t.Errorf("Expected length of 20, got %d", res.Len())
+	}
+
+	// Check the data.
+	for i, v := range res.Data().([]int) {
+		if v != data[i]*2 {
+			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
+		}
+	}
+
+	// 2 * s
+	res = NewGDLSeriesInt32("test", true, true, []int{2}).Mul(NewGDLSeriesInt32("test", true, true, data))
+	if e, ok := res.(GDLSeriesError); ok {
+		t.Errorf("Got error: %v", e)
+	}
+
+	// Check the length.
+	if res.Len() != 20 {
+		t.Errorf("Expected length of 20, got %d", res.Len())
+	}
+
+	// Check the data.
+	for i, v := range res.Data().([]int) {
+		if v != data[i]*2 {
+			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
+		}
+	}
+}
