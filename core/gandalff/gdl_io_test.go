@@ -241,27 +241,33 @@ Charlie,33,95.0,t
 	}
 }
 
-func Test_FromCSV_100000Rows(t *testing.T) {
-
-	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Error(err)
-	}
+func Benchmark_FromCSV_100000Rows(b *testing.B) {
 
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(f, ',', true, 100)
+	var df *GDLDataFrame
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+		if err != nil {
+			b.Error(err)
+		}
+		df = FromCSV(f, ',', true, 100)
+		f.Close()
+	}
+
 	if df.GetError() != nil {
-		t.Error(df.GetError())
+		b.Error(df.GetError())
 	}
 
 	// Check the number of rows.
 	if df.NRows() != 100000 {
-		t.Error("Expected 100000 rows, got", df.NRows())
+		b.Error("Expected 100000 rows, got", df.NRows())
 	}
 
 	// Check the number of columns.
 	if df.NCols() != 9 {
-		t.Error("Expected 9 columns, got", df.NCols())
+		b.Error("Expected 9 columns, got", df.NCols())
 	}
 
 	names := []string{"Index", "Organization Id", "Name", "Website", "Country", "Description", "Founded", "Industry", "Number of employees"}
@@ -269,68 +275,74 @@ func Test_FromCSV_100000Rows(t *testing.T) {
 	// Check the column names.
 	for i := 0; i < len(names); i++ {
 		if df.Names()[i] != names[i] {
-			t.Error("Expected ", names[i], ", got", df.Names()[i])
+			b.Error("Expected ", names[i], ", got", df.Names()[i])
 		}
 	}
 
 	// Check the column types.
 	if df.Types()[0] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[0].ToString())
+		b.Error("Expected Int32, got", df.Types()[0].ToString())
 	}
 
 	if df.Types()[1] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[1].ToString())
+		b.Error("Expected String, got", df.Types()[1].ToString())
 	}
 
 	if df.Types()[2] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[2].ToString())
+		b.Error("Expected String, got", df.Types()[2].ToString())
 	}
 
 	if df.Types()[3] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[3].ToString())
+		b.Error("Expected String, got", df.Types()[3].ToString())
 	}
 
 	if df.Types()[4] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[4].ToString())
+		b.Error("Expected String, got", df.Types()[4].ToString())
 	}
 
 	if df.Types()[5] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[5].ToString())
+		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
 	if df.Types()[6] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[6].ToString())
+		b.Error("Expected Int32, got", df.Types()[6].ToString())
 	}
 
 	if df.Types()[7] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[7].ToString())
+		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
 	if df.Types()[8] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[8].ToString())
+		b.Error("Expected Int32, got", df.Types()[8].ToString())
 	}
 }
 
-func Test_FromCSV_500000Rows(t *testing.T) {
-	f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Error(err)
+func Benchmark_FromCSV_500000Rows(b *testing.B) {
+	// Create a new dataframe from the CSV data.
+	var df *GDLDataFrame
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
+		if err != nil {
+			b.Error(err)
+		}
+		df = FromCSV(f, ',', true, 100)
+		f.Close()
 	}
 
-	// Create a new dataframe from the CSV data.
-	df := FromCSV(f, ',', true, 100)
 	if df.GetError() != nil {
-		t.Error(df.GetError())
+		b.Error(df.GetError())
 	}
 
 	// Check the number of rows.
 	if df.NRows() != 500000 {
-		t.Error("Expected 100000 rows, got", df.NRows())
+		b.Error("Expected 100000 rows, got", df.NRows())
 	}
 
 	// Check the number of columns.
 	if df.NCols() != 9 {
-		t.Error("Expected 9 columns, got", df.NCols())
+		b.Error("Expected 9 columns, got", df.NCols())
 	}
 
 	names := []string{"Index", "Organization Id", "Name", "Website", "Country", "Description", "Founded", "Industry", "Number of employees"}
@@ -338,44 +350,44 @@ func Test_FromCSV_500000Rows(t *testing.T) {
 	// Check the column names.
 	for i := 0; i < len(names); i++ {
 		if df.Names()[i] != names[i] {
-			t.Error("Expected ", names[i], ", got", df.Names()[i])
+			b.Error("Expected ", names[i], ", got", df.Names()[i])
 		}
 	}
 
 	// Check the column types.
 	if df.Types()[0] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[0].ToString())
+		b.Error("Expected Int32, got", df.Types()[0].ToString())
 	}
 
 	if df.Types()[1] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[1].ToString())
+		b.Error("Expected String, got", df.Types()[1].ToString())
 	}
 
 	if df.Types()[2] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[2].ToString())
+		b.Error("Expected String, got", df.Types()[2].ToString())
 	}
 
 	if df.Types()[3] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[3].ToString())
+		b.Error("Expected String, got", df.Types()[3].ToString())
 	}
 
 	if df.Types()[4] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[4].ToString())
+		b.Error("Expected String, got", df.Types()[4].ToString())
 	}
 
 	if df.Types()[5] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[5].ToString())
+		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
 	if df.Types()[6] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[6].ToString())
+		b.Error("Expected Int32, got", df.Types()[6].ToString())
 	}
 
 	if df.Types()[7] != typesys.StringType {
-		t.Error("Expected String, got", df.Types()[7].ToString())
+		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
 	if df.Types()[8] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[8].ToString())
+		b.Error("Expected Int32, got", df.Types()[8].ToString())
 	}
 }
