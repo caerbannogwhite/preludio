@@ -268,7 +268,7 @@ func (df *GDLDataFrame) Ungroup() *GDLDataFrame {
 
 ///////////////////////////////		SUMMARY		/////////////////////////////////////////
 
-func (df *GDLDataFrame) Count() *GDLDataFrame {
+func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -277,9 +277,36 @@ func (df *GDLDataFrame) Count() *GDLDataFrame {
 
 	if df.isGrouped {
 
+		// The last partition tells us how many groups there are
+		// and how many rows are in each group
+		p := df.partitions[len(df.partitions)-1].partition.GetNonNullGroups()
+
+		// Keep only the grouped series
 		for _, partition := range df.partitions {
-			series := df.SeriesAt(partition.index)
-			result.AddSeries(series)
+			old := df.SeriesAt(partition.index)
+
+			switch old.(type) {
+			case GDLSeriesBool:
+				values := make([]bool, len(p))
+				for i, group := range p {
+					values[i] = old.Get(group[0]).(bool)
+				}
+				result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
+
+			case GDLSeriesInt32:
+				values := make([]int, len(p))
+				for i, group := range p {
+					values[i] = old.Get(group[0]).(int)
+				}
+				result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
+
+			case GDLSeriesString:
+				values := make([]string, len(p))
+				for i, group := range p {
+					values[i] = old.Get(group[0]).(string)
+				}
+				result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
+			}
 		}
 
 		// Add the count series
@@ -288,14 +315,14 @@ func (df *GDLDataFrame) Count() *GDLDataFrame {
 			counts[i] = len(group)
 		}
 
-		if df.partitions[len(df.partitions)-1].partition.GetNullGroup() != nil {
-			counts = append(counts, len(df.partitions[len(df.partitions)-1].partition.GetNullGroup()))
-		}
+		// if df.partitions[len(df.partitions)-1].partition.GetNullGroup() != nil {
+		// 	counts = append(counts, len(df.partitions[len(df.partitions)-1].partition.GetNullGroup()))
+		// }
 
-		result.AddSeries(NewGDLSeriesInt32("count", false, false, counts))
+		result.AddSeries(NewGDLSeriesInt32(name, false, false, counts))
 
 	} else {
-		result.AddSeries(NewGDLSeriesInt32("count", false, false, []int{df.NRows()}))
+		result.AddSeries(NewGDLSeriesInt32(name, false, false, []int{df.NRows()}))
 	}
 
 	return result
@@ -317,9 +344,15 @@ func (df *GDLDataFrame) PrettyPrint() {
 	}
 
 	if df.isGrouped {
-		fmt.Println("GROUPED")
-	} else {
-		fmt.Println("NOT GROUPED")
+		fmt.Printf("    GROUPED BY")
+		for i, p := range df.partitions {
+			if i != len(df.partitions)-1 {
+				fmt.Printf(" %s,", p.name)
+			} else {
+				fmt.Printf(" %s", p.name)
+			}
+		}
+		fmt.Printf("\n\n")
 	}
 
 	colSize := 10
