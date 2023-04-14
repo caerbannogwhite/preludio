@@ -42,6 +42,15 @@ func (df *GDLDataFrame) GetPool() *StringPool {
 	return df.pool
 }
 
+func (df *GDLDataFrame) GetSeriesIndex(name string) int {
+	for i, series := range df.series {
+		if series.Name() == name {
+			return i
+		}
+	}
+	return -1
+}
+
 func (df *GDLDataFrame) AddSeries(series GDLSeries) {
 	df.series = append(df.series, series)
 }
@@ -214,45 +223,36 @@ func (df *GDLDataFrame) GroupBy(by ...string) *GDLDataFrame {
 			}
 		}
 
-		grouped := NewGDLDataFrame()
-		grouped.isGrouped = true
-		grouped.partitions = make([]GDLDataFramePartitionEntry, len(by))
+		df.isGrouped = true
+		df.partitions = make([]GDLDataFramePartitionEntry, len(by))
 
-		partitionsIndex := 0
+		for partitionsIndex, name := range by {
 
-		for i, series := range df.series {
-			for _, name := range by {
-				if series.Name() == name {
+			i := df.GetSeriesIndex(name)
+			series := df.series[i]
 
-					// First partition: group the series
-					if partitionsIndex == 0 {
-						grouped.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
-							index:     i,
-							name:      name,
-							partition: series.Group(),
-						}
-					} else
+			// First partition: group the series
+			if partitionsIndex == 0 {
+				df.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
+					index:     i,
+					name:      name,
+					partition: series.Group(),
+				}
+			} else
 
-					// Subsequent partitions: sub-group the series
-					{
-						grouped.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
-							index:     i,
-							name:      name,
-							partition: series.SubGroup(grouped.partitions[partitionsIndex-1].partition),
-						}
-					}
-
-					// Series found, increment the partitions index
-					partitionsIndex++
-					break
+			// Subsequent partitions: sub-group the series
+			{
+				df.partitions[partitionsIndex] = GDLDataFramePartitionEntry{
+					index:     i,
+					name:      name,
+					partition: series.SubGroup(df.partitions[partitionsIndex-1].partition),
 				}
 			}
-
-			// Add the series to the grouped dataframe
-			grouped.AddSeries(series)
 		}
 
-		return grouped
+		fmt.Println(df.partitions)
+
+		return df
 	}
 }
 
@@ -299,6 +299,13 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 					values[i] = old.Get(group[0]).(int)
 				}
 				result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
+
+			case GDLSeriesFloat64:
+				values := make([]float64, len(p))
+				for i, group := range p {
+					values[i] = old.Get(group[0]).(float64)
+				}
+				result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
 
 			case GDLSeriesString:
 				values := make([]string, len(p))
