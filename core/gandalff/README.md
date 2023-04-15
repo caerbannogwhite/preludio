@@ -34,19 +34,38 @@ The data types not checked are not yet supported, but might be in the future.
   - [x] FilterByMask
   - [x] FilterByIndex
 
-- [ ] Group
+- [x] Group
+  - [x] Group
+  - [x] SubGroup
+
 - [x] Map
+- [ ] Sort
 
 ### Supported operations for DataFrame
 
 - [x] Filter
-- [ ] GroupBy
+- [x] GroupBy
 - [ ] Map
 - [x] Select
+- [ ] OrderBy
+- [ ] Join
+
+### Supported stats functions
+
+- [ ] Count
+- [ ] Sum
+- [ ] Mean
+- [ ] Median
+- [ ] Min
+- [ ] Max
+- [ ] StdDev
+- [ ] Variance
+
 
 ### Implementation details
 
-This is how the interface for the Series type currently looks like:
+This is how the interface for the Series type currently looks like
+with all the methods that are currently implemented.
 
 ```go
 type GDLSeries interface {
@@ -67,6 +86,8 @@ type GDLSeries interface {
 	HasNull() bool
 	// Returns the number of null values in the series.
 	NullCount() int
+	// Returns the number of non-null values in the series.
+	NonNullCount() int
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
