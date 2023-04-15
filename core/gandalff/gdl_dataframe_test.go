@@ -120,4 +120,40 @@ Charlie,33,95.0,t,Business,2
 			t.Errorf("Expected %d, got %d", exp3[dept][junior], n)
 		}
 	}
+
+	// Group by department and salary band
+	res = df.Ungroup().GroupBy("department", "salary band").Count("n")
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp4 := map[string]map[int]int{
+		"HR": {
+			1: 1,
+			4: 1,
+		},
+		"IT": {
+			2: 1,
+			4: 2,
+			3: 1,
+		},
+		"Business": {
+			4: 1,
+			2: 1,
+		},
+	}
+
+	if res.NRows() != 7 {
+		t.Errorf("Expected 7 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		salaryBand := res.Series("salary band").Get(i).(int)
+		dept := res.Series("department").Get(i).(string)
+		n := res.Series("n").Get(i).(int)
+
+		if n != exp4[dept][salaryBand] {
+			t.Errorf("Expected %d, got %d", exp4[dept][salaryBand], n)
+		}
+	}
 }
