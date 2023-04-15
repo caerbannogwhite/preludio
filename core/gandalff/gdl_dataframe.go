@@ -277,7 +277,7 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 
 		// The last partition tells us how many groups there are
 		// and how many rows are in each group
-		p := df.partitions[len(df.partitions)-1].partition.GetIndices()
+		indeces := df.partitions[len(df.partitions)-1].partition.GetIndices()
 
 		// Keep only the grouped series
 		for _, partition := range df.partitions {
@@ -285,29 +285,29 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 
 			switch old.(type) {
 			case GDLSeriesBool:
-				values := make([]bool, len(p))
-				for i, group := range p {
+				values := make([]bool, len(indeces))
+				for i, group := range indeces {
 					values[i] = old.Get(group[0]).(bool)
 				}
 				result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
 
 			case GDLSeriesInt32:
-				values := make([]int, len(p))
-				for i, group := range p {
+				values := make([]int, len(indeces))
+				for i, group := range indeces {
 					values[i] = old.Get(group[0]).(int)
 				}
 				result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
 
 			case GDLSeriesFloat64:
-				values := make([]float64, len(p))
-				for i, group := range p {
+				values := make([]float64, len(indeces))
+				for i, group := range indeces {
 					values[i] = old.Get(group[0]).(float64)
 				}
 				result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
 
 			case GDLSeriesString:
-				values := make([]string, len(p))
-				for i, group := range p {
+				values := make([]string, len(indeces))
+				for i, group := range indeces {
 					values[i] = old.Get(group[0]).(string)
 				}
 				result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
@@ -315,8 +315,8 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 		}
 
 		// Add the count series
-		counts := make([]int, len(df.partitions[len(df.partitions)-1].partition.GetIndices()))
-		for i, group := range df.partitions[len(df.partitions)-1].partition.GetIndices() {
+		counts := make([]int, len(indeces))
+		for i, group := range indeces {
 			counts[i] = len(group)
 		}
 

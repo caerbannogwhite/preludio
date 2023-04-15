@@ -535,10 +535,13 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartiti
 			}
 		}
 	} else {
-		for _, g := range indices {
+		for gi, g := range indices {
 			groups = append(groups, make(map[*string][]int))
-			for _, i := range g {
-				groups[i][s.data[i]] = append(groups[i][s.data[i]], i)
+			for _, idx := range g {
+				if groups[gi][s.data[idx]] == nil {
+					groups[gi][s.data[idx]] = make([]int, 0)
+				}
+				groups[gi][s.data[idx]] = append(groups[gi][s.data[idx]], idx)
 			}
 		}
 	}

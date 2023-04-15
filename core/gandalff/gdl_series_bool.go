@@ -704,18 +704,18 @@ func (s GDLSeriesBool) Group() GDLSeriesPartition {
 		nullGroup = make([][]int, 1)
 		nullGroup[0] = make([]int, 0)
 
-		for i, v := range s.data {
+		for i := 0; i < s.size; i++ {
 			if s.IsNull(i) {
 				nullGroup[0] = append(nullGroup[0], i)
-			} else if v&(1<<uint(i%8)) != 0 {
+			} else if s.data[i>>3]&(1<<(i%8)) > 0 {
 				groups.trues = append(groups.trues, i)
 			} else {
 				groups.falses = append(groups.falses, i)
 			}
 		}
 	} else {
-		for i, v := range s.data {
-			if v&(1<<uint(i%8)) != 0 {
+		for i := 0; i < s.size; i++ {
+			if s.data[i>>3]&(1<<(i%8)) > 0 {
 				groups.trues = append(groups.trues, i)
 			} else {
 				groups.falses = append(groups.falses, i)
@@ -741,7 +741,7 @@ func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition
 			for _, i := range g {
 				if s.IsNull(i) {
 					nullGroup[i] = append(nullGroup[i], i)
-				} else if s.data[i>>3]&(1<<(i%8)) == 1 {
+				} else if s.data[i>>3]&(1<<(i%8)) > 0 {
 					bi.trues = append(bi.trues, i)
 				} else {
 					bi.falses = append(bi.falses, i)
@@ -753,7 +753,7 @@ func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition
 		for _, g := range indices {
 			bi := boolIndices{make([]int, 0), make([]int, 0)}
 			for _, i := range g {
-				if s.data[i>>3]&(1<<(i%8)) == 1 {
+				if s.data[i>>3]&(1<<(i%8)) > 0 {
 					bi.trues = append(bi.trues, i)
 				} else {
 					bi.falses = append(bi.falses, i)
