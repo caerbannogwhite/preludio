@@ -140,7 +140,7 @@ func LaunchRepl(args CliArgs) {
 			switch spt[0] {
 			case "%setenv":
 				if len(spt) != 3 {
-					fmt.Println("Usage: %setenv <key> <value>")
+					fmt.Printf("Usage: %%setenv <key> <value>\n")
 					continue
 				}
 
