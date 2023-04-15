@@ -412,14 +412,134 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return s
 }
 
-///////////////////////////////		GROUPING OPERATIONS			/////////////////////////
+/////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
 
-func (s GDLSeriesFloat64) Group() GDLSeriesPartition {
+type GDLSeriesFloat64Partition struct {
+	partition []map[float64][]int
+	nullGroup [][]int
+}
+
+func (p GDLSeriesFloat64Partition) GetSize() int {
+	return len(p.partition)
+}
+
+func (p GDLSeriesFloat64Partition) GetGroupsCount() int {
+	count := 0
+	for _, s := range p.partition {
+		for _, g := range s {
+			if len(g) > 0 {
+				count++
+			}
+		}
+	}
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			count++
+		}
+	}
+	return count
+}
+
+func (p GDLSeriesFloat64Partition) GetIndices() [][]int {
+	indices := make([][]int, 0)
+
+	for _, s := range p.partition {
+		for _, g := range s {
+			if len(g) > 0 {
+				indices = append(indices, g)
+			}
+		}
+	}
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			indices = append(indices, g)
+		}
+	}
+
+	return indices
+}
+
+func (p GDLSeriesFloat64Partition) GetValueIndices(sub int, val interface{}) []int {
+	if sub >= len(p.partition) {
+		return nil
+	}
+
+	if v, ok := val.(float64); ok {
+		return p.partition[sub][v]
+	}
+
 	return nil
 }
 
-func (s GDLSeriesFloat64) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
-	return nil
+func (s GDLSeriesFloat64Partition) GetNullIndices(sub int) []int {
+	if sub >= len(s.nullGroup) {
+		return nil
+	}
+
+	return s.nullGroup[sub]
+}
+
+func (s GDLSeriesFloat64) Group() GDLSeriesPartition {
+	var nullGroup [][]int
+
+	groups := make(map[float64][]int)
+	if s.isNullable {
+		nullGroup = make([][]int, 1)
+		nullGroup[0] = make([]int, 0)
+
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				nullGroup[0] = append(nullGroup[0], i)
+			} else {
+				groups[v] = append(groups[v], i)
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			groups[v] = append(groups[v], i)
+		}
+	}
+	return GDLSeriesFloat64Partition{
+		partition: []map[float64][]int{groups},
+		nullGroup: nullGroup,
+	}
+}
+
+func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition {
+	var nullGroup [][]int
+
+	groups := make([]map[float64][]int, 0)
+	indices := partition.GetIndices()
+	if s.isNullable {
+		nullGroup = make([][]int, partition.GetGroupsCount())
+
+		for _, g := range indices {
+			groups = append(groups, make(map[float64][]int))
+			for _, i := range g {
+				if s.IsNull(i) {
+					nullGroup[i] = append(nullGroup[i], i)
+				} else {
+					groups[i][s.data[i]] = append(groups[i][s.data[i]], i)
+				}
+			}
+		}
+	} else {
+		for gi, g := range indices {
+			groups = append(groups, make(map[float64][]int))
+			for _, idx := range g {
+				if groups[gi][s.data[idx]] == nil {
+					groups[gi][s.data[idx]] = make([]int, 0)
+				}
+				groups[gi][s.data[idx]] = append(groups[gi][s.data[idx]], idx)
+			}
+		}
+	}
+	return GDLSeriesFloat64Partition{
+		partition: groups,
+		nullGroup: nullGroup,
+	}
 }
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////

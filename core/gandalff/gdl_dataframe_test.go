@@ -19,7 +19,7 @@ Jane H,25,60.0,false,IT,4
 Mary,28,70.0,false,IT,3
 Oliver,32,90.0,true,HR,1
 Ursula,27,65.0,f,Business,4
-Charlie,33,95.0,t,Business,2
+Charlie,33,60.0,t,Business,2
 `
 
 	// Create a new dataframe from the CSV data.
@@ -154,6 +154,35 @@ Charlie,33,95.0,t,Business,2
 
 		if n != exp4[dept][salaryBand] {
 			t.Errorf("Expected %d, got %d", exp4[dept][salaryBand], n)
+		}
+	}
+
+	// Group by weight
+	res = df.Ungroup().GroupBy("weight").Count("n")
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp5 := map[float64]int{
+		75.0: 1,
+		80.5: 1,
+		85.0: 1,
+		60.0: 2,
+		70.0: 1,
+		90.0: 1,
+		65.0: 1,
+	}
+
+	if res.NRows() != len(exp5) {
+		t.Errorf("Expected %d rows, got %d", len(exp5), res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		weight := res.Series("weight").Get(i).(float64)
+		n := res.Series("n").Get(i).(int)
+
+		if n != exp5[weight] {
+			t.Errorf("Expected %d, got %d", exp5[weight], n)
 		}
 	}
 }
