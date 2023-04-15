@@ -250,8 +250,6 @@ func (df *GDLDataFrame) GroupBy(by ...string) *GDLDataFrame {
 			}
 		}
 
-		fmt.Println(df.partitions)
-
 		return df
 	}
 }
@@ -279,7 +277,7 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 
 		// The last partition tells us how many groups there are
 		// and how many rows are in each group
-		p := df.partitions[len(df.partitions)-1].partition.GetNonNullGroups()
+		p := df.partitions[len(df.partitions)-1].partition.GetIndices()
 
 		// Keep only the grouped series
 		for _, partition := range df.partitions {
@@ -317,8 +315,8 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 		}
 
 		// Add the count series
-		counts := make([]int, len(df.partitions[len(df.partitions)-1].partition.GetNonNullGroups()))
-		for i, group := range df.partitions[len(df.partitions)-1].partition.GetNonNullGroups() {
+		counts := make([]int, len(df.partitions[len(df.partitions)-1].partition.GetIndices()))
+		for i, group := range df.partitions[len(df.partitions)-1].partition.GetIndices() {
 			counts[i] = len(group)
 		}
 

@@ -84,12 +84,14 @@ func (s GDLSeriesBool) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
 		for i := 0; i < 8; i++ {
-			if v&(1<<uint(i)) != 0 {
-				count++
-			}
+			count += int((v & (1 << uint(i))) >> uint(i))
 		}
 	}
 	return count
+}
+
+func (s GDLSeriesBool) NonNullCount() int {
+	return s.size - s.NullCount()
 }
 
 func (s GDLSeriesBool) IsNull(i int) bool {
@@ -613,80 +615,153 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 ///////////////////////////////		GROUPING OPERATIONS		/////////////////////////////
 
+type boolIndices struct {
+	trues  []int
+	falses []int
+}
+
+// A partition is trivially a vector of maps (or boolIndices in this case)
+// Each element of the vector represent a sub-group (the default is 1,
+// which means no sub-grouping).
+// So is for the null group, which has the same size as the partition vector.
 type GDLSeriesBoolPartition struct {
-	partition map[bool][]int
-	nullGroup []int
+	partition []boolIndices
+	nullGroup [][]int
+}
+
+func (p GDLSeriesBoolPartition) GetSize() int {
+	return len(p.partition)
 }
 
 func (p GDLSeriesBoolPartition) GetGroupsCount() int {
 	count := 0
-	for _, v := range p.partition {
-		if len(v) > 0 {
+	for _, s := range p.partition {
+		if len(s.trues) > 0 {
+			count++
+		}
+		if len(s.falses) > 0 {
 			count++
 		}
 	}
-	if len(p.nullGroup) > 0 {
-		count++
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			count++
+		}
 	}
 	return count
 }
 
-func (p GDLSeriesBoolPartition) GetNonNullGroups() [][]int {
-	partition := make([][]int, 0)
-	for _, v := range p.partition {
-		if len(v) > 0 {
-			partition = append(partition, v)
+func (p GDLSeriesBoolPartition) GetIndices() [][]int {
+	indices := make([][]int, 0)
+
+	for _, s := range p.partition {
+		if len(s.trues) > 0 {
+			indices = append(indices, s.trues)
+		}
+		if len(s.falses) > 0 {
+			indices = append(indices, s.falses)
 		}
 	}
-	return partition
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			indices = append(indices, g)
+		}
+	}
+
+	return indices
 }
 
-func (s GDLSeriesBoolPartition) GetNullGroup() []int {
-	return s.nullGroup
+func (p GDLSeriesBoolPartition) GetValueIndices(sub int, val interface{}) []int {
+	if sub >= len(p.partition) {
+		return nil
+	}
+
+	if v, ok := val.(bool); ok {
+		if v {
+			return p.partition[sub].trues
+		}
+		return p.partition[sub].falses
+	}
+
+	return nil
+}
+
+func (s GDLSeriesBoolPartition) GetNullIndices(sub int) []int {
+	if sub >= len(s.nullGroup) {
+		return nil
+	}
+
+	return s.nullGroup[sub]
 }
 
 func (s GDLSeriesBool) Group() GDLSeriesPartition {
-	groups := make(map[bool][]int)
-	nullGroup := make([]int, 0)
-	// if s.isNullable {
-	// 	for i, v := range s.data {
-	// 		if s.IsNull(i) {
-	// 			nullGroup = append(nullGroup, i)
-	// 		} else {
-	// 			groups[v] = append(groups[v], i)
-	// 		}
-	// 	}
-	// } else {
-	// 	for i, v := range s.data {
-	// 		groups[v] = append(groups[v], i)
-	// 	}
-	// }
+	var nullGroup [][]int
+
+	groups := boolIndices{make([]int, 0), make([]int, 0)}
+	if s.isNullable {
+		nullGroup = make([][]int, 1)
+		nullGroup[0] = make([]int, 0)
+
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				nullGroup[0] = append(nullGroup[0], i)
+			} else if v&(1<<uint(i%8)) != 0 {
+				groups.trues = append(groups.trues, i)
+			} else {
+				groups.falses = append(groups.falses, i)
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			if v&(1<<uint(i%8)) != 0 {
+				groups.trues = append(groups.trues, i)
+			} else {
+				groups.falses = append(groups.falses, i)
+			}
+		}
+	}
 	return GDLSeriesBoolPartition{
-		partition: groups,
+		partition: []boolIndices{groups},
 		nullGroup: nullGroup,
 	}
 }
 
-func (s GDLSeriesBool) SubGroup(gp GDLSeriesPartition) GDLSeriesPartition {
-	groups := make(map[bool][]int)
-	nullGroup := make([]int, 0)
-	// if s.isNullable {
-	// 	for _, v := range gp.GetNonNullGroups() {
-	// 		for _, idx := range v {
-	// 			if s.IsNull(idx) {
-	// 				nullGroup = append(nullGroup, idx)
-	// 			} else {
-	// 				groups[s.data[idx]] = append(groups[s.data[idx]], idx)
-	// 			}
-	// 		}
-	// 	}
-	// } else {
-	// 	for _, v := range gp.GetNonNullGroups() {
-	// 		for _, idx := range v {
-	// 			groups[s.data[idx]] = append(groups[s.data[idx]], idx)
-	// 		}
-	// 	}
-	// }
+func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition {
+	var nullGroup [][]int
+
+	groups := make([]boolIndices, 0)
+	indices := partition.GetIndices()
+	if s.isNullable {
+		nullGroup = make([][]int, partition.GetGroupsCount())
+
+		for _, g := range indices {
+			bi := boolIndices{make([]int, 0), make([]int, 0)}
+			for _, i := range g {
+				if s.IsNull(i) {
+					nullGroup[i] = append(nullGroup[i], i)
+				} else if s.data[i>>3]&(1<<(i%8)) == 1 {
+					bi.trues = append(bi.trues, i)
+				} else {
+					bi.falses = append(bi.falses, i)
+				}
+			}
+			groups = append(groups, bi)
+		}
+	} else {
+		for _, g := range indices {
+			bi := boolIndices{make([]int, 0), make([]int, 0)}
+			for _, i := range g {
+				if s.data[i>>3]&(1<<(i%8)) == 1 {
+					bi.trues = append(bi.trues, i)
+				} else {
+					bi.falses = append(bi.falses, i)
+				}
+			}
+			groups = append(groups, bi)
+		}
+	}
 	return GDLSeriesBoolPartition{
 		partition: groups,
 		nullGroup: nullGroup,

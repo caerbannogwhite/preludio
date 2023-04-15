@@ -77,12 +77,14 @@ func (s GDLSeriesString) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
 		for i := 0; i < 8; i++ {
-			if v&(1<<uint(i)) != 0 {
-				count++
-			}
+			count += int((v & (1 << uint(i))) >> uint(i))
 		}
 	}
 	return count
+}
+
+func (s GDLSeriesString) NonNullCount() int {
+	return s.Len() - s.NullCount()
 }
 
 func (s GDLSeriesString) IsNull(i int) bool {
@@ -422,44 +424,83 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 /////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
 
 type GDLSeriesStringPartition struct {
-	partition map[*string][]int
-	nullGroup []int
+	partition []map[*string][]int
+	nullGroup [][]int
+}
+
+func (p GDLSeriesStringPartition) GetSize() int {
+	return len(p.partition)
 }
 
 func (p GDLSeriesStringPartition) GetGroupsCount() int {
 	count := 0
-	for _, v := range p.partition {
-		if len(v) > 0 {
-			count++
+	for _, s := range p.partition {
+		for _, g := range s {
+			if len(g) > 0 {
+				count++
+			}
 		}
 	}
-	if len(p.nullGroup) > 0 {
-		count++
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			count++
+		}
 	}
 	return count
 }
 
-func (p GDLSeriesStringPartition) GetNonNullGroups() [][]int {
-	partition := make([][]int, 0)
-	for _, v := range p.partition {
-		if len(v) > 0 {
-			partition = append(partition, v)
+func (p GDLSeriesStringPartition) GetIndices() [][]int {
+	indices := make([][]int, 0)
+
+	for _, s := range p.partition {
+		for _, g := range s {
+			if len(g) > 0 {
+				indices = append(indices, g)
+			}
 		}
 	}
-	return partition
+
+	for _, g := range p.nullGroup {
+		if len(g) > 0 {
+			indices = append(indices, g)
+		}
+	}
+
+	return indices
 }
 
-func (s GDLSeriesStringPartition) GetNullGroup() []int {
-	return s.nullGroup
+func (p GDLSeriesStringPartition) GetValueIndices(sub int, val interface{}) []int {
+	if sub >= len(p.partition) {
+		return nil
+	}
+
+	if v, ok := val.(*string); ok {
+		return p.partition[sub][v]
+	}
+
+	return nil
+}
+
+func (s GDLSeriesStringPartition) GetNullIndices(sub int) []int {
+	if sub >= len(s.nullGroup) {
+		return nil
+	}
+
+	return s.nullGroup[sub]
 }
 
 func (s GDLSeriesString) Group() GDLSeriesPartition {
+	var nullGroup [][]int
+
 	groups := make(map[*string][]int)
-	nullGroup := make([]int, 0)
 	if s.isNullable {
+		nullGroup = make([][]int, 1)
+		nullGroup[0] = make([]int, 0)
+
 		for i, v := range s.data {
 			if s.IsNull(i) {
-				nullGroup = append(nullGroup, i)
+				nullGroup[0] = append(nullGroup[0], i)
 			} else {
 				groups[v] = append(groups[v], i)
 			}
@@ -470,25 +511,35 @@ func (s GDLSeriesString) Group() GDLSeriesPartition {
 		}
 	}
 	return GDLSeriesStringPartition{
-		partition: groups,
+		partition: []map[*string][]int{groups},
 		nullGroup: nullGroup,
 	}
 }
 
 func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition {
-	groups := make(map[*string][]int)
-	nullGroup := make([]int, 0)
+	var nullGroup [][]int
+
+	groups := make([]map[*string][]int, 0)
+	indices := partition.GetIndices()
 	if s.isNullable {
-		for i, v := range s.data {
-			if s.IsNull(i) {
-				nullGroup = append(nullGroup, i)
-			} else {
-				groups[v] = append(groups[v], i)
+		nullGroup = make([][]int, partition.GetGroupsCount())
+
+		for _, g := range indices {
+			groups = append(groups, make(map[*string][]int))
+			for _, i := range g {
+				if s.IsNull(i) {
+					nullGroup[i] = append(nullGroup[i], i)
+				} else {
+					groups[i][s.data[i]] = append(groups[i][s.data[i]], i)
+				}
 			}
 		}
 	} else {
-		for i, v := range s.data {
-			groups[v] = append(groups[v], i)
+		for _, g := range indices {
+			groups = append(groups, make(map[*string][]int))
+			for _, i := range g {
+				groups[i][s.data[i]] = append(groups[i][s.data[i]], i)
+			}
 		}
 	}
 	return GDLSeriesStringPartition{

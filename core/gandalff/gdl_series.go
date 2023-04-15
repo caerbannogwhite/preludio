@@ -80,6 +80,8 @@ type GDLSeries interface {
 	HasNull() bool
 	// Returns the number of null values in the series.
 	NullCount() int
+	// Returns the number of non-null values in the series.
+	NonNullCount() int
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
@@ -152,12 +154,16 @@ func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool,
 }
 
 type GDLSeriesPartition interface {
+	// Returns the number partitions.
+	GetSize() int
 	// Returns the number of groups.
 	GetGroupsCount() int
-	// Returns the non-null groups.
-	GetNonNullGroups() [][]int
+	// Returns the indices of the groups.
+	GetIndices() [][]int
+	// Returns the indices for a given value in a given sub-group.
+	GetValueIndices(sub int, val interface{}) []int
 	// Returns the null group.
-	GetNullGroup() []int
+	GetNullIndices(sub int) []int
 }
 
 type StringPoolEntry struct {
@@ -263,6 +269,11 @@ func (s GDLSeriesError) HasNull() bool {
 
 // Returns the number of null values in the series.
 func (s GDLSeriesError) NullCount() int {
+	return 0
+}
+
+// Returns the number of non-null values in the series.
+func (s GDLSeriesError) NonNullCount() int {
 	return 0
 }
 

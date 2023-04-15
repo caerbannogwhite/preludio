@@ -77,12 +77,14 @@ func (s GDLSeriesInt32) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
 		for i := 0; i < 8; i++ {
-			if v&(1<<uint(i)) != 0 {
-				count++
-			}
+			count += int((v & (1 << uint(i))) >> uint(i))
 		}
 	}
 	return count
+}
+
+func (s GDLSeriesInt32) NonNullCount() int {
+	return s.Len() - s.NullCount()
 }
 
 func (s GDLSeriesInt32) IsNull(i int) bool {
