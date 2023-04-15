@@ -42,7 +42,7 @@ go run .
 
 ### Future Features
 - [ ] Add support for more data types
-- [ ] Move to Gandalff library
+- [ ] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
 - [ ] Add more transformations functions (group by, etc.)
 - [ ] Add statistical functions
 - [ ] Add support for Excel files
