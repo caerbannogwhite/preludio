@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"typesys"
 )
 
@@ -264,6 +265,70 @@ func (df *GDLDataFrame) Ungroup() *GDLDataFrame {
 	return df
 }
 
+func (df *GDLDataFrame) groupHelper() (*GDLDataFrame, *[][]int, *[]int) {
+
+	// Keep track of which series are not grouped
+	seriesIndices := make(map[int]bool)
+	for i := 0; i < df.NCols(); i++ {
+		seriesIndices[i] = true
+	}
+
+	result := NewGDLDataFrame()
+
+	// The last partition tells us how many groups there are
+	// and how many rows are in each group
+	indeces := df.partitions[len(df.partitions)-1].partition.GetIndices()
+
+	// Keep only the grouped series
+	for _, partition := range df.partitions {
+		seriesIndices[partition.index] = false
+		old := df.SeriesAt(partition.index)
+
+		switch old.(type) {
+		case GDLSeriesBool:
+			values := make([]bool, len(indeces))
+			for i, group := range indeces {
+				values[i] = old.Get(group[0]).(bool)
+			}
+			result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
+
+		case GDLSeriesInt32:
+			values := make([]int, len(indeces))
+			for i, group := range indeces {
+				values[i] = old.Get(group[0]).(int)
+			}
+			result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
+
+		case GDLSeriesFloat64:
+			values := make([]float64, len(indeces))
+			for i, group := range indeces {
+				values[i] = old.Get(group[0]).(float64)
+			}
+			result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
+
+		case GDLSeriesString:
+			values := make([]string, len(indeces))
+			for i, group := range indeces {
+				values[i] = old.Get(group[0]).(string)
+			}
+			result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
+		}
+	}
+
+	// Get the indices of the ungrouped series
+	ungroupedSeriesIndices := make([]int, 0)
+	for index, isGrouped := range seriesIndices {
+		if isGrouped {
+			ungroupedSeriesIndices = append(ungroupedSeriesIndices, index)
+		}
+	}
+
+	// sort the indices
+	sort.Ints(ungroupedSeriesIndices)
+
+	return result, &indeces, &ungroupedSeriesIndices
+}
+
 ///////////////////////////////		SUMMARY		/////////////////////////////////////////
 
 func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
@@ -271,66 +336,53 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 		return df
 	}
 
-	result := NewGDLDataFrame()
-
+	var result *GDLDataFrame
 	if df.isGrouped {
 
-		// The last partition tells us how many groups there are
-		// and how many rows are in each group
-		indeces := df.partitions[len(df.partitions)-1].partition.GetIndices()
-
-		// Keep only the grouped series
-		for _, partition := range df.partitions {
-			old := df.SeriesAt(partition.index)
-
-			switch old.(type) {
-			case GDLSeriesBool:
-				values := make([]bool, len(indeces))
-				for i, group := range indeces {
-					values[i] = old.Get(group[0]).(bool)
-				}
-				result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
-
-			case GDLSeriesInt32:
-				values := make([]int, len(indeces))
-				for i, group := range indeces {
-					values[i] = old.Get(group[0]).(int)
-				}
-				result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
-
-			case GDLSeriesFloat64:
-				values := make([]float64, len(indeces))
-				for i, group := range indeces {
-					values[i] = old.Get(group[0]).(float64)
-				}
-				result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
-
-			case GDLSeriesString:
-				values := make([]string, len(indeces))
-				for i, group := range indeces {
-					values[i] = old.Get(group[0]).(string)
-				}
-				result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
-			}
-		}
+		var indeces *[][]int
+		result, indeces, _ = df.groupHelper()
 
 		// Add the count series
-		counts := make([]int, len(indeces))
-		for i, group := range indeces {
+		counts := make([]int, len(*indeces))
+		for i, group := range *indeces {
 			counts[i] = len(group)
 		}
-
-		// if df.partitions[len(df.partitions)-1].partition.GetNullGroup() != nil {
-		// 	counts = append(counts, len(df.partitions[len(df.partitions)-1].partition.GetNullGroup()))
-		// }
 
 		result.AddSeries(NewGDLSeriesInt32(name, false, false, counts))
 
 	} else {
+		result := NewGDLDataFrame()
 		result.AddSeries(NewGDLSeriesInt32(name, false, false, []int{df.NRows()}))
 	}
 
 	return result
+}
+
+func (df *GDLDataFrame) Mean() *GDLDataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		var result *GDLDataFrame
+		var indeces *[][]int
+		var ungroupedSeriesIndices *[]int
+
+		result, indeces, ungroupedSeriesIndices = df.groupHelper()
+
+		for _, index := range *ungroupedSeriesIndices {
+			series := df.series[index]
+			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+		}
+
+		return result
+	} else {
+		result := NewGDLDataFrame()
+		for _, series := range df.series {
+			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+		}
+		return result
+	}
 }
 
 ///////////////////////////////		PRINTING	/////////////////////////////////////////

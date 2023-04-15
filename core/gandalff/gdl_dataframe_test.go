@@ -5,13 +5,7 @@ import (
 	"testing"
 )
 
-func Test_GDataFrame_Base(t *testing.T) {
-
-}
-
-func Test_GDataFrame_GroupBy_Count(t *testing.T) {
-
-	data := `name,age,weight,junior,department,salary band
+var data1 = `name,age,weight,junior,department,salary band
 Alice C,29,75.0,F,HR,4
 John Doe,30,80.5,true,IT,2
 Bob,31,85.0,T,IT,4
@@ -22,8 +16,13 @@ Ursula,27,65.0,f,Business,4
 Charlie,33,60.0,t,Business,2
 `
 
+func Test_GDataFrame_Base(t *testing.T) {
+
+}
+
+func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data), ',', true, 3)
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -185,4 +184,16 @@ Charlie,33,60.0,t,Business,2
 			t.Errorf("Expected %d, got %d", exp5[weight], n)
 		}
 	}
+}
+
+func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+
+	// df.Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Mean().PrettyPrint()
+
+	// df.Select("department", "age", "weight", "junior").GroupBy("department", "junior").Mean().PrettyPrint()
 }

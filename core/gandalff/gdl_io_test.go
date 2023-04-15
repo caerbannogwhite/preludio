@@ -391,3 +391,19 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 		b.Error("Expected Int32, got", df.Types()[8].ToString())
 	}
 }
+
+func Benchmark_FromCSV_100000Rows_Ops(b *testing.B) {
+
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	// df.Select("Country", "Description", "Founded", "Industry", "Number of employees")
+
+	df.Select("Country", "Founded").GroupBy("Country").Mean()
+
+}
