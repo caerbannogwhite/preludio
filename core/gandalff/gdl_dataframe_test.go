@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"math"
 	"strings"
 	"testing"
 )
@@ -15,6 +16,10 @@ Oliver,32,90.0,true,HR,1
 Ursula,27,65.0,f,Business,4
 Charlie,33,60.0,t,Business,2
 `
+
+func equalFloats(a, b, eps float64) bool {
+	return math.Abs(a-b) < eps
+}
 
 func Test_GDataFrame_Base(t *testing.T) {
 
@@ -186,6 +191,147 @@ func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	}
 }
 
+func Test_GDataFrame_GroupBy_Sum(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Sum()
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp := map[string][]float64{
+		"HR":       {61.0, 165.0, 1.0, 5.0},
+		"IT":       {114.0, 295.5, 2.0, 13.0},
+		"Business": {60.0, 125.0, 1.0, 6.0},
+	}
+
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
+
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
+
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
+
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
+
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
+
+func Test_GDataFrame_GroupBy_Min(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Min()
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp := map[string][]float64{
+		"HR":       {29.0, 75.0, 0.0, 1.0},
+		"IT":       {25.0, 60.0, 0.0, 2.0},
+		"Business": {27.0, 60.0, 0.0, 2.0},
+	}
+
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
+
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
+
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
+
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
+
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
+
+func Test_GDataFrame_GroupBy_Max(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Max()
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp := map[string][]float64{
+		"HR":       {32.0, 90.0, 1.0, 4.0},
+		"IT":       {31.0, 85.0, 1.0, 4.0},
+		"Business": {33.0, 65.0, 1.0, 4.0},
+	}
+
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
+
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
+
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
+
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
+
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
+
 func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := FromCSV(strings.NewReader(data1), ',', true, 3)
@@ -193,7 +339,89 @@ func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	// df.Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Mean().PrettyPrint()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Mean()
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
 
-	// df.Select("department", "age", "weight", "junior").GroupBy("department", "junior").Mean().PrettyPrint()
+	exp := map[string][]float64{
+		"Business": {30.0, 62.5, 0.5, 3.0},
+		"HR":       {30.5, 82.5, 0.5, 2.5},
+		"IT":       {28.5, 73.875, 0.5, 3.25},
+	}
+
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
+
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
+
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
+
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
+
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
+
+func Test_GDataFrame_GroupBy_Std(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Std()
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	exp := map[string][]float64{
+		"Business": {3.000000, 2.500000, 0.5, 1.000000},
+		"HR":       {1.500000, 7.500000, 0.5, 1.500000},
+		"IT":       {2.2912878475, 9.6848786776, 0.5, 0.8291561976},
+	}
+
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
+
+		if equalFloats(age, exp[dept][0], 10e-8) == false {
+			t.Errorf("Expected 'age' %.10f, got %.10f", exp[dept][0], age)
+		}
+
+		if equalFloats(weight, exp[dept][1], 10e-8) == false {
+			t.Errorf("Expected 'weight' %.10f, got %.10f", exp[dept][1], weight)
+		}
+
+		if equalFloats(junior, exp[dept][2], 10e-8) == false {
+			t.Errorf("Expected 'junior' %.10f, got %.10f", exp[dept][2], junior)
+		}
+
+		if equalFloats(salary, exp[dept][3], 10e-8) == false {
+			t.Errorf("Expected 'salary band' %.10f, got %.10f", exp[dept][3], salary)
+		}
+	}
 }
