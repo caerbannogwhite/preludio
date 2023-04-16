@@ -138,6 +138,34 @@ func (s GDLSeriesFloat64) Set(i int, v interface{}) {
 	s.data[i] = v.(float64)
 }
 
+func (s GDLSeriesFloat64) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return s.data[i] < s.data[j]
+}
+
+func (s GDLSeriesFloat64) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	s.data[i], s.data[j] = s.data[j], s.data[i]
+}
+
 func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
 	switch v := v.(type) {
 	case float64:

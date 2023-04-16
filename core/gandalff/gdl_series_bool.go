@@ -150,6 +150,43 @@ func (s GDLSeriesBool) Set(i int, v interface{}) {
 	}
 }
 
+func (s GDLSeriesBool) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return s.data[i>>3]&(1<<uint(i%8)) > 0 && s.data[j>>3]&(1<<uint(j%8)) == 0
+}
+
+func (s GDLSeriesBool) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	if s.data[i>>3]&(1<<uint(i%8)) > 0 {
+		s.data[j>>3] |= 1 << uint(j%8)
+	} else {
+		s.data[j>>3] &= ^(1 << uint(j%8))
+	}
+	if s.data[j>>3]&(1<<uint(j%8)) > 0 {
+		s.data[i>>3] |= 1 << uint(i%8)
+	} else {
+		s.data[i>>3] &= ^(1 << uint(i%8))
+	}
+}
+
 // Append appends a value or a slice of values to the series.
 func (s GDLSeriesBool) Append(v interface{}) GDLSeries {
 	switch v := v.(type) {

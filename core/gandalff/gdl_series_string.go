@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"strings"
 	"typesys"
 )
 
@@ -136,6 +137,34 @@ func (s GDLSeriesString) Get(i int) interface{} {
 
 func (s GDLSeriesString) Set(i int, v interface{}) {
 	s.data[i] = s.pool.Get(v.(string))
+}
+
+func (s GDLSeriesString) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return strings.Compare(*s.data[i], *s.data[j]) < 0
+}
+
+func (s GDLSeriesString) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
 // Append appends a value or a slice of values to the series.

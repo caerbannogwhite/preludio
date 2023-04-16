@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"typesys"
 )
 
@@ -136,6 +137,34 @@ func (s GDLSeriesInt32) Get(i int) interface{} {
 
 func (s GDLSeriesInt32) Set(i int, v interface{}) {
 	s.data[i] = v.(int)
+}
+
+func (s GDLSeriesInt32) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return s.data[i] < s.data[j]
+}
+
+func (s GDLSeriesInt32) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
 func (s GDLSeriesInt32) Append(v interface{}) GDLSeries {
@@ -540,6 +569,30 @@ func (s GDLSeriesInt32) SubGroup(partition GDLSeriesPartition) GDLSeriesPartitio
 	return GDLSeriesInt32Partition{
 		partition: groups,
 		nullGroup: nullGroup,
+	}
+}
+
+func (s GDLSeriesInt32) Sort() GDLSeries {
+	data := make([]int, len(s.data))
+	copy(data, s.data)
+	sort.Ints(data)
+	return GDLSeriesInt32{
+		isNullable: s.isNullable,
+		name:       s.name,
+		data:       data,
+		nullMask:   s.nullMask,
+	}
+}
+
+func (s GDLSeriesInt32) SortDesc() GDLSeries {
+	data := make([]int, len(s.data))
+	copy(data, s.data)
+	sort.Sort(sort.Reverse(sort.IntSlice(data)))
+	return GDLSeriesInt32{
+		isNullable: s.isNullable,
+		name:       s.name,
+		data:       data,
+		nullMask:   s.nullMask,
 	}
 }
 

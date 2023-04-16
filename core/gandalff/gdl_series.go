@@ -96,6 +96,10 @@ type GDLSeries interface {
 	// Set the element at index i.
 	Set(i int, v interface{})
 
+	// Sort Interface.
+	Less(i, j int) bool
+	Swap(i, j int)
+
 	// Append elements to the series.
 	Append(v interface{}) GDLSeries
 	// AppendRaw appends a value or a slice of values to the series.
@@ -130,6 +134,11 @@ type GDLSeries interface {
 	// Group the elements in the series.
 	Group() GDLSeriesPartition
 	SubGroup(gp GDLSeriesPartition) GDLSeriesPartition
+
+	// Sorts the elements of the series.
+	// Sort() GDLSeries
+	// SortDesc() GDLSeries
+
 }
 
 func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data interface{}, pool *StringPool) GDLSeries {
@@ -304,6 +313,13 @@ func (s GDLSeriesError) Get(i int) interface{} {
 
 // Set the element at index i.
 func (s GDLSeriesError) Set(i int, v interface{}) {}
+
+// Sort interface.
+func (s GDLSeriesError) Less(i, j int) bool {
+	return false
+}
+
+func (s GDLSeriesError) Swap(i, j int) {}
 
 // Append elements to the series.
 func (s GDLSeriesError) Append(v interface{}) GDLSeries {
