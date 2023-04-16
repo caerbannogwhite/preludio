@@ -52,14 +52,15 @@ The data types not checked are not yet supported, but might be in the future.
 
 ### Supported stats functions
 
-- [ ] Count
-- [ ] Sum
-- [ ] Mean
+- [x] Count
+- [x] Sum
+- [x] Mean
 - [ ] Median
-- [ ] Min
-- [ ] Max
-- [ ] StdDev
+- [x] Min
+- [x] Max
+- [x] StdDev
 - [ ] Variance
+- [ ] Quantile
 
 
 ### Implementation details
