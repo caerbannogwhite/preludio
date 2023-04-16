@@ -153,15 +153,16 @@ func (s GDLSeriesInt32) Less(i, j int) bool {
 
 func (s GDLSeriesInt32) Swap(i, j int) {
 	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else {
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		} else {
+		// i is null, j is not null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
 			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else
+
+		// i is not null, j is null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
 		}
 	}
 	s.data[i], s.data[j] = s.data[j], s.data[i]
@@ -573,27 +574,13 @@ func (s GDLSeriesInt32) SubGroup(partition GDLSeriesPartition) GDLSeriesPartitio
 }
 
 func (s GDLSeriesInt32) Sort() GDLSeries {
-	data := make([]int, len(s.data))
-	copy(data, s.data)
-	sort.Ints(data)
-	return GDLSeriesInt32{
-		isNullable: s.isNullable,
-		name:       s.name,
-		data:       data,
-		nullMask:   s.nullMask,
-	}
+	sort.Sort(s)
+	return s
 }
 
-func (s GDLSeriesInt32) SortDesc() GDLSeries {
-	data := make([]int, len(s.data))
-	copy(data, s.data)
-	sort.Sort(sort.Reverse(sort.IntSlice(data)))
-	return GDLSeriesInt32{
-		isNullable: s.isNullable,
-		name:       s.name,
-		data:       data,
-		nullMask:   s.nullMask,
-	}
+func (s GDLSeriesInt32) SortRev() GDLSeries {
+	sort.Sort(sort.Reverse(s))
+	return s
 }
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////

@@ -376,7 +376,7 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	}
 }
 
-func TestGDLSeriesFloat64_Multiplication(t *testing.T) {
+func Test_GDLSeriesFloat64_Multiplication(t *testing.T) {
 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
 	// s * 1.5
@@ -416,7 +416,7 @@ func TestGDLSeriesFloat64_Multiplication(t *testing.T) {
 	}
 }
 
-func BenchmarkGDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
+func Benchmark_GDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 
 	N := 1_000_000
 	data := make([]float64, N)
@@ -444,7 +444,7 @@ func BenchmarkGDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 	}
 }
 
-func BenchmarkGDLSeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
+func Benchmark_GDLSeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
 
 	N := 1_000_000
 	data1 := make([]float64, N)

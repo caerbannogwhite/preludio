@@ -376,7 +376,65 @@ func Test_GDLSeriesInt32_Filter(t *testing.T) {
 	}
 }
 
-func TestGDLSeriesInt32_Multiplication(t *testing.T) {
+func Test_GDLSeriesInt32_Sort(t *testing.T) {
+
+	data := []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
+
+	// Create a new series.
+	s := NewGDLSeriesInt32("test", true, true, data)
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the length.
+	if sorted.Len() != 23 {
+		t.Errorf("Expected length of 23, got %d", sorted.Len())
+	}
+
+	// Check the data.
+	result := []int{-173, -28, 2, 2, 3, 4, 4, 9, 9, 12, 31, 42, 42, 42, 48, 79, 323, 323, 425, 492, 674, 9811, 47005}
+	for i, v := range sorted.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+
+	// Create a new series.
+	s = NewGDLSeriesInt32("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the length.
+	if sorted.Len() != 23 {
+		t.Errorf("Expected length of 23, got %d", sorted.Len())
+	}
+
+	// Check the data.
+	result = []int{-28, 2, 2, 3, 4, 4, 9, 9, 42, 48, 79, 323, 323, 425, 492, 47005, 42, 674, 9811, 12, -173, 42, 31}
+	for i, v := range sorted.Data().([]int) {
+		if i < 16 && v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range sorted.GetNullMask() {
+		if i < 16 && v != false {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
+		} else if i >= 16 && v != true {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+		}
+	}
+}
+
+func Test_GDLSeriesInt32_Multiplication(t *testing.T) {
 
 	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
