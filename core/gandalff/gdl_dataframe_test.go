@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"math"
+	"os"
 	"strings"
 	"testing"
 )
@@ -191,6 +192,22 @@ func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	}
 }
 
+func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
+
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Count("n")
+	}
+	b.StopTimer()
+}
+
 func Test_GDataFrame_GroupBy_Sum(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := FromCSV(strings.NewReader(data1), ',', true, 3)
@@ -377,6 +394,38 @@ func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
 			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
 		}
 	}
+}
+
+func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
+
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Mean()
+	}
+	b.StopTimer()
+}
+
+func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
+
+	f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Mean()
+	}
+	b.StopTimer()
 }
 
 func Test_GDataFrame_GroupBy_Std(t *testing.T) {
