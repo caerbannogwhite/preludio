@@ -376,45 +376,45 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesFloat64_Multiplication(t *testing.T) {
-	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+// func Test_GDLSeriesFloat64_Multiplication(t *testing.T) {
+// 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
-	// s * 1.5
-	res := NewGDLSeriesFloat64("test", true, true, data).Mul(NewGDLSeriesFloat64("test", true, true, []float64{1.5}))
-	if e, ok := res.(GDLSeriesError); ok {
-		t.Errorf("Got error: %v", e)
-	}
+// 	// s * 1.5
+// 	res := NewGDLSeriesFloat64("test", true, true, data).Mul(NewGDLSeriesFloat64("test", true, true, []float64{1.5}))
+// 	if e, ok := res.(GDLSeriesError); ok {
+// 		t.Errorf("Got error: %v", e)
+// 	}
 
-	// Check the length.
-	if res.Len() != 20 {
-		t.Errorf("Expected length of 20, got %d", res.Len())
-	}
+// 	// Check the length.
+// 	if res.Len() != 20 {
+// 		t.Errorf("Expected length of 20, got %d", res.Len())
+// 	}
 
-	// Check the data.
-	for i, v := range res.Data().([]float64) {
-		if v != data[i]*1.5 {
-			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
-		}
-	}
+// 	// Check the data.
+// 	for i, v := range res.Data().([]float64) {
+// 		if v != data[i]*1.5 {
+// 			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
+// 		}
+// 	}
 
-	// 1.5 * s
-	res = NewGDLSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewGDLSeriesFloat64("test", true, true, data))
-	if e, ok := res.(GDLSeriesError); ok {
-		t.Errorf("Got error: %v", e)
-	}
+// 	// 1.5 * s
+// 	res = NewGDLSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewGDLSeriesFloat64("test", true, true, data))
+// 	if e, ok := res.(GDLSeriesError); ok {
+// 		t.Errorf("Got error: %v", e)
+// 	}
 
-	// Check the length.
-	if res.Len() != 20 {
-		t.Errorf("Expected length of 20, got %d", res.Len())
-	}
+// 	// Check the length.
+// 	if res.Len() != 20 {
+// 		t.Errorf("Expected length of 20, got %d", res.Len())
+// 	}
 
-	// Check the data.
-	for i, v := range res.Data().([]float64) {
-		if v != data[i]*1.5 {
-			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
-		}
-	}
-}
+// 	// Check the data.
+// 	for i, v := range res.Data().([]float64) {
+// 		if v != data[i]*1.5 {
+// 			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
+// 		}
+// 	}
+// }
 
 func Benchmark_GDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 

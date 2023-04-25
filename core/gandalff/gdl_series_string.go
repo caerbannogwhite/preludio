@@ -8,11 +8,14 @@ import (
 
 // GDLSeriesString represents a series of strings.
 type GDLSeriesString struct {
+	isGrouped  bool
 	isNullable bool
+	isSorted   bool
 	name       string
 	data       []*string
 	nullMask   []uint8
 	pool       *StringPool
+	partition  GDLSeriesStringPartition
 }
 
 func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeriesString {
@@ -37,32 +40,34 @@ func NewGDLSeriesString(name string, isNullable bool, data []string, pool *Strin
 
 ///////////////////////////////		BASIC ACCESSORS			/////////////////////////////
 
+// Returns the number of elements in the series.
 func (s GDLSeriesString) Len() int {
 	return len(s.data)
 }
 
-func (s GDLSeriesString) IsNullable() bool {
-	return s.isNullable
-}
-
-func (s GDLSeriesString) MakeNullable() GDLSeries {
-	if !s.isNullable {
-		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-	}
-	return s
-}
-
+// Returns the name of the series.
 func (s GDLSeriesString) Name() string {
 	return s.name
 }
 
+// Returns the type of the series.
 func (s GDLSeriesString) Type() typesys.BaseType {
 	return typesys.StringType
+}
+
+// Returns if the series is grouped.
+func (s GDLSeriesString) IsGrouped() bool {
+	return s.isGrouped
+}
+
+// Returns if the series admits null values.
+func (s GDLSeriesString) IsNullable() bool {
+	return s.isNullable
+}
+
+// Returns if the series is sorted.
+func (s GDLSeriesString) IsSorted() bool {
+	return s.isSorted
 }
 
 func (s GDLSeriesString) HasNull() bool {
@@ -95,12 +100,31 @@ func (s GDLSeriesString) IsNull(i int) bool {
 	return false
 }
 
-func (s GDLSeriesString) SetNull(i int) error {
+func (s GDLSeriesString) SetNull(i int) GDLSeries {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
-		return nil
+		return s
+	} else {
+		var nullMask []uint8
+		if len(s.data)%8 == 0 {
+			nullMask = make([]uint8, (len(s.data) >> 3))
+		} else {
+			nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+
+		s.nullMask[i/8] |= 1 << uint(i%8)
+
+		return GDLSeriesString{
+			isGrouped:  s.isGrouped,
+			isNullable: true,
+			isSorted:   s.isSorted,
+			name:       s.name,
+			data:       s.data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  s.partition,
+		}
 	}
-	return fmt.Errorf("GDLSeriesString.SetNull: series is not nullable")
 }
 
 func (s GDLSeriesString) GetNullMask() []bool {
@@ -115,27 +139,63 @@ func (s GDLSeriesString) GetNullMask() []bool {
 	return mask
 }
 
-func (s GDLSeriesString) SetNullMask(mask []bool) error {
+func (s GDLSeriesString) MakeNullable() GDLSeries {
 	if !s.isNullable {
-		return fmt.Errorf("GDLSeriesString.SetNull: series is not nullable")
-	}
-
-	for k, v := range mask {
-		if v {
-			s.nullMask[k/8] |= 1 << uint(k%8)
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
 		} else {
-			s.nullMask[k/8] &= ^(1 << uint(k%8))
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
 		}
 	}
-
-	return nil
+	return s
 }
 
-func (s GDLSeriesString) Get(i int) interface{} {
+func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
+	if s.isNullable {
+		for k, v := range mask {
+			if v {
+				s.nullMask[k/8] |= 1 << uint(k%8)
+			} else {
+				s.nullMask[k/8] &= ^(1 << uint(k%8))
+			}
+		}
+
+		return s
+	} else {
+		var nullMask []uint8
+		if len(s.data)%8 == 0 {
+			nullMask = make([]uint8, (len(s.data) >> 3))
+		} else {
+			nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+
+		for k, v := range mask {
+			if v {
+				nullMask[k/8] |= 1 << uint(k%8)
+			} else {
+				nullMask[k/8] &= ^(1 << uint(k%8))
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  s.isGrouped,
+			isNullable: true,
+			isSorted:   s.isSorted,
+			name:       s.name,
+			data:       s.data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  s.partition,
+		}
+	}
+}
+
+func (s GDLSeriesString) Get(i int) any {
 	return *s.data[i]
 }
 
-func (s GDLSeriesString) Set(i int, v interface{}) {
+func (s GDLSeriesString) Set(i int, v any) {
 	s.data[i] = s.pool.Get(v.(string))
 }
 
@@ -168,7 +228,7 @@ func (s GDLSeriesString) Swap(i, j int) {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesString) Append(v interface{}) GDLSeries {
+func (s GDLSeriesString) Append(v any) GDLSeries {
 	switch v := v.(type) {
 	case string:
 		return s.AppendRaw(v)
@@ -188,7 +248,7 @@ func (s GDLSeriesString) Append(v interface{}) GDLSeries {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesString) AppendRaw(v interface{}) GDLSeries {
+func (s GDLSeriesString) AppendRaw(v any) GDLSeries {
 	if s.isNullable {
 		if str, ok := v.(string); ok {
 			s.data = append(s.data, s.pool.Get(str))
@@ -220,7 +280,7 @@ func (s GDLSeriesString) AppendRaw(v interface{}) GDLSeries {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesString) AppendNullable(v interface{}) GDLSeries {
+func (s GDLSeriesString) AppendNullable(v any) GDLSeries {
 	if !s.isNullable {
 		return GDLSeriesError{"GDLSeriesString.AppendNullable: series is not nullable"}
 	}
@@ -315,7 +375,7 @@ func (s GDLSeriesString) AppendSeries(other GDLSeries) GDLSeries {
 
 ///////////////////////////////		ALL DATA ACCESSORS		/////////////////////////////
 
-func (s GDLSeriesString) Data() interface{} {
+func (s GDLSeriesString) Data() any {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
 		data[i] = *v
@@ -323,7 +383,7 @@ func (s GDLSeriesString) Data() interface{} {
 	return data
 }
 
-func (s GDLSeriesString) NullableData() interface{} {
+func (s GDLSeriesString) NullableData() any {
 	data := make([]NullableString, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableString{Valid: !s.IsNull(i), Value: *v}
@@ -519,7 +579,7 @@ func (s GDLSeriesStringPartition) GetNullIndices(sub int) []int {
 	return s.nullGroup[sub]
 }
 
-func (s GDLSeriesString) Group() GDLSeriesPartition {
+func (s GDLSeriesString) Group() GDLSeries {
 	var nullGroup [][]int
 
 	groups := make(map[*string][]int)
@@ -539,13 +599,25 @@ func (s GDLSeriesString) Group() GDLSeriesPartition {
 			groups[v] = append(groups[v], i)
 		}
 	}
-	return GDLSeriesStringPartition{
+
+	partition := GDLSeriesStringPartition{
 		partition: []map[*string][]int{groups},
 		nullGroup: nullGroup,
 	}
+
+	return GDLSeriesString{
+		isGrouped:  true,
+		isNullable: s.isNullable,
+		isSorted:   s.isSorted,
+		name:       s.name,
+		data:       s.data,
+		nullMask:   s.nullMask,
+		partition:  partition,
+		pool:       s.pool,
+	}
 }
 
-func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition {
+func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeries {
 	var nullGroup [][]int
 
 	groups := make([]map[*string][]int, 0)
@@ -574,11 +646,29 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeriesPartiti
 			}
 		}
 	}
-	return GDLSeriesStringPartition{
+
+	newPartition := GDLSeriesStringPartition{
 		partition: groups,
 		nullGroup: nullGroup,
 	}
+
+	return GDLSeriesString{
+		isGrouped:  true,
+		isNullable: s.isNullable,
+		isSorted:   s.isSorted,
+		name:       s.name,
+		data:       s.data,
+		nullMask:   s.nullMask,
+		partition:  newPartition,
+		pool:       s.pool,
+	}
 }
+
+func (s GDLSeriesString) GetPartition() GDLSeriesPartition {
+	return s.partition
+}
+
+///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
 

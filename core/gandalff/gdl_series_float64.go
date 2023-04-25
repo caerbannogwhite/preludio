@@ -7,10 +7,13 @@ import (
 
 // GDLSeriesFloat64 represents a series of floats.
 type GDLSeriesFloat64 struct {
+	isGrouped  bool
 	isNullable bool
+	isSorted   bool
 	name       string
 	data       []float64
 	nullMask   []uint8
+	partition  GDLSeriesFloat64Partition
 }
 
 func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
@@ -36,32 +39,34 @@ func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []flo
 
 ///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
 
+// Returns the number of elements in the series.
 func (s GDLSeriesFloat64) Len() int {
 	return len(s.data)
 }
 
-func (s GDLSeriesFloat64) IsNullable() bool {
-	return s.isNullable
-}
-
-func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
-	if !s.isNullable {
-		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-	}
-	return s
-}
-
+// Returns the name of the series.
 func (s GDLSeriesFloat64) Name() string {
 	return s.name
 }
 
+// Returns the type of the series.
 func (s GDLSeriesFloat64) Type() typesys.BaseType {
 	return typesys.Float64Type
+}
+
+// Returns if the series is grouped.
+func (s GDLSeriesFloat64) IsGrouped() bool {
+	return s.isGrouped
+}
+
+// Returns if the series admits null values.
+func (s GDLSeriesFloat64) IsNullable() bool {
+	return s.isNullable
+}
+
+// Returns if the series is sorted.
+func (s GDLSeriesFloat64) IsSorted() bool {
+	return s.isSorted
 }
 
 func (s GDLSeriesFloat64) HasNull() bool {
@@ -94,12 +99,30 @@ func (s GDLSeriesFloat64) IsNull(i int) bool {
 	return false
 }
 
-func (s GDLSeriesFloat64) SetNull(i int) error {
+func (s GDLSeriesFloat64) SetNull(i int) GDLSeries {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
+	} else {
+		var nullMask []uint8
+		if len(s.data)%8 == 0 {
+			nullMask = make([]uint8, (len(s.data) >> 3))
+		} else {
+			nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+
+		nullMask[i/8] |= 1 << uint(i%8)
+
+		return GDLSeriesFloat64{
+			isGrouped:  s.isGrouped,
+			isNullable: true,
+			isSorted:   s.isSorted,
+			name:       s.name,
+			data:       s.data,
+			nullMask:   nullMask,
+			partition:  s.partition,
+		}
 	}
-	return fmt.Errorf("GDLSeriesFloat64.SetNull: series is not nullable")
 }
 
 func (s GDLSeriesFloat64) GetNullMask() []bool {
@@ -114,27 +137,61 @@ func (s GDLSeriesFloat64) GetNullMask() []bool {
 	return mask
 }
 
-func (s GDLSeriesFloat64) SetNullMask(mask []bool) error {
-	if !s.isNullable {
-		return fmt.Errorf("GDLSeriesFloat64.SetNullMask: series is not nullable")
-	}
-
-	for k, v := range mask {
-		if v {
-			s.nullMask[k/8] |= 1 << uint(k%8)
+func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
+	if s.isNullable {
+		for k, v := range mask {
+			if v {
+				s.nullMask[k/8] |= 1 << uint(k%8)
+			} else {
+				s.nullMask[k/8] &= ^(1 << uint(k%8))
+			}
+		}
+		return s
+	} else {
+		var nullMask []uint8
+		if len(s.data)%8 == 0 {
+			nullMask = make([]uint8, (len(s.data) >> 3))
 		} else {
-			s.nullMask[k/8] &= ^(1 << uint(k%8))
+			nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+
+		for k, v := range mask {
+			if v {
+				nullMask[k/8] |= 1 << uint(k%8)
+			} else {
+				nullMask[k/8] &= ^(1 << uint(k%8))
+			}
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  s.isGrouped,
+			isNullable: true,
+			isSorted:   s.isSorted,
+			name:       s.name,
+			data:       s.data,
+			nullMask:   nullMask,
+			partition:  s.partition,
 		}
 	}
-
-	return nil
 }
 
-func (s GDLSeriesFloat64) Get(i int) interface{} {
+func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
+	if !s.isNullable {
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
+		} else {
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+	}
+	return s
+}
+
+func (s GDLSeriesFloat64) Get(i int) any {
 	return s.data[i]
 }
 
-func (s GDLSeriesFloat64) Set(i int, v interface{}) {
+func (s GDLSeriesFloat64) Set(i int, v any) {
 	s.data[i] = v.(float64)
 }
 
@@ -166,7 +223,7 @@ func (s GDLSeriesFloat64) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
+func (s GDLSeriesFloat64) Append(v any) GDLSeries {
 	switch v := v.(type) {
 	case float64:
 		return s.AppendRaw(v)
@@ -186,7 +243,7 @@ func (s GDLSeriesFloat64) Append(v interface{}) GDLSeries {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesFloat64) AppendRaw(v interface{}) GDLSeries {
+func (s GDLSeriesFloat64) AppendRaw(v any) GDLSeries {
 	if s.isNullable {
 		if f, ok := v.(float64); ok {
 			s.data = append(s.data, f)
@@ -214,7 +271,7 @@ func (s GDLSeriesFloat64) AppendRaw(v interface{}) GDLSeries {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesFloat64) AppendNullable(v interface{}) GDLSeries {
+func (s GDLSeriesFloat64) AppendNullable(v any) GDLSeries {
 	if !s.isNullable {
 		return GDLSeriesError{"GDLSeriesFloat64.AppendNullable: series is not nullable"}
 	}
@@ -308,11 +365,11 @@ func (s GDLSeriesFloat64) AppendSeries(other GDLSeries) GDLSeries {
 
 ///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////
 
-func (s GDLSeriesFloat64) Data() interface{} {
+func (s GDLSeriesFloat64) Data() any {
 	return s.data
 }
 
-func (s GDLSeriesFloat64) NullableData() interface{} {
+func (s GDLSeriesFloat64) NullableData() any {
 	data := make([]NullableFloat64, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableFloat64{Valid: !s.IsNull(i), Value: v}
@@ -338,7 +395,8 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
 
-	return GDLSeriesFloat64{isNullable: s.isNullable, name: s.name, data: data, nullMask: s.nullMask}
+	return GDLSeriesFloat64{
+		isGrouped: s.isGrouped, isSorted: s.isSorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
 ///////////////////////////////		SERIES OPERATIONS			/////////////////////////
@@ -509,7 +567,7 @@ func (s GDLSeriesFloat64Partition) GetNullIndices(sub int) []int {
 	return s.nullGroup[sub]
 }
 
-func (s GDLSeriesFloat64) Group() GDLSeriesPartition {
+func (s GDLSeriesFloat64) Group() GDLSeries {
 	var nullGroup [][]int
 
 	groups := make(map[float64][]int)
@@ -529,13 +587,18 @@ func (s GDLSeriesFloat64) Group() GDLSeriesPartition {
 			groups[v] = append(groups[v], i)
 		}
 	}
-	return GDLSeriesFloat64Partition{
-		partition: []map[float64][]int{groups},
-		nullGroup: nullGroup,
+	return GDLSeriesFloat64{
+		isGrouped:  true,
+		isNullable: s.isNullable,
+		isSorted:   s.isSorted,
+		name:       s.name,
+		data:       s.data,
+		nullMask:   s.nullMask,
+		partition:  GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
 	}
 }
 
-func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeriesPartition {
+func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
 	var nullGroup [][]int
 
 	groups := make([]map[float64][]int, 0)
@@ -564,279 +627,28 @@ func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeriesPartit
 			}
 		}
 	}
-	return GDLSeriesFloat64Partition{
-		partition: groups,
-		nullGroup: nullGroup,
+
+	return GDLSeriesFloat64{
+		isGrouped:  true,
+		isNullable: s.isNullable,
+		isSorted:   s.isSorted,
+		name:       s.name,
+		data:       s.data,
+		nullMask:   s.nullMask,
+		partition:  GDLSeriesFloat64Partition{groups, nullGroup},
 	}
 }
+
+func (s GDLSeriesFloat64) GetPartition() GDLSeriesPartition {
+	return s.partition
+}
+
+///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
 
 func (s GDLSeriesFloat64) Mul(other GDLSeries) GDLSeries {
-	switch o := other.(type) {
-	case GDLSeriesInt32:
-		if s.Len() == 1 {
-			if o.Len() == 1 {
-				if s.isNullable {
-					if o.isNullable {
-						result := s.data
-						result[0] = s.data[0] * float64(o.data[0])
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						result := s.data
-						result[0] = s.data[0] * float64(o.data[0])
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						result := s.data
-						result[0] = s.data[0] * float64(o.data[0])
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						result := s.data
-						result[0] = s.data[0] * float64(o.data[0])
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			} else {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			}
-		} else {
-			if o.Len() == 1 {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[0])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[0])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[0])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[0])
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			} else {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * float64(o.data[i])
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			}
-		}
-	case GDLSeriesFloat64:
-		if s.Len() == 1 {
-			if o.Len() == 1 {
-				if s.isNullable {
-					if o.isNullable {
-						result := s.data
-						result[0] = s.data[0] * o.data[0]
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						result := s.data
-						result[0] = s.data[0] * o.data[0]
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						result := s.data
-						result[0] = s.data[0] * o.data[0]
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						result := s.data
-						result[0] = s.data[0] * o.data[0]
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			} else {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(o.data)
-						result := make([]float64, resultSize)
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[0] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			}
-		} else {
-			if o.Len() == 1 {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[0]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[0]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[0]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[0]
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			} else {
-				if s.isNullable {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				} else {
-					if o.isNullable {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
-					} else {
-						resultSize := len(s.data)
-						result := s.data
-						for i := 0; i < resultSize; i++ {
-							result[i] = s.data[i] * o.data[i]
-						}
-						return GDLSeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
-					}
-				}
-			}
-		}
-	}
 	return GDLSeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}
-
 }
 
 func (s GDLSeriesFloat64) Div(other GDLSeries) GDLSeries {
