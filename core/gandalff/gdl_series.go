@@ -160,7 +160,7 @@ func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool,
 	// case typesys.Int16Type:
 	// 	return NewGDLSeriesInt16(name, nullable, data.([]int16))
 	case typesys.Int32Type:
-		return NewGDLSeriesInt32(name, nullable, makeCopy, data.(*[]int))
+		return NewGDLSeriesInt32(name, nullable, makeCopy, data.([]int))
 	// case typesys.Int64Type:
 	// 	return NewGDLSeriesInt64(name, nullable, data.([]int64))
 	// case typesys.Float32Type:

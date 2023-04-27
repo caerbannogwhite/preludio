@@ -204,7 +204,7 @@ func FromCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			df.AddSeries(NewGDLSeriesBool(name, isNullable, values[i].([]bool)))
 		case typesys.Int32Type:
 			vec := values[i].([]int)
-			df.AddSeries(NewGDLSeriesInt32(name, isNullable, false, &vec))
+			df.AddSeries(NewGDLSeriesInt32(name, isNullable, false, vec))
 		case typesys.Float64Type:
 			df.AddSeries(NewGDLSeriesFloat64(name, isNullable, false, values[i].([]float64)))
 		case typesys.StringType:

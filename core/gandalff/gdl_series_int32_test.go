@@ -12,7 +12,7 @@ func Test_GDLSeriesInt32_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new GDLSeriesInt32.
-	s := NewGDLSeriesInt32("test", true, true, &data)
+	s := NewGDLSeriesInt32("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -105,7 +105,7 @@ func Test_GDLSeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewGDLSeriesInt32("test", false, true, &data)
+	p := NewGDLSeriesInt32("test", false, true, data)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -155,9 +155,9 @@ func Test_GDLSeriesInt32_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesInt32("testA", true, true, &dataA)
-	sB := NewGDLSeriesInt32("testB", true, true, &dataB)
-	sC := NewGDLSeriesInt32("testC", true, true, &dataC)
+	sA := NewGDLSeriesInt32("testA", true, true, dataA)
+	sB := NewGDLSeriesInt32("testB", true, true, dataB)
+	sC := NewGDLSeriesInt32("testC", true, true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -213,7 +213,7 @@ func Test_GDLSeriesInt32_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	sD := NewGDLSeriesInt32("testD", true, true, &dataD)
+	sD := NewGDLSeriesInt32("testD", true, true, dataD)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]int) {
@@ -246,7 +246,7 @@ func Test_GDLSeriesInt32_Filter(t *testing.T) {
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesInt32("test", true, true, &data)
+	s := NewGDLSeriesInt32("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -318,7 +318,7 @@ func Test_GDLSeriesInt32_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewGDLSeriesInt32("test", true, true, &data)
+	s = NewGDLSeriesInt32("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -382,7 +382,7 @@ func Test_GDLSeriesInt32_Sort(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
 
 	// Create a new series.
-	s := NewGDLSeriesInt32("test", true, true, &data)
+	s := NewGDLSeriesInt32("test", true, true, data)
 
 	// Sort the series.
 	sorted := s.Sort()
@@ -403,7 +403,7 @@ func Test_GDLSeriesInt32_Sort(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// Create a new series.
-	s = NewGDLSeriesInt32("test", true, true, &data)
+	s = NewGDLSeriesInt32("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)

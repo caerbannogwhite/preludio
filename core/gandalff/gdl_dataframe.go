@@ -61,7 +61,7 @@ func (df *GDLDataFrame) AddSeriesFromBools(name string, isNullable bool, data []
 	df.AddSeries(series)
 }
 
-func (df *GDLDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data *[]int) {
+func (df *GDLDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) {
 	series := NewGDLSeriesInt32(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 }
@@ -297,7 +297,7 @@ func (df *GDLDataFrame) groupHelper() (*GDLDataFrame, *[][]int, *[]int) {
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(int)
 			}
-			result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, &values))
+			result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
 
 		case GDLSeriesFloat64:
 			values := make([]float64, len(indeces))
@@ -348,11 +348,11 @@ func (df *GDLDataFrame) Count(name string) *GDLDataFrame {
 			counts[i] = len(group)
 		}
 
-		result.AddSeries(NewGDLSeriesInt32(name, false, false, &counts))
+		result.AddSeries(NewGDLSeriesInt32(name, false, false, counts))
 
 	} else {
 		result := NewGDLDataFrame()
-		result.AddSeries(NewGDLSeriesInt32(name, false, false, &[]int{df.NRows()}))
+		result.AddSeries(NewGDLSeriesInt32(name, false, false, []int{df.NRows()}))
 	}
 
 	return result

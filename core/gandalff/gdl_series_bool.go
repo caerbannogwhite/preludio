@@ -662,8 +662,8 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesInt32{
 			isNullable: s.isNullable,
 			name:       s.name,
-			data:       &data,
-			nullMask:   &s.nullMask,
+			data:       data,
+			nullMask:   s.nullMask,
 		}
 	case float64:
 		data := make([]float64, s.size)
