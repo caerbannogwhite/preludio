@@ -18,7 +18,7 @@ type GDLSeriesBool struct {
 	partition  GDLSeriesBoolPartition
 }
 
-func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeriesBool {
+func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeries {
 	size := len(data)
 	var actualData []uint8
 	if size%8 == 0 {
@@ -80,6 +80,7 @@ func (s GDLSeriesBool) IsSorted() bool {
 	return s.isSorted
 }
 
+// Returns if the series has null values.
 func (s GDLSeriesBool) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
@@ -89,6 +90,7 @@ func (s GDLSeriesBool) HasNull() bool {
 	return false
 }
 
+// Returns the number of null values in the series.
 func (s GDLSeriesBool) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
@@ -99,10 +101,12 @@ func (s GDLSeriesBool) NullCount() int {
 	return count
 }
 
+// Returns the number of non-null values in the series.
 func (s GDLSeriesBool) NonNullCount() int {
 	return s.size - s.NullCount()
 }
 
+// Returns if the element at index i is null.
 func (s GDLSeriesBool) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i>>3]&(1<<uint(i%8)) != 0
@@ -117,16 +121,11 @@ func (s GDLSeriesBool) SetNull(i int) GDLSeries {
 	} else {
 		nullMask := make([]uint8, len(s.data))
 		nullMask[i>>3] |= 1 << uint(i%8)
-		return GDLSeriesBool{
-			isGrouped:  s.isGrouped,
-			isNullable: true,
-			isSorted:   s.isSorted,
-			size:       s.size,
-			name:       s.name,
-			data:       s.data,
-			nullMask:   nullMask,
-			partition:  s.partition,
-		}
+
+		s.isNullable = true
+		s.nullMask = nullMask
+
+		return s
 	}
 }
 
@@ -871,6 +870,10 @@ func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeries {
 
 func (s GDLSeriesBool) GetPartition() GDLSeriesPartition {
 	return s.partition
+}
+
+func (s GDLSeriesBool) Sort() GDLSeries {
+	return s
 }
 
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////

@@ -271,8 +271,11 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	sA.SetNullMask(maskA)
 	sB.SetNullMask(maskB)
 
+	sbA := sA.(GDLSeriesBool)
+	sbB := sB.(GDLSeriesBool)
+
 	// Check the And() method.
-	and := sA.And(sB)
+	and := sbA.And(sbB)
 	for i, v := range and.Data().([]bool) {
 		if v != (dataA[i] && dataB[i]) {
 			t.Errorf("Expected data of []bool{false, false, false, false, true, false, false, false, false, false}, got %v", and.Data())
@@ -287,7 +290,7 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Or() method.
-	or := sA.Or(sB)
+	or := sbA.Or(sbB)
 	for i, v := range or.Data().([]bool) {
 		if v != (dataA[i] || dataB[i]) {
 			t.Errorf("Expected data of []bool{true, true, true, false, true, false, true, true, true, false}, got %v", or.Data())
@@ -302,7 +305,7 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := sA.Not()
+	not := sbA.Not()
 	for i, v := range not.Data().([]bool) {
 		if v != !dataA[i] {
 			t.Errorf("Expected data of []bool{false, true, false, true, false, true, false, true, false, true}, got %v", not.Data())

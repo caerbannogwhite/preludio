@@ -18,7 +18,7 @@ type GDLSeriesString struct {
 	partition  GDLSeriesStringPartition
 }
 
-func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeriesString {
+func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
@@ -70,6 +70,7 @@ func (s GDLSeriesString) IsSorted() bool {
 	return s.isSorted
 }
 
+// Returns if the series has null values.
 func (s GDLSeriesString) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
@@ -79,6 +80,7 @@ func (s GDLSeriesString) HasNull() bool {
 	return false
 }
 
+// Returns the number of null values in the series.
 func (s GDLSeriesString) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
@@ -89,10 +91,12 @@ func (s GDLSeriesString) NullCount() int {
 	return count
 }
 
+// Returns the number of non-null values in the series.
 func (s GDLSeriesString) NonNullCount() int {
 	return s.Len() - s.NullCount()
 }
 
+// Returns if the element at index i is null.
 func (s GDLSeriesString) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
@@ -666,6 +670,10 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeries {
 
 func (s GDLSeriesString) GetPartition() GDLSeriesPartition {
 	return s.partition
+}
+
+func (s GDLSeriesString) Sort() GDLSeries {
+	return s
 }
 
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////

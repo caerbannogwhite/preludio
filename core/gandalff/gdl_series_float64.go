@@ -69,6 +69,7 @@ func (s GDLSeriesFloat64) IsSorted() bool {
 	return s.isSorted
 }
 
+// Returns if the series has null values.
 func (s GDLSeriesFloat64) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
@@ -78,6 +79,7 @@ func (s GDLSeriesFloat64) HasNull() bool {
 	return false
 }
 
+// Returns the number of null values in the series.
 func (s GDLSeriesFloat64) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
@@ -88,10 +90,12 @@ func (s GDLSeriesFloat64) NullCount() int {
 	return count
 }
 
+// Returns the number of non-null values in the series.
 func (s GDLSeriesFloat64) NonNullCount() int {
 	return s.Len() - s.NullCount()
 }
 
+// Returns if the element at index i is null.
 func (s GDLSeriesFloat64) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
@@ -113,15 +117,10 @@ func (s GDLSeriesFloat64) SetNull(i int) GDLSeries {
 
 		nullMask[i/8] |= 1 << uint(i%8)
 
-		return GDLSeriesFloat64{
-			isGrouped:  s.isGrouped,
-			isNullable: true,
-			isSorted:   s.isSorted,
-			name:       s.name,
-			data:       s.data,
-			nullMask:   nullMask,
-			partition:  s.partition,
-		}
+		s.isNullable = true
+		s.nullMask = nullMask
+
+		return s
 	}
 }
 
@@ -163,15 +162,10 @@ func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
 			}
 		}
 
-		return GDLSeriesFloat64{
-			isGrouped:  s.isGrouped,
-			isNullable: true,
-			isSorted:   s.isSorted,
-			name:       s.name,
-			data:       s.data,
-			nullMask:   nullMask,
-			partition:  s.partition,
-		}
+		s.isNullable = true
+		s.nullMask = nullMask
+
+		return s
 	}
 }
 
@@ -641,6 +635,10 @@ func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
 
 func (s GDLSeriesFloat64) GetPartition() GDLSeriesPartition {
 	return s.partition
+}
+
+func (s GDLSeriesFloat64) Sort() GDLSeries {
+	return s
 }
 
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////

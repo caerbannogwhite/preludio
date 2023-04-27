@@ -17,7 +17,7 @@ type GDLSeriesInt32 struct {
 	partition  *GDLSeriesInt32Partition
 }
 
-func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) GDLSeriesInt32 {
+func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
 		if len(data)%8 == 0 {
@@ -70,6 +70,7 @@ func (s GDLSeriesInt32) IsSorted() bool {
 	return s.isSorted
 }
 
+// Returns if the series has null values.
 func (s GDLSeriesInt32) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
@@ -79,6 +80,7 @@ func (s GDLSeriesInt32) HasNull() bool {
 	return false
 }
 
+// Returns the number of null values in the series.
 func (s GDLSeriesInt32) NullCount() int {
 	count := 0
 	for _, v := range s.nullMask {
@@ -89,10 +91,12 @@ func (s GDLSeriesInt32) NullCount() int {
 	return count
 }
 
+// Returns the number of non-null values in the series.
 func (s GDLSeriesInt32) NonNullCount() int {
 	return s.Len() - s.NullCount()
 }
 
+// Returns if the element at index i is null.
 func (s GDLSeriesInt32) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i/8]&(1<<uint(i%8)) != 0

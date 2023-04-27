@@ -149,7 +149,7 @@ type GDLSeries interface {
 	GetPartition() GDLSeriesPartition
 
 	// Sorts the elements of the series.
-	// Sort() GDLSeries
+	Sort() GDLSeries
 	// SortDesc() GDLSeries
 }
 
@@ -411,4 +411,8 @@ func (s GDLSeriesError) SubGroup(gp GDLSeriesPartition) GDLSeries {
 
 func (s GDLSeriesError) GetPartition() GDLSeriesPartition {
 	return nil
+}
+
+func (s GDLSeriesError) Sort() GDLSeries {
+	return s
 }
