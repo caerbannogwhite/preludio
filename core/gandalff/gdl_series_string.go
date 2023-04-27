@@ -112,7 +112,7 @@ func (s GDLSeriesString) SetNull(i int) GDLSeries {
 			nullMask = make([]uint8, (len(s.data)>>3)+1)
 		}
 
-		s.nullMask[i/8] |= 1 << uint(i%8)
+		nullMask[i/8] |= 1 << uint(i%8)
 
 		return GDLSeriesString{
 			isGrouped:  s.isGrouped,
