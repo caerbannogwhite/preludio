@@ -266,8 +266,31 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 	resultMask := []bool{false, false, false, false, false, false, false, true, false, true, false, true, false, true}
 
 	/////////////////////////////////////////////////////////////////////////////////////
+	// 							Check the Filter() method.
+	filtered := s.Filter(NewGDLSeriesBool("mask", false, filterMask).(GDLSeriesBool))
+
+	// Check the length.
+	if filtered.Len() != len(result) {
+		t.Errorf("Expected length of %d, got %d", len(result), filtered.Len())
+	}
+
+	// Check the data.
+	for i, v := range filtered.Data().([]string) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range filtered.GetNullMask() {
+		if v != resultMask[i] {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the FilterByMask() method.
-	filtered := s.FilterByMask(filterMask)
+	filtered = s.FilterByMask(filterMask)
 
 	// Check the length.
 	if filtered.Len() != len(result) {

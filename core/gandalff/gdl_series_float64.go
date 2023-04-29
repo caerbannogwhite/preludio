@@ -415,6 +415,56 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 
 ///////////////////////////////		SERIES OPERATIONS			/////////////////////////
 
+// Filters out the elements by the given mask series.
+func (s GDLSeriesFloat64) Filter(mask GDLSeriesBool) GDLSeries {
+	if mask.size != s.Len() {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
+	}
+
+	if mask.isNullable {
+		return GDLSeriesError{"GDLSeriesFloat64.Filter: mask series cannot be nullable for this operation"}
+	}
+
+	elementCount := mask.__trueCount()
+	var nullMask []uint8
+
+	data := make([]float64, elementCount)
+	if s.isNullable {
+
+		if elementCount%8 == 0 {
+			nullMask = make([]uint8, (elementCount >> 3))
+		} else {
+			nullMask = make([]uint8, (elementCount>>3)+1)
+		}
+
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+				data[dstIdx] = s.data[srcIdx]
+				if srcIdx%8 > dstIdx%8 {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	} else {
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+				data[dstIdx] = s.data[srcIdx]
+				dstIdx++
+			}
+		}
+	}
+
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
+}
+
 // FilterByMask returns a new series with elements filtered by the mask.
 func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 	if len(mask) != len(s.data) {
@@ -463,12 +513,10 @@ func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 		}
 	}
 
-	return GDLSeriesFloat64{
-		isNullable: s.isNullable,
-		name:       s.name,
-		data:       data,
-		nullMask:   nullMask,
-	}
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
 }
 
 func (s GDLSeriesFloat64) FilterByIndeces(indexes []int) GDLSeries {
@@ -500,12 +548,10 @@ func (s GDLSeriesFloat64) FilterByIndeces(indexes []int) GDLSeries {
 		}
 	}
 
-	return GDLSeriesFloat64{
-		isNullable: s.isNullable,
-		name:       s.name,
-		data:       data,
-		nullMask:   nullMask,
-	}
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
 }
 
 func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {

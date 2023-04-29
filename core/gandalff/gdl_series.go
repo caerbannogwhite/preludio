@@ -133,6 +133,8 @@ type GDLSeries interface {
 
 	// Series operations.
 
+	// Filters out the elements by the given mask series.
+	Filter(mask GDLSeriesBool) GDLSeries
 	// Filters out the elements by the given mask.
 	FilterByMask(mask []bool) GDLSeries
 	// Filters out the elements by the given indices.
@@ -387,6 +389,11 @@ func (s GDLSeriesError) Copy() GDLSeries {
 }
 
 // Series operations.
+
+// Filters out the elements by the given mask series.
+func (s GDLSeriesError) Filter(mask GDLSeriesBool) GDLSeries {
+	return s
+}
 
 // FilterByMask returns a new series with elements filtered by the mask.
 func (s GDLSeriesError) FilterByMask(mask []bool) GDLSeries {

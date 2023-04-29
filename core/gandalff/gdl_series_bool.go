@@ -50,6 +50,16 @@ func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeries {
 
 ///////////////////////////////		BASIC ACCESSORS		/////////////////////////////////
 
+func (s GDLSeriesBool) __trueCount() int {
+	count := 0
+	for _, v := range s.data {
+		for i := 0; i < 8; i++ {
+			count += int((v & (1 << uint(i))) >> uint(i))
+		}
+	}
+	return count
+}
+
 // Returns the number of elements in the series.
 func (s GDLSeriesBool) Len() int {
 	return s.size
@@ -537,6 +547,74 @@ func (s GDLSeriesBool) Copy() GDLSeries {
 
 ///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
 
+// Filters out the elements by the given mask series.
+func (s GDLSeriesBool) Filter(mask GDLSeriesBool) GDLSeries {
+	if mask.size != s.size {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Filter: mask length (%d) does not match series length (%d)", mask.size, s.size)}
+	}
+
+	if mask.isNullable {
+		return GDLSeriesError{"GDLSeriesBool.Filter: mask series cannot be nullable for this operation"}
+	}
+
+	elementCount := mask.__trueCount()
+	var data []uint8
+	var nullMask []uint8
+
+	if elementCount%8 == 0 {
+		data = make([]uint8, (elementCount >> 3))
+	} else {
+		data = make([]uint8, (elementCount>>3)+1)
+	}
+
+	if s.isNullable {
+
+		if elementCount%8 == 0 {
+			nullMask = make([]uint8, (elementCount >> 3))
+		} else {
+			nullMask = make([]uint8, (elementCount>>3)+1)
+		}
+
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.size; srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+
+				// s.data[srcIdx>>3] 			-> 	selects the byte in s.data that contains the bit
+				// 1 << uint(srcIdx%8)			-> 	shifts a 1 to the position of the bit
+				// >> uint(srcIdx%8-dstIdx%8))	-> 	shifts the bit to the position of the bit in the destination byte
+				//
+				// TODO: optimize? is there a better way to select the destination bit?
+				if srcIdx%8 > dstIdx%8 {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	} else {
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.size; srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+				if srcIdx%8 > dstIdx%8 {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	}
+
+	s.size = elementCount
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
+}
+
 // FilterByMask returns a new series with elements filtered by the mask.
 func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 	if len(mask) != s.size {
@@ -600,13 +678,11 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 		}
 	}
 
-	return GDLSeriesBool{
-		isNullable: s.isNullable,
-		name:       s.name,
-		size:       elementCount,
-		data:       data,
-		nullMask:   nullMask,
-	}
+	s.size = elementCount
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
 }
 
 func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
@@ -647,13 +723,11 @@ func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
 		}
 	}
 
-	return GDLSeriesBool{
-		isNullable: s.isNullable,
-		name:       s.name,
-		size:       size,
-		data:       data,
-		nullMask:   nullMask,
-	}
+	s.size = size
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
 }
 
 func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
