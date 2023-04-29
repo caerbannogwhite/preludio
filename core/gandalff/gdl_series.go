@@ -104,7 +104,7 @@ type GDLSeries interface {
 	// Get the element at index i.
 	Get(i int) any
 	// Set the element at index i.
-	Set(i int, v any)
+	Set(i int, v any) GDLSeries
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -333,7 +333,9 @@ func (s GDLSeriesError) Get(i int) any {
 }
 
 // Set the element at index i.
-func (s GDLSeriesError) Set(i int, v any) {}
+func (s GDLSeriesError) Set(i int, v any) GDLSeries {
+	return s
+}
 
 // Sort interface.
 func (s GDLSeriesError) Less(i, j int) bool {

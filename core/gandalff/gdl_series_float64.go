@@ -185,12 +185,28 @@ func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
 	return s
 }
 
+// Get the element at index i.
 func (s GDLSeriesFloat64) Get(i int) any {
 	return s.data[i]
 }
 
-func (s GDLSeriesFloat64) Set(i int, v any) {
-	s.data[i] = v.(float64)
+// Set the element at index i. The type of v must be float64 or NullableFloat64.
+func (s GDLSeriesFloat64) Set(i int, v any) GDLSeries {
+	if f, ok := v.(float64); ok {
+		s.data[i] = f
+	} else if nf, ok := v.(NullableFloat64); ok {
+		if nf.Valid {
+			s.data[i] = nf.Value
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+	} else {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Set: provided value %t is not of type float64 or NullableFloat64", v)}
+	}
+
+	s.isSorted = false
+	return s
 }
 
 func (s GDLSeriesFloat64) Less(i, j int) bool {

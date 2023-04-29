@@ -118,12 +118,15 @@ func (s GDLSeriesBool) IsNull(i int) bool {
 func (s GDLSeriesBool) SetNull(i int) GDLSeries {
 	if s.isNullable {
 		s.nullMask[i>>3] |= 1 << uint(i%8)
+
+		s.isSorted = false
 		return s
 	} else {
 		nullMask := make([]uint8, len(s.data))
 		nullMask[i>>3] |= 1 << uint(i%8)
 
 		s.isNullable = true
+		s.isSorted = false
 		s.nullMask = nullMask
 
 		return s
@@ -153,6 +156,8 @@ func (s GDLSeriesBool) SetNullMask(mask []bool) GDLSeries {
 				s.nullMask[k>>3] &= ^(1 << uint(k%8))
 			}
 		}
+
+		s.isSorted = false
 		return s
 	} else {
 		nullMask := make([]uint8, len(s.data))
@@ -163,16 +168,12 @@ func (s GDLSeriesBool) SetNullMask(mask []bool) GDLSeries {
 				nullMask[k>>3] &= ^(1 << uint(k%8))
 			}
 		}
-		return GDLSeriesBool{
-			isGrouped:  s.isGrouped,
-			isNullable: true,
-			isSorted:   s.isSorted,
-			size:       s.size,
-			name:       s.name,
-			data:       s.data,
-			nullMask:   nullMask,
-			partition:  s.partition,
-		}
+
+		s.isNullable = true
+		s.isSorted = false
+		s.nullMask = nullMask
+
+		return s
 	}
 }
 
@@ -180,23 +181,42 @@ func (s GDLSeriesBool) SetNullMask(mask []bool) GDLSeries {
 func (s GDLSeriesBool) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
+		s.isSorted = false
 		s.nullMask = make([]uint8, len(s.data))
 	}
 	return s
 }
 
+// Get the element at index i.
 func (s GDLSeriesBool) Get(i int) any {
 	return s.data[i>>3]&(1<<uint(i%8)) != 0
 }
 
-func (s GDLSeriesBool) Set(i int, v any) {
+// Set the element at index i. The value must be of type bool or NullableBool.
+func (s GDLSeriesBool) Set(i int, v any) GDLSeries {
 	if b, ok := v.(bool); ok {
 		if b {
 			s.data[i>>3] |= 1 << uint(i%8)
 		} else {
 			s.data[i>>3] &= ^(1 << uint(i%8))
 		}
+	} else if nb, ok := v.(NullableBool); ok {
+		if nb.Valid {
+			if nb.Value {
+				s.data[i>>3] |= 1 << uint(i%8)
+			} else {
+				s.data[i>>3] &= ^(1 << uint(i%8))
+			}
+		} else {
+			s.data[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+	} else {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Set: provided value %t is not of type bool or NullableBool", v)}
 	}
+
+	s.isSorted = false
+	return s
 }
 
 func (s GDLSeriesBool) Less(i, j int) bool {

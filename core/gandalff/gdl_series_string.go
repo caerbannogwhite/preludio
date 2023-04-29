@@ -199,12 +199,28 @@ func (s GDLSeriesString) MakeNullable() GDLSeries {
 	return s
 }
 
+// Get the element at index i.
 func (s GDLSeriesString) Get(i int) any {
 	return *s.data[i]
 }
 
-func (s GDLSeriesString) Set(i int, v any) {
-	s.data[i] = s.pool.Get(v.(string))
+// Set the element at index i. The value v must be of type string or NullableString.
+func (s GDLSeriesString) Set(i int, v any) GDLSeries {
+	if ss, ok := v.(string); ok {
+		s.data[i] = s.pool.Get(ss)
+	} else if ns, ok := v.(NullableString); ok {
+		if ns.Valid {
+			s.data[i] = s.pool.Get(ns.Value)
+		} else {
+			s.data[i] = nil
+			s.nullMask[i/8] |= 1 << uint(i%8)
+		}
+	} else {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Set: provided value %t is not of type string or NullableString", v)}
+	}
+
+	s.isSorted = false
+	return s
 }
 
 func (s GDLSeriesString) Less(i, j int) bool {

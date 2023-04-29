@@ -186,12 +186,28 @@ func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 	return s
 }
 
+// Get the element at index i.
 func (s GDLSeriesInt32) Get(i int) any {
 	return s.data[i]
 }
 
-func (s GDLSeriesInt32) Set(i int, v any) {
-	s.data[i] = v.(int)
+// Set the element at index i. The value v must be of type int or NullableInt32.
+func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
+	if ii, ok := v.(int); ok {
+		s.data[i] = ii
+	} else if ni, ok := v.(NullableInt32); ok {
+		if ni.Valid {
+			s.data[i] = ni.Value
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+	} else {
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Set: provided value %t is not of type int or NullableInt32", v)}
+	}
+
+	s.isSorted = false
+	return s
 }
 
 func (s GDLSeriesInt32) Less(i, j int) bool {
