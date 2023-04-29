@@ -31,6 +31,7 @@ The data types not checked are not yet supported, but might be in the future.
 ### Supported operations for Series
 
 - [x] Filter
+  - [x] Filter (by Bool series)
   - [x] FilterByMask
   - [x] FilterByIndex
 
@@ -38,12 +39,12 @@ The data types not checked are not yet supported, but might be in the future.
   - [x] Group
   - [x] SubGroup
 
-- [ ] Map
+- [x] Map
 - [ ] Sort
 
 ### Supported operations for DataFrame
 
-- [ ] Filter
+- [x] Filter
 - [x] GroupBy
 - [ ] Map
 - [x] Select
