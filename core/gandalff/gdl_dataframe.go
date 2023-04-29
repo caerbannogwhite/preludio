@@ -189,14 +189,21 @@ func (df *GDLDataFrame) InPlaceSelectAt(indices ...int) error {
 	return nil
 }
 
-func (df *GDLDataFrame) Filter() *GDLDataFrame {
+func (df *GDLDataFrame) Filter(mask GDLSeriesBool) *GDLDataFrame {
 	if df.err != nil {
 		return df
 	}
 
-	filtered := NewGDLDataFrame()
+	if mask.Len() != df.NRows() {
+		df.err = fmt.Errorf("GDLDataFrame.Filter: mask length (%d) does not match dataframe length (%d)", mask.Len(), df.NRows())
+		return df
+	}
 
-	return filtered
+	for _, series := range df.series {
+		series.Filter(mask)
+	}
+
+	return df
 }
 
 func (df *GDLDataFrame) GroupBy(by ...string) *GDLDataFrame {

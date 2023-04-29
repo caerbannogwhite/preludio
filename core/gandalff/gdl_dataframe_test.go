@@ -26,6 +26,14 @@ func Test_GDataFrame_Base(t *testing.T) {
 
 }
 
+func Test_GDataFrame_Filter(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
+}
+
 func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := FromCSV(strings.NewReader(data1), ',', true, 3)

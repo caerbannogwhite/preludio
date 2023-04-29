@@ -400,6 +400,77 @@ func Test_GDLSeriesInt32_Filter(t *testing.T) {
 	}
 }
 
+func Test_GDLSeriesInt32_Map(t *testing.T) {
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
+	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
+
+	// Create a new series.
+	s := NewGDLSeriesInt32("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(nullMask)
+
+	// Map the series to bool.
+	resBool := s.Map(func(v interface{}) interface{} {
+		if v.(int) >= 7 && v.(int) <= 100 {
+			return true
+		}
+		return false
+	}, nil)
+
+	expectedBool := []bool{false, false, false, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true}
+	for i, v := range resBool.Data().([]bool) {
+		if v != expectedBool[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedBool[i], v, i)
+		}
+	}
+
+	// Map the series to int.
+	resInt := s.Map(func(v interface{}) interface{} {
+		if v.(int) < 0 {
+			return -(v.(int)) % 7
+		}
+		return v.(int) % 7
+	}, nil)
+
+	expectedInt := []int{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
+		}
+	}
+
+	// Map the series to float64.
+	resFloat64 := s.Map(func(v interface{}) interface{} {
+		if v.(int) >= 0 {
+			return float64(-v.(int))
+		}
+		return float64(v.(int))
+	}, nil)
+
+	expectedFloat64 := []float64{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -2, -323, -24, -23, -4, -42, -5, -6, -7}
+	for i, v := range resFloat64.Data().([]float64) {
+		if v != expectedFloat64[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedFloat64[i], v, i)
+		}
+	}
+
+	// Map the series to string.
+	resString := s.Map(func(v interface{}) interface{} {
+		if v.(int) >= 0 {
+			return "pos"
+		}
+		return "neg"
+	}, NewStringPool())
+
+	expectedString := []string{"pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "neg", "pos", "pos", "neg", "pos", "pos", "pos", "neg", "pos"}
+	for i, v := range resString.Data().([]string) {
+		if v != expectedString[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedString[i], v, i)
+		}
+	}
+}
+
 func Test_GDLSeriesInt32_Sort(t *testing.T) {
 
 	data := []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}

@@ -615,7 +615,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 	case string:
 		if stringPool == nil {
-			return GDLSeriesError{"GDLSeriesBool.Map: StringPool is nil"}
+			return GDLSeriesError{"GDLSeriesFloat64.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -634,7 +634,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 	}
 
-	return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Map: Unsupported type %T", v)}
+	return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Map: Unsupported type %T", v)}
 }
 
 /////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////

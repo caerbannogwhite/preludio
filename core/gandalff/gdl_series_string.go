@@ -577,7 +577,85 @@ func (s GDLSeriesString) FilterByIndeces(indexes []int) GDLSeries {
 }
 
 func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
-	return s
+	if len(s.data) == 0 {
+		return s
+	}
+
+	v := f(*(s.data[0]))
+	switch v.(type) {
+	case bool:
+
+		var data []uint8
+		if len(s.data)%8 == 0 {
+			data = make([]uint8, (len(s.data) >> 3))
+		} else {
+			data = make([]uint8, (len(s.data)>>3)+1)
+		}
+
+		for i := 0; i < len(s.data); i++ {
+			if f((*s.data[i])).(bool) {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			isSorted:   false,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case int:
+		data := make([]int, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f((*s.data[i])).(int)
+		}
+
+		return GDLSeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			isSorted:   false,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case float64:
+		data := make([]float64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f((*s.data[i])).(float64)
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			isSorted:   false,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case string:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesString.Map: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = stringPool.Add(f((*s.data[i])).(string))
+		}
+
+		s.isGrouped = false
+		s.isSorted = false
+		s.data = data
+
+		return s
+	}
+
+	return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Map: Unsupported type %T", v)}
 }
 
 /////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////

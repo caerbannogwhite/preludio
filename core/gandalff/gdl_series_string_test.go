@@ -405,3 +405,65 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 		}
 	}
 }
+
+func Test_GDLSeriesString_Map(t *testing.T) {
+	data := []string{"", "hello", "world", "this", "is", "a", "test", "of", "the", "map", "function", "in", "the", "series", "", "this", "is", "a", "", "test"}
+	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false}
+
+	// Create a new series.
+	s := NewGDLSeriesString("test", true, data, NewStringPool())
+
+	// Set the null mask.
+	s.SetNullMask(nullMask)
+
+	// Map the series to bool.
+	resBool := s.Map(func(v interface{}) interface{} {
+		return v.(string) == ""
+	}, nil)
+
+	expectedBool := []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, false}
+	for i, v := range resBool.Data().([]bool) {
+		if v != expectedBool[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedBool[i], v, i)
+		}
+	}
+
+	// Map the series to int.
+	resInt := s.Map(func(v interface{}) interface{} {
+		return len(v.(string))
+	}, nil)
+
+	expectedInt := []int{0, 5, 5, 4, 2, 1, 4, 2, 3, 3, 8, 2, 3, 6, 0, 4, 2, 1, 0, 4}
+	for i, v := range resInt.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
+		}
+	}
+
+	// Map the series to float64.
+	resFloat64 := s.Map(func(v interface{}) interface{} {
+		return -float64(len(v.(string)))
+	}, nil)
+
+	expectedFloat64 := []float64{-0, -5, -5, -4, -2, -1, -4, -2, -3, -3, -8, -2, -3, -6, -0, -4, -2, -1, -0, -4}
+	for i, v := range resFloat64.Data().([]float64) {
+		if v != expectedFloat64[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedFloat64[i], v, i)
+		}
+	}
+
+	// Map the series to string.
+	resString := s.Map(func(v interface{}) interface{} {
+		if v.(string) == "" {
+			return "empty"
+		}
+		return ""
+	}, NewStringPool())
+
+	expectedString := []string{"empty", "", "", "", "", "", "", "", "", "", "", "", "", "", "empty", "", "", "", "empty", ""}
+	for i, v := range resString.Data().([]string) {
+		if v != expectedString[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedString[i], v, i)
+		}
+	}
+}
