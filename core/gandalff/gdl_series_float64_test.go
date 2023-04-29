@@ -376,6 +376,77 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	}
 }
 
+func Test_GDLSeriesFloat64_Map(t *testing.T) {
+	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
+	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
+
+	// Create a new series.
+	s := NewGDLSeriesFloat64("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(nullMask)
+
+	// Map the series to bool.
+	resBool := s.Map(func(v interface{}) interface{} {
+		if v.(float64) >= 7 && v.(float64) <= 100 {
+			return true
+		}
+		return false
+	}, nil)
+
+	expectedBool := []bool{false, false, false, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true}
+	for i, v := range resBool.Data().([]bool) {
+		if v != expectedBool[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedBool[i], v, i)
+		}
+	}
+
+	// Map the series to int.
+	resInt := s.Map(func(v interface{}) interface{} {
+		if v.(float64) < 0 {
+			return (-int(v.(float64))) % 7
+		}
+		return int(v.(float64)) % 7
+	}, nil)
+
+	expectedInt := []int{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
+		}
+	}
+
+	// Map the series to float64.
+	resFloat64 := s.Map(func(v interface{}) interface{} {
+		if v.(float64) >= 0 {
+			return -v.(float64)
+		}
+		return v.(float64)
+	}, nil)
+
+	expectedFloat64 := []float64{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -2, -323, -24, -23, -4, -42, -5, -6, -7}
+	for i, v := range resFloat64.Data().([]float64) {
+		if v != expectedFloat64[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedFloat64[i], v, i)
+		}
+	}
+
+	// Map the series to string.
+	resString := s.Map(func(v interface{}) interface{} {
+		if v.(float64) >= 0 {
+			return "pos"
+		}
+		return "neg"
+	}, NewStringPool())
+
+	expectedString := []string{"pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "neg", "pos", "pos", "neg", "pos", "pos", "pos", "neg", "pos"}
+	for i, v := range resString.Data().([]string) {
+		if v != expectedString[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedString[i], v, i)
+		}
+	}
+}
+
 // func Test_GDLSeriesFloat64_Multiplication(t *testing.T) {
 // 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 

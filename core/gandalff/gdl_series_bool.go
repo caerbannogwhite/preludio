@@ -651,7 +651,10 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			}
 		}
 
+		s.isGrouped = false
+		s.isSorted = false
 		s.data = data
+
 		return s
 
 	case int:
@@ -661,7 +664,9 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		return GDLSeriesInt32{
+			isGrouped:  false,
 			isNullable: s.isNullable,
+			isSorted:   false,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -672,8 +677,11 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		for i := 0; i < s.size; i++ {
 			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(float64)
 		}
+
 		return GDLSeriesFloat64{
+			isGrouped:  false,
 			isNullable: s.isNullable,
+			isSorted:   false,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -690,7 +698,9 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		return GDLSeriesString{
+			isGrouped:  false,
 			isNullable: s.isNullable,
+			isSorted:   false,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
