@@ -199,11 +199,12 @@ func (df *GDLDataFrame) Filter(mask GDLSeriesBool) *GDLDataFrame {
 		return df
 	}
 
+	filtered := NewGDLDataFrame()
 	for _, series := range df.series {
-		series.Filter(mask)
+		filtered.AddSeries(series.Filter(mask))
 	}
 
-	return df
+	return filtered
 }
 
 func (df *GDLDataFrame) GroupBy(by ...string) *GDLDataFrame {

@@ -33,9 +33,33 @@ func Test_GDataFrame_Filter(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	df.Series("department").Map(func(v any) any {
-		return v.(string) == "IT"
-	}, nil)
+	mask := df.Series("department").
+		Map(func(v any) any {
+			return v.(string) == "IT"
+		}, nil).(GDLSeriesBool).
+		And(
+			df.Series("age").Map(func(v any) any {
+				return v.(int) >= 30
+			}, nil).(GDLSeriesBool),
+		)
+
+	res := df.Filter(mask.(GDLSeriesBool))
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	if res.NRows() != 2 {
+		t.Errorf("Expected 2 rows, got %d", res.NRows())
+	}
+
+	names := res.Series("name").Data().([]string)
+
+	if names[0] != "John Doe" {
+		t.Errorf("Expected John Doe, got %s", names[0])
+	}
+	if names[1] != "Bob" {
+		t.Errorf("Expected Bob, got %s", names[1])
+	}
 }
 
 func Test_GDataFrame_GroupBy_Count(t *testing.T) {
