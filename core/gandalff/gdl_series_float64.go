@@ -740,6 +740,10 @@ func (s GDLSeriesFloat64) Sort() GDLSeries {
 	return s
 }
 
+func (s GDLSeriesFloat64) SortRev() GDLSeries {
+	return s
+}
+
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////

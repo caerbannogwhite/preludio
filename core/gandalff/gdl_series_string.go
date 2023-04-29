@@ -696,6 +696,10 @@ func (s GDLSeriesString) Sort() GDLSeries {
 	return s
 }
 
+func (s GDLSeriesString) SortRev() GDLSeries {
+	return s
+}
+
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////

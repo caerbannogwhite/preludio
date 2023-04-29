@@ -150,7 +150,7 @@ type GDLSeries interface {
 
 	// Sorts the elements of the series.
 	Sort() GDLSeries
-	// SortDesc() GDLSeries
+	SortRev() GDLSeries
 }
 
 func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) GDLSeries {
@@ -416,5 +416,9 @@ func (s GDLSeriesError) GetPartition() GDLSeriesPartition {
 }
 
 func (s GDLSeriesError) Sort() GDLSeries {
+	return s
+}
+
+func (s GDLSeriesError) SortRev() GDLSeries {
 	return s
 }

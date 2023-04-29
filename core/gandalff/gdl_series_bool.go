@@ -910,6 +910,10 @@ func (s GDLSeriesBool) Sort() GDLSeries {
 	return s
 }
 
+func (s GDLSeriesBool) SortRev() GDLSeries {
+	return s
+}
+
 ///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
 
 ///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
