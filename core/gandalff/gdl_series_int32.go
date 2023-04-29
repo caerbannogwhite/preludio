@@ -104,6 +104,7 @@ func (s GDLSeriesInt32) IsNull(i int) bool {
 	return false
 }
 
+// Sets the element at index i to null.
 func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
@@ -125,6 +126,7 @@ func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
 	}
 }
 
+// Returns the null mask of the series.
 func (s GDLSeriesInt32) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
@@ -137,6 +139,7 @@ func (s GDLSeriesInt32) GetNullMask() []bool {
 	return mask
 }
 
+// Sets the null mask of the series.
 func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 	if s.isNullable {
 		for k, v := range mask {
@@ -170,6 +173,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 	}
 }
 
+// Makes the series nullable.
 func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		if len(s.data)%8 == 0 {

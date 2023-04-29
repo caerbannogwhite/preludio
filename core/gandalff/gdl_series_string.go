@@ -104,6 +104,7 @@ func (s GDLSeriesString) IsNull(i int) bool {
 	return false
 }
 
+// Sets the element at index i to null.
 func (s GDLSeriesString) SetNull(i int) GDLSeries {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
@@ -131,6 +132,7 @@ func (s GDLSeriesString) SetNull(i int) GDLSeries {
 	}
 }
 
+// Returns the null mask of the series.
 func (s GDLSeriesString) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
@@ -143,18 +145,7 @@ func (s GDLSeriesString) GetNullMask() []bool {
 	return mask
 }
 
-func (s GDLSeriesString) MakeNullable() GDLSeries {
-	if !s.isNullable {
-		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-	}
-	return s
-}
-
+// Sets the null mask of the series.
 func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 	if s.isNullable {
 		for k, v := range mask {
@@ -193,6 +184,19 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 			partition:  s.partition,
 		}
 	}
+}
+
+// Makes the series nullable.
+func (s GDLSeriesString) MakeNullable() GDLSeries {
+	if !s.isNullable {
+		s.isNullable = true
+		if len(s.data)%8 == 0 {
+			s.nullMask = make([]uint8, (len(s.data) >> 3))
+		} else {
+			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
+		}
+	}
+	return s
 }
 
 func (s GDLSeriesString) Get(i int) any {
