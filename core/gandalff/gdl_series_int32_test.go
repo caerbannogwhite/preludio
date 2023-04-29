@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 	"typesys"
@@ -432,6 +433,26 @@ func Test_GDLSeriesInt32_Sort(t *testing.T) {
 			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
 		}
 	}
+}
+
+func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
+	data := []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
+
+	partData := []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2}
+	p := NewGDLSeriesInt32("part", true, true, partData).Group()
+
+	fmt.Println(p.GetPartition())
+
+	// Create a new series.
+	s := NewGDLSeriesInt32("test", true, true, data).
+		SetNullMask(mask).
+		SubGroup(p.GetPartition()).
+		Sort()
+
+	// fmt.Println(s.GetPartition())
+
+	fmt.Println(s.Data().([]int))
 }
 
 // func Test_GDLSeriesInt32_Multiplication(t *testing.T) {
