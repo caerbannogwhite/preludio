@@ -646,32 +646,31 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	case bool:
 		data := make([]uint8, len(s.data))
 		for i := 0; i < s.size; i++ {
-			if f(s.Get(i)).(bool) {
+			if f(s.data[i>>3]&(1<<uint(i%8)) != 0).(bool) {
 				data[i>>3] |= (1 << uint(i%8))
 			}
 		}
-		return GDLSeriesBool{
-			isNullable: s.isNullable,
-			name:       s.name,
-			size:       s.size,
-			data:       data,
-			nullMask:   s.nullMask,
-		}
+
+		s.data = data
+		return s
+
 	case int:
 		data := make([]int, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = f(s.Get(i)).(int)
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int)
 		}
+
 		return GDLSeriesInt32{
 			isNullable: s.isNullable,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 		}
+
 	case float64:
 		data := make([]float64, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = f(s.Get(i)).(float64)
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(float64)
 		}
 		return GDLSeriesFloat64{
 			isNullable: s.isNullable,
@@ -679,6 +678,7 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data:       data,
 			nullMask:   s.nullMask,
 		}
+
 	case string:
 		if stringPool == nil {
 			return GDLSeriesError{"GDLSeriesBool.Map: StringPool is nil"}
@@ -686,8 +686,9 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = stringPool.Add(f(s.Get(i)).(string))
+			data[i] = stringPool.Add(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
 		}
+
 		return GDLSeriesString{
 			isNullable: s.isNullable,
 			name:       s.name,
@@ -695,7 +696,6 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			nullMask:   s.nullMask,
 			pool:       stringPool,
 		}
-
 	}
 
 	return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Map: Unsupported type %T", v)}
