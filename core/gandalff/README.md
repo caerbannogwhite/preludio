@@ -38,12 +38,12 @@ The data types not checked are not yet supported, but might be in the future.
   - [x] Group
   - [x] SubGroup
 
-- [x] Map
+- [ ] Map
 - [ ] Sort
 
 ### Supported operations for DataFrame
 
-- [x] Filter
+- [ ] Filter
 - [x] GroupBy
 - [ ] Map
 - [x] Select
@@ -73,16 +73,22 @@ type GDLSeries interface {
 
 	// Basic accessors.
 
-	// Returns the length of the series.
+	// Returns the number of elements in the series.
 	Len() int
-	// Returns if the series admits null values.
-	IsNullable() bool
-	// Makes the series nullable.
-	MakeNullable() GDLSeries
 	// Returns the name of the series.
 	Name() string
 	// Returns the type of the series.
 	Type() typesys.BaseType
+
+	// Returns if the series is grouped.
+	IsGrouped() bool
+	// Returns if the series admits null values.
+	IsNullable() bool
+	// Returns if the series is sorted.
+	IsSorted() bool
+
+	// Nullability operations.
+
 	// Returns if the series has null values.
 	HasNull() bool
 	// Returns the number of null values in the series.
@@ -92,32 +98,38 @@ type GDLSeries interface {
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
-	SetNull(i int) error
+	SetNull(i int) GDLSeries
 	// Returns the null mask of the series.
 	GetNullMask() []bool
 	// Sets the null mask of the series.
-	SetNullMask(mask []bool) error
+	SetNullMask(mask []bool) GDLSeries
+	// Makes the series nullable.
+	MakeNullable() GDLSeries
 
 	// Get the element at index i.
-	Get(i int) interface{}
+	Get(i int) any
 	// Set the element at index i.
-	Set(i int, v interface{})
+	Set(i int, v any) GDLSeries
+
+	// Sort Interface.
+	Less(i, j int) bool
+	Swap(i, j int)
 
 	// Append elements to the series.
-	Append(v interface{}) GDLSeries
+	Append(v any) GDLSeries
 	// AppendRaw appends a value or a slice of values to the series.
-	AppendRaw(v interface{}) GDLSeries
+	AppendRaw(v any) GDLSeries
 	// Append nullable elements to the series.
-	AppendNullable(v interface{}) GDLSeries
+	AppendNullable(v any) GDLSeries
 	// Append a series to the series.
 	AppendSeries(other GDLSeries) GDLSeries
 
 	// All-data accessors.
 
 	// Returns the actual data of the series.
-	Data() interface{}
+	Data() any
 	// Returns the nullable data of the series.
-	NullableData() interface{}
+	NullableData() any
 	// Returns the data of the series as a slice of strings.
 	StringData() []string
 
@@ -135,7 +147,14 @@ type GDLSeries interface {
 	Map(f GDLMapFunc, stringPool *StringPool) GDLSeries
 
 	// Group the elements in the series.
-	Group() GDLSeriesPartition
-	SubGroup(gp GDLSeriesPartition) GDLSeriesPartition
+	Group() GDLSeries
+	SubGroup(gp GDLSeriesPartition) GDLSeries
+
+	// Get the partition of the series.
+	GetPartition() GDLSeriesPartition
+
+	// Sorts the elements of the series.
+	Sort() GDLSeries
+	SortRev() GDLSeries
 }
 ```
