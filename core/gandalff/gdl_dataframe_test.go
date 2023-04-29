@@ -32,6 +32,10 @@ func Test_GDataFrame_Filter(t *testing.T) {
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
+
+	df.Series("department").Map(func(v any) any {
+		return v.(string) == "IT"
+	}, nil)
 }
 
 func Test_GDataFrame_GroupBy_Count(t *testing.T) {

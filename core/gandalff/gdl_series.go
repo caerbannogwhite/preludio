@@ -62,7 +62,7 @@ type NullableString struct {
 
 ///////////////////////////////		GDLSERIES		/////////////////////////////////
 
-type GDLMapFunc func(interface{}) interface{}
+type GDLMapFunc func(any) any
 
 type GDLSeries interface {
 

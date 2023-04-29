@@ -490,7 +490,7 @@ func Test_GDLSeriesBool_Map(t *testing.T) {
 
 	// MAP TO BOOL
 
-	mappedBool := s.Map(func(v interface{}) interface{} {
+	mappedBool := s.Map(func(v any) any {
 		return !v.(bool)
 	}, nil)
 
@@ -510,7 +510,7 @@ func Test_GDLSeriesBool_Map(t *testing.T) {
 
 	// MAP TO INT
 
-	mappedInt := s.Map(func(v interface{}) interface{} {
+	mappedInt := s.Map(func(v any) any {
 		if v.(bool) {
 			return 1
 		}
@@ -533,7 +533,7 @@ func Test_GDLSeriesBool_Map(t *testing.T) {
 
 	// MAP TO FLOAT
 
-	mappedFloat := s.Map(func(v interface{}) interface{} {
+	mappedFloat := s.Map(func(v any) any {
 		if v.(bool) {
 			return 1.0
 		}
@@ -557,7 +557,7 @@ func Test_GDLSeriesBool_Map(t *testing.T) {
 	// MAP TO STRING
 
 	pool := NewStringPool()
-	mappedString := s.Map(func(v interface{}) interface{} {
+	mappedString := s.Map(func(v any) any {
 		if v.(bool) {
 			return "true"
 		}

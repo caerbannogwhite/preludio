@@ -411,7 +411,7 @@ func Test_GDLSeriesInt32_Map(t *testing.T) {
 	s.SetNullMask(nullMask)
 
 	// Map the series to bool.
-	resBool := s.Map(func(v interface{}) interface{} {
+	resBool := s.Map(func(v any) any {
 		if v.(int) >= 7 && v.(int) <= 100 {
 			return true
 		}
@@ -426,7 +426,7 @@ func Test_GDLSeriesInt32_Map(t *testing.T) {
 	}
 
 	// Map the series to int.
-	resInt := s.Map(func(v interface{}) interface{} {
+	resInt := s.Map(func(v any) any {
 		if v.(int) < 0 {
 			return -(v.(int)) % 7
 		}
@@ -441,7 +441,7 @@ func Test_GDLSeriesInt32_Map(t *testing.T) {
 	}
 
 	// Map the series to float64.
-	resFloat64 := s.Map(func(v interface{}) interface{} {
+	resFloat64 := s.Map(func(v any) any {
 		if v.(int) >= 0 {
 			return float64(-v.(int))
 		}
@@ -456,7 +456,7 @@ func Test_GDLSeriesInt32_Map(t *testing.T) {
 	}
 
 	// Map the series to string.
-	resString := s.Map(func(v interface{}) interface{} {
+	resString := s.Map(func(v any) any {
 		if v.(int) >= 0 {
 			return "pos"
 		}
