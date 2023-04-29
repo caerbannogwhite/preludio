@@ -1013,12 +1013,11 @@ func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
 			data[i] = s.data[i] & o.data[i]
 		}
 
-		return GDLSeriesBool{
-			isNullable: true,
-			name:       s.name,
-			data:       data,
-			nullMask:   nullMask,
-		}
+		s.isNullable = true
+		s.nullMask = nullMask
+		s.data = data
+
+		return s
 	}
 
 	data := make([]uint8, len(s.data))
@@ -1026,12 +1025,9 @@ func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
 		data[i] = s.data[i] & o.data[i]
 	}
 
-	return GDLSeriesBool{
-		isNullable: false,
-		name:       s.name,
-		data:       data,
-		nullMask:   make([]uint8, 0),
-	}
+	s.data = data
+
+	return s
 }
 
 // Or performs logical OR operation between two series
@@ -1055,12 +1051,11 @@ func (s GDLSeriesBool) Or(other GDLSeries) GDLSeries {
 			data[i] = s.data[i] | o.data[i]
 		}
 
-		return GDLSeriesBool{
-			isNullable: true,
-			name:       s.name,
-			data:       data,
-			nullMask:   nullMask,
-		}
+		s.isNullable = true
+		s.nullMask = nullMask
+		s.data = data
+
+		return s
 	}
 
 	data := make([]uint8, len(s.data))
@@ -1068,27 +1063,23 @@ func (s GDLSeriesBool) Or(other GDLSeries) GDLSeries {
 		data[i] = s.data[i] | o.data[i]
 	}
 
-	return GDLSeriesBool{
-		isNullable: false,
-		name:       s.name,
-		data:       data,
-		nullMask:   make([]uint8, 0),
-	}
+	s.data = data
+
+	return s
 }
 
 // Not performs logical NOT operation on series
 func (s GDLSeriesBool) Not() GDLSeries {
-	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] ^= s.data[i]
+		s.data[i] = ^s.data[i]
 	}
 
-	return GDLSeriesBool{
-		isNullable: s.isNullable,
-		name:       s.name,
-		data:       data,
-		nullMask:   s.nullMask,
+	// clear the unused bits
+	for i := s.size; i < len(s.data)*8; i++ {
+		s.data[i>>3] &^= 1 << (i % 8)
 	}
+
+	return s
 }
 
 ///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////

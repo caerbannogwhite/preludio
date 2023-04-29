@@ -276,6 +276,13 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 
 	// Check the And() method.
 	and := sbA.And(sbB)
+
+	// Check the size.
+	if and.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", and.Len())
+	}
+
+	// Check the result data.
 	for i, v := range and.Data().([]bool) {
 		if v != (dataA[i] && dataB[i]) {
 			t.Errorf("Expected data of []bool{false, false, false, false, true, false, false, false, false, false}, got %v", and.Data())
@@ -291,6 +298,13 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 
 	// Check the Or() method.
 	or := sbA.Or(sbB)
+
+	// Check the size.
+	if or.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", or.Len())
+	}
+
+	// Check the result data.
 	for i, v := range or.Data().([]bool) {
 		if v != (dataA[i] || dataB[i]) {
 			t.Errorf("Expected data of []bool{true, true, true, false, true, false, true, true, true, false}, got %v", or.Data())
@@ -305,7 +319,16 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := sbA.Not()
+	not := NewGDLSeriesBool("test", true, dataA).
+		SetNullMask(maskA).(GDLSeriesBool).
+		Not()
+
+	// Check the size.
+	if not.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", not.Len())
+	}
+
+	// Check the result data.
 	for i, v := range not.Data().([]bool) {
 		if v != !dataA[i] {
 			t.Errorf("Expected data of []bool{false, true, false, true, false, true, false, true, false, true}, got %v", not.Data())
