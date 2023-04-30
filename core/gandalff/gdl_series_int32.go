@@ -841,15 +841,18 @@ func (s GDLSeriesInt32) SubGroup(partitions GDLSeriesPartition) GDLSeries {
 			}
 		}
 	} else {
-		// for gi, g := range indices {
-		// 	groups = append(groups, make(map[int][]int))
-		// 	for _, idx := range g {
-		// 		if groups[gi][s.data[idx]] == nil {
-		// 			groups[gi][s.data[idx]] = make([]int, 0)
-		// 		}
-		// 		groups[gi][s.data[idx]] = append(groups[gi][s.data[idx]], idx)
-		// 	}
-		// }
+		for gi, g := range indices {
+
+			// initialize embedded partitions
+			embeddedPartitions[gi] = make(map[int][]int)
+
+			for _, idx := range g {
+				if embeddedPartitions[gi][s.data[idx]] == nil {
+					embeddedPartitions[gi][s.data[idx]] = make([]int, 0)
+				}
+				embeddedPartitions[gi][s.data[idx]] = append(embeddedPartitions[gi][s.data[idx]], idx)
+			}
+		}
 	}
 
 	newPartition := GDLSeriesInt32Grouping{
