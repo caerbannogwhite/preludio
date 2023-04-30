@@ -546,7 +546,7 @@ func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
 	}
 
 	// Check the data.
-	result := []int{11, 12, 13, 14, 15, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5}
+	result := []int{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
 	for i, v := range s.Data().([]int) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
@@ -566,7 +566,7 @@ func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
 	}
 
 	// Check the data.
-	result = []int{11, 12, 13, 15, 6, 7, 8, 10, 1, 2, 3, 5, 14, 9, 4}
+	result = []int{6, 7, 8, 10, 1, 2, 3, 5, 11, 12, 13, 15, 9, 4, 14}
 	for i, v := range s.Data().([]int) {
 		if i < 14 && v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
@@ -581,6 +581,58 @@ func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
 			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
 		}
 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// 								Reverse sort.
+
+	dataRev := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
+
+	s = NewGDLSeriesInt32("test", true, true, dataRev).
+		SubGroup(p.GetPartition()).
+		SortRev()
+
+	// Check the length.
+	if s.Len() != 15 {
+		t.Errorf("Expected length of 15, got %d", s.Len())
+	}
+
+	// Check the data.
+	result = []int{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
+	for i, v := range s.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+
+	// s = NewGDLSeriesInt32("test", true, true, dataRev).
+	// 	SetNullMask(maskRev).
+	// 	SubGroup(p.GetPartition()).
+	// 	SortRev()
+
+	// // Check the length.
+	// if s.Len() != 15 {
+	// 	t.Errorf("Expected length of 15, got %d", s.Len())
+	// }
+
+	// // Check the data.
+	// result = []int{5, 4, 3, 1, 10, 9, 8, 6, 15, 14, 13, 11, 2, 7, 12}
+	// for i, v := range s.Data().([]int) {
+	// 	if i < 14 && v != result[i] {
+	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+	// 	}
+	// }
+
+	// Check the null mask.
+	// for i, v := range s.GetNullMask() {
+	// 	if i < 12 && v != false {
+	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
+	// 	} else if i >= 12 && v != true {
+	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+	// 	}
+	// }
 }
 
 // func Test_GDLSeriesInt32_Multiplication(t *testing.T) {

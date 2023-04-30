@@ -746,9 +746,17 @@ func (gp GDLSeriesInt32Grouping) GetIndices() [][]int {
 	indices := make([][]int, 0)
 
 	for _, s := range gp.partitions {
-		for _, g := range s {
-			if len(g) > 0 {
-				indices = append(indices, g)
+
+		keys := make([]int, 0, len(s))
+		for k := range s {
+			keys = append(keys, k)
+		}
+
+		sort.Ints(keys)
+
+		for _, k := range keys {
+			if len(s[k]) > 0 {
+				indices = append(indices, s[k])
 			}
 		}
 	}
@@ -889,7 +897,13 @@ func (s GDLSeriesInt32) Sort() GDLSeries {
 
 func (s GDLSeriesInt32) SortRev() GDLSeries {
 	if !s.isSorted {
-		sort.Sort(sort.Reverse(s))
+		if s.isGrouped {
+			*s.partition = (*s.partition).beginSorting()
+			sort.Sort(sort.Reverse(s))
+			*s.partition = (*s.partition).endSorting()
+		} else {
+			sort.Sort(sort.Reverse(s))
+		}
 		s.isSorted = true
 	}
 	return s
