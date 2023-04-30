@@ -62,6 +62,27 @@ func Test_GDataFrame_Filter(t *testing.T) {
 	}
 }
 
+func Benchmark_100000Rows_Filter(b *testing.B) {
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Filter(
+			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }, nil).(GDLSeriesBool).
+				And(
+					df.Series("Founded").Map(func(v any) any { return v.(int) >= 2000 }, nil)).(GDLSeriesBool).
+				And(
+					df.Series("Number of employees").Map(func(v any) any { return v.(int) < 1000 }, nil)).(GDLSeriesBool),
+		)
+	}
+	b.StopTimer()
+}
+
 func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := FromCSV(strings.NewReader(data1), ',', true, 3)
