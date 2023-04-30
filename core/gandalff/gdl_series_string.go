@@ -204,6 +204,14 @@ func (s GDLSeriesString) Get(i int) any {
 	return *s.data[i]
 }
 
+// Get the element at index i as a string.
+func (s GDLSeriesString) GetString(i int) string {
+	if s.isNullable && s.IsNull(i) {
+		return NULL_STRING
+	}
+	return *s.data[i]
+}
+
 // Set the element at index i. The value v must be of type string or NullableString.
 func (s GDLSeriesString) Set(i int, v any) GDLSeries {
 	if ss, ok := v.(string); ok {
@@ -407,7 +415,7 @@ func (s GDLSeriesString) Data() any {
 	return data
 }
 
-func (s GDLSeriesString) NullableData() any {
+func (s GDLSeriesString) DataAsNullable() any {
 	data := make([]NullableString, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableString{Valid: !s.IsNull(i), Value: *v}
@@ -415,12 +423,18 @@ func (s GDLSeriesString) NullableData() any {
 	return data
 }
 
-func (s GDLSeriesString) StringData() []string {
+func (s GDLSeriesString) DataAsString() []string {
 	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		if s.IsNull(i) {
-			data[i] = NULL_STRING
-		} else {
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				data[i] = NULL_STRING
+			} else {
+				data[i] = *v
+			}
+		}
+	} else {
+		for i, v := range s.data {
 			data[i] = *v
 		}
 	}

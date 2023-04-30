@@ -103,6 +103,8 @@ type GDLSeries interface {
 
 	// Get the element at index i.
 	Get(i int) any
+	// Get the element at index i as a string.
+	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
 
@@ -124,9 +126,9 @@ type GDLSeries interface {
 	// Returns the actual data of the series.
 	Data() any
 	// Returns the nullable data of the series.
-	NullableData() any
+	DataAsNullable() any
 	// Returns the data of the series as a slice of strings.
-	StringData() []string
+	DataAsString() []string
 
 	// Copies the series.
 	Copy() GDLSeries
@@ -334,6 +336,10 @@ func (s GDLSeriesError) Get(i int) any {
 	return nil
 }
 
+func (s GDLSeriesError) GetString(i int) string {
+	return ""
+}
+
 // Set the element at index i.
 func (s GDLSeriesError) Set(i int, v any) GDLSeries {
 	return s
@@ -374,12 +380,12 @@ func (s GDLSeriesError) Data() any {
 }
 
 // Returns the nullable data of the series.
-func (s GDLSeriesError) NullableData() any {
+func (s GDLSeriesError) DataAsNullable() any {
 	return nil
 }
 
 // Returns the data of the series as a slice of strings.
-func (s GDLSeriesError) StringData() []string {
+func (s GDLSeriesError) DataAsString() []string {
 	return []string{}
 }
 

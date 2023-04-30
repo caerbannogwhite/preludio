@@ -597,16 +597,7 @@ func (df *GDLDataFrame) PrettyPrint() {
 	for i := 0; i < df.NRows(); i++ {
 		fmt.Printf("    ")
 		for _, c := range df.series {
-			switch c.Type() {
-			case typesys.BoolType:
-				fmt.Printf(fmtString, truncate(fmt.Sprintf("%t", c.Data().([]bool)[i]), colSize))
-			case typesys.Int32Type:
-				fmt.Printf(fmtString, truncate(fmt.Sprintf("%d", c.Data().([]int)[i]), colSize))
-			case typesys.Float64Type:
-				fmt.Printf(fmtString, truncate(fmt.Sprintf("%f", c.Data().([]float64)[i]), colSize))
-			case typesys.StringType:
-				fmt.Printf(fmtString, truncate(c.Data().([]string)[i], colSize))
-			}
+			fmt.Printf(fmtString, truncate(c.GetString(i), colSize))
 		}
 		fmt.Println("|")
 	}

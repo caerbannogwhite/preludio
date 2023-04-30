@@ -190,6 +190,14 @@ func (s GDLSeriesFloat64) Get(i int) any {
 	return s.data[i]
 }
 
+// Get the element at index i as a string.
+func (s GDLSeriesFloat64) GetString(i int) string {
+	if s.isNullable && s.IsNull(i) {
+		return NULL_STRING
+	}
+	return floatToString(s.data[i])
+}
+
 // Set the element at index i. The type of v must be float64 or NullableFloat64.
 func (s GDLSeriesFloat64) Set(i int, v any) GDLSeries {
 	if f, ok := v.(float64); ok {
@@ -383,7 +391,7 @@ func (s GDLSeriesFloat64) Data() any {
 	return s.data
 }
 
-func (s GDLSeriesFloat64) NullableData() any {
+func (s GDLSeriesFloat64) DataAsNullable() any {
 	data := make([]NullableFloat64, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableFloat64{Valid: !s.IsNull(i), Value: v}
@@ -391,12 +399,18 @@ func (s GDLSeriesFloat64) NullableData() any {
 	return data
 }
 
-func (s GDLSeriesFloat64) StringData() []string {
+func (s GDLSeriesFloat64) DataAsString() []string {
 	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		if s.IsNull(i) {
-			data[i] = NULL_STRING
-		} else {
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				data[i] = NULL_STRING
+			} else {
+				data[i] = floatToString(v)
+			}
+		}
+	} else {
+		for i, v := range s.data {
 			data[i] = floatToString(v)
 		}
 	}

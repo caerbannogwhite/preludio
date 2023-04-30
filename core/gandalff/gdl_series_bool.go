@@ -202,6 +202,17 @@ func (s GDLSeriesBool) Get(i int) any {
 	return s.data[i>>3]&(1<<uint(i%8)) != 0
 }
 
+// Get the element at index i as a string.
+func (s GDLSeriesBool) GetString(i int) string {
+	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
+		return NULL_STRING
+	} else if s.data[i>>3]&(1<<uint(i%8)) != 0 {
+		return BOOL_TRUE_STRING
+	} else {
+		return BOOL_FALSE_STRING
+	}
+}
+
 // Set the element at index i. The value must be of type bool or NullableBool.
 func (s GDLSeriesBool) Set(i int, v any) GDLSeries {
 	if b, ok := v.(bool); ok {
@@ -495,7 +506,7 @@ func (s GDLSeriesBool) Data() any {
 }
 
 // NullableData returns a slice of NullableBool.
-func (s GDLSeriesBool) NullableData() any {
+func (s GDLSeriesBool) DataAsNullable() any {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
 		for j := 0; j < 8 && i*8+j < len(s.data); j++ {
@@ -510,13 +521,25 @@ func (s GDLSeriesBool) NullableData() any {
 }
 
 // StringData returns a slice of strings.
-func (s GDLSeriesBool) StringData() []string {
+func (s GDLSeriesBool) DataAsString() []string {
 	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		for j := 0; j < 8 && i*8+j < len(s.data); j++ {
-			if s.nullMask[i]&(1<<uint(j)) != 0 {
-				data[i*8+j] = NULL_STRING
-			} else {
+	if s.isNullable {
+		for i, v := range s.data {
+			for j := 0; j < 8 && i*8+j < len(s.data); j++ {
+				if s.nullMask[i]&(1<<uint(j)) != 0 {
+					data[i*8+j] = NULL_STRING
+				} else {
+					if v&(1<<uint(j)) != 0 {
+						data[i*8+j] = BOOL_TRUE_STRING
+					} else {
+						data[i*8+j] = BOOL_FALSE_STRING
+					}
+				}
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			for j := 0; j < 8 && i*8+j < len(s.data); j++ {
 				if v&(1<<uint(j)) != 0 {
 					data[i*8+j] = BOOL_TRUE_STRING
 				} else {

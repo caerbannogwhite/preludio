@@ -191,6 +191,14 @@ func (s GDLSeriesInt32) Get(i int) any {
 	return s.data[i]
 }
 
+// Get the element at index i as a string.
+func (s GDLSeriesInt32) GetString(i int) string {
+	if s.isNullable && s.IsNull(i) {
+		return NULL_STRING
+	}
+	return intToString(s.data[i])
+}
+
 // Set the element at index i. The value v must be of type int or NullableInt32.
 func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 	if ii, ok := v.(int); ok {
@@ -401,7 +409,7 @@ func (s GDLSeriesInt32) Data() any {
 	return s.data
 }
 
-func (s GDLSeriesInt32) NullableData() any {
+func (s GDLSeriesInt32) DataAsNullable() any {
 	data := make([]NullableInt32, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableInt32{Valid: !s.IsNull(i), Value: v}
@@ -409,12 +417,18 @@ func (s GDLSeriesInt32) NullableData() any {
 	return data
 }
 
-func (s GDLSeriesInt32) StringData() []string {
+func (s GDLSeriesInt32) DataAsString() []string {
 	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		if s.IsNull(i) {
-			data[i] = NULL_STRING
-		} else {
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				data[i] = NULL_STRING
+			} else {
+				data[i] = intToString(v)
+			}
+		}
+	} else {
+		for i, v := range s.data {
 			data[i] = intToString(v)
 		}
 	}
