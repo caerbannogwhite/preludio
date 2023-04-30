@@ -109,6 +109,8 @@ type GDLSeries interface {
 
 	// Get the element at index i.
 	Get(i int) any
+	// Get the element at index i as a string.
+	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
 
@@ -130,15 +132,17 @@ type GDLSeries interface {
 	// Returns the actual data of the series.
 	Data() any
 	// Returns the nullable data of the series.
-	NullableData() any
+	DataAsNullable() any
 	// Returns the data of the series as a slice of strings.
-	StringData() []string
+	DataAsString() []string
 
 	// Copies the series.
 	Copy() GDLSeries
 
 	// Series operations.
 
+	// Filters out the elements by the given mask series.
+	Filter(mask GDLSeriesBool) GDLSeries
 	// Filters out the elements by the given mask.
 	FilterByMask(mask []bool) GDLSeries
 	// Filters out the elements by the given indices.
