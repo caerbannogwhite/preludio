@@ -1,7 +1,6 @@
 package gandalff
 
 import (
-	"fmt"
 	"math/rand"
 	"testing"
 	"typesys"
@@ -530,23 +529,58 @@ func Test_GDLSeriesInt32_Sort(t *testing.T) {
 }
 
 func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
-	data := []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
-	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
+	data := []int{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+	mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
-	partData := []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2}
+	partData := []int{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
 	p := NewGDLSeriesInt32("part", true, true, partData).Group()
-
-	fmt.Println(p.GetPartition())
 
 	// Create a new series.
 	s := NewGDLSeriesInt32("test", true, true, data).
+		SubGroup(p.GetPartition()).
+		Sort()
+
+	// Check the length.
+	if s.Len() != 15 {
+		t.Errorf("Expected length of 15, got %d", s.Len())
+	}
+
+	// Check the data.
+	result := []int{11, 12, 13, 14, 15, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5}
+	for i, v := range s.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+
+	s = NewGDLSeriesInt32("test", true, true, data).
 		SetNullMask(mask).
 		SubGroup(p.GetPartition()).
 		Sort()
 
-	// fmt.Println(s.GetPartition())
+	// Check the length.
+	if s.Len() != 15 {
+		t.Errorf("Expected length of 15, got %d", s.Len())
+	}
 
-	fmt.Println(s.Data().([]int))
+	// Check the data.
+	result = []int{11, 12, 13, 15, 6, 7, 8, 10, 1, 2, 3, 5, 14, 9, 4}
+	for i, v := range s.Data().([]int) {
+		if i < 14 && v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range s.GetNullMask() {
+		if i < 12 && v != false {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
+		} else if i >= 12 && v != true {
+			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
+		}
+	}
 }
 
 // func Test_GDLSeriesInt32_Multiplication(t *testing.T) {
