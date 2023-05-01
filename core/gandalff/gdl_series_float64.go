@@ -9,7 +9,7 @@ import (
 type GDLSeriesFloat64 struct {
 	isGrouped  bool
 	isNullable bool
-	isSorted   bool
+	sorted     GDLSeriesSortOrder
 	name       string
 	data       []float64
 	nullMask   []uint8
@@ -65,8 +65,8 @@ func (s GDLSeriesFloat64) IsNullable() bool {
 }
 
 // Returns if the series is sorted.
-func (s GDLSeriesFloat64) IsSorted() bool {
-	return s.isSorted
+func (s GDLSeriesFloat64) IsSorted() GDLSeriesSortOrder {
+	return s.sorted
 }
 
 // Returns if the series has null values.
@@ -213,7 +213,7 @@ func (s GDLSeriesFloat64) Set(i int, v any) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Set: provided value %t is not of type float64 or NullableFloat64", v)}
 	}
 
-	s.isSorted = false
+	s.sorted = SORTED_NONE
 	return s
 }
 
@@ -424,7 +424,7 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 	copy(nullMask, s.nullMask)
 
 	return GDLSeriesFloat64{
-		isGrouped: s.isGrouped, isSorted: s.isSorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
+		isGrouped: s.isGrouped, sorted: s.sorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
 ///////////////////////////////		SERIES OPERATIONS			/////////////////////////
@@ -593,7 +593,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesBool{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			size:       len(s.data),
 			name:       s.name,
 			data:       data,
@@ -609,7 +609,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesInt32{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -622,7 +622,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		s.isGrouped = false
-		s.isSorted = false
+		s.sorted = SORTED_NONE
 		s.data = data
 
 		return s
@@ -640,7 +640,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesString{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -743,7 +743,7 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 	return GDLSeriesFloat64{
 		isGrouped:  true,
 		isNullable: s.isNullable,
-		isSorted:   s.isSorted,
+		sorted:     s.sorted,
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
@@ -784,7 +784,7 @@ func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
 	return GDLSeriesFloat64{
 		isGrouped:  true,
 		isNullable: s.isNullable,
-		isSorted:   s.isSorted,
+		sorted:     s.sorted,
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,

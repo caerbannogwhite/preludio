@@ -10,7 +10,7 @@ import (
 type GDLSeriesString struct {
 	isGrouped  bool
 	isNullable bool
-	isSorted   bool
+	sorted     GDLSeriesSortOrder
 	name       string
 	data       []*string
 	nullMask   []uint8
@@ -66,8 +66,8 @@ func (s GDLSeriesString) IsNullable() bool {
 }
 
 // Returns if the series is sorted.
-func (s GDLSeriesString) IsSorted() bool {
-	return s.isSorted
+func (s GDLSeriesString) IsSorted() GDLSeriesSortOrder {
+	return s.sorted
 }
 
 // Returns if the series has null values.
@@ -122,7 +122,7 @@ func (s GDLSeriesString) SetNull(i int) GDLSeries {
 		return GDLSeriesString{
 			isGrouped:  s.isGrouped,
 			isNullable: true,
-			isSorted:   s.isSorted,
+			sorted:     s.sorted,
 			name:       s.name,
 			data:       s.data,
 			nullMask:   nullMask,
@@ -176,7 +176,7 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 		return GDLSeriesString{
 			isGrouped:  s.isGrouped,
 			isNullable: true,
-			isSorted:   s.isSorted,
+			sorted:     s.sorted,
 			name:       s.name,
 			data:       s.data,
 			nullMask:   nullMask,
@@ -227,7 +227,7 @@ func (s GDLSeriesString) Set(i int, v any) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Set: provided value %t is not of type string or NullableString", v)}
 	}
 
-	s.isSorted = false
+	s.sorted = SORTED_NONE
 	return s
 }
 
@@ -615,7 +615,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesBool{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			size:       len(s.data),
 			name:       s.name,
 			data:       data,
@@ -631,7 +631,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesInt32{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -646,7 +646,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesFloat64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -663,7 +663,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		s.isGrouped = false
-		s.isSorted = false
+		s.sorted = SORTED_NONE
 		s.data = data
 
 		return s
@@ -770,7 +770,7 @@ func (s GDLSeriesString) Group() GDLSeries {
 	return GDLSeriesString{
 		isGrouped:  true,
 		isNullable: s.isNullable,
-		isSorted:   s.isSorted,
+		sorted:     s.sorted,
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
@@ -817,7 +817,7 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeries {
 	return GDLSeriesString{
 		isGrouped:  true,
 		isNullable: s.isNullable,
-		isSorted:   s.isSorted,
+		sorted:     s.sorted,
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,

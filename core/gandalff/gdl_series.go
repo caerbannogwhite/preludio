@@ -7,6 +7,28 @@ import (
 	"typesys"
 )
 
+///////////////////////////////		CONSTANTS		/////////////////////////////////
+
+const (
+	// The default capacity of a series.
+	DEFAULT_CAPACITY = 10
+)
+
+///////////////////////////////		ENUMS		/////////////////////////////////
+
+type GDLSeriesSortOrder int16
+
+const (
+	// The series is not sorted.
+	SORTED_NONE GDLSeriesSortOrder = iota
+	// The series is sorted in ascending order.
+	SORTED_ASC
+	// The series is sorted in descending order.
+	SORTED_DESC
+)
+
+///////////////////////////////		ERRORS		/////////////////////////////////////
+
 ///////////////////////////////		TO STRING		/////////////////////////////////
 
 const NULL_STRING = "NA"
@@ -80,7 +102,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Returns if the series is sorted.
-	IsSorted() bool
+	IsSorted() GDLSeriesSortOrder
 
 	// Nullability operations.
 
@@ -277,8 +299,8 @@ func (s GDLSeriesError) IsNullable() bool {
 	return false
 }
 
-func (s GDLSeriesError) IsSorted() bool {
-	return false
+func (s GDLSeriesError) IsSorted() GDLSeriesSortOrder {
+	return SORTED_NONE
 }
 
 // Makes the series nullable.

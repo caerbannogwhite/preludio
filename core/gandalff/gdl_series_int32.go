@@ -10,7 +10,7 @@ import (
 type GDLSeriesInt32 struct {
 	isGrouped  bool
 	isNullable bool
-	isSorted   bool
+	sorted     GDLSeriesSortOrder
 	name       string
 	data       []int
 	nullMask   []uint8
@@ -66,8 +66,8 @@ func (s GDLSeriesInt32) IsNullable() bool {
 }
 
 // Returns if the series is sorted.
-func (s GDLSeriesInt32) IsSorted() bool {
-	return s.isSorted
+func (s GDLSeriesInt32) IsSorted() GDLSeriesSortOrder {
+	return s.sorted
 }
 
 // Returns if the series has null values.
@@ -214,7 +214,7 @@ func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Set: provided value %t is not of type int or NullableInt32", v)}
 	}
 
-	s.isSorted = false
+	s.sorted = SORTED_NONE
 	return s
 }
 
@@ -610,7 +610,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesBool{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			size:       len(s.data),
 			name:       s.name,
 			data:       data,
@@ -624,7 +624,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		s.isGrouped = false
-		s.isSorted = false
+		s.sorted = SORTED_NONE
 		s.data = data
 
 		return s
@@ -638,7 +638,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesFloat64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -657,7 +657,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		return GDLSeriesString{
 			isGrouped:  false,
 			isNullable: s.isNullable,
-			isSorted:   false,
+			sorted:     SORTED_NONE,
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -882,7 +882,7 @@ func (s GDLSeriesInt32) GetPartition() GDLSeriesPartition {
 /////////////////////////////// 		SORTING OPERATIONS		/////////////////////////
 
 func (s GDLSeriesInt32) Sort() GDLSeries {
-	if !s.isSorted {
+	if s.sorted != SORTED_ASC {
 		if s.isGrouped {
 			*s.partition = (*s.partition).beginSorting()
 			sort.Sort(s)
@@ -890,13 +890,13 @@ func (s GDLSeriesInt32) Sort() GDLSeries {
 		} else {
 			sort.Sort(s)
 		}
-		s.isSorted = true
+		s.sorted = SORTED_ASC
 	}
 	return s
 }
 
 func (s GDLSeriesInt32) SortRev() GDLSeries {
-	if !s.isSorted {
+	if s.sorted != SORTED_DESC {
 		if s.isGrouped {
 			*s.partition = (*s.partition).beginSorting()
 			sort.Sort(sort.Reverse(s))
@@ -904,7 +904,7 @@ func (s GDLSeriesInt32) SortRev() GDLSeries {
 		} else {
 			sort.Sort(sort.Reverse(s))
 		}
-		s.isSorted = true
+		s.sorted = SORTED_DESC
 	}
 	return s
 }

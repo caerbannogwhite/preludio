@@ -312,6 +312,22 @@ func Test_GDataFrame_GroupBy_Sum(t *testing.T) {
 	}
 }
 
+func Benchmark_0_5GB_GroupBy_Sum(b *testing.B) {
+
+	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
+	df := FromCSV(f, ',', true, 100)
+	f.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("id1", "v1").Sum()
+	}
+	b.StopTimer()
+}
+
 func Test_GDataFrame_GroupBy_Min(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := FromCSV(strings.NewReader(data1), ',', true, 3)
