@@ -200,8 +200,9 @@ func (df *GDLDataFrame) Filter(mask GDLSeriesBool) *GDLDataFrame {
 	}
 
 	filtered := NewGDLDataFrame()
+	m := mask.Data().([]bool)
 	for _, series := range df.series {
-		filtered.AddSeries(series.Filter(mask))
+		filtered.AddSeries(series.FilterByMask(m))
 	}
 
 	return filtered

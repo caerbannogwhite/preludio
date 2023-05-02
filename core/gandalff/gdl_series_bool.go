@@ -1028,27 +1028,44 @@ func (s GDLSeriesBool) And(other GDLSeries) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform AND operation between series of different sizes: %d and %d", s.size, o.size)}
 	}
 
-	if s.isNullable || other.IsNullable() {
-		data := make([]uint8, len(s.data))
-		nullMask := make([]uint8, len(s.nullMask))
-		for i := 0; i < len(s.data); i++ {
-			nullMask[i] = s.nullMask[i] | o.nullMask[i]
-			data[i] = s.data[i] & o.data[i]
+	sNullCnt := s.NullCount()
+	oNullCnt := o.NullCount()
+
+	if sNullCnt > 0 || oNullCnt > 0 {
+		if s.isNullable {
+			if o.isNullable {
+				// both are nullable
+				for i := 0; i < len(s.data); i++ {
+					s.nullMask[i] |= o.nullMask[i]
+					s.data[i] &= o.data[i]
+				}
+
+				return s
+			} else
+			// s is nullable, o is not nullable
+			{
+				for i := 0; i < len(s.data); i++ {
+					s.data[i] &= o.data[i]
+				}
+
+				return s
+			}
+		} else if o.isNullable {
+			// s is not nullable, o is nullable
+			for i := 0; i < len(s.data); i++ {
+				s.data[i] &= o.data[i]
+			}
+
+			s.isNullable = true
+			s.nullMask = o.nullMask
+
+			return s
 		}
-
-		s.isNullable = true
-		s.nullMask = nullMask
-		s.data = data
-
-		return s
 	}
 
-	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] = s.data[i] & o.data[i]
+		s.data[i] &= o.data[i]
 	}
-
-	s.data = data
 
 	return s
 }
@@ -1066,27 +1083,44 @@ func (s GDLSeriesBool) Or(other GDLSeries) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool: cannot perform OR operation between series of different sizes: %d and %d", s.size, o.size)}
 	}
 
-	if s.isNullable || other.IsNullable() {
-		data := make([]uint8, len(s.data))
-		nullMask := make([]uint8, len(s.nullMask))
-		for i := 0; i < len(s.data); i++ {
-			nullMask[i] = s.nullMask[i] | o.nullMask[i]
-			data[i] = s.data[i] | o.data[i]
+	sNullCnt := s.NullCount()
+	oNullCnt := o.NullCount()
+
+	if sNullCnt > 0 || oNullCnt > 0 {
+		if s.isNullable {
+			if o.isNullable {
+				// both are nullable
+				for i := 0; i < len(s.data); i++ {
+					s.nullMask[i] |= o.nullMask[i]
+					s.data[i] |= o.data[i]
+				}
+
+				return s
+			} else
+			// s is nullable, o is not nullable
+			{
+				for i := 0; i < len(s.data); i++ {
+					s.data[i] |= o.data[i]
+				}
+
+				return s
+			}
+		} else if o.isNullable {
+			// s is not nullable, o is nullable
+			for i := 0; i < len(s.data); i++ {
+				s.data[i] |= o.data[i]
+			}
+
+			s.isNullable = true
+			s.nullMask = o.nullMask
+
+			return s
 		}
-
-		s.isNullable = true
-		s.nullMask = nullMask
-		s.data = data
-
-		return s
 	}
 
-	data := make([]uint8, len(s.data))
 	for i := 0; i < len(s.data); i++ {
-		data[i] = s.data[i] | o.data[i]
+		s.data[i] |= o.data[i]
 	}
-
-	s.data = data
 
 	return s
 }

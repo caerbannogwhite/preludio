@@ -11,7 +11,11 @@ import (
 
 const (
 	// The default capacity of a series.
-	DEFAULT_CAPACITY = 10
+	DEFAULT_INITIAL_CAPACITY = 10
+	// Number of threads to use for parallel operations.
+	THREADS_NUMBER = 8
+	// Minimum number of elements to use parallel operations.
+	MINIMUM_PARALLEL_SIZE = 10_000
 )
 
 ///////////////////////////////		ENUMS		/////////////////////////////////

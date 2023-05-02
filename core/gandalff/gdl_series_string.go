@@ -3,6 +3,7 @@ package gandalff
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"typesys"
 )
 
@@ -473,16 +474,26 @@ func (s GDLSeriesString) Filter(mask GDLSeriesBool) GDLSeries {
 			nullMask = make([]uint8, (elementCount>>3)+1)
 		}
 
-		dstIdx := 0
-		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
-			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
-				data[dstIdx] = s.data[srcIdx]
-				if srcIdx%8 > dstIdx%8 {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
-				} else {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+		if s.NullCount() > 0 {
+			dstIdx := 0
+			for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+				if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+					data[dstIdx] = s.data[srcIdx]
+					if srcIdx%8 > dstIdx%8 {
+						nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+					} else {
+						nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+					}
+					dstIdx++
 				}
-				dstIdx++
+			}
+		} else {
+			dstIdx := 0
+			for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+				if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+					data[dstIdx] = s.data[srcIdx]
+					dstIdx++
+				}
 			}
 		}
 	} else {
@@ -507,37 +518,93 @@ func (s GDLSeriesString) FilterByMask(mask []bool) GDLSeries {
 		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
-	elementCount := 0
-	for _, v := range mask {
-		if v {
-			elementCount++
+	chunkLen := len(mask) / THREADS_NUMBER
+	elementCountVec := make([]int, THREADS_NUMBER)
+
+	for i := 0; i < THREADS_NUMBER-1; i++ {
+		for j := chunkLen * i; j < chunkLen*(i+1); j++ {
+			if mask[j] {
+				elementCountVec[i]++
+			}
 		}
+	}
+
+	for j := chunkLen * (THREADS_NUMBER - 1); j < len(mask); j++ {
+		if mask[j] {
+			elementCountVec[THREADS_NUMBER-1]++
+		}
+	}
+
+	elementCountTot := 0
+	for _, v := range elementCountVec {
+		elementCountTot += v
 	}
 
 	var data []*string
 	var nullMask []uint8
 
-	data = make([]*string, elementCount)
+	data = make([]*string, elementCountTot)
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
+		if elementCountTot%8 == 0 {
+			nullMask = make([]uint8, (elementCountTot >> 3))
 		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
+			nullMask = make([]uint8, (elementCountTot>>3)+1)
 		}
 
-		dstIdx := 0
-		for srcIdx, v := range mask {
-			if v {
-				data[dstIdx] = s.data[srcIdx]
-				if srcIdx%8 > dstIdx%8 {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
-				} else {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+		if s.NullCount() > 0 {
+			dstIdx := 0
+			for srcIdx, v := range mask {
+				if v {
+					data[dstIdx] = s.data[srcIdx]
+					if srcIdx%8 > dstIdx%8 {
+						nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+					} else {
+						nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+					}
+					dstIdx++
 				}
-				dstIdx++
 			}
+		} else {
+
+			// if chunkLen < MINIMUM_PARALLEL_SIZE {
+			dstIdx := 0
+			for srcIdx, v := range mask {
+				if v {
+					data[dstIdx] = s.data[srcIdx]
+					dstIdx++
+				}
+			}
+			// } else {
+			// 	var wg sync.WaitGroup
+			// 	wg.Add(THREADS_NUMBER)
+
+			// 	for n := 0; n < THREADS_NUMBER; n++ {
+			// 		dstIdx := 0
+			// 		if n > 0 {
+			// 			dstIdx = elementCountVec[n-1]
+			// 		}
+
+			// 		start := n * chunkLen
+			// 		end := (n + 1) * chunkLen
+			// 		if n == THREADS_NUMBER-1 {
+			// 			end = len(s.data)
+			// 		}
+
+			// 		go func() {
+			// 			for srcIdx, v := range mask[start:end] {
+			// 				if v {
+			// 					data[dstIdx] = s.data[srcIdx]
+			// 					dstIdx++
+			// 				}
+			// 			}
+			// 			wg.Done()
+			// 		}()
+			// 	}
+
+			// 	wg.Wait()
+			// }
 		}
 	} else {
 		dstIdx := 0
@@ -606,10 +673,35 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data = make([]uint8, (len(s.data)>>3)+1)
 		}
 
-		for i := 0; i < len(s.data); i++ {
-			if f((*s.data[i])).(bool) {
-				data[i>>3] |= (1 << uint(i%8))
+		chunkLen := len(s.data) / THREADS_NUMBER
+		if chunkLen < MINIMUM_PARALLEL_SIZE {
+			for i := 0; i < len(s.data); i++ {
+				if f((*s.data[i])).(bool) {
+					data[i>>3] |= (1 << uint(i%8))
+				}
 			}
+		} else {
+			var wg sync.WaitGroup
+			wg.Add(THREADS_NUMBER)
+
+			for n := 0; n < THREADS_NUMBER; n++ {
+				start := n * chunkLen
+				end := (n + 1) * chunkLen
+				if n == THREADS_NUMBER-1 {
+					end = len(s.data)
+				}
+
+				go func() {
+					for i := start; i < end; i++ {
+						if f((*s.data[i])).(bool) {
+							data[i>>3] |= (1 << uint(i%8))
+						}
+					}
+					wg.Done()
+				}()
+			}
+
+			wg.Wait()
 		}
 
 		return GDLSeriesBool{

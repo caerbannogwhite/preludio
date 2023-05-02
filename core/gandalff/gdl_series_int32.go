@@ -3,6 +3,7 @@ package gandalff
 import (
 	"fmt"
 	"sort"
+	"sync"
 	"typesys"
 )
 
@@ -601,10 +602,35 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data = make([]uint8, (len(s.data)>>3)+1)
 		}
 
-		for i := 0; i < len(s.data); i++ {
-			if f(s.data[i]).(bool) {
-				data[i>>3] |= (1 << uint(i%8))
+		chunkLen := len(s.data) / THREADS_NUMBER
+		if chunkLen < MINIMUM_PARALLEL_SIZE {
+			for i := 0; i < len(s.data); i++ {
+				if f(s.data[i]).(bool) {
+					data[i>>3] |= (1 << uint(i%8))
+				}
 			}
+		} else {
+			var wg sync.WaitGroup
+			wg.Add(THREADS_NUMBER)
+
+			for n := 0; n < THREADS_NUMBER; n++ {
+				start := n * chunkLen
+				end := (n + 1) * chunkLen
+				if n == THREADS_NUMBER-1 {
+					end = len(s.data)
+				}
+
+				go func() {
+					for i := start; i < end; i++ {
+						if f(s.data[i]).(bool) {
+							data[i>>3] |= (1 << uint(i%8))
+						}
+					}
+					wg.Done()
+				}()
+			}
+
+			wg.Wait()
 		}
 
 		return GDLSeriesBool{

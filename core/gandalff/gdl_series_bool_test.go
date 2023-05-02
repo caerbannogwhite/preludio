@@ -297,6 +297,16 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Or() method.
+	// Create two new series.
+	sA = NewGDLSeriesBool("testA", true, dataA)
+	sB = NewGDLSeriesBool("testB", true, dataB)
+
+	// Set the null masks.
+	sA.SetNullMask(maskA)
+	sB.SetNullMask(maskB)
+
+	sbA = sA.(GDLSeriesBool)
+	sbB = sB.(GDLSeriesBool)
 	or := sbA.Or(sbB)
 
 	// Check the size.

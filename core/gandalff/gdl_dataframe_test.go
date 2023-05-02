@@ -3,6 +3,7 @@ package gandalff
 import (
 	"math"
 	"os"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -69,6 +70,8 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 	}
 	df := FromCSV(f, ',', true, 100)
 	f.Close()
+
+	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
