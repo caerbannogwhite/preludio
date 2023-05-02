@@ -1,0 +1,4 @@
+nodename,batch,timestamp,task,data,in_rows,question,out_rows,out_cols,solution,version,git,fun,run,time_sec,mem_gb,cache,chk,chk_time_sec,comment,on_disk
+pcmacs,,1683064814.6136627,filter,G1_1e5_1e2_0_0,100000,filtering 1e5,8,9,polars,0.17.10,,.filter,1,0.011076,0.048,TRUE,40,-1,,FALSE
+pcmacs,,1683064815.1660588,filter,G1_1e6_1e2_0_0,1000000,filtering 1e6,138,9,polars,0.17.10,,.filter,1,0.091993,0.145,TRUE,690,-1,,FALSE
+pcmacs,,1683064820.03594,filter,G1_1e7_1e2_0_0,10000000,filtering 1e7,1333,9,polars,0.17.10,,.filter,1,0.862566,1.345,TRUE,6665,-1,,FALSE
