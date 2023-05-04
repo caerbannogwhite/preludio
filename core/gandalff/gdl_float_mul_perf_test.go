@@ -3132,23 +3132,27 @@ func Benchmark_FloatMulPerf_100M_16_Unrolling(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		upper := _100M - _100M%16
+		var s1, s2 []float64
 		for j := 0; j < upper; j += 16 {
-			v1[j] *= v2[j]
-			v1[j+1] *= v2[j+1]
-			v1[j+2] *= v2[j+2]
-			v1[j+3] *= v2[j+3]
-			v1[j+4] *= v2[j+4]
-			v1[j+5] *= v2[j+5]
-			v1[j+6] *= v2[j+6]
-			v1[j+7] *= v2[j+7]
-			v1[j+8] *= v2[j+8]
-			v1[j+9] *= v2[j+9]
-			v1[j+10] *= v2[j+10]
-			v1[j+11] *= v2[j+11]
-			v1[j+12] *= v2[j+12]
-			v1[j+13] *= v2[j+13]
-			v1[j+14] *= v2[j+14]
-			v1[j+15] *= v2[j+15]
+			s1 = v1[j : j+16]
+			s2 = v2[j : j+16]
+
+			s1[0] *= s2[0]
+			s1[1] *= s2[1]
+			s1[2] *= s2[2]
+			s1[3] *= s2[3]
+			s1[4] *= s2[4]
+			s1[5] *= s2[5]
+			s1[6] *= s2[6]
+			s1[7] *= s2[7]
+			s1[8] *= s2[8]
+			s1[9] *= s2[9]
+			s1[10] *= s2[10]
+			s1[11] *= s2[11]
+			s1[12] *= s2[12]
+			s1[13] *= s2[13]
+			s1[14] *= s2[14]
+			s1[15] *= s2[15]
 		}
 
 		switch _100M % 16 {
@@ -3289,5 +3293,150 @@ func Benchmark_FloatMulPerf_100M_16_Unrolling(b *testing.B) {
 		case 1:
 			v1[_100M-1] *= v2[_100M-1]
 		}
+	}
+}
+
+func Benchmark_FloatMulPerf_100M_32_Unrolling(b *testing.B) {
+
+	v1 := make([]float64, _100M)
+	v2 := make([]float64, _100M)
+
+	for i := 0; i < _100M; i++ {
+		v1[i] = float64(i)
+		v2[i] = float64(_100M - i)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		upper := _100M - _100M%32
+		var s1, s2 []float64
+		for j := 0; j < upper; j += 32 {
+			s1 = v1[j : j+32]
+			s2 = v2[j : j+32]
+
+			s1[0] *= s2[0]
+			s1[1] *= s2[1]
+			s1[2] *= s2[2]
+			s1[3] *= s2[3]
+			s1[4] *= s2[4]
+			s1[5] *= s2[5]
+			s1[6] *= s2[6]
+			s1[7] *= s2[7]
+			s1[8] *= s2[8]
+			s1[9] *= s2[9]
+			s1[10] *= s2[10]
+			s1[11] *= s2[11]
+			s1[12] *= s2[12]
+			s1[13] *= s2[13]
+			s1[14] *= s2[14]
+			s1[15] *= s2[15]
+			s1[16] *= s2[16]
+			s1[17] *= s2[17]
+			s1[18] *= s2[18]
+			s1[19] *= s2[19]
+			s1[20] *= s2[20]
+			s1[21] *= s2[21]
+			s1[22] *= s2[22]
+			s1[23] *= s2[23]
+			s1[24] *= s2[24]
+			s1[25] *= s2[25]
+			s1[26] *= s2[26]
+			s1[27] *= s2[27]
+			s1[28] *= s2[28]
+			s1[29] *= s2[29]
+			s1[30] *= s2[30]
+			s1[31] *= s2[31]
+		}
+
+		for j := upper; j < _100M; j++ {
+			v1[j] *= v2[j]
+		}
+	}
+}
+
+func Benchmark_FloatMulPerf_100M__4_Goroutines_32_Unrolling(b *testing.B) {
+
+	v1 := make([]float64, _100M)
+	v2 := make([]float64, _100M)
+
+	for i := 0; i < _100M; i++ {
+		v1[i] = float64(i)
+		v2[i] = float64(_100M - i)
+	}
+
+	f := func(start, end int) {
+		size := end - start
+		upper := start + size - size%32
+		var s1, s2 []float64
+		for j := start; j < upper; j += 32 {
+			s1 = v1[j : j+32]
+			s2 = v2[j : j+32]
+
+			s1[0] *= s2[0]
+			s1[1] *= s2[1]
+			s1[2] *= s2[2]
+			s1[3] *= s2[3]
+			s1[4] *= s2[4]
+			s1[5] *= s2[5]
+			s1[6] *= s2[6]
+			s1[7] *= s2[7]
+			s1[8] *= s2[8]
+			s1[9] *= s2[9]
+			s1[10] *= s2[10]
+			s1[11] *= s2[11]
+			s1[12] *= s2[12]
+			s1[13] *= s2[13]
+			s1[14] *= s2[14]
+			s1[15] *= s2[15]
+			s1[16] *= s2[16]
+			s1[17] *= s2[17]
+			s1[18] *= s2[18]
+			s1[19] *= s2[19]
+			s1[20] *= s2[20]
+			s1[21] *= s2[21]
+			s1[22] *= s2[22]
+			s1[23] *= s2[23]
+			s1[24] *= s2[24]
+			s1[25] *= s2[25]
+			s1[26] *= s2[26]
+			s1[27] *= s2[27]
+			s1[28] *= s2[28]
+			s1[29] *= s2[29]
+			s1[30] *= s2[30]
+			s1[31] *= s2[31]
+		}
+
+		for j := upper; j < end; j++ {
+			v1[j] *= v2[j]
+		}
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		splitSize := _100M / 4
+		wt := sync.WaitGroup{}
+		wt.Add(4)
+
+		go func() {
+			f(0, splitSize)
+			wt.Done()
+		}()
+
+		go func() {
+			f(splitSize, splitSize*2)
+			wt.Done()
+		}()
+
+		go func() {
+			f(splitSize*2, splitSize*3)
+			wt.Done()
+		}()
+
+		go func() {
+			f(splitSize*3, _100M)
+			wt.Done()
+		}()
+
+		wt.Wait()
 	}
 }
