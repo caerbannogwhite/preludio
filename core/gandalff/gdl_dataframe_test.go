@@ -28,7 +28,13 @@ func Test_GDataFrame_Base(t *testing.T) {
 
 func Test_GDataFrame_Filter(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -67,7 +73,14 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	f.Close()
 
 	b.ResetTimer()
@@ -85,7 +98,13 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 
 func Test_GDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -255,7 +274,14 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	f.Close()
 
 	b.ResetTimer()
@@ -267,7 +293,13 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 
 func Test_GDataFrame_GroupBy_Sum(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -318,7 +350,14 @@ func Benchmark_0_5GB_GroupBy_Sum(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	f.Close()
 
 	b.ResetTimer()
@@ -330,7 +369,13 @@ func Benchmark_0_5GB_GroupBy_Sum(b *testing.B) {
 
 func Test_GDataFrame_GroupBy_Min(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -377,7 +422,13 @@ func Test_GDataFrame_GroupBy_Min(t *testing.T) {
 
 func Test_GDataFrame_GroupBy_Max(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -424,7 +475,13 @@ func Test_GDataFrame_GroupBy_Max(t *testing.T) {
 
 func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -475,7 +532,14 @@ func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	f.Close()
 
 	b.ResetTimer()
@@ -491,7 +555,14 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	f.Close()
 
 	b.ResetTimer()
@@ -503,7 +574,13 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
 func Test_GDataFrame_GroupBy_Std(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data1), ',', true, 3)
+	df := NewGDLDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}

@@ -613,3 +613,9 @@ func (df *GDLDataFrame) PrettyPrint() {
 	}
 	fmt.Println("+")
 }
+
+///////////////////////////////		IO		/////////////////////////////////////////////
+
+func (df *GDLDataFrame) FromCSV() *GDLCsvReader {
+	return NewGDLCsvReader()
+}
