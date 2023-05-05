@@ -32,18 +32,16 @@ for data_name in data_names:
     x['v2'] = x['v2'].astype('Int32')
     x['v3'] = x['v3'].astype('float64')
 
-    print(len(x.index), flush=True)
-
 
     ###################     QUESTION 1   ###################
 
-    question = "filtering: " # q1
+    question = "filtering: id6 > 500 or id1 == 'id024'"
     gc.collect()
-    times = timeit.repeat(lambda: x[x.id6 > 500][x.v3 < 50][(x.id1 == "id024") | (x.id2 == "id024")][(x.v1 == 5) & (x.v2 == 1)], repeat=5, number=10)
+    times = timeit.repeat(lambda: x[(x.id6 > 500) | (x.id1 == "id024")], repeat=5, number=10)
     t = mean(times)
 
     gc.collect()
-    ans = x[x.id6 > 500][x.v3 < 50][(x.id1 == "id024") | (x.id2 == "id024")][(x.v1 == 5) & (x.v2 == 1)]
+    ans = x[(x.id6 > 500) | (x.id1 == "id024")]
     print(ans.shape, flush=True)
     m = memory_usage()
     chk = [ans['v1'].sum()]
@@ -54,3 +52,16 @@ for data_name in data_names:
 
     ###################     QUESTION 2   ###################
 
+    question = "filtering: q2"
+    gc.collect()
+    times = timeit.repeat(lambda: x[(x.id6 > 500) & (x.v3 < 50) & ((x.id1 == "id024") | (x.id2 == "id024")) & (x.v1 == 5) & (x.v2 == 1)], repeat=5, number=10)
+    t = mean(times)
+
+    gc.collect()
+    ans = x[(x.id6 > 500) & (x.v3 < 50) & ((x.id1 == "id024") | (x.id2 == "id024")) & (x.v1 == 5) & (x.v2 == 1)]
+    print(ans.shape, flush=True)
+    m = memory_usage()
+    chk = [ans['v1'].sum()]
+
+    write_log(task=task, data=data_name, in_rows=x.shape[0], question=question, out_rows=ans.shape[0], out_cols=ans.shape[1], solution=solution, version=ver, git=git, fun=fun, run=1, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=-1, on_disk=on_disk)
+    del ans
