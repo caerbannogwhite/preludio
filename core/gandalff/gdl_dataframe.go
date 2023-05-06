@@ -337,6 +337,19 @@ func (df *GDLDataFrame) groupHelper() (*GDLDataFrame, *[][]int, *[]int) {
 	return result, &indeces, &ungroupedSeriesIndices
 }
 
+func (df *GDLDataFrame) Take(start, end, step int) *GDLDataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	taken := NewGDLDataFrame()
+	for _, series := range df.series {
+		taken.AddSeries(series.Take(start, end, step))
+	}
+
+	return taken
+}
+
 ///////////////////////////////		SUMMARY		/////////////////////////////////////////
 
 func (df *GDLDataFrame) Count(name string) *GDLDataFrame {

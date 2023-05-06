@@ -145,6 +145,106 @@ func Test_GDLSeriesInt32_Base(t *testing.T) {
 	}
 }
 
+func Test_GDLSeriesInt32_Take(t *testing.T) {
+
+	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false}
+
+	// Create a new GDLSeriesInt32.
+	s := NewGDLSeriesInt32("test", true, true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Take the first 5 values.
+	result := s.Take(0, 5, 1)
+
+	// Check the length.
+	if result.Len() != 5 {
+		t.Errorf("Expected length of 5, got %d", result.Len())
+	}
+
+	// Check the data.
+	for i, v := range result.Data().([]int) {
+		if v != data[i] {
+			t.Errorf("Expected data of []int{1, 2, 3, 4, 5}, got %v", result.Data())
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of []bool{false, false, false, false, true}, got %v", result.GetNullMask())
+		}
+	}
+
+	// Take the last 5 values.
+	result = s.Take(5, 10, 1)
+
+	// Check the length.
+	if result.Len() != 5 {
+		t.Errorf("Expected length of 5, got %d", result.Len())
+	}
+
+	// Check the data.
+	for i, v := range result.Data().([]int) {
+		if v != data[i+5] {
+			t.Errorf("Expected data of []int{6, 7, 8, 9, 10}, got %v", result.Data())
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if v != mask[i+5] {
+			t.Errorf("Expected nullMask of []bool{true, false, false, true, false}, got %v", result.GetNullMask())
+		}
+	}
+
+	// Take the first 5 values in steps of 2.
+	result = s.Take(0, 5, 2)
+
+	// Check the length.
+	if result.Len() != 3 {
+		t.Errorf("Expected length of 3, got %d", result.Len())
+	}
+
+	// Check the data.
+	for i, v := range result.Data().([]int) {
+		if v != data[i*2] {
+			t.Errorf("Expected data of []int{1, 3, 5}, got %v", result.Data())
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if v != mask[i*2] {
+			t.Errorf("Expected nullMask of []bool{false, false, true}, got %v", result.GetNullMask())
+		}
+	}
+
+	// Take the last 5 values in steps of 2.
+	result = s.Take(5, 10, 2)
+
+	// Check the length.
+	if result.Len() != 3 {
+		t.Errorf("Expected length of 3, got %d", result.Len())
+	}
+
+	// Check the data.
+	for i, v := range result.Data().([]int) {
+		if v != data[i*2+5] {
+			t.Errorf("Expected data of []int{6, 8, 10}, got %v", result.Data())
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if v != mask[i*2+5] {
+			t.Errorf("Expected nullMask of []bool{true, false, false}, got %v", result.GetNullMask())
+		}
+	}
+}
+
 func Test_GDLSeriesInt32_Append(t *testing.T) {
 	dataA := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	dataB := []int{11, 12, 13, 14, 15, 16, 17, 18, 19, 20}

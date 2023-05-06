@@ -218,6 +218,68 @@ func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 	return s
 }
 
+// Take the elements according to the given interval.
+func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
+	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
+		return NewGDLSeriesInt32(s.name, s.isNullable, false, []int{})
+	} else
+
+	// reverse
+	if step < 0 {
+		return s
+	} else
+
+	// normal
+	{
+		size := end - start
+		if size%step != 0 {
+			size = size/step + 1
+		} else {
+			size = size / step
+		}
+
+		if s.isNullable {
+			data := make([]int, size)
+			var nullMask []uint8
+			if size%8 == 0 {
+				nullMask = make([]uint8, (size >> 3))
+			} else {
+				nullMask = make([]uint8, (size>>3)+1)
+			}
+
+			for i, j := start, 0; i < end; i, j = i+step, j+1 {
+				data[j] = s.data[i]
+				if s.IsNull(i) {
+					nullMask[j>>3] |= 1 << uint(j%8)
+				}
+			}
+			return GDLSeriesInt32{
+				isGrouped:  false,
+				isNullable: true,
+				sorted:     SORTED_NONE,
+				name:       s.name,
+				data:       data,
+				nullMask:   nullMask,
+			}
+		} else {
+			data := make([]int, size)
+			for i, j := start, 0; i < end; i, j = i+step, j+1 {
+				data[j] = s.data[i]
+			}
+			return GDLSeriesInt32{
+				isGrouped:  false,
+				isNullable: false,
+				sorted:     SORTED_NONE,
+				name:       s.name,
+				data:       data,
+				nullMask:   nil,
+			}
+		}
+	}
+
+	return s
+}
+
 func (s GDLSeriesInt32) Less(i, j int) bool {
 	if s.isGrouped {
 		if s.partition.indexToGroup[i] != s.partition.indexToGroup[j] {

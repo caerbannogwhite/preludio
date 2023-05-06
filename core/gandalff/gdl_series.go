@@ -129,6 +129,8 @@ type GDLSeries interface {
 	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
+	// Take the elements according to the given interval.
+	Take(start, end, step int) GDLSeries
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -364,6 +366,11 @@ func (s GDLSeriesError) GetString(i int) string {
 
 // Set the element at index i.
 func (s GDLSeriesError) Set(i int, v any) GDLSeries {
+	return s
+}
+
+// Take the elements according to the given interval.
+func (s GDLSeriesError) Take(start, end, step int) GDLSeries {
 	return s
 }
 

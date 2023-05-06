@@ -217,6 +217,11 @@ func (s GDLSeriesFloat64) Set(i int, v any) GDLSeries {
 	return s
 }
 
+// Take the elements according to the given interval.
+func (s GDLSeriesFloat64) Take(start, end, step int) GDLSeries {
+	return s
+}
+
 func (s GDLSeriesFloat64) Less(i, j int) bool {
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
