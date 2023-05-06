@@ -2,6 +2,15 @@ package gandalff
 
 import "typesys"
 
+type DataFrameJoinType int8
+
+const (
+	INNER_JOIN DataFrameJoinType = iota
+	LEFT_JOIN
+	RIGHT_JOIN
+	OUTER_JOIN
+)
+
 type DataFrame interface {
 
 	// Basic accessors.
@@ -53,6 +62,8 @@ type DataFrame interface {
 	GroupBy(by ...string) DataFrame
 
 	Ungroup() DataFrame
+
+	Join(how DataFrameJoinType, other DataFrame, on ...string) DataFrame
 
 	Take(start, end, step int) DataFrame
 

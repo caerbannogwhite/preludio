@@ -119,9 +119,7 @@ func (df BaseDataFrame) AddSeriesFromBools(name string, isNullable bool, data []
 		return df
 	}
 
-	series := NewGDLSeriesBool(name, isNullable, data)
-	df.AddSeries(series)
-	return df
+	return df.AddSeries(NewGDLSeriesBool(name, isNullable, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
@@ -139,9 +137,7 @@ func (df BaseDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy
 		return df
 	}
 
-	series := NewGDLSeriesInt32(name, isNullable, makeCopy, data)
-	df.AddSeries(series)
-	return df
+	return df.AddSeries(NewGDLSeriesInt32(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
@@ -159,9 +155,7 @@ func (df BaseDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCo
 		return df
 	}
 
-	series := NewGDLSeriesFloat64(name, isNullable, makeCopy, data)
-	df.AddSeries(series)
-	return df
+	return df.AddSeries(NewGDLSeriesFloat64(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) DataFrame {
@@ -179,9 +173,7 @@ func (df BaseDataFrame) AddSeriesFromStrings(name string, isNullable bool, data 
 		return df
 	}
 
-	series := NewGDLSeriesString(name, isNullable, data, df.pool)
-	df.AddSeries(series)
-	return df
+	return df.AddSeries(NewGDLSeriesString(name, isNullable, data, df.pool))
 }
 
 // Returns the series with the given name.
@@ -205,6 +197,13 @@ func (df BaseDataFrame) __series(name string) GDLSeries {
 
 // Returns the series at the given index.
 func (df BaseDataFrame) SeriesAt(index int) GDLSeries {
+	if index < 0 || index >= len(df.series) {
+		return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.SeriesAt: index %d out of bounds", index)}
+	}
+	return df.series[index]
+}
+
+func (df BaseDataFrame) __seriesAt(index int) GDLSeries {
 	if index < 0 || index >= len(df.series) {
 		return nil
 	}
@@ -241,7 +240,7 @@ func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
 
 	selected := NewBaseDataFrame()
 	for _, index := range indices {
-		series := df.SeriesAt(index)
+		series := df.__seriesAt(index)
 		if series != nil {
 			selected.AddSeries(series)
 		} else {
@@ -358,7 +357,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 	// Keep only the grouped series
 	for _, partition := range df.partitions {
 		seriesIndices[partition.index] = false
-		old := df.SeriesAt(partition.index)
+		old := df.__seriesAt(partition.index)
 
 		switch old.(type) {
 		case GDLSeriesBool:
@@ -403,6 +402,89 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 	sort.Ints(ungroupedSeriesIndices)
 
 	return result, &indeces, &ungroupedSeriesIndices
+}
+
+func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...string) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.Join: cannot join a grouped dataframe")
+		return df
+	}
+
+	if other.IsGrouped() {
+		df.err = fmt.Errorf("BaseDataFrame.Join: cannot join with a grouped dataframe")
+		return df
+	}
+
+	// CHECK: all the join columns must exist
+	for _, name := range on {
+		found := false
+		for _, series := range df.series {
+			if series.Name() == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			df.err = fmt.Errorf("BaseDataFrame.Join: column \"%s\" not found in left dataframe", name)
+			return df
+		}
+		found = false
+		for _, series := range other.(BaseDataFrame).series {
+			if series.Name() == name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			df.err = fmt.Errorf("BaseDataFrame.Join: column \"%s\" not found in right dataframe", name)
+			return df
+		}
+	}
+
+	// CASE: on is empty -> use all columns with the same name
+	if len(on) == 0 {
+		for _, name := range df.Names() {
+			if other.GetSeriesIndex(name) != -1 {
+				on = append(on, name)
+			}
+		}
+	}
+
+	// CASE: on is still empty -> error
+	if len(on) == 0 {
+		df.err = fmt.Errorf("BaseDataFrame.Join: no columns to join on")
+		return df
+	}
+
+	// CHECK: all columns in on must have the same type
+	for _, name := range on {
+		if df.Series(name).Type() != other.Series(name).Type() {
+			df.err = fmt.Errorf("BaseDataFrame.Join: columns \"%s\" have different types", name)
+			return df
+		}
+	}
+
+	switch how {
+	case INNER_JOIN:
+		// TODO: implement
+
+	case LEFT_JOIN:
+		// TODO: implement
+
+	case RIGHT_JOIN:
+		// TODO: implement
+
+	case OUTER_JOIN:
+		// TODO: implement
+	}
+
+	joined := NewBaseDataFrame()
+
+	return joined
 }
 
 func (df BaseDataFrame) Take(start, end, step int) DataFrame {

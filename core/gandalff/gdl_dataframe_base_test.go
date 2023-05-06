@@ -624,3 +624,81 @@ func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 		}
 	}
 }
+
+func Test_BaseDataFrame_Join(t *testing.T) {
+	dfx := NewBaseDataFrame().
+		AddSeriesFromInts("A", false, false, []int{1, 2, 3, 4, 5}).
+		AddSeriesFromStrings("B", false, []string{"a", "b", "c", "d", "e"})
+
+	dfy := NewBaseDataFrame().
+		AddSeriesFromInts("A", false, false, []int{4, 5, 6}).
+		AddSeriesFromStrings("C", false, []string{"d", "e", "f"})
+
+	dfx.PrettyPrint()
+
+	dfy.PrettyPrint()
+
+	///////////////////			INNER JOIN
+
+	res := dfx.Join(INNER_JOIN, dfy, "A")
+
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	if res.NRows() != 2 {
+		// t.Errorf("Expected 2 rows, got %d", res.NRows())
+	}
+
+	if res.NCols() != 3 {
+		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+	}
+
+	///////////////////			LEFT JOIN
+
+	res = dfx.Join(LEFT_JOIN, dfy, "A")
+
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	if res.NRows() != 5 {
+		// t.Errorf("Expected 5 rows, got %d", res.NRows())
+	}
+
+	if res.NCols() != 3 {
+		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+	}
+
+	///////////////////			RIGHT JOIN
+
+	res = dfx.Join(RIGHT_JOIN, dfy, "A")
+
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	if res.NRows() != 3 {
+		// t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
+
+	if res.NCols() != 3 {
+		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+	}
+
+	///////////////////			FULL JOIN
+
+	res = dfx.Join(OUTER_JOIN, dfy, "A")
+
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
+
+	if res.NRows() != 6 {
+		// t.Errorf("Expected 6 rows, got %d", res.NRows())
+	}
+
+	if res.NCols() != 3 {
+		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+	}
+}
