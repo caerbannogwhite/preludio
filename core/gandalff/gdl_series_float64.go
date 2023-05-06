@@ -19,11 +19,7 @@ type GDLSeriesFloat64 struct {
 func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
 	var nullMask []uint8
 	if isNullable {
-		if len(data)%8 == 0 {
-			nullMask = make([]uint8, (len(data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(data)>>3)+1)
-		}
+		nullMask = __initNullMask(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -109,13 +105,7 @@ func (s GDLSeriesFloat64) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		s.isNullable = true
@@ -150,13 +140,7 @@ func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
 		}
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		for k, v := range mask {
 			if v {
 				nullMask[k/8] |= 1 << uint(k%8)
@@ -176,11 +160,7 @@ func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
 func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
+		s.nullMask = __initNullMask(len(s.data))
 	}
 	return s
 }
@@ -450,11 +430,7 @@ func (s GDLSeriesFloat64) Filter(mask GDLSeriesBool) GDLSeries {
 	data := make([]float64, elementCount)
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
@@ -504,11 +480,7 @@ func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -547,11 +519,7 @@ func (s GDLSeriesFloat64) FilterByIndeces(indexes []int) GDLSeries {
 
 	if s.isNullable {
 
-		if size%8 == 0 {
-			nullMask = make([]uint8, (size >> 3))
-		} else {
-			nullMask = make([]uint8, (size>>3)+1)
-		}
+		nullMask = __initNullMask(size)
 
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
@@ -582,13 +550,8 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	switch v.(type) {
 	case bool:
 
-		var data []uint8
-		if len(s.data)%8 == 0 {
-			data = make([]uint8, (len(s.data) >> 3))
-		} else {
-			data = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		// Not a null mask but you get the same result
+		data := __initNullMask(len(s.data))
 		for i := 0; i < len(s.data); i++ {
 			if f(s.data[i]).(bool) {
 				data[i>>3] |= (1 << uint(i%8))

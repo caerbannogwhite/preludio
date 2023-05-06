@@ -634,10 +634,6 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 		AddSeriesFromInts("A", false, false, []int{4, 5, 6}).
 		AddSeriesFromStrings("C", false, []string{"d", "e", "f"})
 
-	dfx.PrettyPrint()
-
-	dfy.PrettyPrint()
-
 	///////////////////			INNER JOIN
 
 	res := dfx.Join(INNER_JOIN, dfy, "A")

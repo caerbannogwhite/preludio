@@ -21,11 +21,7 @@ type GDLSeriesString struct {
 func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
-		if len(data)%8 == 0 {
-			nullMask = make([]uint8, (len(data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(data)>>3)+1)
-		}
+		nullMask = __initNullMask(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -110,13 +106,7 @@ func (s GDLSeriesString) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		return GDLSeriesString{
@@ -158,12 +148,7 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
+		nullMask := __initNullMask(len(s.data))
 
 		for k, v := range mask {
 			if v {
@@ -190,11 +175,7 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 func (s GDLSeriesString) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
+		s.nullMask = __initNullMask(len(s.data))
 	}
 	return s
 }
