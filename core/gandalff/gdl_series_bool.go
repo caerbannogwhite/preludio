@@ -586,22 +586,13 @@ func (s GDLSeriesBool) Filter(mask GDLSeriesBool) GDLSeries {
 	}
 
 	elementCount := mask.__trueCount()
-	var data []uint8
-	var nullMask []uint8
 
-	if elementCount%8 == 0 {
-		data = make([]uint8, (elementCount >> 3))
-	} else {
-		data = make([]uint8, (elementCount>>3)+1)
-	}
+	data := __initNullMask(elementCount)
+	var nullMask []uint8
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.size; srcIdx++ {
@@ -656,22 +647,12 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 		}
 	}
 
-	var data []uint8
+	data := __initNullMask(elementCount)
 	var nullMask []uint8
-
-	if elementCount%8 == 0 {
-		data = make([]uint8, (elementCount >> 3))
-	} else {
-		data = make([]uint8, (elementCount>>3)+1)
-	}
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -718,20 +699,10 @@ func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
 	var nullMask []uint8
 
 	size := len(indexes)
-	if size%8 == 0 {
-		data = make([]uint8, (size >> 3))
-	} else {
-		data = make([]uint8, (size>>3)+1)
-	}
+	data = __initNullMask(len(indexes))
 
 	if s.isNullable {
-
-		if size%8 == 0 {
-			nullMask = make([]uint8, (size >> 3))
-		} else {
-			nullMask = make([]uint8, (size>>3)+1)
-		}
-
+		nullMask = __initNullMask(size)
 		for dstIdx, srcIdx := range indexes {
 			if srcIdx%8 > dstIdx%8 {
 				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))

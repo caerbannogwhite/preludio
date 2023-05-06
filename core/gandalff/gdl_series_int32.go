@@ -493,11 +493,7 @@ func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
 	data := make([]int, elementCount)
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {

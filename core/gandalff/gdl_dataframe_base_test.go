@@ -110,7 +110,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 
 	// Group by department
-	res := df.GroupBy("department").Count("n")
+	res := df.GroupBy("department").Agg(Count("n"))
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -135,7 +135,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 
 	// Group by department and junior
-	res = df.Ungroup().GroupBy("junior", "department").Count("n")
+	res = df.Ungroup().GroupBy("junior", "department").Agg(Count("n"))
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -168,7 +168,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 
 	// Group by department and junior
-	res = df.Ungroup().GroupBy("department", "junior").Count("n")
+	res = df.Ungroup().GroupBy("department", "junior").Agg(Count("n"))
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -203,7 +203,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 
 	// Group by department and salary band
-	res = df.Ungroup().GroupBy("department", "salary band").Count("n")
+	res = df.Ungroup().GroupBy("department", "salary band").Agg(Count("n"))
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -239,7 +239,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 
 	// Group by weight
-	res = df.Ungroup().GroupBy("weight").Count("n")
+	res = df.Ungroup().GroupBy("weight").Agg(Count("n"))
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -286,7 +286,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.Ungroup().GroupBy("Country", "Industry").Count("n")
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Count("n"))
 	}
 	b.StopTimer()
 }
@@ -304,7 +304,10 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Sum()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
+		GroupBy("department").
+		Agg(Sum("age"), Sum("weight"), Sum("junior"), Sum("salary band"))
+
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -362,7 +365,7 @@ func Benchmark_0_5GB_GroupBy_Sum(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.Ungroup().GroupBy("id1", "v1").Sum()
+		df.Ungroup().GroupBy("id1", "v1").Agg(Sum("v2"))
 	}
 	b.StopTimer()
 }
@@ -380,7 +383,10 @@ func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Min()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
+		GroupBy("department").
+		Agg(Min("age"), Min("weight"), Min("junior"), Min("salary band"))
+
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -433,7 +439,10 @@ func Test_BaseDataFrame_GroupBy_Max(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Max()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
+		GroupBy("department").
+		Agg(Max("age"), Max("weight"), Max("junior"), Max("salary band"))
+
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -486,7 +495,10 @@ func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Mean()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
+		GroupBy("department").
+		Agg(Mean("age"), Mean("weight"), Mean("junior"), Mean("salary band"))
+
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}
@@ -544,7 +556,7 @@ func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.Ungroup().GroupBy("Country", "Industry").Mean()
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
 	}
 	b.StopTimer()
 }
@@ -567,7 +579,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.Ungroup().GroupBy("Country", "Industry").Mean()
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
 	}
 	b.StopTimer()
 }
@@ -585,7 +597,10 @@ func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").GroupBy("department").Std()
+	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
+		GroupBy("department").
+		Agg(Std("age"), Std("weight"), Std("junior"), Std("salary band"))
+
 	if res.GetError() != nil {
 		t.Error(res.GetError())
 	}

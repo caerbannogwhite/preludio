@@ -448,16 +448,13 @@ func (s GDLSeriesString) Filter(mask GDLSeriesBool) GDLSeries {
 	}
 
 	elementCount := mask.__trueCount()
-	var nullMask []uint8
 
 	data := make([]*string, elementCount)
+	var nullMask []uint8
+
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
@@ -500,18 +497,12 @@ func (s GDLSeriesString) FilterByMask(mask []bool) GDLSeries {
 		}
 	}
 
-	var data []*string
+	data := make([]*string, elementCount)
 	var nullMask []uint8
-
-	data = make([]*string, elementCount)
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -550,11 +541,7 @@ func (s GDLSeriesString) FilterByIndeces(indexes []int) GDLSeries {
 
 	if s.isNullable {
 
-		if size%8 == 0 {
-			nullMask = make([]uint8, (size >> 3))
-		} else {
-			nullMask = make([]uint8, (size>>3)+1)
-		}
+		nullMask = __initNullMask(size)
 
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
@@ -585,12 +572,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	switch v.(type) {
 	case bool:
 
-		var data []uint8
-		if len(s.data)%8 == 0 {
-			data = make([]uint8, (len(s.data) >> 3))
-		} else {
-			data = make([]uint8, (len(s.data)>>3)+1)
-		}
+		data := __initNullMask(len(s.data))
 
 		for i := 0; i < len(s.data); i++ {
 			if f((*s.data[i])).(bool) {

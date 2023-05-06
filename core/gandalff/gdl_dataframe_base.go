@@ -494,13 +494,77 @@ func (df BaseDataFrame) Take(start, end, step int) DataFrame {
 
 	taken := NewBaseDataFrame()
 	for _, series := range df.series {
-		taken.AddSeries(series.Take(start, end, step))
+		taken = taken.AddSeries(series.Take(start, end, step))
 	}
 
 	return taken
 }
 
 ///////////////////////////////		SUMMARY		/////////////////////////////////////////
+
+func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	// CHECK: aggregators must have unique names and names must be valid
+	aggNames := make(map[string]bool)
+	for _, agg := range aggregators {
+		if aggNames[agg.getSeriesName()] {
+			df.err = fmt.Errorf("BaseDataFrame.Agg: aggregator names must be unique")
+			return df
+		}
+		aggNames[agg.getSeriesName()] = true
+
+		if df.__series(agg.getSeriesName()) == nil {
+			df.err = fmt.Errorf("BaseDataFrame.Agg: \"%s\" is not in the dataframe", agg.getSeriesName())
+			return df
+		}
+	}
+
+	var result DataFrame
+	if df.isGrouped {
+
+		var indeces *[][]int
+		result, indeces, _ = df.groupHelper()
+
+		for _, agg := range aggregators {
+			series := df.__series(agg.getSeriesName())
+
+			switch agg.getAggregateType() {
+			case AGGREGATE_COUNT:
+				counts := make([]int, len(*indeces))
+				for i, group := range *indeces {
+					counts[i] = len(group)
+				}
+				result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, counts))
+
+			case AGGREGATE_SUM:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+
+			case AGGREGATE_MIN:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+
+			case AGGREGATE_MAX:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+
+			case AGGREGATE_MEAN:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+
+			case AGGREGATE_MEDIAN:
+				// TODO: implement
+
+			case AGGREGATE_STD:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
+			}
+		}
+
+	} else {
+		// TODO: implement
+	}
+
+	return df
+}
 
 func (df BaseDataFrame) Count(name string) DataFrame {
 	if df.err != nil {
