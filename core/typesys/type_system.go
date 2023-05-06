@@ -101,10 +101,11 @@ func GoToPreludioTypeString(t interface{}) string {
 }
 
 type Primitive struct {
-	Name   string
-	Base   BaseType
-	Size   int
-	Schema Schema
+	Nullable bool
+	Name     string
+	Base     BaseType
+	Size     int
+	Schema   Schema
 }
 
 func (p *Primitive) GetName() string {
@@ -579,4 +580,12 @@ func InitSchema() Schema {
 
 func (s *Schema) AddPrimitive(p Primitive) {
 	s.primitives = append(s.primitives, p)
+}
+
+func (s *Schema) GetDataTypes() []BaseType {
+	types := make([]BaseType, len(s.primitives))
+	for i, p := range s.primitives {
+		types[i] = p.Base
+	}
+	return types
 }
