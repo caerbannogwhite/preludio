@@ -86,29 +86,99 @@ func (df BaseDataFrame) GetSeriesIndex(name string) int {
 }
 
 func (df BaseDataFrame) AddSeries(series GDLSeries) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeries: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && series.Len() != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series.Len(), df.NRows())
+		return df
+	}
+
 	df.series = append(df.series, series)
 	return df
 }
 
 func (df BaseDataFrame) AddSeriesFromBools(name string, isNullable bool, data []bool) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
 	series := NewGDLSeriesBool(name, isNullable, data)
 	df.AddSeries(series)
 	return df
 }
 
 func (df BaseDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
 	series := NewGDLSeriesInt32(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 	return df
 }
 
 func (df BaseDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloats: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloats: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
 	series := NewGDLSeriesFloat64(name, isNullable, makeCopy, data)
 	df.AddSeries(series)
 	return df
 }
 
 func (df BaseDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
 	series := NewGDLSeriesString(name, isNullable, data, df.pool)
 	df.AddSeries(series)
 	return df
@@ -121,7 +191,7 @@ func (df BaseDataFrame) Series(name string) GDLSeries {
 			return series
 		}
 	}
-	return nil
+	return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
 }
 
 // Returns the series at the given index.

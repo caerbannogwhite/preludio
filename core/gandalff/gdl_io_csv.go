@@ -86,7 +86,7 @@ func (r *GDLCsvReader) Read() DataFrame {
 
 	df := NewBaseDataFrame()
 	for _, s := range series {
-		df.AddSeries(s)
+		df = df.AddSeries(s)
 	}
 
 	return df

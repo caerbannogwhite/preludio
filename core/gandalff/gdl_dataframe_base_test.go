@@ -22,11 +22,11 @@ func equalFloats(a, b, eps float64) bool {
 	return math.Abs(a-b) < eps
 }
 
-func Test_GDataFrame_Base(t *testing.T) {
+func Test_BaseDataFrame_Base(t *testing.T) {
 
 }
 
-func Test_GDataFrame_Filter(t *testing.T) {
+func Test_BaseDataFrame_Filter(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -96,7 +96,7 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 	b.StopTimer()
 }
 
-func Test_GDataFrame_GroupBy_Count(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -291,7 +291,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 	b.StopTimer()
 }
 
-func Test_GDataFrame_GroupBy_Sum(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -367,7 +367,7 @@ func Benchmark_0_5GB_GroupBy_Sum(b *testing.B) {
 	b.StopTimer()
 }
 
-func Test_GDataFrame_GroupBy_Min(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -420,7 +420,7 @@ func Test_GDataFrame_GroupBy_Min(t *testing.T) {
 	}
 }
 
-func Test_GDataFrame_GroupBy_Max(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Max(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -473,7 +473,7 @@ func Test_GDataFrame_GroupBy_Max(t *testing.T) {
 	}
 }
 
-func Test_GDataFrame_GroupBy_Mean(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -572,7 +572,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 	b.StopTimer()
 }
 
-func Test_GDataFrame_GroupBy_Std(t *testing.T) {
+func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 	// Create a new dataframe from the CSV data.
 	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data1)).
