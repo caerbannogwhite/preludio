@@ -41,15 +41,20 @@ The data types not checked are not yet supported, but might be in the future.
 
 - [x] Map
 - [ ] Sort
+  - [x] Sort
+  - [ ] SortRev
+
+- [ ] Take
 
 ### Supported operations for DataFrame
 
 - [x] Filter
 - [x] GroupBy
-- [ ] Map
-- [x] Select
-- [ ] OrderBy
 - [ ] Join
+- [ ] Map
+- [ ] OrderBy
+- [x] Select
+- [ ] Take
 
 ### Supported stats functions
 
@@ -86,7 +91,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Returns if the series is sorted.
-	IsSorted() bool
+	IsSorted() GDLSeriesSortOrder
 
 	// Nullability operations.
 
@@ -113,6 +118,8 @@ type GDLSeries interface {
 	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
+	// Take the elements according to the given interval.
+	Take(start, end, step int) GDLSeries
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -161,5 +168,4 @@ type GDLSeries interface {
 	// Sorts the elements of the series.
 	Sort() GDLSeries
 	SortRev() GDLSeries
-}
 ```
