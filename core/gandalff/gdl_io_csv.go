@@ -65,26 +65,26 @@ func (r *GDLCsvReader) SetSchema(schema *typesys.Schema) *GDLCsvReader {
 	return r
 }
 
-func (r *GDLCsvReader) Read() *GDLDataFrame {
+func (r *GDLCsvReader) Read() DataFrame {
 	if r.path != "" {
 		file, err := os.OpenFile(r.path, os.O_RDONLY, 0666)
 		if err != nil {
-			return &GDLDataFrame{err: err}
+			return BaseDataFrame{err: err}
 		}
 		defer file.Close()
 		r.reader = file
 	}
 
 	if r.reader == nil {
-		return &GDLDataFrame{err: fmt.Errorf("GDLCsvReader: no reader specified")}
+		return BaseDataFrame{err: fmt.Errorf("GDLCsvReader: no reader specified")}
 	}
 
 	series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema)
 	if err != nil {
-		return &GDLDataFrame{err: err}
+		return BaseDataFrame{err: err}
 	}
 
-	df := NewGDLDataFrame()
+	df := NewBaseDataFrame()
 	for _, s := range series {
 		df.AddSeries(s)
 	}

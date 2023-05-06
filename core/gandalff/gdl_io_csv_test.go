@@ -126,7 +126,7 @@ Charlie,33,95.0,t
 `
 
 	// Create a new dataframe from the CSV data.
-	df := NewGDLDataFrame().FromCSV().
+	df := NewBaseDataFrame().FromCSV().
 		SetReader(strings.NewReader(data)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -250,7 +250,7 @@ Charlie,33,95.0,t
 func Benchmark_FromCSV_100000Rows(b *testing.B) {
 
 	// Create a new dataframe from the CSV data.
-	var df *GDLDataFrame
+	var df DataFrame
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -259,7 +259,7 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 			b.Error(err)
 		}
 
-		df = NewGDLDataFrame().FromCSV().
+		df = NewBaseDataFrame().FromCSV().
 			SetReader(f).
 			SetDelimiter(',').
 			SetHeader(true).
@@ -333,7 +333,7 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 
 func Benchmark_FromCSV_500000Rows(b *testing.B) {
 	// Create a new dataframe from the CSV data.
-	var df *GDLDataFrame
+	var df DataFrame
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -342,7 +342,7 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 			b.Error(err)
 		}
 
-		df = NewGDLDataFrame().FromCSV().
+		df = NewBaseDataFrame().FromCSV().
 			SetReader(f).
 			SetDelimiter(',').
 			SetHeader(true).
