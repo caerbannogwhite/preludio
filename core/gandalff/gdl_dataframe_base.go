@@ -194,6 +194,15 @@ func (df BaseDataFrame) Series(name string) GDLSeries {
 	return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
 }
 
+func (df BaseDataFrame) __series(name string) GDLSeries {
+	for _, series := range df.series {
+		if series.Name() == name {
+			return series
+		}
+	}
+	return nil
+}
+
 // Returns the series at the given index.
 func (df BaseDataFrame) SeriesAt(index int) GDLSeries {
 	if index < 0 || index >= len(df.series) {
@@ -207,11 +216,11 @@ func (df BaseDataFrame) Select(names ...string) DataFrame {
 		return df
 	}
 
-	selected := NewBaseDataFrame()
+	seriesList := make([]GDLSeries, 0)
 	for _, name := range names {
-		series := df.Series(name)
+		series := df.__series(name)
 		if series != nil {
-			selected.AddSeries(series)
+			seriesList = append(seriesList, series)
 		} else {
 			return BaseDataFrame{
 				err: fmt.Errorf("BaseDataFrame.Select: series \"%s\" not found", name),
@@ -219,7 +228,10 @@ func (df BaseDataFrame) Select(names ...string) DataFrame {
 		}
 	}
 
-	return selected
+	return BaseDataFrame{
+		series: seriesList,
+		pool:   df.pool,
+	}
 }
 
 func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
@@ -252,12 +264,15 @@ func (df BaseDataFrame) Filter(mask GDLSeriesBool) DataFrame {
 		return df
 	}
 
-	filtered := NewBaseDataFrame()
+	seriesList := make([]GDLSeries, 0)
 	for _, series := range df.series {
-		filtered.AddSeries(series.Filter(mask))
+		seriesList = append(seriesList, series.Filter(mask))
 	}
 
-	return filtered
+	return BaseDataFrame{
+		series: seriesList,
+		pool:   df.pool,
+	}
 }
 
 func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
@@ -351,28 +366,28 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(bool)
 			}
-			result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
+			result = result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
 
 		case GDLSeriesInt32:
 			values := make([]int, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(int)
 			}
-			result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
+			result = result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
 
 		case GDLSeriesFloat64:
 			values := make([]float64, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(float64)
 			}
-			result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
+			result = result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
 
 		case GDLSeriesString:
 			values := make([]string, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(string)
 			}
-			result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
+			result = result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
 		}
 	}
 
@@ -421,12 +436,10 @@ func (df BaseDataFrame) Count(name string) DataFrame {
 		for i, group := range *indeces {
 			counts[i] = len(group)
 		}
-
-		result.AddSeries(NewGDLSeriesInt32(name, false, false, counts))
-
+		result = result.AddSeries(NewGDLSeriesInt32(name, false, false, counts))
 	} else {
-		result := NewBaseDataFrame()
-		result.AddSeries(NewGDLSeriesInt32(name, false, false, []int{df.NRows()}))
+		result = NewBaseDataFrame()
+		result = result.AddSeries(NewGDLSeriesInt32(name, false, false, []int{df.NRows()}))
 	}
 
 	return result
@@ -447,15 +460,13 @@ func (df BaseDataFrame) Sum() DataFrame {
 
 		for _, index := range *ungroupedSeriesIndices {
 			series := df.series[index]
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
 		}
-
 		return result
-
 	} else {
 		result := NewBaseDataFrame()
 		for _, series := range df.series {
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
 		}
 		return result
 	}
@@ -475,14 +486,13 @@ func (df BaseDataFrame) Min() DataFrame {
 
 		for _, index := range *ungroupedSeriesIndices {
 			series := df.series[index]
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
 		}
-
 		return result
 	} else {
 		result := NewBaseDataFrame()
 		for _, series := range df.series {
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
 		}
 		return result
 	}
@@ -502,14 +512,14 @@ func (df BaseDataFrame) Max() DataFrame {
 
 		for _, index := range *ungroupedSeriesIndices {
 			series := df.series[index]
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
 		}
 
 		return result
 	} else {
 		result := NewBaseDataFrame()
 		for _, series := range df.series {
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
 		}
 		return result
 	}
@@ -529,14 +539,14 @@ func (df BaseDataFrame) Mean() DataFrame {
 
 		for _, index := range *ungroupedSeriesIndices {
 			series := df.series[index]
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
 		}
 
 		return result
 	} else {
 		result := NewBaseDataFrame()
 		for _, series := range df.series {
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
 		}
 		return result
 	}
@@ -556,14 +566,14 @@ func (df BaseDataFrame) Std() DataFrame {
 
 		for _, index := range *ungroupedSeriesIndices {
 			series := df.series[index]
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
 		}
 
 		return result
 	} else {
 		result := NewBaseDataFrame()
 		for _, series := range df.series {
-			result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
+			result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
 		}
 		return result
 	}
