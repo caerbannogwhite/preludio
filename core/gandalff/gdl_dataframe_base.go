@@ -568,7 +568,32 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 		}
 
 	} else {
-		// TODO: implement
+		for _, agg := range aggregators {
+			series := df.__series(agg.getSeriesName())
+
+			switch agg.getAggregateType() {
+			case AGGREGATE_COUNT:
+				result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, []int{df.NRows()}))
+
+			case AGGREGATE_SUM:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
+
+			case AGGREGATE_MIN:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
+
+			case AGGREGATE_MAX:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
+
+			case AGGREGATE_MEAN:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+
+			case AGGREGATE_MEDIAN:
+				// TODO: implement
+
+			case AGGREGATE_STD:
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
+			}
+		}
 	}
 
 	return result
