@@ -452,14 +452,14 @@ func (s GDLSeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) GDLSe
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = stringPool.Add(NULL_STRING)
+					data[i] = stringPool.Get(NULL_STRING)
 				} else {
-					data[i] = stringPool.Add(floatToString(v))
+					data[i] = stringPool.Get(floatToString(v))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = stringPool.Add(floatToString(v))
+				data[i] = stringPool.Get(floatToString(v))
 			}
 		}
 
@@ -679,7 +679,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Add(f(s.data[i]).(string))
+			data[i] = stringPool.Get(f(s.data[i]).(string))
 		}
 
 		return GDLSeriesString{

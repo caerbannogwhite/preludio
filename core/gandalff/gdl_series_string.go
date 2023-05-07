@@ -709,7 +709,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Add(f((*s.data[i])).(string))
+			data[i] = stringPool.Get(f((*s.data[i])).(string))
 		}
 
 		s.isGrouped = false

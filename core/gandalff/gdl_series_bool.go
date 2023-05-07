@@ -612,12 +612,12 @@ func (s GDLSeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) GDLSerie
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if s.nullMask[i]&(1<<uint(j)) != 0 {
-						data[i*8+j] = stringPool.Add(NULL_STRING)
+						data[i*8+j] = stringPool.Get(NULL_STRING)
 					} else {
 						if v&(1<<uint(j)) != 0 {
-							data[i*8+j] = stringPool.Add(BOOL_TRUE_STRING)
+							data[i*8+j] = stringPool.Get(BOOL_TRUE_STRING)
 						} else {
-							data[i*8+j] = stringPool.Add(BOOL_FALSE_STRING)
+							data[i*8+j] = stringPool.Get(BOOL_FALSE_STRING)
 						}
 					}
 				}
@@ -626,9 +626,9 @@ func (s GDLSeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) GDLSerie
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if v&(1<<uint(j)) != 0 {
-						data[i*8+j] = stringPool.Add(BOOL_TRUE_STRING)
+						data[i*8+j] = stringPool.Get(BOOL_TRUE_STRING)
 					} else {
-						data[i*8+j] = stringPool.Add(BOOL_FALSE_STRING)
+						data[i*8+j] = stringPool.Get(BOOL_FALSE_STRING)
 					}
 				}
 			}
@@ -880,7 +880,7 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = stringPool.Add(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
+			data[i] = stringPool.Get(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
 		}
 
 		return GDLSeriesString{
