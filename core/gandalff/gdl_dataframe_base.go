@@ -568,6 +568,9 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 		}
 
 	} else {
+
+		result = NewBaseDataFrame()
+
 		for _, agg := range aggregators {
 			series := df.__series(agg.getSeriesName())
 
