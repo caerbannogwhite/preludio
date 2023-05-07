@@ -10,105 +10,105 @@ import (
 func Test_TypeGuesser(t *testing.T) {
 
 	// Create a new type guesser.
-	guesser := NewTypeGuesser()
+	guesser := newTypeGuesser()
 
 	// Test the bool type.
-	if guesser.GuessType("true") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("true").ToString())
+	if guesser.guessType("true") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("true").ToString())
 	}
 
-	if guesser.GuessType("false") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("false").ToString())
+	if guesser.guessType("false") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("false").ToString())
 	}
 
-	if guesser.GuessType("True") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("True").ToString())
+	if guesser.guessType("True") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("True").ToString())
 	}
 
-	if guesser.GuessType("False") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("False").ToString())
+	if guesser.guessType("False") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("False").ToString())
 	}
 
-	if guesser.GuessType("TRUE") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("TRUE").ToString())
+	if guesser.guessType("TRUE") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("TRUE").ToString())
 	}
 
-	if guesser.GuessType("FALSE") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("FALSE").ToString())
+	if guesser.guessType("FALSE") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("FALSE").ToString())
 	}
 
-	if guesser.GuessType("t") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("t").ToString())
+	if guesser.guessType("t") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("t").ToString())
 	}
 
-	if guesser.GuessType("f") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("f").ToString())
+	if guesser.guessType("f") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("f").ToString())
 	}
 
-	if guesser.GuessType("T") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("T").ToString())
+	if guesser.guessType("T") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("T").ToString())
 	}
 
-	if guesser.GuessType("F") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("F").ToString())
+	if guesser.guessType("F") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("F").ToString())
 	}
 
-	if guesser.GuessType("TrUe") != typesys.BoolType {
-		t.Error("Expected Bool, got", guesser.GuessType("TrUe").ToString())
+	if guesser.guessType("TrUe") != typesys.BoolType {
+		t.Error("Expected Bool, got", guesser.guessType("TrUe").ToString())
 	}
 
 	// Test the int type.
-	if guesser.GuessType("0") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.GuessType("0").ToString())
+	if guesser.guessType("0") != typesys.Int32Type {
+		t.Error("Expected Int32, got", guesser.guessType("0").ToString())
 	}
 
-	if guesser.GuessType("1") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.GuessType("1").ToString())
+	if guesser.guessType("1") != typesys.Int32Type {
+		t.Error("Expected Int32, got", guesser.guessType("1").ToString())
 	}
 
-	if guesser.GuessType("10000") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.GuessType("10000").ToString())
+	if guesser.guessType("10000") != typesys.Int32Type {
+		t.Error("Expected Int32, got", guesser.guessType("10000").ToString())
 	}
 
-	if guesser.GuessType("-1") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.GuessType("-1").ToString())
+	if guesser.guessType("-1") != typesys.Int32Type {
+		t.Error("Expected Int32, got", guesser.guessType("-1").ToString())
 	}
 
-	if guesser.GuessType("-10000") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.GuessType("-10000").ToString())
+	if guesser.guessType("-10000") != typesys.Int32Type {
+		t.Error("Expected Int32, got", guesser.guessType("-10000").ToString())
 	}
 
 	// Test the float type.
-	if guesser.GuessType("0.0") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("0.0").ToString())
+	if guesser.guessType("0.0") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("0.0").ToString())
 	}
 
-	if guesser.GuessType("1.0") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("1.0").ToString())
+	if guesser.guessType("1.0") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("1.0").ToString())
 	}
 
-	if guesser.GuessType("10000.0") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("10000.0").ToString())
+	if guesser.guessType("10000.0") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("10000.0").ToString())
 	}
 
-	if guesser.GuessType("-1.0") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("-1.0").ToString())
+	if guesser.guessType("-1.0") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("-1.0").ToString())
 	}
 
-	if guesser.GuessType("-1e3") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("-1e3").ToString())
+	if guesser.guessType("-1e3") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("-1e3").ToString())
 	}
 
-	if guesser.GuessType("-1e-3") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("-1e-3").ToString())
+	if guesser.guessType("-1e-3") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("-1e-3").ToString())
 	}
 
-	if guesser.GuessType("2.0E4") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("2.0E4").ToString())
+	if guesser.guessType("2.0E4") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("2.0E4").ToString())
 	}
 
-	if guesser.GuessType("2.0e4") != typesys.Float64Type {
-		t.Error("Expected Float64, got", guesser.GuessType("2.0e4").ToString())
+	if guesser.guessType("2.0e4") != typesys.Float64Type {
+		t.Error("Expected Float64, got", guesser.guessType("2.0e4").ToString())
 	}
 }
 
@@ -126,7 +126,13 @@ Charlie,33,95.0,t
 `
 
 	// Create a new dataframe from the CSV data.
-	df := FromCSV(strings.NewReader(data), ',', true, 3)
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(strings.NewReader(data)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
+
 	if df.GetError() != nil {
 		t.Error(df.GetError())
 	}
@@ -244,7 +250,7 @@ Charlie,33,95.0,t
 func Benchmark_FromCSV_100000Rows(b *testing.B) {
 
 	// Create a new dataframe from the CSV data.
-	var df *GDLDataFrame
+	var df DataFrame
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -252,7 +258,14 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 		if err != nil {
 			b.Error(err)
 		}
-		df = FromCSV(f, ',', true, 100)
+
+		df = NewBaseDataFrame().FromCSV().
+			SetReader(f).
+			SetDelimiter(',').
+			SetHeader(true).
+			SetGuessDataTypeLen(100).
+			Read()
+
 		f.Close()
 	}
 	b.StopTimer()
@@ -320,7 +333,7 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 
 func Benchmark_FromCSV_500000Rows(b *testing.B) {
 	// Create a new dataframe from the CSV data.
-	var df *GDLDataFrame
+	var df DataFrame
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -328,7 +341,14 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 		if err != nil {
 			b.Error(err)
 		}
-		df = FromCSV(f, ',', true, 100)
+
+		df = NewBaseDataFrame().FromCSV().
+			SetReader(f).
+			SetDelimiter(',').
+			SetHeader(true).
+			SetGuessDataTypeLen(100).
+			Read()
+
 		f.Close()
 	}
 	b.StopTimer()

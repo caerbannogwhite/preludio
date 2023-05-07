@@ -133,6 +133,8 @@ type GDLSeries interface {
 	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
+	// Take the elements according to the given interval.
+	Take(start, end, step int) GDLSeries
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -156,6 +158,8 @@ type GDLSeries interface {
 	// Returns the data of the series as a slice of strings.
 	DataAsString() []string
 
+	// Casts the series to a given type.
+	Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries
 	// Copies the series.
 	Copy() GDLSeries
 
@@ -217,45 +221,13 @@ type GDLSeriesPartition interface {
 	GetNullIndices(sub int) []int
 }
 
-type StringPoolEntry struct {
-	Addr  *string
-	Count uint32
-}
-
 type StringPool struct {
 	sync.RWMutex
-	pool map[string]StringPoolEntry
+	pool map[string]*string
 }
 
 func NewStringPool() *StringPool {
-	return &StringPool{pool: make(map[string]StringPoolEntry)}
-}
-
-// Add adds the string to the pool if it doesn't exist, otherwise it increments the reference count.
-func (sp *StringPool) Add(s string) *string {
-	sp.Lock()
-	defer sp.Unlock()
-	if entry, ok := sp.pool[s]; ok {
-		entry.Count++ // Increment the reference count
-		return entry.Addr
-	}
-
-	// Create a new string and add it to the pool
-	strPtr := &s
-	sp.pool[s] = StringPoolEntry{Addr: strPtr, Count: 1}
-	return strPtr
-}
-
-// Remove removes the string from the pool if it exists and decrements the reference count.
-func (sp *StringPool) Remove(s string) {
-	sp.Lock()
-	defer sp.Unlock()
-	if entry, ok := sp.pool[s]; ok {
-		entry.Count-- // Decrement the reference count
-		if entry.Count == 0 {
-			delete(sp.pool, s)
-		}
-	}
+	return &StringPool{pool: make(map[string]*string)}
 }
 
 // Get returns the address of the string if it exists in the pool, otherwise nil.
@@ -264,19 +236,19 @@ func (sp *StringPool) Get(s string) *string {
 	entry, ok := sp.pool[s]
 	sp.RUnlock()
 	if ok {
-		return entry.Addr
+		return entry
 	}
 
 	sp.Lock()
 	defer sp.Unlock()
 	if entry, ok := sp.pool[s]; ok {
 		// Someone else inserted the string while we were waiting
-		return entry.Addr
+		return entry
 	}
 
 	// Create a new string and add it to the pool
-	sp.pool[s] = StringPoolEntry{Addr: &s, Count: 1}
-	return sp.pool[s].Addr
+	sp.pool[s] = &s
+	return sp.pool[s]
 }
 
 // Dummy series for error handling.
@@ -371,6 +343,11 @@ func (s GDLSeriesError) Set(i int, v any) GDLSeries {
 	return s
 }
 
+// Take the elements according to the given interval.
+func (s GDLSeriesError) Take(start, end, step int) GDLSeries {
+	return s
+}
+
 // Sort interface.
 func (s GDLSeriesError) Less(i, j int) bool {
 	return false
@@ -413,6 +390,11 @@ func (s GDLSeriesError) DataAsNullable() any {
 // Returns the data of the series as a slice of strings.
 func (s GDLSeriesError) DataAsString() []string {
 	return []string{}
+}
+
+// Casts the series to a given type.
+func (s GDLSeriesError) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	return s
 }
 
 // Copies the series.

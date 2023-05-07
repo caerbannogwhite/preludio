@@ -21,11 +21,7 @@ type GDLSeriesInt32 struct {
 func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
-		if len(data)%8 == 0 {
-			nullMask = make([]uint8, (len(data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(data)>>3)+1)
-		}
+		nullMask = __initNullMask(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -111,13 +107,7 @@ func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		s.isNullable = true
@@ -152,13 +142,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 		}
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		for k, v := range mask {
 			if v {
 				nullMask[k/8] |= 1 << uint(k%8)
@@ -177,11 +161,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 // Makes the series nullable.
 func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 	if !s.isNullable {
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
+		s.nullMask = __initNullMask(len(s.data))
 		s.isNullable = true
 	}
 	return s
@@ -217,6 +197,61 @@ func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 
 	s.sorted = SORTED_NONE
 	return s
+}
+
+// Take the elements according to the given interval.
+func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
+	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
+		return NewGDLSeriesInt32(s.name, s.isNullable, false, []int{})
+	} else
+
+	// reverse
+	if step < 0 {
+		return s
+	} else
+
+	// normal
+	{
+		size := end - start
+		if size%step != 0 {
+			size = size/step + 1
+		} else {
+			size = size / step
+		}
+
+		if s.isNullable {
+			data := make([]int, size)
+			nullMask := __initNullMask(size)
+
+			for i, j := start, 0; i < end; i, j = i+step, j+1 {
+				data[j] = s.data[i]
+				if s.IsNull(i) {
+					nullMask[j>>3] |= 1 << uint(j%8)
+				}
+			}
+			return GDLSeriesInt32{
+				isGrouped:  false,
+				isNullable: true,
+				sorted:     SORTED_NONE,
+				name:       s.name,
+				data:       data,
+				nullMask:   nullMask,
+			}
+		} else {
+			data := make([]int, size)
+			for i, j := start, 0; i < end; i, j = i+step, j+1 {
+				data[j] = s.data[i]
+			}
+			return GDLSeriesInt32{
+				isGrouped:  false,
+				isNullable: false,
+				sorted:     SORTED_NONE,
+				name:       s.name,
+				data:       data,
+				nullMask:   nil,
+			}
+		}
+	}
 }
 
 func (s GDLSeriesInt32) Less(i, j int) bool {
@@ -377,11 +412,7 @@ func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
 	} else {
 		if o.isNullable {
 			s.data = append(s.data, o.data...)
-			if len(s.data)%8 == 0 {
-				s.nullMask = make([]uint8, (len(s.data) >> 3))
-			} else {
-				s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-			}
+			s.nullMask = __initNullMask(len(s.data))
 			s.isNullable = true
 
 			// merge null masks
@@ -436,6 +467,79 @@ func (s GDLSeriesInt32) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		data := __initNullMask(len(s.data))
+		for i, v := range s.data {
+			if v != 0 {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case typesys.Int32Type:
+		return s
+
+	case typesys.Float64Type:
+		data := make([]float64, len(s.data))
+		for i, v := range s.data {
+			data[i] = float64(v)
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case typesys.StringType:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesInt32.Cast: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		if s.isNullable {
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					data[i] = stringPool.Get(NULL_STRING)
+				} else {
+					data[i] = stringPool.Get(intToString(v))
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				data[i] = stringPool.Get(intToString(v))
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 func (s GDLSeriesInt32) Copy() GDLSeries {
 	data := make([]int, len(s.data))
 	copy(data, s.data)
@@ -463,11 +567,7 @@ func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
 	data := make([]int, elementCount)
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
@@ -517,11 +617,7 @@ func (s GDLSeriesInt32) FilterByMask(mask []bool) GDLSeries {
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -560,11 +656,7 @@ func (s GDLSeriesInt32) FilterByIndeces(indexes []int) GDLSeries {
 
 	if s.isNullable {
 
-		if size%8 == 0 {
-			nullMask = make([]uint8, (size >> 3))
-		} else {
-			nullMask = make([]uint8, (size>>3)+1)
-		}
+		nullMask = __initNullMask(size)
 
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
@@ -677,7 +769,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Add(f(s.data[i]).(string))
+			data[i] = stringPool.Get(f(s.data[i]).(string))
 		}
 
 		return GDLSeriesString{

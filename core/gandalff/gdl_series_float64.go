@@ -13,17 +13,13 @@ type GDLSeriesFloat64 struct {
 	name       string
 	data       []float64
 	nullMask   []uint8
-	partition  GDLSeriesFloat64Partition
+	partition  *GDLSeriesFloat64Partition
 }
 
 func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
 	var nullMask []uint8
 	if isNullable {
-		if len(data)%8 == 0 {
-			nullMask = make([]uint8, (len(data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(data)>>3)+1)
-		}
+		nullMask = __initNullMask(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -109,13 +105,7 @@ func (s GDLSeriesFloat64) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		s.isNullable = true
@@ -150,13 +140,7 @@ func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
 		}
 		return s
 	} else {
-		var nullMask []uint8
-		if len(s.data)%8 == 0 {
-			nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		nullMask := __initNullMask(len(s.data))
 		for k, v := range mask {
 			if v {
 				nullMask[k/8] |= 1 << uint(k%8)
@@ -176,11 +160,7 @@ func (s GDLSeriesFloat64) SetNullMask(mask []bool) GDLSeries {
 func (s GDLSeriesFloat64) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
-		if len(s.data)%8 == 0 {
-			s.nullMask = make([]uint8, (len(s.data) >> 3))
-		} else {
-			s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-		}
+		s.nullMask = __initNullMask(len(s.data))
 	}
 	return s
 }
@@ -214,6 +194,11 @@ func (s GDLSeriesFloat64) Set(i int, v any) GDLSeries {
 	}
 
 	s.sorted = SORTED_NONE
+	return s
+}
+
+// Take the elements according to the given interval.
+func (s GDLSeriesFloat64) Take(start, end, step int) GDLSeries {
 	return s
 }
 
@@ -417,6 +402,83 @@ func (s GDLSeriesFloat64) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		data := __initNullMask(len(s.data))
+		for i, v := range s.data {
+			if v != 0 {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Int32Type:
+		data := make([]int, len(s.data))
+		for i, v := range s.data {
+			data[i] = int(v)
+		}
+
+		return GDLSeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Float64Type:
+		return s
+
+	case typesys.StringType:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesFloat64.Cast: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		if s.isNullable {
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					data[i] = stringPool.Get(NULL_STRING)
+				} else {
+					data[i] = stringPool.Get(floatToString(v))
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				data[i] = stringPool.Get(floatToString(v))
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       stringPool,
+			partition:  nil,
+		}
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 func (s GDLSeriesFloat64) Copy() GDLSeries {
 	data := make([]float64, len(s.data))
 	copy(data, s.data)
@@ -445,11 +507,7 @@ func (s GDLSeriesFloat64) Filter(mask GDLSeriesBool) GDLSeries {
 	data := make([]float64, elementCount)
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
@@ -499,11 +557,7 @@ func (s GDLSeriesFloat64) FilterByMask(mask []bool) GDLSeries {
 
 	if s.isNullable {
 
-		if elementCount%8 == 0 {
-			nullMask = make([]uint8, (elementCount >> 3))
-		} else {
-			nullMask = make([]uint8, (elementCount>>3)+1)
-		}
+		nullMask = __initNullMask(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -542,11 +596,7 @@ func (s GDLSeriesFloat64) FilterByIndeces(indexes []int) GDLSeries {
 
 	if s.isNullable {
 
-		if size%8 == 0 {
-			nullMask = make([]uint8, (size >> 3))
-		} else {
-			nullMask = make([]uint8, (size>>3)+1)
-		}
+		nullMask = __initNullMask(size)
 
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
@@ -577,13 +627,8 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	switch v.(type) {
 	case bool:
 
-		var data []uint8
-		if len(s.data)%8 == 0 {
-			data = make([]uint8, (len(s.data) >> 3))
-		} else {
-			data = make([]uint8, (len(s.data)>>3)+1)
-		}
-
+		// Not a null mask but you get the same result
+		data := __initNullMask(len(s.data))
 		for i := 0; i < len(s.data); i++ {
 			if f(s.data[i]).(bool) {
 				data[i>>3] |= (1 << uint(i%8))
@@ -634,7 +679,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Add(f(s.data[i]).(string))
+			data[i] = stringPool.Get(f(s.data[i]).(string))
 		}
 
 		return GDLSeriesString{
@@ -747,7 +792,7 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
+		partition:  &GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
 	}
 }
 
@@ -788,7 +833,7 @@ func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  GDLSeriesFloat64Partition{groups, nullGroup},
+		partition:  &GDLSeriesFloat64Partition{groups, nullGroup},
 	}
 }
 

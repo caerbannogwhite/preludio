@@ -10,10 +10,12 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"typesys"
+
+	avo "github.com/mmcloughlin/avo/build"
 )
 
 const (
-	VECTORIZATION        = 4
+	GOROUTINES           = 4
 	RESULT_VAR_NAME      = "result"
 	RESULT_SIZE_VAR_NAME = "resultSize"
 	FINAL_RETURN_FMT     = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
@@ -25,7 +27,6 @@ type BuildInfo struct {
 	Op1Scalar     bool
 	Op2Nullable   bool
 	Op2Scalar     bool
-	Vectorization int
 	Op1VarName    string
 	Op1SeriesType string
 	Op1InnerType  typesys.BaseType
@@ -424,7 +425,7 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 }
 
 // Generate the switch statement to handle the different types of the second operand
-func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string, vectorization int) ast.Stmt {
+func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType typesys.BaseType, op1VarName, op2VarName string) ast.Stmt {
 
 	bigSwitch := &ast.TypeSwitchStmt{
 		Assign: &ast.AssignStmt{
@@ -450,7 +451,6 @@ func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType 
 						Op2VarName:    "o",
 						Op2SeriesType: op2.SeriesType,
 						Op2InnerType:  op2.InnerType,
-						Vectorization: vectorization,
 						MakeOperation: op2.MakeOperation,
 					}),
 				},
@@ -484,8 +484,7 @@ func computeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) types
 	return opCode.GetBinaryOpResultType(typesys.Primitive{Base: op1}, typesys.Primitive{Base: op2}).Base
 }
 
-func main() {
-
+func generateOperations() {
 	for filename, info := range DATA {
 
 		src, err := ioutil.ReadFile(filepath.Join("..", filename))
@@ -505,7 +504,7 @@ func main() {
 				switch funcDecl.Name.Name {
 				case "Mul":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(info.Operations["Mul"], info.SeriesType, info.InnerType, "s", "other", VECTORIZATION),
+						generateSwitchType(info.Operations["Mul"], info.SeriesType, info.InnerType, "s", "other"),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -516,7 +515,7 @@ func main() {
 				case "Div":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -527,7 +526,7 @@ func main() {
 				case "Mod":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -538,7 +537,7 @@ func main() {
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -549,7 +548,7 @@ func main() {
 				case "Sub":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}, VECTORIZATION),
+						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -571,4 +570,15 @@ func main() {
 			}
 		}
 	}
+}
+
+func main() {
+	avo.TEXT("Mul", avo.NOSPLIT, "func(x, y float64) float64")
+	avo.Doc("Mul multiplies x and y.")
+	x := avo.Load(avo.Param("x"), avo.GP64())
+	y := avo.Load(avo.Param("y"), avo.GP64())
+	avo.ADDQ(x, y)
+	avo.Store(y, avo.ReturnIndex(0))
+	avo.RET()
+	avo.Generate()
 }

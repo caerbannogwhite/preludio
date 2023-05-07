@@ -10,7 +10,48 @@ It supports nullable types: null data is optimized for memory usage.
 
 ### Why?
 
-I wanted to learn Go and I wanted to learn how to write a library. I also wanted to learn how to write a library that is easy to use and that is easy to extend.
+The primary purpose of this library is to have an easy-to-use data manipulation library for Go and to be as close as possible to the R language and the Dplyr package.
+It also has to be performant; hopefully, it will become as fast as Polars.
+
+### Examples
+
+```go
+func Example01() {
+	data := `
+name,age,weight,junior,department,salary band
+Alice C,29,75.0,F,HR,4
+John Doe,30,80.5,true,IT,2
+Bob,31,85.0,T,IT,4
+Jane H,25,60.0,false,IT,4
+Mary,28,70.0,false,IT,3
+Oliver,32,90.0,true,HR,1
+Ursula,27,65.0,f,Business,4
+Charlie,33,60.0,t,Business,2
+`
+
+	NewBaseDataFrame().
+		FromCSV().
+		SetReader(strings.NewReader(data)).
+		SetDelimiter(',').
+		SetHeader(true).
+		Read().
+		Select("department", "age", "weight", "junior").
+		GroupBy("department").
+		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
+		PrettyPrint()
+
+	// Output:
+	// +------------+------------+------------+------------+------------+
+	// | department |        age |     weight |     junior |          n |
+	// +------------+------------+------------+------------+------------+
+	// |     String |    Float64 |    Float64 |    Float64 |      Int32 |
+	// +------------+------------+------------+------------+------------+
+	// |         HR |         29 |         90 |        0.5 |          2 |
+	// |         IT |         25 |         85 |        0.5 |          4 |
+	// |   Business |         27 |         65 |        0.5 |          2 |
+	// +------------+------------+------------+------------+------------+
+}
+```
 
 ### Supported data types
 
@@ -31,25 +72,34 @@ The data types not checked are not yet supported, but might be in the future.
 ### Supported operations for Series
 
 - [x] Filter
+
   - [x] Filter (by Bool series)
   - [x] FilterByMask
   - [x] FilterByIndex
 
 - [x] Group
+
   - [x] Group
   - [x] SubGroup
 
 - [x] Map
 - [ ] Sort
 
+  - [x] Sort
+  - [ ] SortRev
+
+- [ ] Take
+
 ### Supported operations for DataFrame
 
+- [x] Agg
 - [x] Filter
 - [x] GroupBy
-- [ ] Map
-- [x] Select
-- [ ] OrderBy
 - [ ] Join
+- [ ] Map
+- [ ] OrderBy
+- [x] Select
+- [ ] Take
 
 ### Supported stats functions
 
@@ -62,7 +112,6 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] StdDev
 - [ ] Variance
 - [ ] Quantile
-
 
 ### Implementation details
 
@@ -86,7 +135,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Returns if the series is sorted.
-	IsSorted() bool
+	IsSorted() GDLSeriesSortOrder
 
 	// Nullability operations.
 
@@ -113,6 +162,8 @@ type GDLSeries interface {
 	GetString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) GDLSeries
+	// Take the elements according to the given interval.
+	Take(start, end, step int) GDLSeries
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -136,6 +187,8 @@ type GDLSeries interface {
 	// Returns the data of the series as a slice of strings.
 	DataAsString() []string
 
+	// Casts the series to a given type.
+	Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries
 	// Copies the series.
 	Copy() GDLSeries
 
