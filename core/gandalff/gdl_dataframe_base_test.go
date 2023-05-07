@@ -7,7 +7,8 @@ import (
 	"testing"
 )
 
-var data1 = `name,age,weight,junior,department,salary band
+var data1 = `
+name,age,weight,junior,department,salary band
 Alice C,29,75.0,F,HR,4
 John Doe,30,80.5,true,IT,2
 Bob,31,85.0,T,IT,4
@@ -304,8 +305,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
-		GroupBy("department").
+	res := df.GroupBy("department").
 		Agg(Sum("age"), Sum("weight"), Sum("junior"), Sum("salary band"))
 
 	if res.GetError() != nil {
@@ -383,8 +383,7 @@ func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
-		GroupBy("department").
+	res := df.GroupBy("department").
 		Agg(Min("age"), Min("weight"), Min("junior"), Min("salary band"))
 
 	if res.GetError() != nil {
@@ -439,8 +438,7 @@ func Test_BaseDataFrame_GroupBy_Max(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
-		GroupBy("department").
+	res := df.GroupBy("department").
 		Agg(Max("age"), Max("weight"), Max("junior"), Max("salary band"))
 
 	if res.GetError() != nil {
@@ -495,8 +493,7 @@ func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
-		GroupBy("department").
+	res := df.GroupBy("department").
 		Agg(Mean("age"), Mean("weight"), Mean("junior"), Mean("salary band"))
 
 	if res.GetError() != nil {
@@ -597,8 +594,7 @@ func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 		t.Error(df.GetError())
 	}
 
-	res := df.Ungroup().Select("department", "age", "weight", "junior", "salary band", "name").
-		GroupBy("department").
+	res := df.GroupBy("department").
 		Agg(Std("age"), Std("weight"), Std("junior"), Std("salary band"))
 
 	if res.GetError() != nil {

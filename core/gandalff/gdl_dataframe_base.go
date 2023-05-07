@@ -186,6 +186,8 @@ func (df BaseDataFrame) Series(name string) GDLSeries {
 	return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
 }
 
+// Returns the series with the given name.
+// For internal use only: returns nil if the series is not found.
 func (df BaseDataFrame) __series(name string) GDLSeries {
 	for _, series := range df.series {
 		if series.Name() == name {
@@ -203,6 +205,8 @@ func (df BaseDataFrame) SeriesAt(index int) GDLSeries {
 	return df.series[index]
 }
 
+// Returns the series at the given index.
+// For internal use only: returns nil if the series is not found.
 func (df BaseDataFrame) __seriesAt(index int) GDLSeries {
 	if index < 0 || index >= len(df.series) {
 		return nil
