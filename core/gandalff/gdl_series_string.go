@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"typesys"
 )
@@ -15,7 +16,7 @@ type GDLSeriesString struct {
 	data       []*string
 	nullMask   []uint8
 	pool       *StringPool
-	partition  GDLSeriesStringPartition
+	partition  *GDLSeriesStringPartition
 }
 
 func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeries {
@@ -427,6 +428,87 @@ func (s GDLSeriesString) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		data := __initNullMask(len(s.data))
+		nullMask := __initNullMask(len(s.data))
+
+		for i, v := range s.data {
+			switch *v {
+			case "true":
+				data[i>>3] |= (1 << uint(i%8))
+			case "false":
+				// do nothing
+				continue
+			default:
+				nullMask[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+		}
+
+	case typesys.Int32Type:
+		data := make([]int, len(s.data))
+		nullMask := __initNullMask(len(s.data))
+
+		for i, v := range s.data {
+			d, err := strconv.Atoi(*v)
+			if err != nil {
+				nullMask[i>>3] |= (1 << uint(i%8))
+			} else {
+				data[i] = d
+			}
+		}
+
+		return GDLSeriesInt32{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+		}
+
+	case typesys.Float64Type:
+		data := make([]float64, len(s.data))
+		nullMask := __initNullMask(len(s.data))
+
+		for i, v := range s.data {
+			f, err := strconv.ParseFloat(*v, 64)
+			if err != nil {
+				nullMask[i>>3] |= (1 << uint(i%8))
+			} else {
+				data[i] = f
+			}
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+		}
+
+	case typesys.StringType:
+		return s
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 func (s GDLSeriesString) Copy() GDLSeries {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
@@ -742,7 +824,7 @@ func (s GDLSeriesString) Group() GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  partition,
+		partition:  &partition,
 		pool:       s.pool,
 	}
 }
@@ -789,7 +871,7 @@ func (s GDLSeriesString) SubGroup(partition GDLSeriesPartition) GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  newPartition,
+		partition:  &newPartition,
 		pool:       s.pool,
 	}
 }

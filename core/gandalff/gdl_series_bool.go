@@ -15,7 +15,7 @@ type GDLSeriesBool struct {
 	name       string
 	data       []uint8
 	nullMask   []uint8
-	partition  GDLSeriesBoolPartition
+	partition  *GDLSeriesBoolPartition
 }
 
 func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeries {
@@ -556,6 +556,99 @@ func (s GDLSeriesBool) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		return s
+
+	case typesys.Int32Type:
+		data := make([]int, s.size)
+		for i, v := range s.data {
+			for j := 0; j < 8 && i*8+j < s.size; j++ {
+				if v&(1<<uint(j)) != 0 {
+					data[i*8+j] = 1
+				}
+			}
+		}
+
+		return GDLSeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Float64Type:
+		data := make([]float64, s.size)
+		for i, v := range s.data {
+			for j := 0; j < 8 && i*8+j < s.size; j++ {
+				if v&(1<<uint(j)) != 0 {
+					data[i*8+j] = 1.0
+				}
+			}
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.StringType:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesBool.Cast: StringPool is nil"}
+		}
+
+		data := make([]*string, s.size)
+		if s.isNullable {
+			for i, v := range s.data {
+				for j := 0; j < 8 && i*8+j < s.size; j++ {
+					if s.nullMask[i]&(1<<uint(j)) != 0 {
+						data[i*8+j] = stringPool.Add(NULL_STRING)
+					} else {
+						if v&(1<<uint(j)) != 0 {
+							data[i*8+j] = stringPool.Add(BOOL_TRUE_STRING)
+						} else {
+							data[i*8+j] = stringPool.Add(BOOL_FALSE_STRING)
+						}
+					}
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				for j := 0; j < 8 && i*8+j < s.size; j++ {
+					if v&(1<<uint(j)) != 0 {
+						data[i*8+j] = stringPool.Add(BOOL_TRUE_STRING)
+					} else {
+						data[i*8+j] = stringPool.Add(BOOL_FALSE_STRING)
+					}
+				}
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 // Copy returns a copy of the series.
 func (s GDLSeriesBool) Copy() GDLSeries {
 	data := make([]uint8, len(s.data))
@@ -921,7 +1014,7 @@ func (s GDLSeriesBool) Group() GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition: GDLSeriesBoolPartition{
+		partition: &GDLSeriesBoolPartition{
 			partition: []boolIndices{groups},
 			nullGroup: nullGroup,
 		}}
@@ -969,7 +1062,7 @@ func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition: GDLSeriesBoolPartition{
+		partition: &GDLSeriesBoolPartition{
 			partition: groups,
 			nullGroup: nullGroup,
 		}}

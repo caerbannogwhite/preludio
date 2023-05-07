@@ -13,7 +13,7 @@ type GDLSeriesFloat64 struct {
 	name       string
 	data       []float64
 	nullMask   []uint8
-	partition  GDLSeriesFloat64Partition
+	partition  *GDLSeriesFloat64Partition
 }
 
 func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
@@ -402,6 +402,83 @@ func (s GDLSeriesFloat64) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		data := __initNullMask(len(s.data))
+		for i, v := range s.data {
+			if v != 0 {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Int32Type:
+		data := make([]int, len(s.data))
+		for i, v := range s.data {
+			data[i] = int(v)
+		}
+
+		return GDLSeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Float64Type:
+		return s
+
+	case typesys.StringType:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesFloat64.Cast: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		if s.isNullable {
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					data[i] = stringPool.Add(NULL_STRING)
+				} else {
+					data[i] = stringPool.Add(floatToString(v))
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				data[i] = stringPool.Add(floatToString(v))
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       stringPool,
+			partition:  nil,
+		}
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 func (s GDLSeriesFloat64) Copy() GDLSeries {
 	data := make([]float64, len(s.data))
 	copy(data, s.data)
@@ -715,7 +792,7 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
+		partition:  &GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
 	}
 }
 
@@ -756,7 +833,7 @@ func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition:  GDLSeriesFloat64Partition{groups, nullGroup},
+		partition:  &GDLSeriesFloat64Partition{groups, nullGroup},
 	}
 }
 

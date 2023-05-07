@@ -466,6 +466,79 @@ func (s GDLSeriesInt32) DataAsString() []string {
 	return data
 }
 
+// Casts the series to a given type.
+func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	switch t {
+	case typesys.BoolType:
+		data := __initNullMask(len(s.data))
+		for i, v := range s.data {
+			if v != 0 {
+				data[i>>3] |= (1 << uint(i%8))
+			}
+		}
+
+		return GDLSeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			size:       len(s.data),
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case typesys.Int32Type:
+		return s
+
+	case typesys.Float64Type:
+		data := make([]float64, len(s.data))
+		for i, v := range s.data {
+			data[i] = float64(v)
+		}
+
+		return GDLSeriesFloat64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case typesys.StringType:
+		if stringPool == nil {
+			return GDLSeriesError{"GDLSeriesInt32.Cast: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		if s.isNullable {
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					data[i] = stringPool.Get(NULL_STRING)
+				} else {
+					data[i] = stringPool.Get(intToString(v))
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				data[i] = stringPool.Get(intToString(v))
+			}
+		}
+
+		return GDLSeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Cast: invalid type %s", t.ToString())}
+	}
+}
+
 func (s GDLSeriesInt32) Copy() GDLSeries {
 	data := make([]int, len(s.data))
 	copy(data, s.data)

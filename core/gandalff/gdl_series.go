@@ -154,6 +154,8 @@ type GDLSeries interface {
 	// Returns the data of the series as a slice of strings.
 	DataAsString() []string
 
+	// Casts the series to a given type.
+	Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries
 	// Copies the series.
 	Copy() GDLSeries
 
@@ -416,6 +418,11 @@ func (s GDLSeriesError) DataAsNullable() any {
 // Returns the data of the series as a slice of strings.
 func (s GDLSeriesError) DataAsString() []string {
 	return []string{}
+}
+
+// Casts the series to a given type.
+func (s GDLSeriesError) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+	return s
 }
 
 // Copies the series.
