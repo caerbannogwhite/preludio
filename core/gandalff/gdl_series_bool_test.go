@@ -256,6 +256,100 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 	}
 }
 
+func Test_GDLSeriesBool_Cast(t *testing.T) {
+	data := []bool{true, false, true, false, true, false, true, false, true, false}
+	mask := []bool{false, false, true, false, false, true, false, false, true, false}
+
+	// Create a new series.
+	s := NewGDLSeriesBool("test", true, data)
+
+	// Set the null mask.
+	s.SetNullMask(mask)
+
+	// Cast to int32.
+	castInt32 := s.Cast(typesys.Int32Type, nil)
+
+	// Check the length.
+	if castInt32.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", castInt32.Len())
+	}
+
+	// Check the data.
+	for i, v := range castInt32.Data().([]int) {
+		if data[i] && v != 1 {
+			t.Errorf("Expected %d, got %d at index %d", 1, v, i)
+		} else if !data[i] && v != 0 {
+			t.Errorf("Expected %d, got %d at index %d", 0, v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range castInt32.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
+		}
+	}
+
+	// Cast to float64.
+	castFloat64 := s.Cast(typesys.Float64Type, nil)
+
+	// Check the length.
+	if castFloat64.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", castFloat64.Len())
+	}
+
+	// Check the data.
+	for i, v := range castFloat64.Data().([]float64) {
+		if data[i] && v != 1.0 {
+			t.Errorf("Expected %f, got %f at index %d", 1.0, v, i)
+		} else if !data[i] && v != 0.0 {
+			t.Errorf("Expected %f, got %f at index %d", 0.0, v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range castFloat64.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
+		}
+	}
+
+	// Cast to string.
+	castString := s.Cast(typesys.StringType, NewStringPool())
+
+	// Check the length.
+	if castString.Len() != 10 {
+		t.Errorf("Expected length of 10, got %d", castString.Len())
+	}
+
+	// Check the data.
+	for i, v := range castString.Data().([]string) {
+		if mask[i] && v != NULL_STRING {
+			t.Errorf("Expected %s, got %s at index %d", NULL_STRING, v, i)
+		} else if !mask[i] && data[i] && v != "true" {
+			t.Errorf("Expected %s, got %s at index %d", "true", v, i)
+		} else if !mask[i] && !data[i] && v != "false" {
+			t.Errorf("Expected %s, got %s at index %d", "false", v, i)
+		}
+
+	}
+
+	// Check the null mask.
+	for i, v := range castString.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
+		}
+	}
+
+	// Cast to error.
+	castError := s.Cast(typesys.ErrorType, nil)
+
+	// Check the message.
+	if castError.(GDLSeriesError).msg != "GDLSeriesBool.Cast: invalid type Error" {
+		t.Errorf("Expected error, got %v", castError)
+	}
+}
+
 func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}

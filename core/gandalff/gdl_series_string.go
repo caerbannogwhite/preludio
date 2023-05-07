@@ -434,16 +434,30 @@ func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSer
 	case typesys.BoolType:
 		data := __initNullMask(len(s.data))
 		nullMask := __initNullMask(len(s.data))
+		if s.isNullable {
+			copy(nullMask, s.nullMask)
+		}
 
-		for i, v := range s.data {
-			switch *v {
-			case "true":
-				data[i>>3] |= (1 << uint(i%8))
-			case "false":
-				// do nothing
-				continue
-			default:
-				nullMask[i>>3] |= (1 << uint(i%8))
+		typeGuesser := newTypeGuesser()
+		if s.isNullable {
+			for i, v := range s.data {
+				if !s.IsNull(i) {
+					b, err := typeGuesser.atoBool(*v)
+					if err != nil {
+						nullMask[i>>3] |= (1 << uint(i%8))
+					} else if b {
+						data[i>>3] |= (1 << uint(i%8))
+					}
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				b, err := typeGuesser.atoBool(*v)
+				if err != nil {
+					nullMask[i>>3] |= (1 << uint(i%8))
+				} else if b {
+					data[i>>3] |= (1 << uint(i%8))
+				}
 			}
 		}
 
@@ -460,13 +474,29 @@ func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSer
 	case typesys.Int32Type:
 		data := make([]int, len(s.data))
 		nullMask := __initNullMask(len(s.data))
+		if s.isNullable {
+			copy(nullMask, s.nullMask)
+		}
 
-		for i, v := range s.data {
-			d, err := strconv.Atoi(*v)
-			if err != nil {
-				nullMask[i>>3] |= (1 << uint(i%8))
-			} else {
-				data[i] = d
+		if s.isNullable {
+			for i, v := range s.data {
+				if !s.IsNull(i) {
+					d, err := strconv.Atoi(*v)
+					if err != nil {
+						nullMask[i>>3] |= (1 << uint(i%8))
+					} else {
+						data[i] = d
+					}
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				d, err := strconv.Atoi(*v)
+				if err != nil {
+					nullMask[i>>3] |= (1 << uint(i%8))
+				} else {
+					data[i] = d
+				}
 			}
 		}
 
@@ -482,13 +512,29 @@ func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSer
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
 		nullMask := __initNullMask(len(s.data))
+		if s.isNullable {
+			copy(nullMask, s.nullMask)
+		}
 
-		for i, v := range s.data {
-			f, err := strconv.ParseFloat(*v, 64)
-			if err != nil {
-				nullMask[i>>3] |= (1 << uint(i%8))
-			} else {
-				data[i] = f
+		if s.isNullable {
+			for i, v := range s.data {
+				if !s.IsNull(i) {
+					f, err := strconv.ParseFloat(*v, 64)
+					if err != nil {
+						nullMask[i>>3] |= (1 << uint(i%8))
+					} else {
+						data[i] = f
+					}
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				f, err := strconv.ParseFloat(*v, 64)
+				if err != nil {
+					nullMask[i>>3] |= (1 << uint(i%8))
+				} else {
+					data[i] = f
+				}
 			}
 		}
 
