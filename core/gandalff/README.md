@@ -10,12 +10,13 @@ It supports nullable types: null data is optimized for memory usage.
 
 ### Why?
 
-The main purpose of this library is to have a an easy to use data manipulation library for Go, 
-as close as possible to the R language and the dplyr package.
+The primary purpose of this library is to have an easy-to-use data manipulation library for Go and to be as close as possible to the R language and the Dplyr package.
+It also has to be performant; hopefully, it will become as fast as Polars.
 
 ### Examples
 
 ```go
+func Example01() {
 	data := `
 name,age,weight,junior,department,salary band
 Alice C,29,75.0,F,HR,4
@@ -39,6 +40,7 @@ Charlie,33,60.0,t,Business,2
 		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 		PrettyPrint()
 
+	// Output:
 	// +------------+------------+------------+------------+------------+
 	// | department |        age |     weight |     junior |          n |
 	// +------------+------------+------------+------------+------------+
@@ -48,6 +50,7 @@ Charlie,33,60.0,t,Business,2
 	// |         IT |         25 |         85 |        0.5 |          4 |
 	// |   Business |         27 |         65 |        0.5 |          2 |
 	// +------------+------------+------------+------------+------------+
+}
 ```
 
 ### Supported data types
@@ -69,16 +72,19 @@ The data types not checked are not yet supported, but might be in the future.
 ### Supported operations for Series
 
 - [x] Filter
+
   - [x] Filter (by Bool series)
   - [x] FilterByMask
   - [x] FilterByIndex
 
 - [x] Group
+
   - [x] Group
   - [x] SubGroup
 
 - [x] Map
 - [ ] Sort
+
   - [x] Sort
   - [ ] SortRev
 
@@ -107,7 +113,6 @@ The data types not checked are not yet supported, but might be in the future.
 - [ ] Variance
 - [ ] Quantile
 
-
 ### Implementation details
 
 This is how the interface for the Series type currently looks like
@@ -115,7 +120,7 @@ with all the methods that are currently implemented.
 
 ```go
 type GDLSeries interface {
-	
+
 	// Basic accessors.
 
 	// Returns the number of elements in the series.
@@ -209,4 +214,5 @@ type GDLSeries interface {
 	// Sorts the elements of the series.
 	Sort() GDLSeries
 	SortRev() GDLSeries
+}
 ```
