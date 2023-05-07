@@ -11,7 +11,12 @@ func Benchmark_Filter_Q1_1e5(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -34,7 +39,12 @@ func Benchmark_Filter_Q1_1e6(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -57,7 +67,12 @@ func Benchmark_Filter_Q1_1e7(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -80,7 +95,12 @@ func Benchmark_Filter_Q2_1e5(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -121,7 +141,12 @@ func Benchmark_Filter_Q2_1e6(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -162,7 +187,12 @@ func Benchmark_Filter_Q2_1e7(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
@@ -203,14 +233,19 @@ func Benchmark_GroupBy_Q1_1e5(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Sum().Select("id1", "v1")
+		df.GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -220,14 +255,19 @@ func Benchmark_GroupBy_Q1_1e6(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Sum().Select("id1", "v1")
+		df.GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -237,14 +277,19 @@ func Benchmark_GroupBy_Q1_1e7(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Sum().Select("id1", "v1")
+		df.GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -254,14 +299,19 @@ func Benchmark_GroupBy_Q2_1e5(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Sum().Select("id1", "v1")
+		df.GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -271,14 +321,19 @@ func Benchmark_GroupBy_Q2_1e6(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Sum().Select("id1", "v1")
+		df.GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -288,14 +343,19 @@ func Benchmark_GroupBy_Q2_1e7(b *testing.B) {
 	if err != nil {
 		b.Error(err)
 	}
-	df := FromCSV(f, ',', true, 100)
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read()
+
 	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Sum().Select("id1", "v1")
+		df.GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
