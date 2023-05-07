@@ -88,6 +88,8 @@ const (
 	AGGREGATE_STD
 )
 
+const DEFAULT_COUNT_NAME = "n"
+
 type aggregator interface {
 	getSeriesName() string
 	getAggregateType() AggregateType
@@ -106,8 +108,9 @@ func (agg countAggregator) getAggregateType() AggregateType {
 	return agg.type_
 }
 
-func Count(name string) aggregator {
-	return countAggregator{name, AGGREGATE_COUNT}
+func Count() aggregator {
+
+	return countAggregator{DEFAULT_COUNT_NAME, AGGREGATE_COUNT}
 }
 
 type sumAggregator struct {

@@ -510,15 +510,19 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	// CHECK: aggregators must have unique names and names must be valid
 	aggNames := make(map[string]bool)
 	for _, agg := range aggregators {
-		if aggNames[agg.getSeriesName()] {
-			df.err = fmt.Errorf("BaseDataFrame.Agg: aggregator names must be unique")
-			return df
-		}
-		aggNames[agg.getSeriesName()] = true
 
-		if df.__series(agg.getSeriesName()) == nil {
-			df.err = fmt.Errorf("BaseDataFrame.Agg: \"%s\" is not in the dataframe", agg.getSeriesName())
-			return df
+		// CASE: aggregator count has a default name
+		if agg.getAggregateType() != AGGREGATE_COUNT {
+			if aggNames[agg.getSeriesName()] {
+				df.err = fmt.Errorf("BaseDataFrame.Agg: aggregator names must be unique")
+				return df
+			}
+			aggNames[agg.getSeriesName()] = true
+
+			if df.__series(agg.getSeriesName()) == nil {
+				df.err = fmt.Errorf("BaseDataFrame.Agg: series \"%s\" not found", agg.getSeriesName())
+				return df
+			}
 		}
 	}
 
@@ -563,7 +567,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 		// TODO: implement
 	}
 
-	return df
+	return result
 }
 
 func (df BaseDataFrame) Count(name string) DataFrame {
