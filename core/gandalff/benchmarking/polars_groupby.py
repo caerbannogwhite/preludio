@@ -8,11 +8,14 @@ import polars as pl
 from statistics import mean
 from helpers import write_log, memory_usage, make_chk
 
+# other questions ans info here
+# https://github.com/h2oai/db-benchmark/tree/master
+
 ver = pl.__version__
 git = ""
-task = "filter"
+task = "groupby"
 solution = "polars"
-fun = ".filter"
+fun = ".groupby"
 cache = "TRUE"
 on_disk = "FALSE"
 data_names = ["G1_1e4_1e2_0_0", "G1_1e5_1e2_0_0", "G1_1e6_1e2_0_0", "G1_1e7_1e2_0_0"]
@@ -70,7 +73,7 @@ for data_name in data_names:
     ans =  x.groupby("id3").agg([pl.sum("v1"), pl.mean("v3")])
     print(ans.shape, flush=True)
     m = memory_usage()
-    chk = [ans["v1"].cast(pl.Int64).sum()]
+    chk = ans.select([pl.col("v1").cast(pl.Int64).sum(), pl.col("v3").sum()]).to_numpy().tolist()
 
     write_log(task=task, data=data_name, in_rows=in_rows, question=question, out_rows=ans.shape[0], out_cols=ans.shape[1], solution=solution, version=ver, git=git, fun=fun, run=1, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=-1, on_disk=on_disk)
     del ans
@@ -87,7 +90,7 @@ for data_name in data_names:
     ans =  x.groupby("id4").agg([pl.mean("v1"), pl.mean("v2"), pl.mean("v3")])
     print(ans.shape, flush=True)
     m = memory_usage()
-    chk = [ans["v1"].cast(pl.Int64).sum()]
+    chk = ans.select([pl.col("v1").sum(), pl.col("v2").sum(), pl.col("v3").sum()]).to_numpy().tolist()
 
     write_log(task=task, data=data_name, in_rows=in_rows, question=question, out_rows=ans.shape[0], out_cols=ans.shape[1], solution=solution, version=ver, git=git, fun=fun, run=1, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=-1, on_disk=on_disk)
     del ans
@@ -104,8 +107,7 @@ for data_name in data_names:
     ans =  x.groupby("id6").agg([pl.sum("v1"), pl.sum("v2"), pl.sum("v3")])
     print(ans.shape, flush=True)
     m = memory_usage()
-    chk = [ans["v1"].cast(pl.Int64).sum()]
+    chk = ans.select([pl.col("v1").cast(pl.Int64).sum(), pl.col("v2").cast(pl.Int64).sum(), pl.col("v3").sum()]).to_numpy().tolist()
 
     write_log(task=task, data=data_name, in_rows=in_rows, question=question, out_rows=ans.shape[0], out_cols=ans.shape[1], solution=solution, version=ver, git=git, fun=fun, run=1, time_sec=t, mem_gb=m, cache=cache, chk=make_chk(chk), chk_time_sec=-1, on_disk=on_disk)
     del ans
-    
