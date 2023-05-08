@@ -728,6 +728,154 @@ func Test_GroupBy_Q4_1e7(t *testing.T) {
 	}
 }
 
+func Test_GroupBy_Q5_1e4(t *testing.T) {
+	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Skip(err)
+	}
+
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read().
+		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+
+	if df.NRows() != 100 {
+		t.Errorf("Expected 100 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 4 {
+		t.Errorf("Expected 4 columns, got %d", df.NCols())
+	}
+
+	check1 := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if !equalFloats(check1, 30027, 10e-6) {
+		t.Errorf("Expected 30027, got %f", check1)
+	}
+
+	check2 := df.Agg(Sum("v2")).Series("v2").Get(0).(float64)
+	if !equalFloats(check2, 80396, 10e-6) {
+		t.Errorf("Expected 80396, got %f", check2)
+	}
+
+	check3 := df.Agg(Sum("v3")).Series("v3").Get(0).(float64)
+	if !equalFloats(check3, 500378.166716, 10e-6) {
+		t.Errorf("Expected 500378.166716, got %f", check3)
+	}
+}
+
+func Test_GroupBy_Q5_1e5(t *testing.T) {
+	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Skip(err)
+	}
+
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read().
+		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+
+	if df.NRows() != 1000 {
+		t.Errorf("Expected 1000 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 4 {
+		t.Errorf("Expected 4 columns, got %d", df.NCols())
+	}
+
+	check1 := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if !equalFloats(check1, 300292, 10e-6) {
+		t.Errorf("Expected 300292, got %f", check1)
+	}
+
+	check2 := df.Agg(Sum("v2")).Series("v2").Get(0).(float64)
+	if !equalFloats(check2, 800809, 10e-6) {
+		t.Errorf("Expected 800809, got %f", check2)
+	}
+
+	check3 := df.Agg(Sum("v3")).Series("v3").Get(0).(float64)
+	if !equalFloats(check3, 5009219.2870470015, 10e-6) {
+		t.Errorf("Expected 5009219.2870470015, got %f", check3)
+	}
+}
+
+func Test_GroupBy_Q5_1e6(t *testing.T) {
+	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Skip(err)
+	}
+
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read().
+		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+
+	if df.NRows() != 10000 {
+		t.Errorf("Expected 10000 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 4 {
+		t.Errorf("Expected 4 columns, got %d", df.NCols())
+	}
+
+	check1 := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if !equalFloats(check1, 3000297, 10e-6) {
+		t.Errorf("Expected 3000297, got %f", check1)
+	}
+
+	check2 := df.Agg(Sum("v2")).Series("v2").Get(0).(float64)
+	if !equalFloats(check2, 7998131, 10e-6) {
+		t.Errorf("Expected 7998131, got %f", check2)
+	}
+
+	check3 := df.Agg(Sum("v3")).Series("v3").Get(0).(float64)
+	if !equalFloats(check3, 50037098.685274005, 10e-6) {
+		t.Errorf("Expected 50037098.685274005, got %f", check3)
+	}
+}
+
+func Test_GroupBy_Q5_1e7(t *testing.T) {
+	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		t.Skip(err)
+	}
+
+	df := NewBaseDataFrame().
+		FromCSV().
+		SetDelimiter(',').
+		SetReader(f).
+		Read().
+		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+
+	if df.NRows() != 100000 {
+		t.Errorf("Expected 100000 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 4 {
+		t.Errorf("Expected 4 columns, got %d", df.NCols())
+	}
+
+	check1 := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if !equalFloats(check1, 29998789, 10e-6) {
+		t.Errorf("Expected 29998789, got %f", check1)
+	}
+
+	check2 := df.Agg(Sum("v2")).Series("v2").Get(0).(float64)
+	if !equalFloats(check2, 79989360, 10e-6) {
+		t.Errorf("Expected 79989360, got %f", check2)
+	}
+
+	check3 := df.Agg(Sum("v3")).Series("v3").Get(0).(float64)
+	if !equalFloats(check3, 499976651.4080609, 10e-6) {
+		t.Errorf("Expected 499976651.4080609, got %f", check3)
+	}
+}
+
 ////////////////////////			GROUP BY BENCHMARKS
 
 func Benchmark_GroupBy_Q1_1e4(b *testing.B) {

@@ -48,7 +48,7 @@ func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeries {
 	return GDLSeriesBool{isNullable: isNullable, name: name, size: size, data: actualData, nullMask: nullMask}
 }
 
-///////////////////////////////		BASIC ACCESSORS		/////////////////////////////////
+////////////////////////			BASIC ACCESSORS
 
 func (s GDLSeriesBool) __trueCount() int {
 	count := 0
@@ -498,7 +498,7 @@ func (s GDLSeriesBool) AppendSeries(other GDLSeries) GDLSeries {
 	return s
 }
 
-/////////////////////////////// 		ALL DATA ACCESSORS		///////////////////////////////
+////////////////////////			ALL DATA ACCESSORS
 
 func (s GDLSeriesBool) Data() any {
 	data := make([]bool, s.size)
@@ -666,7 +666,7 @@ func (s GDLSeriesBool) Copy() GDLSeries {
 	}
 }
 
-///////////////////////////////		SERIES OPERATIONS		/////////////////////////////
+////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
 func (s GDLSeriesBool) Filter(mask GDLSeriesBool) GDLSeries {
@@ -897,7 +897,7 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("GDLSeriesBool.Map: Unsupported type %T", v)}
 }
 
-///////////////////////////////		GROUPING OPERATIONS		/////////////////////////////
+////////////////////////			GROUPING OPERATIONS
 
 type boolIndices struct {
 	trues  []int
@@ -1080,9 +1080,9 @@ func (s GDLSeriesBool) SortRev() GDLSeries {
 	return s
 }
 
-///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
+////////////////////////			SORTING OPERATIONS
 
-///////////////////////////////		LOGIC OPERATIONS		/////////////////////////////
+////////////////////////			LOGIC OPERATIONS
 
 // And performs logical AND operation between two series
 // If one of the series is nullable, the result series will be nullable
@@ -1208,7 +1208,7 @@ func (s GDLSeriesBool) Not() GDLSeries {
 	return s
 }
 
-///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+////////////////////////			ARITHMETIC OPERATIONS
 
 func (s GDLSeriesBool) Mul(other GDLSeries) GDLSeries {
 	return s

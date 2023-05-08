@@ -35,7 +35,7 @@ func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) 
 	return GDLSeriesInt32{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
 }
 
-///////////////////////////////		BASIC ACCESSORS			/////////////////////////////
+////////////////////////			BASIC ACCESSORS
 
 // Returns the number of elements in the series.
 func (s GDLSeriesInt32) Len() int {
@@ -435,7 +435,7 @@ func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
 	return s
 }
 
-///////////////////////////////  	ALL DATA ACCESSORS  /////////////////////////////////
+////////////////////////			ALL DATA ACCESSORS
 
 func (s GDLSeriesInt32) Data() any {
 	return s.data
@@ -549,7 +549,7 @@ func (s GDLSeriesInt32) Copy() GDLSeries {
 	return GDLSeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-///////////////////////////////  	SERIES OPERATIONS  //////////////////////////////////
+////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
 func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
@@ -786,7 +786,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Map: Unsupported type %T", v)}
 }
 
-/////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
+////////////////////////			GROUPING OPERATIONS
 
 type GDLSeriesInt32Grouping struct {
 	seriesSize   int
@@ -997,7 +997,7 @@ func (s GDLSeriesInt32) GetPartition() GDLSeriesPartition {
 	return s.partition
 }
 
-/////////////////////////////// 		SORTING OPERATIONS		/////////////////////////
+////////////////////////			SORTING OPERATIONS
 
 func (s GDLSeriesInt32) Sort() GDLSeries {
 	if s.sorted != SORTED_ASC {
@@ -1027,7 +1027,7 @@ func (s GDLSeriesInt32) SortRev() GDLSeries {
 	return s
 }
 
-///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+////////////////////////			ARITHMETIC OPERATIONS
 
 func (s GDLSeriesInt32) Mul(other GDLSeries) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}

@@ -27,7 +27,7 @@ func NewBaseDataFrame() DataFrame {
 	}
 }
 
-///////////////////////			BASIC ACCESSORS     	/////////////////////////////////
+////////////////////////			BASIC ACCESSORS
 
 // Names returns the names of the series in the dataframe.
 func (df BaseDataFrame) Names() []string {
@@ -504,7 +504,7 @@ func (df BaseDataFrame) Take(start, end, step int) DataFrame {
 	return taken
 }
 
-///////////////////////////////		SUMMARY		/////////////////////////////////////////
+////////////////////////			SUMMARY
 
 func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	if df.err != nil {
@@ -602,7 +602,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	return result
 }
 
-///////////////////////////////		PRINTING	/////////////////////////////////////////
+////////////////////////			PRINTING
 
 func truncate(s string, n int) string {
 	if len(s) > n {
@@ -713,7 +713,7 @@ func (df BaseDataFrame) PrettyPrint() {
 	fmt.Println("+")
 }
 
-///////////////////////////////		IO		/////////////////////////////////////////////
+////////////////////////			IO
 
 func (df BaseDataFrame) FromCSV() *GDLCsvReader {
 	return NewGDLCsvReader()

@@ -74,7 +74,7 @@ type DataFrame interface {
 	FromCSV() *GDLCsvReader
 }
 
-///////////////////////			AGGREGATORS        ///////////////////////
+////////////////////////			AGGREGATORS
 
 type AggregateType int8
 

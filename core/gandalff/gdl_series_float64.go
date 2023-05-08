@@ -33,7 +33,7 @@ func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []flo
 	return GDLSeriesFloat64{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
 }
 
-///////////////////////////////		BASIC ACCESSORS			/////////////////////////////////
+////////////////////////			BASIC ACCESSORS
 
 // Returns the number of elements in the series.
 func (s GDLSeriesFloat64) Len() int {
@@ -370,7 +370,7 @@ func (s GDLSeriesFloat64) AppendSeries(other GDLSeries) GDLSeries {
 	return s
 }
 
-///////////////////////////////		ALL DATA ACCESSORS			/////////////////////////
+////////////////////////			ALL DATA ACCESSORS
 
 func (s GDLSeriesFloat64) Data() any {
 	return s.data
@@ -489,7 +489,7 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 		isGrouped: s.isGrouped, sorted: s.sorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-///////////////////////////////		SERIES OPERATIONS			/////////////////////////
+////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
 func (s GDLSeriesFloat64) Filter(mask GDLSeriesBool) GDLSeries {
@@ -696,7 +696,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("GDLSeriesFloat64.Map: Unsupported type %T", v)}
 }
 
-/////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
+////////////////////////			GROUPING OPERATIONS
 
 type GDLSeriesFloat64Partition struct {
 	partition []map[float64][]int
@@ -849,9 +849,9 @@ func (s GDLSeriesFloat64) SortRev() GDLSeries {
 	return s
 }
 
-///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
+////////////////////////			SORTING OPERATIONS
 
-///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+////////////////////////			ARITHMETIC OPERATIONS
 
 func (s GDLSeriesFloat64) Mul(other GDLSeries) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}

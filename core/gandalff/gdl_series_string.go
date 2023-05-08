@@ -36,7 +36,7 @@ func NewGDLSeriesString(name string, isNullable bool, data []string, pool *Strin
 	return GDLSeriesString{isNullable: isNullable, name: name, data: actualData, nullMask: nullMask, pool: pool}
 }
 
-///////////////////////////////		BASIC ACCESSORS			/////////////////////////////
+////////////////////////			BASIC ACCESSORS
 
 // Returns the number of elements in the series.
 func (s GDLSeriesString) Len() int {
@@ -393,7 +393,7 @@ func (s GDLSeriesString) AppendSeries(other GDLSeries) GDLSeries {
 	return s
 }
 
-///////////////////////////////		ALL DATA ACCESSORS		/////////////////////////////
+////////////////////////			ALL DATA ACCESSORS
 
 func (s GDLSeriesString) Data() any {
 	data := make([]string, len(s.data))
@@ -564,7 +564,7 @@ func (s GDLSeriesString) Copy() GDLSeries {
 	return NewGDLSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
-/////////////////////////////// 		SERIES OPERATIONS		/////////////////////////
+////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
 func (s GDLSeriesString) Filter(mask GDLSeriesBool) GDLSeries {
@@ -866,7 +866,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	return GDLSeriesError{fmt.Sprintf("GDLSeriesString.Map: Unsupported type %T", v)}
 }
 
-/////////////////////////////// 		GROUPING OPERATIONS		/////////////////////////
+////////////////////////			GROUPING OPERATIONS
 
 type GDLSeriesStringPartition struct {
 	partition []map[*string][]int
@@ -1032,9 +1032,9 @@ func (s GDLSeriesString) SortRev() GDLSeries {
 	return s
 }
 
-///////////////////////////////		SORTING OPERATIONS		/////////////////////////////
+////////////////////////			SORTING OPERATIONS
 
-///////////////////////////////		ARITHMETIC OPERATIONS		/////////////////////////
+////////////////////////			ARITHMETIC OPERATIONS
 
 func (s GDLSeriesString) Mul(other GDLSeries) GDLSeries {
 	return s
