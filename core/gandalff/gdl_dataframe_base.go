@@ -9,7 +9,7 @@ import (
 type BaseDataFramePartitionEntry struct {
 	index     int
 	name      string
-	partition GDLSeriesPartition
+	partition SeriesPartition
 }
 
 type BaseDataFrame struct {
@@ -344,6 +344,22 @@ func (df BaseDataFrame) Ungroup() DataFrame {
 	return df
 }
 
+func (df BaseDataFrame) GetPartitions() []SeriesPartition {
+	if df.err != nil {
+		return nil
+	}
+
+	if df.isGrouped {
+		partitions := make([]SeriesPartition, len(df.partitions))
+		for i, partition := range df.partitions {
+			partitions[i] = partition.partition
+		}
+		return partitions
+	} else {
+		return nil
+	}
+}
+
 func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 	// Keep track of which series are not grouped
@@ -424,11 +440,18 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	}
 
 	// CHECK: all the join columns must exist
+	// CHECK: all the join columns must have the same type
+	types := make([]typesys.BaseType, len(on))
 	for _, name := range on {
+
+		// Series A
 		found := false
 		for _, series := range df.series {
 			if series.Name() == name {
 				found = true
+
+				// keep track of the types
+				types = append(types, series.Type())
 				break
 			}
 		}
@@ -436,10 +459,18 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			df.err = fmt.Errorf("BaseDataFrame.Join: column \"%s\" not found in left dataframe", name)
 			return df
 		}
+
+		// Series B
 		found = false
 		for _, series := range other.(BaseDataFrame).series {
 			if series.Name() == name {
 				found = true
+
+				// CHECK: the types must match
+				if types[len(types)-1] != series.Type() {
+					df.err = fmt.Errorf("BaseDataFrame.Join: columns \"%s\" have different types", name)
+					return df
+				}
 				break
 			}
 		}
@@ -472,9 +503,52 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 	}
 
+	// Group the dataframes by the join columns
+	dfGrouped := df.GroupBy(on...).(BaseDataFrame)
+	otherGrouped := other.GroupBy(on...).(BaseDataFrame)
+
 	switch how {
 	case INNER_JOIN:
 		// TODO: implement
+		pA := dfGrouped.GetPartitions()
+		pB := otherGrouped.GetPartitions()
+
+		for i := range on {
+
+			switch types[i] {
+			case typesys.BoolType:
+				// keysA := pA[0].GetKeys().([]bool)
+				// keysB := pB[0].GetKeys().([]bool)
+
+			case typesys.Int32Type:
+				keysA := pA[0].GetKeys().([]int)
+				keysB := pB[0].GetKeys().([]int)
+
+				sort.Ints(keysA)
+				sort.Ints(keysB)
+
+				keysIntersection := make([]int, 0)
+				for _, keyA := range keysA {
+					for _, keyB := range keysB {
+						if keyA == keyB {
+							keysIntersection = append(keysIntersection, keyA)
+							break
+						}
+					}
+				}
+
+				// Keep only the keys that are in both dataframes
+
+			case typesys.Float64Type:
+				// keysA := pA[0].GetKeys().([]float64)
+				// keysB := pB[0].GetKeys().([]float64)
+
+			case typesys.StringType:
+				// keysA := pA[0].GetKeys().([]string)
+				// keysB := pB[0].GetKeys().([]string)
+			}
+
+		}
 
 	case LEFT_JOIN:
 		// TODO: implement

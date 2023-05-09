@@ -15,7 +15,7 @@ type GDLSeriesBool struct {
 	name       string
 	data       []uint8
 	nullMask   []uint8
-	partition  *GDLSeriesBoolPartition
+	partition  *SeriesBoolPartition
 }
 
 func NewGDLSeriesBool(name string, isNullable bool, data []bool) GDLSeries {
@@ -908,16 +908,16 @@ type boolIndices struct {
 // Each element of the vector represent a sub-group (the default is 1,
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
-type GDLSeriesBoolPartition struct {
+type SeriesBoolPartition struct {
 	partition []boolIndices
 	nullGroup [][]int
 }
 
-func (p GDLSeriesBoolPartition) GetSize() int {
+func (p SeriesBoolPartition) GetSize() int {
 	return len(p.partition)
 }
 
-func (p GDLSeriesBoolPartition) GetGroupsCount() int {
+func (p SeriesBoolPartition) GetGroupsCount() int {
 	count := 0
 	for _, s := range p.partition {
 		if len(s.trues) > 0 {
@@ -936,7 +936,7 @@ func (p GDLSeriesBoolPartition) GetGroupsCount() int {
 	return count
 }
 
-func (p GDLSeriesBoolPartition) GetIndices() [][]int {
+func (p SeriesBoolPartition) GetIndices() [][]int {
 	indices := make([][]int, 0)
 
 	for _, s := range p.partition {
@@ -957,7 +957,7 @@ func (p GDLSeriesBoolPartition) GetIndices() [][]int {
 	return indices
 }
 
-func (p GDLSeriesBoolPartition) GetValueIndices(sub int, val interface{}) []int {
+func (p SeriesBoolPartition) GetValueIndices(sub int, val any) []int {
 	if sub >= len(p.partition) {
 		return nil
 	}
@@ -972,12 +972,35 @@ func (p GDLSeriesBoolPartition) GetValueIndices(sub int, val interface{}) []int 
 	return nil
 }
 
-func (s GDLSeriesBoolPartition) GetNullIndices(sub int) []int {
+func (s SeriesBoolPartition) GetNullIndices(sub int) []int {
 	if sub >= len(s.nullGroup) {
 		return nil
 	}
 
 	return s.nullGroup[sub]
+}
+
+func (gp SeriesBoolPartition) GetKeys() any {
+	anyTrue := false
+	anyFalse := false
+	for _, s := range gp.partition {
+		if len(s.trues) > 0 {
+			anyTrue = true
+		}
+		if len(s.falses) > 0 {
+			anyFalse = true
+		}
+	}
+
+	keys := make([]bool, 0, 2)
+	if anyTrue {
+		keys = append(keys, true)
+	}
+	if anyFalse {
+		keys = append(keys, false)
+	}
+
+	return keys
 }
 
 func (s GDLSeriesBool) Group() GDLSeries {
@@ -1014,13 +1037,13 @@ func (s GDLSeriesBool) Group() GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition: &GDLSeriesBoolPartition{
+		partition: &SeriesBoolPartition{
 			partition: []boolIndices{groups},
 			nullGroup: nullGroup,
 		}}
 }
 
-func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeries {
+func (s GDLSeriesBool) SubGroup(partition SeriesPartition) GDLSeries {
 	var nullGroup [][]int
 
 	groups := make([]boolIndices, 0)
@@ -1062,13 +1085,13 @@ func (s GDLSeriesBool) SubGroup(partition GDLSeriesPartition) GDLSeries {
 		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
-		partition: &GDLSeriesBoolPartition{
+		partition: &SeriesBoolPartition{
 			partition: groups,
 			nullGroup: nullGroup,
 		}}
 }
 
-func (s GDLSeriesBool) GetPartition() GDLSeriesPartition {
+func (s GDLSeriesBool) GetPartition() SeriesPartition {
 	return s.partition
 }
 

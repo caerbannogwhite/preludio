@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"typesys"
 )
 
@@ -13,7 +14,7 @@ type GDLSeriesFloat64 struct {
 	name       string
 	data       []float64
 	nullMask   []uint8
-	partition  *GDLSeriesFloat64Partition
+	partition  *SeriesFloat64Partition
 }
 
 func NewGDLSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) GDLSeriesFloat64 {
@@ -698,18 +699,63 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 ////////////////////////			GROUPING OPERATIONS
 
-type GDLSeriesFloat64Partition struct {
-	partition []map[float64][]int
-	nullGroup [][]int
+type SeriesFloat64Partition struct {
+	seriesSize   int
+	partitions   []map[float64][]int
+	nullGroups   [][]int
+	indexToGroup []int
 }
 
-func (p GDLSeriesFloat64Partition) GetSize() int {
-	return len(p.partition)
+func (gp SeriesFloat64Partition) GetSize() int {
+	return len(gp.partitions)
 }
 
-func (p GDLSeriesFloat64Partition) GetGroupsCount() int {
+func (gp SeriesFloat64Partition) beginSorting() SeriesFloat64Partition {
+	gp.indexToGroup = make([]int, gp.seriesSize)
+	for i, part := range gp.partitions {
+		for _, g := range part {
+			for _, idx := range g {
+				gp.indexToGroup[idx] = i
+			}
+		}
+	}
+
+	for i, g := range gp.nullGroups {
+		for _, idx := range g {
+			gp.indexToGroup[idx] = i + len(gp.partitions)
+		}
+	}
+
+	return gp
+}
+
+func (gp SeriesFloat64Partition) endSorting() SeriesFloat64Partition {
+	newPartitions := make(map[int][]int, len(gp.partitions))
+	newNullGroups := make([][]int, len(gp.nullGroups))
+
+	for i, part := range gp.partitions {
+		newPartitions[i] = make([]int, 0, len(part))
+	}
+
+	for i, g := range gp.nullGroups {
+		newNullGroups[i] = make([]int, 0, len(g))
+	}
+
+	for i, g := range gp.indexToGroup {
+		if g < len(gp.partitions) {
+			newPartitions[g] = append(newPartitions[g], i)
+		} else {
+			newNullGroups[g-len(gp.partitions)] = append(newNullGroups[g-len(gp.partitions)], i)
+		}
+	}
+
+	gp.indexToGroup = nil
+	return gp
+}
+
+func (gp SeriesFloat64Partition) GetGroupsCount() int {
 	count := 0
-	for _, s := range p.partition {
+	for _, s := range gp.partitions {
 		for _, g := range s {
 			if len(g) > 0 {
 				count++
@@ -717,7 +763,7 @@ func (p GDLSeriesFloat64Partition) GetGroupsCount() int {
 		}
 	}
 
-	for _, g := range p.nullGroup {
+	for _, g := range gp.nullGroups {
 		if len(g) > 0 {
 			count++
 		}
@@ -725,18 +771,26 @@ func (p GDLSeriesFloat64Partition) GetGroupsCount() int {
 	return count
 }
 
-func (p GDLSeriesFloat64Partition) GetIndices() [][]int {
+func (gp SeriesFloat64Partition) GetIndices() [][]int {
 	indices := make([][]int, 0)
 
-	for _, s := range p.partition {
-		for _, g := range s {
-			if len(g) > 0 {
-				indices = append(indices, g)
+	for _, s := range gp.partitions {
+
+		keys := make([]float64, 0, len(s))
+		for k := range s {
+			keys = append(keys, k)
+		}
+
+		sort.Float64s(keys)
+
+		for _, k := range keys {
+			if len(s[k]) > 0 {
+				indices = append(indices, s[k])
 			}
 		}
 	}
 
-	for _, g := range p.nullGroup {
+	for _, g := range gp.nullGroups {
 		if len(g) > 0 {
 			indices = append(indices, g)
 		}
@@ -745,24 +799,39 @@ func (p GDLSeriesFloat64Partition) GetIndices() [][]int {
 	return indices
 }
 
-func (p GDLSeriesFloat64Partition) GetValueIndices(sub int, val interface{}) []int {
-	if sub >= len(p.partition) {
+func (gp SeriesFloat64Partition) GetValueIndices(sub int, val any) []int {
+	if sub >= len(gp.partitions) {
 		return nil
 	}
 
 	if v, ok := val.(float64); ok {
-		return p.partition[sub][v]
+		return gp.partitions[sub][v]
 	}
 
 	return nil
 }
 
-func (s GDLSeriesFloat64Partition) GetNullIndices(sub int) []int {
-	if sub >= len(s.nullGroup) {
+func (gp SeriesFloat64Partition) GetNullIndices(sub int) []int {
+	if sub >= len(gp.nullGroups) {
 		return nil
 	}
 
-	return s.nullGroup[sub]
+	return gp.nullGroups[sub]
+}
+
+func (gp SeriesFloat64Partition) GetKeys() any {
+	keysMap := make(map[float64]bool)
+	for p := range gp.partitions {
+		for k := range gp.partitions[p] {
+			keysMap[k] = true
+		}
+	}
+
+	keys := make([]float64, 0, len(keysMap))
+	for k := range keysMap {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 func (s GDLSeriesFloat64) Group() GDLSeries {
@@ -785,59 +854,72 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 			groups[v] = append(groups[v], i)
 		}
 	}
-	return GDLSeriesFloat64{
-		isGrouped:  true,
-		isNullable: s.isNullable,
-		sorted:     s.sorted,
-		name:       s.name,
-		data:       s.data,
-		nullMask:   s.nullMask,
-		partition:  &GDLSeriesFloat64Partition{partition: []map[float64][]int{groups}, nullGroup: nullGroup},
+
+	partition := SeriesFloat64Partition{
+		seriesSize: s.Len(),
+		partitions: []map[float64][]int{groups},
+		nullGroups: nullGroup,
 	}
+
+	s.isGrouped = true
+	s.partition = &partition
+
+	return s
 }
 
-func (s GDLSeriesFloat64) SubGroup(partition GDLSeriesPartition) GDLSeries {
-	var nullGroup [][]int
+func (s GDLSeriesFloat64) SubGroup(partitions SeriesPartition) GDLSeries {
+	var nullGroups [][]int
 
-	groups := make([]map[float64][]int, 0)
-	indices := partition.GetIndices()
+	embeddedPartitions := make([]map[float64][]int, partitions.GetGroupsCount())
+	indices := partitions.GetIndices()
 	if s.isNullable {
-		nullGroup = make([][]int, partition.GetGroupsCount())
+		nullGroups = make([][]int, partitions.GetGroupsCount())
 
-		for _, g := range indices {
-			groups = append(groups, make(map[float64][]int))
-			for _, i := range g {
-				if s.IsNull(i) {
-					nullGroup[i] = append(nullGroup[i], i)
+		for gi, g := range indices {
+
+			// initialize embedded partitions
+			embeddedPartitions[gi] = make(map[float64][]int)
+			nullGroups[gi] = make([]int, 0)
+
+			for _, idx := range g {
+				if s.IsNull(idx) {
+					nullGroups[gi] = append(nullGroups[gi], idx)
 				} else {
-					groups[i][s.data[i]] = append(groups[i][s.data[i]], i)
+					if embeddedPartitions[gi][s.data[idx]] == nil {
+						embeddedPartitions[gi][s.data[idx]] = make([]int, 0)
+					}
+					embeddedPartitions[gi][s.data[idx]] = append(embeddedPartitions[gi][s.data[idx]], idx)
 				}
 			}
 		}
 	} else {
 		for gi, g := range indices {
-			groups = append(groups, make(map[float64][]int))
+
+			// initialize embedded partitions
+			embeddedPartitions[gi] = make(map[float64][]int)
+
 			for _, idx := range g {
-				if groups[gi][s.data[idx]] == nil {
-					groups[gi][s.data[idx]] = make([]int, 0)
+				if embeddedPartitions[gi][s.data[idx]] == nil {
+					embeddedPartitions[gi][s.data[idx]] = make([]int, 0)
 				}
-				groups[gi][s.data[idx]] = append(groups[gi][s.data[idx]], idx)
+				embeddedPartitions[gi][s.data[idx]] = append(embeddedPartitions[gi][s.data[idx]], idx)
 			}
 		}
 	}
 
-	return GDLSeriesFloat64{
-		isGrouped:  true,
-		isNullable: s.isNullable,
-		sorted:     s.sorted,
-		name:       s.name,
-		data:       s.data,
-		nullMask:   s.nullMask,
-		partition:  &GDLSeriesFloat64Partition{groups, nullGroup},
+	newPartition := SeriesFloat64Partition{
+		seriesSize: s.Len(),
+		partitions: embeddedPartitions,
+		nullGroups: nullGroups,
 	}
+
+	s.isGrouped = true
+	s.partition = &newPartition
+
+	return s
 }
 
-func (s GDLSeriesFloat64) GetPartition() GDLSeriesPartition {
+func (s GDLSeriesFloat64) GetPartition() SeriesPartition {
 	return s.partition
 }
 

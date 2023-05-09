@@ -177,10 +177,10 @@ type GDLSeries interface {
 
 	// Group the elements in the series.
 	Group() GDLSeries
-	SubGroup(gp GDLSeriesPartition) GDLSeries
+	SubGroup(gp SeriesPartition) GDLSeries
 
 	// Get the partition of the series.
-	GetPartition() GDLSeriesPartition
+	GetPartition() SeriesPartition
 
 	// Sorts the elements of the series.
 	Sort() GDLSeries
@@ -208,7 +208,7 @@ func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool,
 	}
 }
 
-type GDLSeriesPartition interface {
+type SeriesPartition interface {
 	// Returns the number partitions.
 	GetSize() int
 	// Returns the number of groups.
@@ -216,9 +216,11 @@ type GDLSeriesPartition interface {
 	// Returns the indices of the groups.
 	GetIndices() [][]int
 	// Returns the indices for a given value in a given sub-group.
-	GetValueIndices(sub int, val interface{}) []int
+	GetValueIndices(sub int, val any) []int
 	// Returns the null group.
 	GetNullIndices(sub int) []int
+	// Returns  the keys of the groups.
+	GetKeys() any
 }
 
 type StringPool struct {
@@ -428,11 +430,11 @@ func (s GDLSeriesError) Group() GDLSeries {
 	return nil
 }
 
-func (s GDLSeriesError) SubGroup(gp GDLSeriesPartition) GDLSeries {
+func (s GDLSeriesError) SubGroup(gp SeriesPartition) GDLSeries {
 	return nil
 }
 
-func (s GDLSeriesError) GetPartition() GDLSeriesPartition {
+func (s GDLSeriesError) GetPartition() SeriesPartition {
 	return nil
 }
 
