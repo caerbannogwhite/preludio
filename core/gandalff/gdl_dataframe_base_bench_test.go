@@ -276,7 +276,8 @@ func Test_GroupBy_Q1_1e4(t *testing.T) {
 	}
 
 	df := (*G1_1e4_1e2_0_0_df).
-		GroupBy("id1").Agg(Sum("v1"))
+		GroupBy("id1").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -298,7 +299,8 @@ func Test_GroupBy_Q1_1e5(t *testing.T) {
 	}
 
 	df := (*G1_1e5_1e2_0_0_df).
-		GroupBy("id1").Agg(Sum("v1"))
+		GroupBy("id1").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -320,7 +322,8 @@ func Test_GroupBy_Q1_1e6(t *testing.T) {
 	}
 
 	df := (*G1_1e6_1e2_0_0_df).
-		GroupBy("id1").Agg(Sum("v1"))
+		GroupBy("id1").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -342,7 +345,8 @@ func Test_GroupBy_Q1_1e7(t *testing.T) {
 	}
 
 	df := (*G1_1e7_1e2_0_0_df).
-		GroupBy("id1").Agg(Sum("v1"))
+		GroupBy("id1").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -364,7 +368,8 @@ func Test_GroupBy_Q2_1e4(t *testing.T) {
 	}
 
 	df := (*G1_1e4_1e2_0_0_df).
-		GroupBy("id1", "id2").Agg(Sum("v1"))
+		GroupBy("id1", "id2").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 6272 {
 		t.Errorf("Expected 6272 rows, got %d", df.NRows())
@@ -386,7 +391,8 @@ func Test_GroupBy_Q2_1e5(t *testing.T) {
 	}
 
 	df := (*G1_1e5_1e2_0_0_df).
-		GroupBy("id1", "id2").Agg(Sum("v1"))
+		GroupBy("id1", "id2").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 9999 {
 		t.Errorf("Expected 9999 rows, got %d", df.NRows())
@@ -408,7 +414,8 @@ func Test_GroupBy_Q2_1e6(t *testing.T) {
 	}
 
 	df := (*G1_1e6_1e2_0_0_df).
-		GroupBy("id1", "id2").Agg(Sum("v1"))
+		GroupBy("id1", "id2").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 10000 {
 		t.Errorf("Expected 10000 rows, got %d", df.NRows())
@@ -430,7 +437,8 @@ func Test_GroupBy_Q2_1e7(t *testing.T) {
 	}
 
 	df := (*G1_1e7_1e2_0_0_df).
-		GroupBy("id1", "id2").Agg(Sum("v1"))
+		GroupBy("id1", "id2").
+		Agg(Sum("v1"))
 
 	if df.NRows() != 10000 {
 		t.Errorf("Expected 10000 rows, got %d", df.NRows())
@@ -452,7 +460,8 @@ func Test_GroupBy_Q3_1e4(t *testing.T) {
 	}
 
 	df := (*G1_1e4_1e2_0_0_df).
-		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		GroupBy("id3").
+		Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -479,7 +488,8 @@ func Test_GroupBy_Q3_1e5(t *testing.T) {
 	}
 
 	df := (*G1_1e5_1e2_0_0_df).
-		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		GroupBy("id3").
+		Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 1000 {
 		t.Errorf("Expected 1000 rows, got %d", df.NRows())
@@ -506,7 +516,8 @@ func Test_GroupBy_Q3_1e6(t *testing.T) {
 	}
 
 	df := (*G1_1e6_1e2_0_0_df).
-		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		GroupBy("id3").
+		Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 10000 {
 		t.Errorf("Expected 10000 rows, got %d", df.NRows())
@@ -533,7 +544,8 @@ func Test_GroupBy_Q3_1e7(t *testing.T) {
 	}
 
 	df := (*G1_1e7_1e2_0_0_df).
-		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		GroupBy("id3").
+		Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 100000 {
 		t.Errorf("Expected 100000 rows, got %d", df.NRows())
@@ -692,7 +704,8 @@ func Test_GroupBy_Q5_1e4(t *testing.T) {
 	}
 
 	df := (*G1_1e4_1e2_0_0_df).
-		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		GroupBy("id6").
+		Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 100 {
 		t.Errorf("Expected 100 rows, got %d", df.NRows())
@@ -724,7 +737,8 @@ func Test_GroupBy_Q5_1e5(t *testing.T) {
 	}
 
 	df := (*G1_1e5_1e2_0_0_df).
-		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		GroupBy("id6").
+		Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 1000 {
 		t.Errorf("Expected 1000 rows, got %d", df.NRows())
@@ -789,7 +803,8 @@ func Test_GroupBy_Q5_1e7(t *testing.T) {
 	}
 
 	df := (*G1_1e7_1e2_0_0_df).
-		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		GroupBy("id6").
+		Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 100000 {
 		t.Errorf("Expected 100000 rows, got %d", df.NRows())
@@ -826,7 +841,8 @@ func Benchmark_GroupBy_Q1_1e4(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e4_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id1").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -840,7 +856,8 @@ func Benchmark_GroupBy_Q1_1e5(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e5_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id1").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -854,7 +871,8 @@ func Benchmark_GroupBy_Q1_1e6(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e6_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id1").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -868,7 +886,8 @@ func Benchmark_GroupBy_Q1_1e7(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e7_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id1").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -882,7 +901,8 @@ func Benchmark_GroupBy_Q2_1e4(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e4_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id1", "id2").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -896,7 +916,8 @@ func Benchmark_GroupBy_Q2_1e5(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e5_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id1", "id2").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -910,7 +931,8 @@ func Benchmark_GroupBy_Q2_1e6(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e6_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id1", "id2").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -924,7 +946,8 @@ func Benchmark_GroupBy_Q2_1e7(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e7_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id1", "id2").
+			Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
@@ -938,7 +961,8 @@ func Benchmark_GroupBy_Q3_1e4(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e4_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id3").
+			Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
@@ -952,7 +976,8 @@ func Benchmark_GroupBy_Q3_1e5(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e5_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id3").
+			Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
@@ -966,7 +991,8 @@ func Benchmark_GroupBy_Q3_1e6(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e6_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id3").
+			Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
@@ -980,7 +1006,8 @@ func Benchmark_GroupBy_Q3_1e7(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e7_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id3").
+			Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
@@ -1086,7 +1113,8 @@ func Benchmark_GroupBy_Q5_1e6(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e6_1e2_0_0_df).GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id6").
+			Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }
@@ -1100,7 +1128,8 @@ func Benchmark_GroupBy_Q5_1e7(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		(*G1_1e7_1e2_0_0_df).GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id6").
+			Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }
