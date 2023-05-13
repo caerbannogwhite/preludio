@@ -234,6 +234,19 @@ func NewStringPool() *StringPool {
 
 // Get returns the address of the string if it exists in the pool, otherwise nil.
 func (sp *StringPool) Get(s string) *string {
+	entry, ok := sp.pool[s]
+	if ok {
+		return entry
+	}
+
+	// Create a new string and add it to the pool
+	sp.pool[s] = &s
+	return sp.pool[s]
+}
+
+// Get returns the address of the string if it exists in the pool, otherwise nil.
+// This version is thread-safe.
+func (sp *StringPool) GetSync(s string) *string {
 	sp.RLock()
 	entry, ok := sp.pool[s]
 	sp.RUnlock()
