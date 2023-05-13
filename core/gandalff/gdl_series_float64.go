@@ -490,6 +490,10 @@ func (s GDLSeriesFloat64) Copy() GDLSeries {
 		isGrouped: s.isGrouped, sorted: s.sorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
+func (s GDLSeriesFloat64) __getDataPtr() *[]float64 {
+	return &s.data
+}
+
 ////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.

@@ -666,6 +666,10 @@ func (s GDLSeriesBool) Copy() GDLSeries {
 	}
 }
 
+func (s GDLSeriesBool) __getDataPtr() *[]uint8 {
+	return &s.data
+}
+
 ////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.

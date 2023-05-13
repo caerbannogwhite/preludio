@@ -549,6 +549,10 @@ func (s GDLSeriesInt32) Copy() GDLSeries {
 	return GDLSeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
+func (s GDLSeriesInt32) __getDataPtr() *[]int {
+	return &s.data
+}
+
 ////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.

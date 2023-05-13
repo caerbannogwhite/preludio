@@ -565,7 +565,7 @@ func (s GDLSeriesString) Copy() GDLSeries {
 	return NewGDLSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
-func (s GDLSeriesString) __getStringPointers() *[]*string {
+func (s GDLSeriesString) __getDataPtr() *[]*string {
 	return &s.data
 }
 
