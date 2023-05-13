@@ -24,7 +24,7 @@ type GDLSeriesString struct {
 func NewGDLSeriesString(name string, isNullable bool, data []string, pool *StringPool) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
-		nullMask = __initNullMask(len(data))
+		nullMask = __initPackBinVec(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -109,7 +109,7 @@ func (s GDLSeriesString) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return s
 	} else {
-		nullMask := __initNullMask(len(s.data))
+		nullMask := __initPackBinVec(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		return GDLSeriesString{
@@ -151,7 +151,7 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 
 		return s
 	} else {
-		nullMask := __initNullMask(len(s.data))
+		nullMask := __initPackBinVec(len(s.data))
 
 		for k, v := range mask {
 			if v {
@@ -178,7 +178,7 @@ func (s GDLSeriesString) SetNullMask(mask []bool) GDLSeries {
 func (s GDLSeriesString) MakeNullable() GDLSeries {
 	if !s.isNullable {
 		s.isNullable = true
-		s.nullMask = __initNullMask(len(s.data))
+		s.nullMask = __initPackBinVec(len(s.data))
 	}
 	return s
 }
@@ -434,8 +434,8 @@ func (s GDLSeriesString) DataAsString() []string {
 func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
 	switch t {
 	case typesys.BoolType:
-		data := __initNullMask(len(s.data))
-		nullMask := __initNullMask(len(s.data))
+		data := __initPackBinVec(len(s.data))
+		nullMask := __initPackBinVec(len(s.data))
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -475,7 +475,7 @@ func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSer
 
 	case typesys.Int32Type:
 		data := make([]int, len(s.data))
-		nullMask := __initNullMask(len(s.data))
+		nullMask := __initPackBinVec(len(s.data))
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -513,7 +513,7 @@ func (s GDLSeriesString) Cast(t typesys.BaseType, stringPool *StringPool) GDLSer
 
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
-		nullMask := __initNullMask(len(s.data))
+		nullMask := __initPackBinVec(len(s.data))
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -565,6 +565,10 @@ func (s GDLSeriesString) Copy() GDLSeries {
 	return NewGDLSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
+func (s GDLSeriesString) __getStringPointers() *[]*string {
+	return &s.data
+}
+
 ////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
@@ -584,7 +588,7 @@ func (s GDLSeriesString) Filter(mask GDLSeriesBool) GDLSeries {
 
 	if s.isNullable {
 
-		nullMask = __initNullMask(elementCount)
+		nullMask = __initPackBinVec(elementCount)
 
 		if s.NullCount() > 0 {
 			dstIdx := 0
@@ -734,18 +738,18 @@ func (s GDLSeriesString) FilterByMask(mask []bool) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesString) FilterByIndeces(indexes []int) GDLSeries {
+func (s GDLSeriesString) FilterByIndeces(indeces []int) GDLSeries {
 	var data []*string
 	var nullMask []uint8
 
-	size := len(indexes)
+	size := len(indeces)
 	data = make([]*string, size)
 
 	if s.isNullable {
 
-		nullMask = __initNullMask(size)
+		nullMask = __initPackBinVec(size)
 
-		for dstIdx, srcIdx := range indexes {
+		for dstIdx, srcIdx := range indeces {
 			data[dstIdx] = s.data[srcIdx]
 			if srcIdx%8 > dstIdx%8 {
 				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
@@ -754,7 +758,7 @@ func (s GDLSeriesString) FilterByIndeces(indexes []int) GDLSeries {
 			}
 		}
 	} else {
-		for dstIdx, srcIdx := range indexes {
+		for dstIdx, srcIdx := range indeces {
 			data[dstIdx] = s.data[srcIdx]
 		}
 	}
@@ -774,7 +778,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 	switch v.(type) {
 	case bool:
 
-		data := __initNullMask(len(s.data))
+		data := __initPackBinVec(len(s.data))
 
 		chunkLen := len(s.data) / THREADS_NUMBER
 		if chunkLen < MINIMUM_PARALLEL_SIZE {

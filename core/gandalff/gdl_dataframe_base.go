@@ -368,7 +368,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		seriesIndices[i] = true
 	}
 
-	result := NewBaseDataFrame()
+	result := NewBaseDataFrame().(*BaseDataFrame)
 
 	// The last partition tells us how many groups there are
 	// and how many rows are in each group
@@ -379,34 +379,57 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		seriesIndices[partition.index] = false
 		old := df.__seriesAt(partition.index)
 
-		switch old.(type) {
+		// TODO: null masks, null values are all mapped to the same group
+
+		switch series := old.(type) {
 		case GDLSeriesBool:
 			values := make([]bool, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(bool)
 			}
-			result = result.AddSeries(NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
+			result.series = append(result.series, NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
 
 		case GDLSeriesInt32:
 			values := make([]int, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(int)
 			}
-			result = result.AddSeries(NewGDLSeriesInt32(old.Name(), old.IsNullable(), false, values))
+
+			result.series = append(result.series, GDLSeriesInt32{
+				name:       series.name,
+				isNullable: series.isNullable,
+				nullMask:   __initPackBinVec(len(indeces)),
+				data:       values,
+			})
 
 		case GDLSeriesFloat64:
 			values := make([]float64, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(float64)
 			}
-			result = result.AddSeries(NewGDLSeriesFloat64(old.Name(), old.IsNullable(), false, values))
+
+			result.series = append(result.series, GDLSeriesFloat64{
+				name:       series.name,
+				isNullable: series.isNullable,
+				nullMask:   __initPackBinVec(len(indeces)),
+				data:       values,
+			})
 
 		case GDLSeriesString:
-			values := make([]string, len(indeces))
+			pointers := series.__getStringPointers()
+			selectedPointers := make([]*string, len(indeces))
+
 			for i, group := range indeces {
-				values[i] = old.Get(group[0]).(string)
+				selectedPointers[i] = (*pointers)[group[0]]
 			}
-			result = result.AddSeries(NewGDLSeriesString(old.Name(), old.IsNullable(), values, df.pool))
+
+			result.series = append(result.series, GDLSeriesString{
+				name:       series.name,
+				isNullable: series.isNullable,
+				nullMask:   __initPackBinVec(len(indeces)),
+				data:       selectedPointers,
+				pool:       series.pool,
+			})
 		}
 	}
 
@@ -528,16 +551,17 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				sort.Ints(keysB)
 
 				keysIntersection := make([]int, 0)
-				for _, keyA := range keysA {
-					for _, keyB := range keysB {
-						if keyA == keyB {
-							keysIntersection = append(keysIntersection, keyA)
-							break
-						}
+				for i, j := 0, 0; i < len(keysA) && j < len(keysB); {
+					if keysA[i] < keysB[j] {
+						i++
+					} else if keysA[i] > keysB[j] {
+						j++
+					} else {
+						keysIntersection = append(keysIntersection, keysA[i])
+						i++
+						j++
 					}
 				}
-
-				// Keep only the keys that are in both dataframes
 
 			case typesys.Float64Type:
 				// keysA := pA[0].GetKeys().([]float64)
@@ -546,6 +570,10 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			case typesys.StringType:
 				// keysA := pA[0].GetKeys().([]string)
 				// keysB := pB[0].GetKeys().([]string)
+
+			default:
+				df.err = fmt.Errorf("BaseDataFrame.Join: invalid type")
+				return df
 			}
 
 		}
