@@ -206,7 +206,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		case typesys.Float64Type:
 			values[i] = make([]float64, 0)
 		case typesys.StringType:
-			values[i] = make([]string, 0)
+			values[i] = make([]*string, 0)
 		}
 	}
 
@@ -234,7 +234,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 					}
 					values[i] = append(values[i].([]float64), f)
 				case typesys.StringType:
-					values[i] = append(values[i].([]string), v)
+					values[i] = append(values[i].([]*string), stringPool.Get(v))
 				}
 			}
 		}
@@ -269,7 +269,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 				}
 				values[i] = append(values[i].([]float64), f)
 			case typesys.StringType:
-				values[i] = append(values[i].([]string), v)
+				values[i] = append(values[i].([]*string), stringPool.Get(v))
 			}
 		}
 	}
@@ -292,7 +292,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		case typesys.Float64Type:
 			series[i] = NewGDLSeriesFloat64(name, isNullable, false, values[i].([]float64))
 		case typesys.StringType:
-			series[i] = NewGDLSeriesString(name, isNullable, values[i].([]string), stringPool)
+			series[i] = GDLSeriesString{
+				name:       name,
+				isNullable: isNullable,
+				data:       values[i].([]*string),
+				pool:       stringPool,
+			}
 		}
 	}
 
