@@ -6,19 +6,92 @@ import (
 	"testing"
 )
 
-func Benchmark_Filter_Q1_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+var G1_1e4_1e2_0_0_df *DataFrame
+var G1_1e5_1e2_0_0_df *DataFrame
+var G1_1e6_1e2_0_0_df *DataFrame
+var G1_1e7_1e2_0_0_df *DataFrame
+
+func read_G1_1e4_1e2_0_0() {
+	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e4_1e2_0_0_df = &df
+	} else {
+		G1_1e4_1e2_0_0_df = nil
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
+}
 
-	f.Close()
+func read_G1_1e5_1e2_0_0() {
+	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
 
+		f.Close()
+
+		G1_1e5_1e2_0_0_df = &df
+	} else {
+		G1_1e5_1e2_0_0_df = nil
+	}
+}
+
+func read_G1_1e6_1e2_0_0() {
+	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e6_1e2_0_0_df = &df
+	} else {
+		G1_1e6_1e2_0_0_df = nil
+	}
+}
+
+func read_G1_1e7_1e2_0_0() {
+	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e7_1e2_0_0_df = &df
+	} else {
+		G1_1e7_1e2_0_0_df = nil
+	}
+}
+
+func init() {
+	read_G1_1e4_1e2_0_0()
+	read_G1_1e5_1e2_0_0()
+	read_G1_1e6_1e2_0_0()
+	read_G1_1e7_1e2_0_0()
+}
+
+func Benchmark_Filter_Q1_1e5(b *testing.B) {
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
+	}
+
+	df := (*G1_1e5_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -35,18 +108,11 @@ func Benchmark_Filter_Q1_1e5(b *testing.B) {
 }
 
 func Benchmark_Filter_Q1_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
 
-	f.Close()
-
+	df := (*G1_1e6_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -63,18 +129,11 @@ func Benchmark_Filter_Q1_1e6(b *testing.B) {
 }
 
 func Benchmark_Filter_Q1_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
 
-	f.Close()
-
+	df := (*G1_1e7_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -91,18 +150,11 @@ func Benchmark_Filter_Q1_1e7(b *testing.B) {
 }
 
 func Benchmark_Filter_Q2_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
 
-	f.Close()
-
+	df := (*G1_1e5_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -137,18 +189,11 @@ func Benchmark_Filter_Q2_1e5(b *testing.B) {
 }
 
 func Benchmark_Filter_Q2_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
 
-	f.Close()
-
+	df := (*G1_1e6_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -183,18 +228,11 @@ func Benchmark_Filter_Q2_1e6(b *testing.B) {
 }
 
 func Benchmark_Filter_Q2_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
 
-	f.Close()
-
+	df := (*G1_1e7_1e2_0_0_df)
 	runtime.GC()
 
 	b.ResetTimer()
@@ -233,16 +271,11 @@ func Benchmark_Filter_Q2_1e7(b *testing.B) {
 // GroupBy challege: more info here https://github.com/h2oai/db-benchmark/tree/master
 
 func Test_GroupBy_Q1_1e4(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		t.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e4_1e2_0_0_df).
 		GroupBy("id1").Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
@@ -260,16 +293,11 @@ func Test_GroupBy_Q1_1e4(t *testing.T) {
 }
 
 func Test_GroupBy_Q1_1e5(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		t.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e5_1e2_0_0_df).
 		GroupBy("id1").Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
@@ -287,16 +315,11 @@ func Test_GroupBy_Q1_1e5(t *testing.T) {
 }
 
 func Test_GroupBy_Q1_1e6(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		t.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e6_1e2_0_0_df).
 		GroupBy("id1").Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
@@ -314,16 +337,11 @@ func Test_GroupBy_Q1_1e6(t *testing.T) {
 }
 
 func Test_GroupBy_Q1_1e7(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		t.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e7_1e2_0_0_df).
 		GroupBy("id1").Agg(Sum("v1"))
 
 	if df.NRows() != 100 {
@@ -341,16 +359,11 @@ func Test_GroupBy_Q1_1e7(t *testing.T) {
 }
 
 func Test_GroupBy_Q2_1e4(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		t.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e4_1e2_0_0_df).
 		GroupBy("id1", "id2").Agg(Sum("v1"))
 
 	if df.NRows() != 6272 {
@@ -368,16 +381,11 @@ func Test_GroupBy_Q2_1e4(t *testing.T) {
 }
 
 func Test_GroupBy_Q2_1e5(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		t.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e5_1e2_0_0_df).
 		GroupBy("id1", "id2").Agg(Sum("v1"))
 
 	if df.NRows() != 9999 {
@@ -395,16 +403,11 @@ func Test_GroupBy_Q2_1e5(t *testing.T) {
 }
 
 func Test_GroupBy_Q2_1e6(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		t.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e6_1e2_0_0_df).
 		GroupBy("id1", "id2").Agg(Sum("v1"))
 
 	if df.NRows() != 10000 {
@@ -422,16 +425,11 @@ func Test_GroupBy_Q2_1e6(t *testing.T) {
 }
 
 func Test_GroupBy_Q2_1e7(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		t.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e7_1e2_0_0_df).
 		GroupBy("id1", "id2").Agg(Sum("v1"))
 
 	if df.NRows() != 10000 {
@@ -449,16 +447,11 @@ func Test_GroupBy_Q2_1e7(t *testing.T) {
 }
 
 func Test_GroupBy_Q3_1e4(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		t.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e4_1e2_0_0_df).
 		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 100 {
@@ -481,16 +474,11 @@ func Test_GroupBy_Q3_1e4(t *testing.T) {
 }
 
 func Test_GroupBy_Q3_1e5(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		t.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e5_1e2_0_0_df).
 		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 1000 {
@@ -513,16 +501,11 @@ func Test_GroupBy_Q3_1e5(t *testing.T) {
 }
 
 func Test_GroupBy_Q3_1e6(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		t.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e6_1e2_0_0_df).
 		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 10000 {
@@ -545,16 +528,11 @@ func Test_GroupBy_Q3_1e6(t *testing.T) {
 }
 
 func Test_GroupBy_Q3_1e7(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		t.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e7_1e2_0_0_df).
 		GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 
 	if df.NRows() != 100000 {
@@ -577,16 +555,11 @@ func Test_GroupBy_Q3_1e7(t *testing.T) {
 }
 
 func Test_GroupBy_Q4_1e4(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		t.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e4_1e2_0_0_df).
 		GroupBy("id4").
 		Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 
@@ -615,16 +588,11 @@ func Test_GroupBy_Q4_1e4(t *testing.T) {
 }
 
 func Test_GroupBy_Q4_1e5(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		t.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e5_1e2_0_0_df).
 		GroupBy("id4").
 		Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 
@@ -653,16 +621,11 @@ func Test_GroupBy_Q4_1e5(t *testing.T) {
 }
 
 func Test_GroupBy_Q4_1e6(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		t.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e6_1e2_0_0_df).
 		GroupBy("id4").
 		Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 
@@ -691,16 +654,11 @@ func Test_GroupBy_Q4_1e6(t *testing.T) {
 }
 
 func Test_GroupBy_Q4_1e7(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		t.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e7_1e2_0_0_df).
 		GroupBy("id4").
 		Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 
@@ -729,16 +687,11 @@ func Test_GroupBy_Q4_1e7(t *testing.T) {
 }
 
 func Test_GroupBy_Q5_1e4(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		t.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e4_1e2_0_0_df).
 		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 100 {
@@ -766,16 +719,11 @@ func Test_GroupBy_Q5_1e4(t *testing.T) {
 }
 
 func Test_GroupBy_Q5_1e5(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		t.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e5_1e2_0_0_df).
 		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 1000 {
@@ -803,17 +751,13 @@ func Test_GroupBy_Q5_1e5(t *testing.T) {
 }
 
 func Test_GroupBy_Q5_1e6(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		t.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
-		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+	df := (*G1_1e6_1e2_0_0_df).
+		GroupBy("id6").
+		Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 10000 {
 		t.Errorf("Expected 10000 rows, got %d", df.NRows())
@@ -840,16 +784,11 @@ func Test_GroupBy_Q5_1e6(t *testing.T) {
 }
 
 func Test_GroupBy_Q5_1e7(t *testing.T) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		t.Skip(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		t.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
 
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read().
+	df := (*G1_1e7_1e2_0_0_df).
 		GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 
 	if df.NRows() != 100000 {
@@ -879,441 +818,289 @@ func Test_GroupBy_Q5_1e7(t *testing.T) {
 ////////////////////////			GROUP BY BENCHMARKS
 
 func Benchmark_GroupBy_Q1_1e4(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		b.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q1_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q1_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q1_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1").Agg(Sum("v1"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id1").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q2_1e4(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		b.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q2_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q2_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q2_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id1", "id2").Agg(Sum("v1"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id1", "id2").Agg(Sum("v1"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q3_1e4(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		b.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e4_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q3_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e5_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q3_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q3_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id3").Agg(Sum("v1"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q4_1e4(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		b.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
+		(*G1_1e4_1e2_0_0_df).
+			GroupBy("id4").
+			Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q4_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
+		(*G1_1e5_1e2_0_0_df).
+			GroupBy("id4").
+			Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q4_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q4_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id4").Agg(Mean("v1"), Mean("v2"), Mean("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q5_1e4(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e4_1e2_0_0_df == nil {
+		b.Skip("G1_1e4_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e4_1e2_0_0_df).
+			GroupBy("id6").
+			Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q5_1e5(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e5_1e2_0_0_df == nil {
+		b.Skip("G1_1e5_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e5_1e2_0_0_df).
+			GroupBy("id6").
+			Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q5_1e6(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e6_1e2_0_0_df == nil {
+		b.Skip("G1_1e6_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e6_1e2_0_0_df).GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }
 
 func Benchmark_GroupBy_Q5_1e7(b *testing.B) {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
-	if err != nil {
-		b.Error(err)
+	if G1_1e7_1e2_0_0_df == nil {
+		b.Skip("G1_1e7_1e2_0_0 dataframe not loaded")
 	}
-	df := NewBaseDataFrame().
-		FromCSV().
-		SetDelimiter(',').
-		SetReader(f).
-		Read()
-
-	f.Close()
 
 	runtime.GC()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		df.GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
+		(*G1_1e7_1e2_0_0_df).GroupBy("id6").Agg(Sum("v1"), Sum("v2"), Sum("v3"))
 	}
 	b.StopTimer()
 }

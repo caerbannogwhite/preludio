@@ -412,13 +412,13 @@ func __gdl_mean__(s GDLSeries) float64 {
 		if series.isNullable {
 			for i := 0; i < series.Len(); i++ {
 				if !series.IsNull(i) {
-					sum += float64(series.Get(i).(int32))
+					sum += float64(series.Get(i).(int))
 				}
 			}
 			return sum / float64(series.NonNullCount())
 		} else {
 			for i := 0; i < series.Len(); i++ {
-				sum += float64(series.Get(i).(int32))
+				sum += float64(series.Get(i).(int))
 			}
 			return sum / float64(series.Len())
 		}
