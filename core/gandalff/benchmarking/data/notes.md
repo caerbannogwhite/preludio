@@ -34,14 +34,14 @@ I skipped the remaining 5 questions because they are not supported by Gandalff y
 pandas version: 1.3.5
 polars version: 0.17.10
 
-Looking at the ratios between Gandalff and Polars on the average execution time over all the questions for a given input size, we can see that Gandalff is almost 8x slower than Polars on the 500 MB dataset (worst case scenario).
+Looking at the ratios between Gandalff and Polars on the average execution time over all the questions for a given input size, we can see that Gandalff is almost _8x_ slower than Polars on the 500 MB dataset (worst case scenario).
 
-| Input size | Gandalff | Polars | Ratio |
-| :--------: | :------: | :----: | :---: |
-|    1E4     |   1.04   |  0.41  | 2.54  |
-|    1E5     |   5.45   |  0.85  | 6.41  |
-|    1E6     |  64.49   | 27.99  | 2.30  |
-|    1E7     | 1063.94  | 136.32 | 7.80  |
+|    Input Size |   Gandalff |   Polars |   Ratio |
+|--------------:|-----------:|---------:|--------:|
+|     10000     |      1.036 |    0.414 |     2.5 |
+|    100000     |      5.454 |    0.852 |     6.4 |
+|         1e+06 |     64.49  |   27.992 |     2.3 |
+|         1e+07 |   1063.94  |  136.322 |     7.8 |
 
 ### Gandalff's First Attempt
 
@@ -91,5 +91,65 @@ Let's consider the following example:
 |  E   |     IT     | 35  |  5500  |
 
 ### First steps
+
+From the flamegraph, I noticed that for Q1, Q3, Q4, and Q5 the test code spends a bit more time in the aggregation function than in the `groupby` function.
+For Q2, however, the string sub-grouping function is a time sink.
+
+Checking the code for the sum aggregation function, I noticed a quite embarrassing mistake: there is no need to check if an element is null or not, because the `groupby` function already takes care of that and all the null values (if any) are stored in a separate group.
+An if statement inside a loop that has to run for millions of times is a big no-no.
+Also, calling `series.Get(i)` for each element is not a good idea.
+
+```go
+sum := make([]float64, len(groups))
+switch series := s.(type) {
+// ...
+case GDLSeriesFloat64:
+    if series.isNullable {
+        for gi, group := range groups {
+            for _, i := range group {
+                if !series.IsNull(i) {
+                    sum[gi] += series.Get(i).(float64)
+                }
+            }
+        }
+        return sum
+    } else {
+        for gi, group := range groups {
+            for _, i := range group {
+                sum[gi] += series.Get(i).(float64)
+            }
+        }
+        return sum
+    }
+// ...
+}
+```
+
+The new code looks like this:
+
+```go
+sum := make([]float64, len(groups))
+switch series := s.(type) {
+// ...
+case GDLSeriesFloat64:
+    data := *series.__getDataPtr()
+    for gi, group := range groups {
+        for _, i := range group {
+            sum[gi] += data[i]
+        }
+    }
+    return sum
+// ...
+}
+```
+
+The results are reported in the following table:
+
+|    Input Size |   Gandalff 1 |   Polars |   Ratio |
+|--------------:|-------------:|---------:|--------:|
+|     10000     |        0.64  |    0.414 |    1.54 |
+|    100000     |        4.036 |    0.852 |    4.73 |
+|         1e+06 |       44.248 |   27.992 |    1.58 |
+|         1e+07 |      685.986 |  136.322 |    5.03 |
 
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
