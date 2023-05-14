@@ -416,7 +416,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			})
 
 		case GDLSeriesString:
-			pointers := series.__getStringPointers()
+			pointers := series.__getDataPtr()
 			selectedPointers := make([]*string, len(indeces))
 
 			for i, group := range indeces {
