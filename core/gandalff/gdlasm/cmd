@@ -1,0 +1,5 @@
+// https://github.com/minio/c2goasm
+
+clang -march=native -masm=intel -mno-red-zone -mstackrealign -mllvm -inline-threshold=1000 -fno-asynchronous-unwind-tables -fno-exceptions -fno-rtti -S -c sum_float64.c
+
+c2goasm -s -a c_files/sum_float64.s sum_float64_amd64.s
