@@ -934,7 +934,7 @@ func (gp SeriesInt32Partition) InnerJoin(other SeriesInt32Partition) {
 func (s GDLSeriesInt32) Group() GDLSeries {
 	var nullGroup [][]int
 
-	groups := make(map[int][]int)
+	groups := make(map[int][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 	if s.isNullable {
 		nullGroup = make([][]int, 1)
 		nullGroup[0] = make([]int, 0)
@@ -975,7 +975,7 @@ func (s GDLSeriesInt32) SubGroup(partitions SeriesPartition) GDLSeries {
 		for gi, g := range indices {
 
 			// initialize embedded partitions
-			embeddedPartitions[gi] = make(map[int][]int)
+			embeddedPartitions[gi] = make(map[int][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 			nullGroups[gi] = make([]int, 0)
 
 			for _, idx := range g {

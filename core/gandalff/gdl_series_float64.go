@@ -841,7 +841,7 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 func (s GDLSeriesFloat64) Group() GDLSeries {
 	var nullGroup [][]int
 
-	groups := make(map[float64][]int)
+	groups := make(map[float64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 	if s.isNullable {
 		nullGroup = make([][]int, 1)
 		nullGroup[0] = make([]int, 0)
@@ -882,7 +882,7 @@ func (s GDLSeriesFloat64) SubGroup(partitions SeriesPartition) GDLSeries {
 		for gi, g := range indices {
 
 			// initialize embedded partitions
-			embeddedPartitions[gi] = make(map[float64][]int)
+			embeddedPartitions[gi] = make(map[float64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 			nullGroups[gi] = make([]int, 0)
 
 			for _, idx := range g {

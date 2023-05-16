@@ -1013,7 +1013,7 @@ func (gp SeriesStringPartition) GetKeys() any {
 func (s GDLSeriesString) Group() GDLSeries {
 	var nullGroup [][]int
 
-	groups := make(map[*string][]int)
+	groups := make(map[*string][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 	if s.isNullable {
 		nullGroup = make([][]int, 1)
 		nullGroup[0] = make([]int, 0)
@@ -1054,7 +1054,7 @@ func (s GDLSeriesString) SubGroup(partitions SeriesPartition) GDLSeries {
 		for gi, g := range indices {
 
 			// initialize embedded partitions
-			embeddedPartitions[gi] = make(map[*string][]int)
+			embeddedPartitions[gi] = make(map[*string][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 			nullGroups[gi] = make([]int, 0)
 
 			for _, idx := range g {

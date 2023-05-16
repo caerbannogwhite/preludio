@@ -36,12 +36,14 @@ polars version: 0.17.10
 
 Looking at the ratios between Gandalff and Polars on the average execution time over all the questions for a given input size, we can see that Gandalff is almost _8x_ slower than Polars on the 500 MB dataset (worst case scenario).
 
-|    Input Size |   Gandalff |   Polars |   Ratio |
-|--------------:|-----------:|---------:|--------:|
-|     10000     |      1.036 |    0.414 |     2.5 |
-|    100000     |      5.454 |    0.852 |     6.4 |
-|         1e+06 |     64.49  |   27.992 |     2.3 |
-|         1e+07 |   1063.94  |  136.322 |     7.8 |
+Speed-up comparison for baseline
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |    1.036 |   0.414 |   2.5 |
+|     100000 |    5.454 |   0.852 |   6.4 |
+|      1e+06 |    64.49 |  27.992 |   2.3 |
+|      1e+07 |  1063.94 | 136.322 |   7.8 |
 
 ### Gandalff's First Attempt
 
@@ -90,7 +92,7 @@ Let's consider the following example:
 |  D   |     IT     | 30  |  5000  |
 |  E   |     IT     | 35  |  5500  |
 
-### First steps
+### Chapter 1.0: First steps
 
 From the flamegraph, I noticed that for Q1, Q3, Q4, and Q5 the test code spends a bit more time in the aggregation function than in the `groupby` function.
 For Q2, however, the string sub-grouping function is a time sink.
@@ -145,11 +147,27 @@ case GDLSeriesFloat64:
 
 The results are reported in the following table:
 
-|    Input Size |   Gandalff 1 |   Polars |   Ratio |
-|--------------:|-------------:|---------:|--------:|
-|     10000     |        0.64  |    0.414 |    1.54 |
-|    100000     |        4.036 |    0.852 |    4.73 |
-|         1e+06 |       44.248 |   27.992 |    1.58 |
-|         1e+07 |      685.986 |  136.322 |    5.03 |
+Speed-up comparison for Solution 1.0
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |     0.64 |   0.414 |  1.54 |
+|     100000 |    4.036 |   0.852 |  4.73 |
+|      1e+06 |   44.248 |  27.992 |  1.58 |
+|      1e+07 |  685.986 | 136.322 |  5.03 |
+
+### Chapter 1.1: bonus track
+
+Sniffing into the Polars code, I noticed that probably the initialize the hashmaps to a default size of 512.
+I gave it a try and I think it worked, even though the gain is not that big.
+
+Speed-up comparison for Solution 1.1
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |     0.54 |   0.414 |   1.3 |
+|     100000 |    3.622 |   0.852 |  4.25 |
+|      1e+06 |   40.846 |  27.992 |  1.45 |
+|      1e+07 |  674.708 | 136.322 |  4.94 |
 
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
