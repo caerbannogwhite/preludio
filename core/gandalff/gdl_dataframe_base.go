@@ -391,8 +391,9 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case GDLSeriesInt32:
 			values := make([]int, len(indeces))
+			data := series.__getDataPtr()
 			for i, group := range indeces {
-				values[i] = old.Get(group[0]).(int)
+				values[i] = (*data)[group[0]]
 			}
 
 			result.series = append(result.series, GDLSeriesInt32{
@@ -404,8 +405,9 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case GDLSeriesFloat64:
 			values := make([]float64, len(indeces))
+			data := series.__getDataPtr()
 			for i, group := range indeces {
-				values[i] = old.Get(group[0]).(float64)
+				values[i] = (*data)[group[0]]
 			}
 
 			result.series = append(result.series, GDLSeriesFloat64{
@@ -416,18 +418,17 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			})
 
 		case GDLSeriesString:
-			pointers := series.__getDataPtr()
-			selectedPointers := make([]*string, len(indeces))
-
+			values := make([]*string, len(indeces))
+			data := series.__getDataPtr()
 			for i, group := range indeces {
-				selectedPointers[i] = (*pointers)[group[0]]
+				values[i] = (*data)[group[0]]
 			}
 
 			result.series = append(result.series, GDLSeriesString{
 				name:       series.name,
 				isNullable: series.isNullable,
 				nullMask:   __initPackBinVec(len(indeces)),
-				data:       selectedPointers,
+				data:       values,
 				pool:       series.pool,
 			})
 		}
