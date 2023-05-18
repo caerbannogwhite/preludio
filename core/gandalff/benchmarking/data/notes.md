@@ -170,4 +170,32 @@ Speed-up comparison for Solution 1.1
 |      1e+06 |   40.846 |  27.992 |  1.45 |
 |      1e+07 |  674.708 | 136.322 |  4.94 |
 
+### Chapter 1.2: Hash hackig, the beginning
+
+One thing that I tried was to replace all the `map[type][]int` with `map[uint64][]int`, but to do that, I had to hack a few things.
+For instance, for the string series, I had to transform `*string` into `*uint64` but what I got it's not pretty at all.
+
+```go
+(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))
+```
+
+The advance of having `uint64` everywhere is that for the sub-grouping function I can merge 2 """hash codes""" easily in this way:
+
+```go
+const HASH_MAGIC_NUMBER = 0xa8f4979b77e3f93f
+
+newHash := hash1 + HASH_MAGIC_NUMBER + (hash2 << 12) + (hash2 >> 4)
+```
+
+The results however are quite disappointing:
+
+Speed-up comparison for Solution 1.2
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |    0.384 |   0.414 |  0.92 |
+|     100000 |    3.534 |   0.852 |  4.14 |
+|      1e+06 |    42.32 |  27.992 |  1.51 |
+|      1e+07 |  700.634 | 136.322 |  5.13 |
+
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
