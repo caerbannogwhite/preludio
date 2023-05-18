@@ -6,11 +6,14 @@ const (
 	// The default capacity of a series.
 	DEFAULT_SERIES_INITIAL_CAPACITY = 10
 	// The default capacity of a hash map.
-	DEFAULT_HASH_MAP_INITIAL_CAPACITY = 512
+	DEFAULT_HASH_MAP_INITIAL_CAPACITY = 1024
 	// Number of threads to use for parallel operations.
 	THREADS_NUMBER = 8
 	// Minimum number of elements to use parallel operations.
-	MINIMUM_PARALLEL_SIZE = 10_000
+	MINIMUM_PARALLEL_SIZE = 16_384
+
+	// HASH_MAGIC_NUMBER = 0x9e3779b9
+	HASH_MAGIC_NUMBER = 0xa8f4979b77e3f93f
 )
 
 ////////////////////////////////			ENUMS

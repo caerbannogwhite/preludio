@@ -2,11 +2,11 @@ package gandalff
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"typesys"
+	"unsafe"
 )
 
 // GDLSeriesString represents a series of strings.
@@ -875,166 +875,79 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 type SeriesStringPartition struct {
 	seriesSize   int
-	partitions   []map[*string][]int
-	nullGroups   [][]int
+	partition    map[uint64][]int
+	nulls        []int
 	indexToGroup []int
 }
 
 func (gp SeriesStringPartition) GetSize() int {
-	return len(gp.partitions)
-}
-
-func (gp SeriesStringPartition) beginSorting() SeriesStringPartition {
-	gp.indexToGroup = make([]int, gp.seriesSize)
-	for i, part := range gp.partitions {
-		for _, g := range part {
-			for _, idx := range g {
-				gp.indexToGroup[idx] = i
-			}
-		}
-	}
-
-	for i, g := range gp.nullGroups {
-		for _, idx := range g {
-			gp.indexToGroup[idx] = i + len(gp.partitions)
-		}
-	}
-
-	return gp
-}
-
-func (gp SeriesStringPartition) endSorting() SeriesStringPartition {
-	newPartitions := make(map[int][]int, len(gp.partitions))
-	newNullGroups := make([][]int, len(gp.nullGroups))
-
-	for i, part := range gp.partitions {
-		newPartitions[i] = make([]int, 0, len(part))
-	}
-
-	for i, g := range gp.nullGroups {
-		newNullGroups[i] = make([]int, 0, len(g))
-	}
-
-	for i, g := range gp.indexToGroup {
-		if g < len(gp.partitions) {
-			newPartitions[g] = append(newPartitions[g], i)
-		} else {
-			newNullGroups[g-len(gp.partitions)] = append(newNullGroups[g-len(gp.partitions)], i)
-		}
-	}
-
-	gp.indexToGroup = nil
-	return gp
+	return len(gp.partition)
 }
 
 func (gp SeriesStringPartition) GetGroupsCount() int {
-	count := 0
-	for _, s := range gp.partitions {
-		for _, g := range s {
-			if len(g) > 0 {
-				count++
-			}
-		}
-	}
+	// count := 0
+	// for _, s := range gp.partitions {
+	// 	for _, g := range s {
+	// 		if len(g) > 0 {
+	// 			count++
+	// 		}
+	// 	}
+	// }
 
-	for _, g := range gp.nullGroups {
-		if len(g) > 0 {
-			count++
-		}
-	}
-	return count
+	// for _, g := range gp.nullGroups {
+	// 	if len(g) > 0 {
+	// 		count++
+	// 	}
+	// }
+	// return count
+	return 0
 }
 
-func (gp SeriesStringPartition) GetIndices() [][]int {
-	indices := make([][]int, 0)
-
-	for _, s := range gp.partitions {
-
-		keys := make([]*string, 0, len(s))
-		for k := range s {
-			keys = append(keys, k)
-		}
-
-		sort.Slice(keys, func(i, j int) bool {
-			return strings.Compare(*keys[i], *keys[j]) < 0
-		})
-
-		for _, k := range keys {
-			if len(s[k]) > 0 {
-				indices = append(indices, s[k])
-			}
-		}
-	}
-
-	for _, g := range gp.nullGroups {
-		if len(g) > 0 {
-			indices = append(indices, g)
-		}
-	}
-
-	return indices
+func (gp SeriesStringPartition) GetIndices() *map[uint64][]int {
+	return &gp.partition
 }
 
-func (gp SeriesStringPartition) GetValueIndices(sub int, val any) []int {
-	if sub >= len(gp.partitions) {
-		return nil
-	}
+func (gp SeriesStringPartition) GetValueIndices(val any) []int {
+	// if sub >= len(gp.partitions) {
+	// 	return nil
+	// }
 
-	if v, ok := val.(*string); ok {
-		return gp.partitions[sub][v]
-	}
+	// if v, ok := val.(*string); ok {
+	// 	return gp.partitions[sub][v]
+	// }
 
 	return nil
 }
 
-func (gp SeriesStringPartition) GetNullIndices(sub int) []int {
-	if sub >= len(gp.nullGroups) {
-		return nil
-	}
-
-	return gp.nullGroups[sub]
+func (gp SeriesStringPartition) GetNullIndices() []int {
+	return gp.nulls
 }
 
 func (gp SeriesStringPartition) GetKeys() any {
-	keysMap := make(map[*string]bool)
-	for p := range gp.partitions {
-		for k := range gp.partitions[p] {
-			keysMap[k] = true
-		}
-	}
+	// keysMap := make(map[*string]bool)
+	// for p := range gp.partitions {
+	// 	for k := range gp.partitions[p] {
+	// 		keysMap[k] = true
+	// 	}
+	// }
 
-	keys := make([]string, 0, len(keysMap))
-	for k := range keysMap {
-		keys = append(keys, *k)
-	}
+	keys := make([]string, 0)
+	// for k := range keysMap {
+	// 	keys = append(keys, *k)
+	// }
 	return keys
 }
 
 func (s GDLSeriesString) Group() GDLSeries {
-	var nullGroup [][]int
-
-	groups := make(map[*string][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-	if s.isNullable {
-		nullGroup = make([][]int, 1)
-		nullGroup[0] = make([]int, 0)
-
-		for i, v := range s.data {
-			if s.IsNull(i) {
-				nullGroup[0] = append(nullGroup[0], i)
-			} else {
-				groups[v] = append(groups[v], i)
-			}
-		}
-	} else {
-		for i, v := range s.data {
-			groups[v] = append(groups[v], i)
-		}
+	map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+	for i, v := range s.data {
+		map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))] = append(map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))], i)
 	}
 
 	partition := SeriesStringPartition{
-		seriesSize: s.Len(),
-		partitions: []map[*string][]int{groups},
-		nullGroups: nullGroup,
+		seriesSize:   s.Len(),
+		partition:    map_,
+		indexToGroup: make([]int, s.Len()),
 	}
 
 	s.isGrouped = true
@@ -1043,50 +956,21 @@ func (s GDLSeriesString) Group() GDLSeries {
 	return s
 }
 
-func (s GDLSeriesString) SubGroup(partitions SeriesPartition) GDLSeries {
-	var nullGroups [][]int
+func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
+	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-	embeddedPartitions := make([]map[*string][]int, partitions.GetGroupsCount())
-	indices := partitions.GetIndices()
-	if s.isNullable {
-		nullGroups = make([][]int, partitions.GetGroupsCount())
-
-		for gi, g := range indices {
-
-			// initialize embedded partitions
-			embeddedPartitions[gi] = make(map[*string][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-			nullGroups[gi] = make([]int, 0)
-
-			for _, idx := range g {
-				if s.IsNull(idx) {
-					nullGroups[gi] = append(nullGroups[gi], idx)
-				} else {
-					if embeddedPartitions[gi][s.data[idx]] == nil {
-						embeddedPartitions[gi][s.data[idx]] = make([]int, 0)
-					}
-					embeddedPartitions[gi][s.data[idx]] = append(embeddedPartitions[gi][s.data[idx]], idx)
-				}
-			}
-		}
-	} else {
-		for gi, g := range indices {
-
-			// initialize embedded partitions
-			embeddedPartitions[gi] = make(map[*string][]int)
-
-			for _, idx := range g {
-				if embeddedPartitions[gi][s.data[idx]] == nil {
-					embeddedPartitions[gi][s.data[idx]] = make([]int, 0)
-				}
-				embeddedPartitions[gi][s.data[idx]] = append(embeddedPartitions[gi][s.data[idx]], idx)
-			}
+	var newHash uint64
+	for h, indexes := range *partition.GetIndices() {
+		for _, index := range indexes {
+			newHash = *(*uint64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+			newMap[newHash] = append(newMap[newHash], index)
 		}
 	}
 
 	newPartition := SeriesStringPartition{
-		seriesSize: s.Len(),
-		partitions: embeddedPartitions,
-		nullGroups: nullGroups,
+		seriesSize:   s.Len(),
+		partition:    newMap,
+		indexToGroup: make([]int, s.Len()),
 	}
 
 	s.isGrouped = true

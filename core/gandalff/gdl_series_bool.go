@@ -913,8 +913,8 @@ type boolIndices struct {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
-	partition []boolIndices
-	nullGroup [][]int
+	partition map[uint64][]int
+	nulls     []int
 }
 
 func (p SeriesBoolPartition) GetSize() int {
@@ -922,116 +922,41 @@ func (p SeriesBoolPartition) GetSize() int {
 }
 
 func (p SeriesBoolPartition) GetGroupsCount() int {
-	count := 0
-	for _, s := range p.partition {
-		if len(s.trues) > 0 {
-			count++
-		}
-		if len(s.falses) > 0 {
-			count++
-		}
-	}
-
-	for _, g := range p.nullGroup {
-		if len(g) > 0 {
-			count++
-		}
-	}
-	return count
+	return len(p.partition)
 }
 
-func (p SeriesBoolPartition) GetIndices() [][]int {
-	indices := make([][]int, 0)
-
-	for _, s := range p.partition {
-		if len(s.trues) > 0 {
-			indices = append(indices, s.trues)
-		}
-		if len(s.falses) > 0 {
-			indices = append(indices, s.falses)
-		}
-	}
-
-	for _, g := range p.nullGroup {
-		if len(g) > 0 {
-			indices = append(indices, g)
-		}
-	}
-
-	return indices
+func (p SeriesBoolPartition) GetIndices() *map[uint64][]int {
+	return &p.partition
 }
 
-func (p SeriesBoolPartition) GetValueIndices(sub int, val any) []int {
-	if sub >= len(p.partition) {
-		return nil
-	}
-
+func (p SeriesBoolPartition) GetValueIndices(val any) []int {
 	if v, ok := val.(bool); ok {
 		if v {
-			return p.partition[sub].trues
+			return p.partition[1]
+		} else {
+			return p.partition[0]
 		}
-		return p.partition[sub].falses
 	}
 
 	return nil
 }
 
-func (s SeriesBoolPartition) GetNullIndices(sub int) []int {
-	if sub >= len(s.nullGroup) {
-		return nil
-	}
-
-	return s.nullGroup[sub]
+func (s SeriesBoolPartition) GetNullIndices() []int {
+	return s.nulls
 }
 
 func (gp SeriesBoolPartition) GetKeys() any {
-	anyTrue := false
-	anyFalse := false
-	for _, s := range gp.partition {
-		if len(s.trues) > 0 {
-			anyTrue = true
-		}
-		if len(s.falses) > 0 {
-			anyFalse = true
-		}
-	}
 
 	keys := make([]bool, 0, 2)
-	if anyTrue {
-		keys = append(keys, true)
-	}
-	if anyFalse {
-		keys = append(keys, false)
-	}
 
 	return keys
 }
 
 func (s GDLSeriesBool) Group() GDLSeries {
-	var nullGroup [][]int
 
-	groups := boolIndices{make([]int, 0), make([]int, 0)}
-	if s.isNullable {
-		nullGroup = make([][]int, 1)
-		nullGroup[0] = make([]int, 0)
-
-		for i := 0; i < s.size; i++ {
-			if s.IsNull(i) {
-				nullGroup[0] = append(nullGroup[0], i)
-			} else if s.data[i>>3]&(1<<(i%8)) > 0 {
-				groups.trues = append(groups.trues, i)
-			} else {
-				groups.falses = append(groups.falses, i)
-			}
-		}
-	} else {
-		for i := 0; i < s.size; i++ {
-			if s.data[i>>3]&(1<<(i%8)) > 0 {
-				groups.trues = append(groups.trues, i)
-			} else {
-				groups.falses = append(groups.falses, i)
-			}
-		}
+	map_ := make(map[uint64][]int)
+	for i := 0; i < s.size; i++ {
+		map_[uint64(s.data[i>>3]&(1<<(i%8)))] = append(map_[uint64(s.data[i>>3]&(1<<(i%8)))], i)
 	}
 
 	return GDLSeriesBool{
@@ -1042,43 +967,19 @@ func (s GDLSeriesBool) Group() GDLSeries {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolPartition{
-			partition: []boolIndices{groups},
-			nullGroup: nullGroup,
+			partition: map_,
+			nulls:     nil,
 		}}
 }
 
 func (s GDLSeriesBool) SubGroup(partition SeriesPartition) GDLSeries {
-	var nullGroup [][]int
+	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-	groups := make([]boolIndices, 0)
-	indices := partition.GetIndices()
-	if s.isNullable {
-		nullGroup = make([][]int, partition.GetGroupsCount())
-
-		for _, g := range indices {
-			bi := boolIndices{make([]int, 0), make([]int, 0)}
-			for _, i := range g {
-				if s.IsNull(i) {
-					nullGroup[i] = append(nullGroup[i], i)
-				} else if s.data[i>>3]&(1<<(i%8)) > 0 {
-					bi.trues = append(bi.trues, i)
-				} else {
-					bi.falses = append(bi.falses, i)
-				}
-			}
-			groups = append(groups, bi)
-		}
-	} else {
-		for _, g := range indices {
-			bi := boolIndices{make([]int, 0), make([]int, 0)}
-			for _, i := range g {
-				if s.data[i>>3]&(1<<(i%8)) > 0 {
-					bi.trues = append(bi.trues, i)
-				} else {
-					bi.falses = append(bi.falses, i)
-				}
-			}
-			groups = append(groups, bi)
+	var newHash uint64
+	for h, indexes := range *partition.GetIndices() {
+		for _, index := range indexes {
+			newHash = uint64(s.data[index>>3]&(1<<(index%8))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+			newMap[newHash] = append(newMap[newHash], index)
 		}
 	}
 
@@ -1090,8 +991,8 @@ func (s GDLSeriesBool) SubGroup(partition SeriesPartition) GDLSeries {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolPartition{
-			partition: groups,
-			nullGroup: nullGroup,
+			partition: newMap,
+			nulls:     nil,
 		}}
 }
 

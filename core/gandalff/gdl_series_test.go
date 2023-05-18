@@ -2,7 +2,6 @@ package gandalff
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 	"typesys"
 	"unsafe"
@@ -27,31 +26,28 @@ func Test_GDLSeries(t *testing.T) {
 
 func TestXxx(t *testing.T) {
 
-	data := `name,age,weight,junior
-Alice C,29,75.0,F
-John Doe,30,80.5,true
-Bob,31,85.0,T
-Jane H,25,60.0,false
-Mary,28,70.0,false
-Oliver,32,90.0,true
-Ursula,27,65.0,f
-Charlie,33,95.0,t
-`
+	// data1 := []string{"A", "A", "B", "B", "C", "C", "D", "D", "E", "E"}
+	// data2 := []string{"!", "@", "0", "0", "0", "^", "&", "*", "1", "1"}
 
-	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
-		SetReader(strings.NewReader(data)).
-		SetDelimiter(',').
-		SetHeader(true).
-		SetGuessDataTypeLen(3).
-		Read()
+	// pool := NewStringPool()
 
-	names := df.Series("name").(GDLSeriesString).__getDataPtr()
+	// s1 := NewGDLSeriesString("test1", false, data1, pool)
+	// s2 := NewGDLSeriesString("test2", false, data2, pool)
 
-	m := make(map[uint64][]int)
-	for i, v := range *names {
-		m[*(*uint64)(unsafe.Pointer(unsafe.Pointer(v)))] = append(m[*(*uint64)(unsafe.Pointer(unsafe.Pointer(v)))], i)
-	}
+	// p1 := s1.(GDLSeriesString).__getDataPtr()
+	// p2 := s2.(GDLSeriesString).__getDataPtr()
 
-	fmt.Println(m)
+	// m1 := HashStringPtrVec(p1)
+
+	// m2 := CombineStringPtrVec(m1, p2)
+
+	// fmt.Println(m1)
+	// fmt.Println(m2)
+
+	v1 := float64(1.61803398874989484820458683436563811772030917980576286213544862270526046281890)
+	v2 := float64(1.61803398874989484820458683436563811772030917980576286213544862270526046281890)
+
+	fmt.Println(uint64(v1))
+	fmt.Println(*(*uint64)(unsafe.Pointer(&v1)))
+	fmt.Println(*(*uint64)(unsafe.Pointer(&v2)))
 }
