@@ -1,6 +1,9 @@
 package gandalff
 
-import "math"
+import (
+	"math"
+	"sync"
+)
 
 func __gdl_sum__(s GDLSeries) float64 {
 	sum := 0.0
@@ -46,22 +49,90 @@ func __gdl_sum_grouped__(s GDLSeries, groups [][]int) []float64 {
 
 	case GDLSeriesInt32:
 		data := *series.__getDataPtr()
-		for gi, group := range groups {
-			sum_ := int(0)
-			for _, i := range group {
-				sum_ += data[i]
+
+		// SINGLE THREAD
+		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+			for gi, group := range groups {
+				sum_ := int(0)
+				for _, i := range group {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_)
 			}
-			sum[gi] = float64(sum_)
+			return sum
 		}
+
+		// MULTI THREAD
+		var wg sync.WaitGroup
+		wg.Add(THREADS_NUMBER)
+
+		worker := func(idx int) {
+			start := idx * len(groups) / THREADS_NUMBER
+			end := (idx + 1) * len(groups) / THREADS_NUMBER
+			if idx == THREADS_NUMBER-1 {
+				end = len(groups)
+			}
+
+			for gi := start; gi < end; gi++ {
+				sum_ := int(0)
+				for _, i := range groups[gi] {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_)
+			}
+			wg.Done()
+		}
+
+		for i := 0; i < THREADS_NUMBER; i++ {
+			worker(i)
+		}
+
+		wg.Wait()
+
 		return sum
 
 	case GDLSeriesFloat64:
 		data := *series.__getDataPtr()
-		for gi, group := range groups {
-			for _, i := range group {
-				sum[gi] += data[i]
+
+		// SINGLE THREAD
+		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+			for gi, group := range groups {
+				sum_ := float64(0)
+				for _, i := range group {
+					sum_ += data[i]
+				}
+				sum[gi] = sum_
 			}
+			return sum
 		}
+
+		// MULTI THREAD
+		var wg sync.WaitGroup
+		wg.Add(THREADS_NUMBER)
+
+		worker := func(idx int) {
+			start := idx * len(groups) / THREADS_NUMBER
+			end := (idx + 1) * len(groups) / THREADS_NUMBER
+			if idx == THREADS_NUMBER-1 {
+				end = len(groups)
+			}
+
+			for gi := start; gi < end; gi++ {
+				sum_ := float64(0)
+				for _, i := range groups[gi] {
+					sum_ += data[i]
+				}
+				sum[gi] = sum_
+			}
+			wg.Done()
+		}
+
+		for i := 0; i < THREADS_NUMBER; i++ {
+			go worker(i)
+		}
+
+		wg.Wait()
+
 		return sum
 
 	default:
@@ -377,23 +448,90 @@ func __gdl_mean_grouped__(s GDLSeries, groups [][]int) []float64 {
 
 	case GDLSeriesInt32:
 		data := *series.__getDataPtr()
-		for gi, group := range groups {
-			sum_ := int(0)
-			for _, i := range group {
-				sum_ += data[i]
+
+		// SINGLE THREAD
+		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+			for gi, group := range groups {
+				sum_ := int(0)
+				for _, i := range group {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_) / float64(len(group))
 			}
-			sum[gi] = float64(sum_) / float64(len(group))
+			return sum
 		}
+
+		// MULTI THREAD
+		var wg sync.WaitGroup
+		wg.Add(THREADS_NUMBER)
+
+		worker := func(idx int) {
+			start := idx * len(groups) / THREADS_NUMBER
+			end := (idx + 1) * len(groups) / THREADS_NUMBER
+			if idx == THREADS_NUMBER-1 {
+				end = len(groups)
+			}
+
+			for gi := start; gi < end; gi++ {
+				sum_ := int(0)
+				for _, i := range groups[gi] {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_) / float64(len(groups[gi]))
+			}
+			wg.Done()
+		}
+
+		for i := 0; i < THREADS_NUMBER; i++ {
+			go worker(i)
+		}
+
+		wg.Wait()
+
 		return sum
 
 	case GDLSeriesFloat64:
 		data := *series.__getDataPtr()
-		for gi, group := range groups {
-			for _, i := range group {
-				sum[gi] += data[i]
+
+		// SINGLE THREAD
+		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+			for gi, group := range groups {
+				sum_ := float64(0)
+				for _, i := range group {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_) / float64(len(group))
 			}
-			sum[gi] /= float64(len(group))
+			return sum
 		}
+
+		// MULTI THREAD
+		var wg sync.WaitGroup
+		wg.Add(THREADS_NUMBER)
+
+		worker := func(idx int) {
+			start := idx * len(groups) / THREADS_NUMBER
+			end := (idx + 1) * len(groups) / THREADS_NUMBER
+			if idx == THREADS_NUMBER-1 {
+				end = len(groups)
+			}
+
+			for gi := start; gi < end; gi++ {
+				sum_ := float64(0)
+				for _, i := range groups[gi] {
+					sum_ += data[i]
+				}
+				sum[gi] = float64(sum_) / float64(len(groups[gi]))
+			}
+			wg.Done()
+		}
+
+		for i := 0; i < THREADS_NUMBER; i++ {
+			go worker(i)
+		}
+
+		wg.Wait()
+
 		return sum
 
 	default:
