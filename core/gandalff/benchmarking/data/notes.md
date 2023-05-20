@@ -198,4 +198,20 @@ Speed-up comparison for Solution 1.2
 |      1e+06 |    42.32 |  27.992 |  1.51 |
 |      1e+07 |  700.634 | 136.322 |  5.13 |
 
+### Chapter 2.0: Going multi
+
+It was just a matter of time: sooner or later I had to try to use goroutines to see what happens.
+
+String and integer group by and sub group parallellized.
+Grouped sum and mean parallellized.
+
+Speed-up comparison for Solution 2.0
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |    0.368 |   0.414 |  0.88 |
+|     100000 |    2.664 |   0.852 |  3.12 |
+|      1e+06 |   23.606 |  27.992 |  0.84 |
+|      1e+07 |  343.562 | 136.322 |  2.52 |
+
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
