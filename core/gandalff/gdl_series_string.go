@@ -939,15 +939,94 @@ func (gp SeriesStringPartition) GetKeys() any {
 }
 
 func (s GDLSeriesString) Group() GDLSeries {
-	map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-	for i, v := range s.data {
-		map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))] = append(map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))], i)
-	}
 
-	partition := SeriesStringPartition{
-		seriesSize:   s.Len(),
-		partition:    map_,
-		indexToGroup: make([]int, s.Len()),
+	var partition SeriesStringPartition
+	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		for i, v := range s.data {
+			map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))] = append(map_[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(v))))], i)
+		}
+
+		partition = SeriesStringPartition{
+			seriesSize:   s.Len(),
+			partition:    map_,
+			indexToGroup: make([]int, s.Len()),
+		}
+	} else {
+
+		// Initialize the maps and the wait groups
+		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		for i := 0; i < THREADS_NUMBER; i++ {
+			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		}
+
+		wgsLevel1 := make([]sync.WaitGroup, THREADS_NUMBER/2)
+		for i := 0; i < THREADS_NUMBER/2; i++ {
+			wgsLevel1[i].Add(2)
+		}
+
+		wgsLevel2 := make([]sync.WaitGroup, THREADS_NUMBER/4)
+		for i := 0; i < THREADS_NUMBER/4; i++ {
+			wgsLevel2[i].Add(2)
+		}
+
+		// Define the worker and merger functions
+		worker := func(idx int) {
+			start := idx * len(s.data) / THREADS_NUMBER
+			end := (idx + 1) * len(s.data) / THREADS_NUMBER
+
+			map_ := &allMaps[idx]
+			if idx == THREADS_NUMBER-1 {
+				end = len(s.data)
+			}
+
+			for i := start; i < end; i++ {
+				(*map_)[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))] = append((*map_)[(*(*uint64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))], i)
+			}
+
+			wgsLevel1[idx/2].Done()
+		}
+
+		merger := func(idx1, idx2 int) {
+			wgsLevel1[idx1/2].Wait()
+			wgsLevel1[idx2/2].Wait()
+
+			map1 := &allMaps[idx1]
+			map2 := &allMaps[idx2]
+			for k, v := range *map2 {
+				(*map1)[k] = append((*map1)[k], v...)
+			}
+
+			wgsLevel2[idx1/4].Done()
+		}
+
+		// Compute the submaps
+		for i := 0; i < THREADS_NUMBER; i++ {
+			go worker(i)
+		}
+
+		// Merge the submaps
+		for i := 0; i < THREADS_NUMBER; i += 2 {
+			go merger(i, i+1)
+		}
+
+		for i := 0; i < THREADS_NUMBER/4; i++ {
+			wgsLevel2[i].Wait()
+		}
+
+		// FINAL MERGE
+		map0 := &allMaps[0]
+		for i := 2; i < THREADS_NUMBER; i += 2 {
+			for k, v := range allMaps[i] {
+				(*map0)[k] = append((*map0)[k], v...)
+			}
+		}
+
+		partition = SeriesStringPartition{
+			seriesSize:   s.Len(),
+			partition:    allMaps[0],
+			indexToGroup: make([]int, s.Len()),
+		}
 	}
 
 	s.isGrouped = true
@@ -957,20 +1036,111 @@ func (s GDLSeriesString) Group() GDLSeries {
 }
 
 func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
-	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-	var newHash uint64
-	for h, indexes := range *partition.GetIndices() {
-		for _, index := range indexes {
-			newHash = *(*uint64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
-			newMap[newHash] = append(newMap[newHash], index)
+	var newPartition SeriesStringPartition
+	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+
+		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+
+		var newHash uint64
+		for k, v := range *partition.GetIndices() {
+			for _, index := range v {
+				newHash = *(*uint64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (k << 12) + (k >> 4)
+				map_[newHash] = append(map_[newHash], index)
+			}
 		}
-	}
 
-	newPartition := SeriesStringPartition{
-		seriesSize:   s.Len(),
-		partition:    newMap,
-		indexToGroup: make([]int, s.Len()),
+		newPartition = SeriesStringPartition{
+			seriesSize:   s.Len(),
+			partition:    map_,
+			indexToGroup: make([]int, s.Len()),
+		}
+	} else {
+		// collect all keys
+		keys := make([]uint64, len(*partition.GetIndices()))
+		i := 0
+		for k := range *partition.GetIndices() {
+			keys[i] = k
+			i++
+		}
+
+		// Initialize the maps and the wait groups
+		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		for i := 0; i < THREADS_NUMBER; i++ {
+			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		}
+
+		wgsLevel1 := make([]sync.WaitGroup, THREADS_NUMBER/2)
+		for i := 0; i < THREADS_NUMBER/2; i++ {
+			wgsLevel1[i].Add(2)
+		}
+
+		wgsLevel2 := make([]sync.WaitGroup, THREADS_NUMBER/4)
+		for i := 0; i < THREADS_NUMBER/4; i++ {
+			wgsLevel2[i].Add(2)
+		}
+
+		// Define the worker and merger functions
+		worker := func(idx int) {
+			start := idx * len(keys) / THREADS_NUMBER
+			end := (idx + 1) * len(keys) / THREADS_NUMBER
+
+			map_ := &allMaps[idx]
+			if idx == THREADS_NUMBER-1 {
+				end = len(keys)
+			}
+
+			var newHash uint64
+			for _, h := range keys[start:end] {
+				for _, index := range (*partition.GetIndices())[h] {
+					newHash = *(*uint64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+					(*map_)[newHash] = append((*map_)[newHash], index)
+				}
+			}
+
+			wgsLevel1[idx/2].Done()
+		}
+
+		merger := func(idx1, idx2 int) {
+			wgsLevel1[idx1/2].Wait()
+			wgsLevel1[idx2/2].Wait()
+
+			map1 := &allMaps[idx1]
+			map2 := &allMaps[idx2]
+			for k, v := range *map2 {
+				(*map1)[k] = append((*map1)[k], v...)
+			}
+
+			wgsLevel2[idx1/4].Done()
+		}
+
+		// Compute the submaps
+		for i := 0; i < THREADS_NUMBER; i++ {
+			go worker(i)
+		}
+
+		// Merge the submaps
+		for i := 0; i < THREADS_NUMBER; i += 2 {
+			go merger(i, i+1)
+		}
+
+		for i := 0; i < THREADS_NUMBER/4; i++ {
+			wgsLevel2[i].Wait()
+		}
+
+		// merge the submaps
+		map0 := &allMaps[0]
+		for i := 2; i < THREADS_NUMBER; i += 2 {
+			for k, v := range allMaps[i] {
+				(*map0)[k] = append((*map0)[k], v...)
+			}
+		}
+
+		newPartition = SeriesStringPartition{
+			seriesSize:   s.Len(),
+			partition:    (*map0),
+			indexToGroup: make([]int, s.Len()),
+		}
 	}
 
 	s.isGrouped = true

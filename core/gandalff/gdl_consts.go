@@ -8,7 +8,7 @@ const (
 	// The default capacity of a hash map.
 	DEFAULT_HASH_MAP_INITIAL_CAPACITY = 1024
 	// Number of threads to use for parallel operations.
-	THREADS_NUMBER = 8
+	THREADS_NUMBER = 16
 	// Minimum number of elements to use parallel operations.
 	MINIMUM_PARALLEL_SIZE = 16_384
 
