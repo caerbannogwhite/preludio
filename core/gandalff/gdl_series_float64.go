@@ -833,20 +833,59 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 }
 
 func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
-	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-	var newHash uint64
-	for h, indexes := range *partition.GetIndices() {
-		for _, index := range indexes {
-			newHash = *(*uint64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
-			newMap[newHash] = append(newMap[newHash], index)
+	var newPartition SeriesFloat64Partition
+	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+
+		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+
+		var newHash uint64
+		for k, v := range *partition.GetIndices() {
+			for _, index := range v {
+				newHash = *(*uint64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (k << 12) + (k >> 4)
+				map_[newHash] = append(map_[newHash], index)
+			}
 		}
-	}
 
-	newPartition := SeriesFloat64Partition{
-		seriesSize:   s.Len(),
-		partition:    newMap,
-		indexToGroup: make([]int, s.Len()),
+		newPartition = SeriesFloat64Partition{
+			seriesSize:   s.Len(),
+			partition:    map_,
+			indexToGroup: make([]int, s.Len()),
+		}
+	} else {
+
+		// collect all keys
+		keys := make([]uint64, len(*partition.GetIndices()))
+		i := 0
+		for k := range *partition.GetIndices() {
+			keys[i] = k
+			i++
+		}
+
+		// Initialize the maps and the wait groups
+		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		for i := 0; i < THREADS_NUMBER; i++ {
+			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		}
+
+		// Define the worker callback
+		worker := func(start, end int, map_ *map[uint64][]int) {
+			var newHash uint64
+			for _, h := range keys[start:end] {
+				for _, index := range (*partition.GetIndices())[h] {
+					newHash = *(*uint64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+					(*map_)[newHash] = append((*map_)[newHash], index)
+				}
+			}
+		}
+
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), &allMaps, worker)
+
+		newPartition = SeriesFloat64Partition{
+			seriesSize:   s.Len(),
+			partition:    allMaps[0],
+			indexToGroup: make([]int, s.Len()),
+		}
 	}
 
 	s.isGrouped = true

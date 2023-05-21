@@ -1003,6 +1003,7 @@ func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 			indexToGroup: make([]int, s.Len()),
 		}
 	} else {
+
 		// collect all keys
 		keys := make([]uint64, len(*partition.GetIndices()))
 		i := 0
@@ -1017,26 +1018,8 @@ func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		}
 
-		wgsLevel1 := make([]sync.WaitGroup, THREADS_NUMBER/2)
-		for i := 0; i < THREADS_NUMBER/2; i++ {
-			wgsLevel1[i].Add(2)
-		}
-
-		wgsLevel2 := make([]sync.WaitGroup, THREADS_NUMBER/4)
-		for i := 0; i < THREADS_NUMBER/4; i++ {
-			wgsLevel2[i].Add(2)
-		}
-
-		// Define the worker and merger functions
-		worker := func(idx int) {
-			start := idx * len(keys) / THREADS_NUMBER
-			end := (idx + 1) * len(keys) / THREADS_NUMBER
-
-			map_ := &allMaps[idx]
-			if idx == THREADS_NUMBER-1 {
-				end = len(keys)
-			}
-
+		// Define the worker callback
+		worker := func(start, end int, map_ *map[uint64][]int) {
 			var newHash uint64
 			for _, h := range keys[start:end] {
 				for _, index := range (*partition.GetIndices())[h] {
@@ -1044,48 +1027,13 @@ func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 					(*map_)[newHash] = append((*map_)[newHash], index)
 				}
 			}
-
-			wgsLevel1[idx/2].Done()
 		}
 
-		merger := func(idx1, idx2 int) {
-			wgsLevel1[idx1/2].Wait()
-			wgsLevel1[idx2/2].Wait()
-
-			map1 := &allMaps[idx1]
-			map2 := &allMaps[idx2]
-			for k, v := range *map2 {
-				(*map1)[k] = append((*map1)[k], v...)
-			}
-
-			wgsLevel2[idx1/4].Done()
-		}
-
-		// Compute the submaps
-		for i := 0; i < THREADS_NUMBER; i++ {
-			go worker(i)
-		}
-
-		// Merge the submaps
-		for i := 0; i < THREADS_NUMBER; i += 2 {
-			go merger(i, i+1)
-		}
-
-		for i := 0; i < THREADS_NUMBER/4; i++ {
-			wgsLevel2[i].Wait()
-		}
-
-		// merge the submaps
-		map0 := &allMaps[0]
-		for i := 2; i < THREADS_NUMBER; i += 2 {
-			for k, v := range allMaps[i] {
-				(*map0)[k] = append((*map0)[k], v...)
-			}
-		}
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), &allMaps, worker)
 
 		newPartition = SeriesStringPartition{
 			seriesSize:   s.Len(),
-			partition:    (*map0),
+			partition:    allMaps[0],
 			indexToGroup: make([]int, s.Len()),
 		}
 	}

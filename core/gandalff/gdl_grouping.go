@@ -6,11 +6,25 @@ import (
 )
 
 func __series_groupby_multithreaded(
-	threadNum, dataLen int,
-	maps *[]map[uint64][]int,
+	threadNum, dataLen int, maps *[]map[uint64][]int,
 	worker func(start, end int, map_ *map[uint64][]int),
-
 ) {
+
+	// Initialize the wait groups array, one for each level where level is the
+	// log2 of the number of threads.
+	// The first lever of wait groups has THREADS_NUMBER/2 wait groups, and each
+	// wait group waits for two threads.
+	//
+	// Example: if THREADS_NUMBER = 16, then
+	//	- the FIRST level has 8 wait groups (each wait group waits for 2 threads)
+	//	 	- the 1st element waits for threads 0 and 1
+	//	 	- the 2nd element waits for threads 2 and 3
+	//	 	- ...
+	//    When workers 0 and 1 are done, the 1st element is notified so the fist
+	//    merger of the second level can start
+	//
+	// 	- the second level has 4 wait groups
+	// 	- ...
 	levels := int(math.Log2(float64(threadNum)))
 	wg := make([][]sync.WaitGroup, levels)
 	for i := 0; i < levels; i++ {
@@ -41,13 +55,24 @@ func __series_groupby_multithreaded(
 	}
 
 	merger := func(level, idx1, idx2 int) {
+		// Example: if THREADS_NUMBER = 16 and level = 0, then
+		// 	- idx1 =  0, idx2 =  1 -> wait for wg[0][0]
+		// 	- idx1 =  2, idx2 =  3 -> wait for wg[0][1]
+		// 	- ...
+		// 	- idx1 = 14, idx2 = 15 -> wait for wg[0][7]
 		wg[level][idx1>>uint(level+1)].Wait()
-		wg[level][idx2>>uint(level+1)].Wait()
 
 		for k, v := range (*maps)[idx2] {
 			(*maps)[idx1][k] = append((*maps)[idx1][k], v...)
 		}
 
+		// Notify the wait groups at the next level
+		//
+		// Example: if THREADS_NUMBER = 16 and level = 0, then
+		// 	- idx1 =  0, idx2 =  1 -> notify wg[1][0]
+		// 	- idx1 =  2, idx2 =  3 -> notify wg[1][0]
+		// 	- ...
+		// 	- idx1 = 14, idx2 = 15 -> notify wg[1][3]
 		wg[level+1][idx1>>uint(level+2)].Done()
 	}
 
