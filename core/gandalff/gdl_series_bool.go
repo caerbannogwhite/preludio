@@ -925,8 +925,8 @@ func (p SeriesBoolPartition) GetGroupsCount() int {
 	return len(p.partition)
 }
 
-func (p SeriesBoolPartition) GetIndices() *map[uint64][]int {
-	return &p.partition
+func (p SeriesBoolPartition) GetIndices() map[uint64][]int {
+	return p.partition
 }
 
 func (p SeriesBoolPartition) GetValueIndices(val any) []int {
@@ -976,7 +976,7 @@ func (s GDLSeriesBool) SubGroup(partition SeriesPartition) GDLSeries {
 	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 	var newHash uint64
-	for h, indexes := range *partition.GetIndices() {
+	for h, indexes := range partition.GetIndices() {
 		for _, index := range indexes {
 			newHash = uint64(s.data[index>>3]&(1<<(index%8))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
 			newMap[newHash] = append(newMap[newHash], index)

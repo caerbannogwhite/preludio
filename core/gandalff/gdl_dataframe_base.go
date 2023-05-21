@@ -373,7 +373,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 	// The last partition tells us how many groups there are
 	// and how many rows are in each group
 	indeces := make([][]int, 0, df.partitions[len(df.partitions)-1].partition.GetSize())
-	for _, group := range *df.partitions[len(df.partitions)-1].partition.GetIndices() {
+	for _, group := range df.partitions[len(df.partitions)-1].partition.GetIndices() {
 		indeces = append(indeces, group)
 	}
 
