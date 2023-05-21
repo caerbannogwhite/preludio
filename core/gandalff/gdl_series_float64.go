@@ -789,15 +789,41 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 }
 
 func (s GDLSeriesFloat64) Group() GDLSeries {
-	map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-	for i, v := range s.data {
-		map_[*(*uint64)(unsafe.Pointer((&v)))] = append(map_[*(*uint64)(unsafe.Pointer((&v)))], i)
-	}
 
-	partition := SeriesFloat64Partition{
-		seriesSize:   s.Len(),
-		partition:    map_,
-		indexToGroup: make([]int, s.Len()),
+	var partition SeriesFloat64Partition
+	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		for i, v := range s.data {
+			map_[*(*uint64)(unsafe.Pointer((&v)))] = append(map_[*(*uint64)(unsafe.Pointer((&v)))], i)
+		}
+
+		partition = SeriesFloat64Partition{
+			seriesSize:   s.Len(),
+			partition:    map_,
+			indexToGroup: make([]int, s.Len()),
+		}
+	} else {
+
+		// Initialize the maps and the wait groups
+		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		for i := 0; i < THREADS_NUMBER; i++ {
+			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		}
+
+		// Define the worker callback
+		worker := func(start, end int, map_ *map[uint64][]int) {
+			for i := start; i < end; i++ {
+				(*map_)[*(*uint64)(unsafe.Pointer((&s.data[i])))] = append((*map_)[*(*uint64)(unsafe.Pointer((&s.data[i])))], i)
+			}
+		}
+
+		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), &allMaps, worker)
+
+		partition = SeriesFloat64Partition{
+			seriesSize:   s.Len(),
+			partition:    allMaps[0],
+			indexToGroup: make([]int, s.Len()),
+		}
 	}
 
 	s.isGrouped = true
