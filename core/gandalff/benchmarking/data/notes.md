@@ -97,8 +97,11 @@ Let's consider the following example:
 From the flamegraph, I noticed that for Q1, Q3, Q4, and Q5 the test code spends a bit more time in the aggregation function than in the `groupby` function.
 For Q2, however, the string sub-grouping function is a time sink.
 
-Checking the code for the sum aggregation function, I noticed a quite embarrassing mistake: there is no need to check if an element is null or not, because the `groupby` function already takes care of that and all the null values (if any) are stored in a separate group.
-An if statement inside a loop that has to run for millions of times is a big no-no.
+Checking the code for the sum aggregation function, I noticed that it's not necessary to check if an element is null or not.
+This check can be performed separately, and if a group contains at least one null value, then the result of the aggregation will be null (so, it can be skipped).
+Since in the experiments that I'm running, there are no null values, I decided to remove the check for the moment.
+
+But, generally speaking, an if statement inside a loop that has to run for millions of times is a big no-no.
 Also, calling `series.Get(i)` for each element is not a good idea.
 
 ```go
@@ -213,5 +216,16 @@ Speed-up comparison for Solution 2.0
 |     100000 |    2.664 |   0.852 |  3.12 |
 |      1e+06 |   23.606 |  27.992 |  0.84 |
 |      1e+07 |  343.562 | 136.322 |  2.52 |
+
+After creating a single function for the grouping, optimizing the map merge procedure.
+
+Speed-up comparison for Solution 2.1
+
+|   in_rows_exp |   gandalff_2_1 |   polars |   Ratio |
+|--------------:|---------------:|---------:|--------:|
+|     10000     |          0.362 |    0.414 |    0.87 |
+|    100000     |          2.658 |    0.852 |    3.11 |
+|         1e+06 |         22.66  |   27.992 |    0.8  |
+|         1e+07 |        327.536 |  136.322 |    2.4  |
 
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
