@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"os"
+	"path/filepath"
 	"runtime"
 	"testing"
 )
@@ -12,7 +13,7 @@ var G1_1e6_1e2_0_0_df *DataFrame
 var G1_1e7_1e2_0_0_df *DataFrame
 
 func read_G1_1e4_1e2_0_0() {
-	f, err := os.OpenFile("testdata\\G1_1e4_1e2_0_0.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e4_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
 		df := NewBaseDataFrame().
 			FromCSV().
@@ -29,7 +30,7 @@ func read_G1_1e4_1e2_0_0() {
 }
 
 func read_G1_1e5_1e2_0_0() {
-	f, err := os.OpenFile("testdata\\G1_1e5_1e2_0_0.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e5_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
 		df := NewBaseDataFrame().
 			FromCSV().
@@ -46,7 +47,7 @@ func read_G1_1e5_1e2_0_0() {
 }
 
 func read_G1_1e6_1e2_0_0() {
-	f, err := os.OpenFile("testdata\\G1_1e6_1e2_0_0.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e6_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
 		df := NewBaseDataFrame().
 			FromCSV().
@@ -63,7 +64,7 @@ func read_G1_1e6_1e2_0_0() {
 }
 
 func read_G1_1e7_1e2_0_0() {
-	f, err := os.OpenFile("testdata\\G1_1e7_1e2_0_0.csv", os.O_RDONLY, 0666)
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e7_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
 		df := NewBaseDataFrame().
 			FromCSV().
