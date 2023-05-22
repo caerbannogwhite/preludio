@@ -5,6 +5,65 @@ import (
 	"sync"
 )
 
+type __stats_thread_data struct {
+	op      AggregateType
+	gi      int
+	indeces []int
+	series  GDLSeries
+	res     []float64
+}
+
+func __stats_worker(wg *sync.WaitGroup, buffer chan __stats_thread_data) {
+	for td := range buffer {
+		switch td.op {
+		case AGGREGATE_SUM:
+			switch series := td.series.(type) {
+			case GDLSeriesBool:
+
+			case GDLSeriesInt32:
+				sum_ := int(0)
+				data := series.__getDataPtr()
+				for _, i := range td.indeces {
+					sum_ += (*data)[i]
+				}
+				td.res[td.gi] = float64(sum_)
+			case GDLSeriesFloat64:
+				sum_ := float64(0)
+				data := series.__getDataPtr()
+				for _, i := range td.indeces {
+					sum_ += (*data)[i]
+				}
+				td.res[td.gi] = sum_
+			}
+		case AGGREGATE_MIN:
+
+		case AGGREGATE_MAX:
+
+		case AGGREGATE_MEAN:
+			switch series := td.series.(type) {
+			case GDLSeriesBool:
+
+			case GDLSeriesInt32:
+				sum_ := int(0)
+				data := series.__getDataPtr()
+				for _, i := range td.indeces {
+					sum_ += (*data)[i]
+				}
+				td.res[td.gi] = float64(sum_) / float64(len(td.indeces))
+
+			case GDLSeriesFloat64:
+				sum_ := float64(0)
+				data := series.__getDataPtr()
+				for _, i := range td.indeces {
+					sum_ += (*data)[i]
+				}
+				td.res[td.gi] = sum_ / float64(len(td.indeces))
+			}
+		}
+	}
+	wg.Done()
+}
+
 func __gdl_sum__(s GDLSeries) float64 {
 	sum := 0.0
 	switch series := s.(type) {
@@ -63,30 +122,62 @@ func __gdl_sum_grouped__(s GDLSeries, groups [][]int) []float64 {
 		}
 
 		// MULTI THREAD
+		// var wg sync.WaitGroup
+		// wg.Add(THREADS_NUMBER)
+
+		// worker := func(idx int) {
+		// 	// start := idx * len(groups) / THREADS_NUMBER
+		// 	// end := (idx + 1) * len(groups) / THREADS_NUMBER
+		// 	// if idx == THREADS_NUMBER-1 {
+		// 	// 	end = len(groups)
+		// 	// }
+
+		// 	for gi := idx; gi < len(groups); gi += THREADS_NUMBER {
+		// 		sum_ := int(0)
+		// 		for _, i := range groups[gi] {
+		// 			sum_ += data[i]
+		// 		}
+		// 		sum[gi] = float64(sum_)
+		// 	}
+		// 	wg.Done()
+		// }
+
+		// for i := 0; i < THREADS_NUMBER; i++ {
+		// 	worker(i)
+		// }
+
+		// wg.Wait()
+
+		type threadData struct {
+			gi      int
+			indeces []int
+		}
+
 		var wg sync.WaitGroup
 		wg.Add(THREADS_NUMBER)
 
-		worker := func(idx int) {
-			start := idx * len(groups) / THREADS_NUMBER
-			end := (idx + 1) * len(groups) / THREADS_NUMBER
-			if idx == THREADS_NUMBER-1 {
-				end = len(groups)
-			}
+		buffer := make(chan threadData)
 
-			for gi := start; gi < end; gi++ {
+		worker := func() {
+			for td := range buffer {
 				sum_ := int(0)
-				for _, i := range groups[gi] {
+				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
-				sum[gi] = float64(sum_)
+				sum[td.gi] = float64(sum_)
 			}
 			wg.Done()
 		}
 
 		for i := 0; i < THREADS_NUMBER; i++ {
-			worker(i)
+			go worker()
 		}
 
+		for gi, group := range groups {
+			buffer <- threadData{gi, group}
+		}
+
+		close(buffer)
 		wg.Wait()
 
 		return sum
@@ -107,30 +198,36 @@ func __gdl_sum_grouped__(s GDLSeries, groups [][]int) []float64 {
 		}
 
 		// MULTI THREAD
+		type threadData struct {
+			gi      int
+			indeces []int
+		}
+
 		var wg sync.WaitGroup
 		wg.Add(THREADS_NUMBER)
 
-		worker := func(idx int) {
-			start := idx * len(groups) / THREADS_NUMBER
-			end := (idx + 1) * len(groups) / THREADS_NUMBER
-			if idx == THREADS_NUMBER-1 {
-				end = len(groups)
-			}
+		buffer := make(chan threadData)
 
-			for gi := start; gi < end; gi++ {
+		worker := func() {
+			for td := range buffer {
 				sum_ := float64(0)
-				for _, i := range groups[gi] {
+				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
-				sum[gi] = sum_
+				sum[td.gi] = float64(sum_)
 			}
 			wg.Done()
 		}
 
 		for i := 0; i < THREADS_NUMBER; i++ {
-			go worker(i)
+			go worker()
 		}
 
+		for gi, group := range groups {
+			buffer <- threadData{gi, group}
+		}
+
+		close(buffer)
 		wg.Wait()
 
 		return sum
@@ -462,30 +559,36 @@ func __gdl_mean_grouped__(s GDLSeries, groups [][]int) []float64 {
 		}
 
 		// MULTI THREAD
+		type threadData struct {
+			gi      int
+			indeces []int
+		}
+
 		var wg sync.WaitGroup
 		wg.Add(THREADS_NUMBER)
 
-		worker := func(idx int) {
-			start := idx * len(groups) / THREADS_NUMBER
-			end := (idx + 1) * len(groups) / THREADS_NUMBER
-			if idx == THREADS_NUMBER-1 {
-				end = len(groups)
-			}
+		buffer := make(chan threadData)
 
-			for gi := start; gi < end; gi++ {
+		worker := func() {
+			for td := range buffer {
 				sum_ := int(0)
-				for _, i := range groups[gi] {
+				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
-				sum[gi] = float64(sum_) / float64(len(groups[gi]))
+				sum[td.gi] = float64(sum_) / float64(len(td.indeces))
 			}
 			wg.Done()
 		}
 
 		for i := 0; i < THREADS_NUMBER; i++ {
-			go worker(i)
+			go worker()
 		}
 
+		for gi, group := range groups {
+			buffer <- threadData{gi, group}
+		}
+
+		close(buffer)
 		wg.Wait()
 
 		return sum
@@ -506,30 +609,36 @@ func __gdl_mean_grouped__(s GDLSeries, groups [][]int) []float64 {
 		}
 
 		// MULTI THREAD
+		type threadData struct {
+			gi      int
+			indeces []int
+		}
+
 		var wg sync.WaitGroup
 		wg.Add(THREADS_NUMBER)
 
-		worker := func(idx int) {
-			start := idx * len(groups) / THREADS_NUMBER
-			end := (idx + 1) * len(groups) / THREADS_NUMBER
-			if idx == THREADS_NUMBER-1 {
-				end = len(groups)
-			}
+		buffer := make(chan threadData)
 
-			for gi := start; gi < end; gi++ {
+		worker := func() {
+			for td := range buffer {
 				sum_ := float64(0)
-				for _, i := range groups[gi] {
+				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
-				sum[gi] = float64(sum_) / float64(len(groups[gi]))
+				sum[td.gi] = float64(sum_) / float64(len(td.indeces))
 			}
 			wg.Done()
 		}
 
 		for i := 0; i < THREADS_NUMBER; i++ {
-			go worker(i)
+			go worker()
 		}
 
+		for gi, group := range groups {
+			buffer <- threadData{gi, group}
+		}
+
+		close(buffer)
 		wg.Wait()
 
 		return sum

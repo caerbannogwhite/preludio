@@ -10,7 +10,7 @@ const (
 	// Number of threads to use for parallel operations.
 	THREADS_NUMBER = 16
 	// Minimum number of elements to use parallel operations.
-	MINIMUM_PARALLEL_SIZE = 16_384
+	MINIMUM_PARALLEL_SIZE = 131_072 // 16_384
 
 	// HASH_MAGIC_NUMBER = 0x9e3779b9
 	HASH_MAGIC_NUMBER = 0xa8f4979b77e3f93f

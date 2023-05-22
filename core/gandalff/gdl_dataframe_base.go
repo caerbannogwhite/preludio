@@ -3,6 +3,7 @@ package gandalff
 import (
 	"fmt"
 	"sort"
+	"sync"
 	"typesys"
 )
 
@@ -642,35 +643,65 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 		var indeces *[][]int
 		result, indeces, _ = df.groupHelper()
 
-		for _, agg := range aggregators {
-			series := df.__series(agg.getSeriesName())
+		if df.NRows() < MINIMUM_PARALLEL_SIZE {
+			for _, agg := range aggregators {
+				series := df.__series(agg.getSeriesName())
 
-			switch agg.getAggregateType() {
-			case AGGREGATE_COUNT:
-				counts := make([]int, len(*indeces))
-				for i, group := range *indeces {
-					counts[i] = len(group)
+				switch agg.getAggregateType() {
+				case AGGREGATE_COUNT:
+					counts := make([]int, len(*indeces))
+					for i, group := range *indeces {
+						counts[i] = len(group)
+					}
+					result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, counts))
+
+				case AGGREGATE_SUM:
+					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+
+				case AGGREGATE_MIN:
+					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+
+				case AGGREGATE_MAX:
+					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+
+				case AGGREGATE_MEAN:
+					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+
+				case AGGREGATE_MEDIAN:
+					// TODO: implement
+
+				case AGGREGATE_STD:
+					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
 				}
-				result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, counts))
-
-			case AGGREGATE_SUM:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
-
-			case AGGREGATE_MIN:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
-
-			case AGGREGATE_MAX:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
-
-			case AGGREGATE_MEAN:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
-
-			case AGGREGATE_MEDIAN:
-				// TODO: implement
-
-			case AGGREGATE_STD:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
 			}
+		} else {
+
+			var wg sync.WaitGroup
+			wg.Add(THREADS_NUMBER)
+
+			buffer := make(chan __stats_thread_data)
+			for i := 0; i < THREADS_NUMBER; i++ {
+				go __stats_worker(&wg, buffer)
+			}
+
+			for _, agg := range aggregators {
+				series := df.__series(agg.getSeriesName())
+
+				resultData := make([]float64, len(*indeces))
+				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, resultData))
+				for gi, group := range *indeces {
+					buffer <- __stats_thread_data{
+						op:      agg.getAggregateType(),
+						gi:      gi,
+						indeces: group,
+						series:  series,
+						res:     resultData,
+					}
+				}
+			}
+
+			close(buffer)
+			wg.Wait()
 		}
 
 	} else {
