@@ -13,7 +13,7 @@ type __stats_thread_data struct {
 	res     []float64
 }
 
-func __stats_worker(wg *sync.WaitGroup, buffer chan __stats_thread_data) {
+func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 	for td := range buffer {
 		switch td.op {
 		case AGGREGATE_SUM:

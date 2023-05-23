@@ -6,8 +6,8 @@ import (
 )
 
 func __series_groupby_multithreaded(
-	threadNum, dataLen int, maps *[]map[uint64][]int,
-	worker func(start, end int, map_ map[uint64][]int),
+	threadNum, dataLen int, maps *[]map[int64][]int,
+	worker func(start, end int, map_ map[int64][]int),
 ) {
 
 	// Initialize the wait groups array, one for each level where level is the
