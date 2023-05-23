@@ -221,11 +221,23 @@ After creating a single function for the grouping, optimizing the map merge proc
 
 Speed-up comparison for Solution 2.1
 
-|   in_rows_exp |   gandalff_2_1 |   polars |   Ratio |
-|--------------:|---------------:|---------:|--------:|
-|     10000     |          0.362 |    0.414 |    0.87 |
-|    100000     |          2.658 |    0.852 |    3.11 |
-|         1e+06 |         22.66  |   27.992 |    0.8  |
-|         1e+07 |        327.536 |  136.322 |    2.4  |
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |    0.362 |   0.414 |  0.87 |
+|     100000 |    2.658 |   0.852 |  3.11 |
+|      1e+06 |    22.66 |  27.992 |   0.8 |
+|      1e+07 |  327.536 | 136.322 |   2.4 |
+
+Limitations: maps in Go are quite slow for dense integers key [see](https://github.com/golang/go/issues/19495)
+Using array for int32 series smaller than 2^17 elements (dense): it's faster than using maps.
+
+Speed-up comparison for Solution 2.2
+
+| Input Size | Gandalff |  Polars | Ratio |
+| ---------: | -------: | ------: | ----: |
+|      10000 |    0.302 |   0.414 |  0.72 |
+|     100000 |     2.68 |   0.852 |  3.14 |
+|      1e+06 |   22.124 |  27.992 |  0.79 |
+|      1e+07 |  298.116 | 136.322 |  2.18 |
 
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
