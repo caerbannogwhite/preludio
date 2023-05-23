@@ -1,36 +1,5 @@
 package gandalff
 
-import "unsafe"
-
-type SeriesPart struct {
-	part map[uint64][]int
-}
-
-func HashStringPtrVec(vec *[]*string) map[uint64][]int {
-	m := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
-	var h uint64
-	for i, v := range *vec {
-		h = *(*uint64)(unsafe.Pointer(unsafe.Pointer(v)))
-		m[h] = append(m[h], i)
-	}
-	return m
-}
-
-func CombineStringPtrVec(oldMap map[uint64][]int, vec *[]*string) map[uint64][]int {
-	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
-	var newHash uint64
-	for hash, indexes := range oldMap {
-		for _, index := range indexes {
-			newHash = *(*uint64)(unsafe.Pointer(unsafe.Pointer((*vec)[index]))) + HASH_MAGIC_NUMBER + (hash << 6) + (hash >> 2)
-			newMap[newHash] = append(newMap[newHash], index)
-		}
-	}
-
-	return newMap
-}
-
 type HMElem struct {
 	Key   uint64
 	Value *[]int

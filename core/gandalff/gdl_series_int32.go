@@ -5,7 +5,6 @@ import (
 	"sort"
 	"sync"
 	"typesys"
-	"unsafe"
 )
 
 // GDLSeriesInt32 represents a series of ints.
@@ -795,7 +794,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 type SeriesInt32Partition struct {
 	seriesSize   int
-	partition    map[uint64][]int
+	partition    map[int64][]int
 	nulls        []int
 	indexToGroup []int
 }
@@ -820,7 +819,7 @@ func (gp SeriesInt32Partition) beginSorting() SeriesInt32Partition {
 }
 
 func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
-	// newPartition := make(map[uint64][]int, len(gp.partition))
+	// newPartition := make(map[int64][]int, len(gp.partition))
 	// newNullGroup := make([]int, len(gp.nulls))
 
 	// for i, part := range gp.partition {
@@ -829,7 +828,7 @@ func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
 
 	// for i, g := range gp.indexToGroup {
 	// 	if g < len(gp.partition) {
-	// 		newPartition[uint64(g)] = append(newPartition[uint64(g)], i)
+	// 		newPartition[int64(g)] = append(newPartition[int64(g)], i)
 	// 	} else {
 	// 		newNullGroup[g-len(gp.partition)] = append(newNullGroup[g-len(gp.partition)], i)
 	// 	}
@@ -843,7 +842,7 @@ func (gp SeriesInt32Partition) GetGroupsCount() int {
 	return len(gp.partition)
 }
 
-func (gp SeriesInt32Partition) GetIndices() map[uint64][]int {
+func (gp SeriesInt32Partition) GetIndices() map[int64][]int {
 	return gp.partition
 }
 
@@ -886,9 +885,9 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 
 	var partition SeriesInt32Partition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE {
-		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		for i, v := range s.data {
-			map_[*(*uint64)(unsafe.Pointer((&v)))] = append(map_[*(*uint64)(unsafe.Pointer((&v)))], i)
+			map_[int64(v)] = append(map_[int64(v)], i)
 		}
 
 		partition = SeriesInt32Partition{
@@ -899,15 +898,15 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 	} else {
 
 		// Initialize the maps and the wait groups
-		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		allMaps := make([]map[int64][]int, THREADS_NUMBER)
 		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[uint64][]int) {
+		worker := func(start, end int, map_ map[int64][]int) {
 			for i := start; i < end; i++ {
-				map_[*(*uint64)(unsafe.Pointer((&s.data[i])))] = append(map_[*(*uint64)(unsafe.Pointer((&s.data[i])))], i)
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
 			}
 		}
 
@@ -932,12 +931,12 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE {
 
-		map_ := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-		var newHash uint64
+		var newHash int64
 		for k, v := range otherIndeces {
 			for _, index := range v {
-				newHash = *(*uint64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (k << 12) + (k >> 4)
+				newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (k << 12) + (k >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -950,7 +949,7 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 	} else {
 
 		// collect all keys
-		keys := make([]uint64, len(otherIndeces))
+		keys := make([]int64, len(otherIndeces))
 		i := 0
 		for k := range otherIndeces {
 			keys[i] = k
@@ -958,17 +957,18 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		// Initialize the maps and the wait groups
-		allMaps := make([]map[uint64][]int, THREADS_NUMBER)
+		allMaps := make([]map[int64][]int, THREADS_NUMBER)
 		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[uint64][]int) {
-			var newHash uint64
+		worker := func(start, end int, map_ map[int64][]int) {
+			var newHash int64
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
-					newHash = *(*uint64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+					// newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+					newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
 					map_[newHash] = append(map_[newHash], index)
 				}
 			}

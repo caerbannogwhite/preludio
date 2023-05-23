@@ -130,7 +130,7 @@ type SeriesPartition interface {
 	// Returns the number of groups.
 	GetGroupsCount() int
 	// Returns the indices of the groups.
-	GetIndices() map[uint64][]int
+	GetIndices() map[int64][]int
 	// Returns the indices for a given value in a given sub-group.
 	GetValueIndices(val any) []int
 	// Returns the null group.

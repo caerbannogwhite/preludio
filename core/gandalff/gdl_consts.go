@@ -13,7 +13,7 @@ const (
 	MINIMUM_PARALLEL_SIZE = 131_072 // 16_384
 
 	// HASH_MAGIC_NUMBER = 0x9e3779b9
-	HASH_MAGIC_NUMBER = 0xa8f4979b77e3f93f
+	HASH_MAGIC_NUMBER = int64(0xa8f4979b77e3f93)
 )
 
 ////////////////////////////////			ENUMS

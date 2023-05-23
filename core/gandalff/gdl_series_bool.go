@@ -913,7 +913,7 @@ type boolIndices struct {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
-	partition map[uint64][]int
+	partition map[int64][]int
 	nulls     []int
 }
 
@@ -925,7 +925,7 @@ func (p SeriesBoolPartition) GetGroupsCount() int {
 	return len(p.partition)
 }
 
-func (p SeriesBoolPartition) GetIndices() map[uint64][]int {
+func (p SeriesBoolPartition) GetIndices() map[int64][]int {
 	return p.partition
 }
 
@@ -954,9 +954,9 @@ func (gp SeriesBoolPartition) GetKeys() any {
 
 func (s GDLSeriesBool) Group() GDLSeries {
 
-	map_ := make(map[uint64][]int)
+	map_ := make(map[int64][]int)
 	for i := 0; i < s.size; i++ {
-		map_[uint64(s.data[i>>3]&(1<<(i%8)))] = append(map_[uint64(s.data[i>>3]&(1<<(i%8)))], i)
+		map_[int64(s.data[i>>3]&(1<<(i%8)))] = append(map_[int64(s.data[i>>3]&(1<<(i%8)))], i)
 	}
 
 	return GDLSeriesBool{
@@ -973,12 +973,12 @@ func (s GDLSeriesBool) Group() GDLSeries {
 }
 
 func (s GDLSeriesBool) SubGroup(partition SeriesPartition) GDLSeries {
-	newMap := make(map[uint64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+	newMap := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
-	var newHash uint64
+	var newHash int64
 	for h, indexes := range partition.GetIndices() {
 		for _, index := range indexes {
-			newHash = uint64(s.data[index>>3]&(1<<(index%8))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+			newHash = int64(s.data[index>>3]&(1<<(index%8))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
 			newMap[newHash] = append(newMap[newHash], index)
 		}
 	}
