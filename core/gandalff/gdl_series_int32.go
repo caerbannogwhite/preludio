@@ -793,13 +793,18 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
-	seriesSize   int
-	partition    map[int64][]int
-	nulls        []int
-	indexToGroup []int
+	isDense        bool
+	seriesSize     int
+	partition      map[int64][]int
+	partitionDense [][]int
+	nulls          []int
+	indexToGroup   []int
 }
 
 func (gp SeriesInt32Partition) GetSize() int {
+	if gp.isDense {
+		return len(gp.partitionDense)
+	}
 	return len(gp.partition)
 }
 
@@ -843,6 +848,13 @@ func (gp SeriesInt32Partition) GetGroupsCount() int {
 }
 
 func (gp SeriesInt32Partition) GetIndices() map[int64][]int {
+	if gp.isDense {
+		map_ := make(map[int64][]int, len(gp.partitionDense))
+		for i, part := range gp.partitionDense {
+			map_[int64(i)] = part
+		}
+		return map_
+	}
 	return gp.partition
 }
 
@@ -885,16 +897,33 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 
 	var partition SeriesInt32Partition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE {
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+
+		max := s.data[0]
+		min := s.data[0]
+		for _, v := range s.data {
+			if v > max {
+				max = v
+			}
+			if v < min {
+				min = v
+			}
+		}
+
+		map_ := make([][]int, max-min+1)
+		for i := 0; i < len(map_); i++ {
+			map_[i] = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
+		}
+
 		for i, v := range s.data {
-			map_[int64(v)] = append(map_[int64(v)], i)
+			map_[v-min] = append(map_[v-min], i)
 		}
 
 		partition = SeriesInt32Partition{
-			seriesSize:   s.Len(),
-			partition:    map_,
-			indexToGroup: make([]int, s.Len()),
+			isDense:        true,
+			seriesSize:     s.Len(),
+			partitionDense: map_,
 		}
+
 	} else {
 
 		// Initialize the maps and the wait groups
@@ -905,7 +934,27 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 
 		// Define the worker callback
 		worker := func(start, end int, map_ map[int64][]int) {
-			for i := start; i < end; i++ {
+			up := end - ((end - start) % 8)
+			for i := start; i < up; {
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				i++
+			}
+
+			for i := up; i < end; i++ {
 				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
 			}
 		}
@@ -913,9 +962,10 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), &allMaps, worker)
 
 		partition = SeriesInt32Partition{
-			seriesSize:   s.Len(),
-			partition:    allMaps[0],
-			indexToGroup: make([]int, s.Len()),
+			isDense:    false,
+			seriesSize: s.Len(),
+			partition:  allMaps[0],
+			// indexToGroup: make([]int, s.Len()),
 		}
 	}
 

@@ -7,6 +7,8 @@ const (
 	DEFAULT_SERIES_INITIAL_CAPACITY = 10
 	// The default capacity of a hash map.
 	DEFAULT_HASH_MAP_INITIAL_CAPACITY = 1024
+	// The default capacity of a dense map array.
+	DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY = 64
 	// Number of threads to use for parallel operations.
 	THREADS_NUMBER = 16
 	// Minimum number of elements to use parallel operations.

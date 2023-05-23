@@ -943,8 +943,8 @@ func (s GDLSeriesString) Group() GDLSeries {
 	var partition SeriesStringPartition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE {
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		for i, v := range s.data {
-			map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(v))))] = append(map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(v))))], i)
+		for i := 0; i < len(s.data); i++ {
+			map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))] = append(map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))], i)
 		}
 
 		partition = SeriesStringPartition{
