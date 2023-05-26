@@ -254,4 +254,18 @@ Speed-up comparison for Solution 2.3
 |         1e+06 |         23.31  |   27.992 |    0.83 |
 |         1e+07 |        323.872 |  136.322 |    2.37 |
 
+
+Adjusting the minimum size for activating the parallel code in the string series grouping.
+This improves the performance for the 1e5 instances, without affecting the other cases.
+
+Speed-up comparison for Solution 2.4
+
+|   in_rows_exp |   gandalff_2_4 |   polars |   Ratio |
+|--------------:|---------------:|---------:|--------:|
+|     10000     |          0.292 |    0.414 |    0.7  |
+|    100000     |          2.092 |    0.852 |    2.45 |
+|         1e+06 |         21.844 |   27.992 |    0.78 |
+|         1e+07 |        294.828 |  136.322 |    2.16 |
+
+
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
