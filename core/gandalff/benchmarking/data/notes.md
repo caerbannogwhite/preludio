@@ -240,4 +240,18 @@ Speed-up comparison for Solution 2.2
 |      1e+06 |   22.124 |  27.992 |  0.79 |
 |      1e+07 |  298.116 | 136.322 |  2.18 |
 
+
+Using SwissMap
+[SwissMap](https://github.com/dolthub/swiss)
+It's worse than using a map, maybe I need to customize it (not using generics) or maybe my implementation was a bit too naive.
+
+Speed-up comparison for Solution 2.3
+
+|   in_rows_exp |   gandalff_2_3 |   polars |   Ratio |
+|--------------:|---------------:|---------:|--------:|
+|     10000     |          0.396 |    0.414 |    0.95 |
+|    100000     |          3.744 |    0.852 |    4.39 |
+|         1e+06 |         23.31  |   27.992 |    0.83 |
+|         1e+07 |        323.872 |  136.322 |    2.37 |
+
 [](https://www.cockroachlabs.com/blog/vectorized-hash-joiner/)
