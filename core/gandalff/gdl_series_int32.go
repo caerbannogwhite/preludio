@@ -699,7 +699,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 
 		chunkLen := len(s.data) / THREADS_NUMBER
-		if chunkLen < MINIMUM_PARALLEL_SIZE {
+		if chunkLen < MINIMUM_PARALLEL_SIZE_2 {
 			for i := 0; i < len(s.data); i++ {
 				if f(s.data[i]).(bool) {
 					data[i>>3] |= (1 << uint(i%8))
@@ -896,7 +896,7 @@ func (gp SeriesInt32Partition) InnerJoin(other SeriesInt32Partition) {
 func (s GDLSeriesInt32) Group() GDLSeries {
 
 	var partition SeriesInt32Partition
-	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 
 		max := s.data[0]
 		min := s.data[0]
@@ -959,7 +959,7 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), &allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
 
 		partition = SeriesInt32Partition{
 			isDense:    false,
@@ -979,7 +979,7 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 	var newPartition SeriesInt32Partition
 	otherIndeces := partition.GetIndices()
 
-	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
@@ -1024,7 +1024,7 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), &allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
 
 		newPartition = SeriesInt32Partition{
 			seriesSize:   s.Len(),

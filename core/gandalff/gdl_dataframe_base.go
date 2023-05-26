@@ -643,7 +643,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 		var indeces *[][]int
 		result, indeces, _ = df.groupHelper()
 
-		if df.NRows() < MINIMUM_PARALLEL_SIZE {
+		if df.NRows() < MINIMUM_PARALLEL_SIZE_2 {
 			for _, agg := range aggregators {
 				series := df.__series(agg.getSeriesName())
 

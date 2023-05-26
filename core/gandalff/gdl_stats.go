@@ -110,7 +110,7 @@ func __gdl_sum_grouped__(s GDLSeries, groups [][]int) []float64 {
 		data := *series.__getDataPtr()
 
 		// SINGLE THREAD
-		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
 				sum_ := int(0)
 				for _, i := range group {
@@ -186,7 +186,7 @@ func __gdl_sum_grouped__(s GDLSeries, groups [][]int) []float64 {
 		data := *series.__getDataPtr()
 
 		// SINGLE THREAD
-		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
 				sum_ := float64(0)
 				for _, i := range group {
@@ -547,7 +547,7 @@ func __gdl_mean_grouped__(s GDLSeries, groups [][]int) []float64 {
 		data := *series.__getDataPtr()
 
 		// SINGLE THREAD
-		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
 				sum_ := int(0)
 				for _, i := range group {
@@ -597,7 +597,7 @@ func __gdl_mean_grouped__(s GDLSeries, groups [][]int) []float64 {
 		data := *series.__getDataPtr()
 
 		// SINGLE THREAD
-		if len(data) < MINIMUM_PARALLEL_SIZE || len(groups) < THREADS_NUMBER {
+		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
 				sum_ := float64(0)
 				for _, i := range group {

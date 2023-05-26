@@ -791,7 +791,7 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 func (s GDLSeriesFloat64) Group() GDLSeries {
 
 	var partition SeriesFloat64Partition
-	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		for i, v := range s.data {
 			map_[*(*int64)(unsafe.Pointer((&v)))] = append(map_[*(*int64)(unsafe.Pointer((&v)))], i)
@@ -817,7 +817,7 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), &allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
 
 		partition = SeriesFloat64Partition{
 			seriesSize:   s.Len(),
@@ -836,7 +836,7 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 	var newPartition SeriesFloat64Partition
 	otherIndeces := partition.GetIndices()
 
-	if len(s.data) < MINIMUM_PARALLEL_SIZE {
+	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
@@ -880,7 +880,7 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), &allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
 
 		newPartition = SeriesFloat64Partition{
 			seriesSize:   s.Len(),
