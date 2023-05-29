@@ -828,9 +828,9 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 		var newHash int64
-		for k, v := range otherIndeces {
+		for h, v := range otherIndeces {
 			for _, index := range v {
-				newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (k << 12) + (k >> 4)
+				newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -860,7 +860,7 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 			var newHash int64
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
-					newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+					newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 					map_[newHash] = append(map_[newHash], index)
 				}
 			}

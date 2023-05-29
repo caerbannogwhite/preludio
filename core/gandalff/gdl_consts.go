@@ -3,19 +3,23 @@ package gandalff
 import "strconv"
 
 const (
+
 	// The default capacity of a series.
 	DEFAULT_SERIES_INITIAL_CAPACITY = 10
+
 	// The default capacity of a hash map.
 	DEFAULT_HASH_MAP_INITIAL_CAPACITY = 1024
+
 	// The default capacity of a dense map array.
 	DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY = 64
+
 	// Number of threads to use for parallel operations.
 	THREADS_NUMBER = 16
+
 	// Minimum number of elements to use parallel operations.
 	MINIMUM_PARALLEL_SIZE_1 = 16_384
 	MINIMUM_PARALLEL_SIZE_2 = 131_072
 
-	// HASH_MAGIC_NUMBER = 0x9e3779b9
 	HASH_MAGIC_NUMBER = int64(0xa8f4979b77e3f93)
 	HASH_NULL_KEY     = int64(0x7ff8000000000001)
 )
