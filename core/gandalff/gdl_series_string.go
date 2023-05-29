@@ -31,7 +31,7 @@ func NewGDLSeriesString(name string, isNullable bool, data []string, pool *Strin
 
 	actualData := make([]*string, len(data))
 	for i, v := range data {
-		actualData[i] = pool.Get(v)
+		actualData[i] = pool.Put(v)
 	}
 
 	return GDLSeriesString{isNullable: isNullable, name: name, data: actualData, nullMask: nullMask, pool: pool}
@@ -199,10 +199,10 @@ func (s GDLSeriesString) GetString(i int) string {
 // Set the element at index i. The value v must be of type string or NullableString.
 func (s GDLSeriesString) Set(i int, v any) GDLSeries {
 	if ss, ok := v.(string); ok {
-		s.data[i] = s.pool.Get(ss)
+		s.data[i] = s.pool.Put(ss)
 	} else if ns, ok := v.(NullableString); ok {
 		if ns.Valid {
-			s.data[i] = s.pool.Get(ns.Value)
+			s.data[i] = s.pool.Put(ns.Value)
 		} else {
 			s.data[i] = nil
 			s.nullMask[i/8] |= 1 << uint(i%8)
@@ -272,13 +272,13 @@ func (s GDLSeriesString) Append(v any) GDLSeries {
 func (s GDLSeriesString) AppendRaw(v any) GDLSeries {
 	if s.isNullable {
 		if str, ok := v.(string); ok {
-			s.data = append(s.data, s.pool.Get(str))
+			s.data = append(s.data, s.pool.Put(str))
 			if len(s.data) > len(s.nullMask)<<3 {
 				s.nullMask = append(s.nullMask, 0)
 			}
 		} else if strv, ok := v.([]string); ok {
 			for _, str := range strv {
-				s.data = append(s.data, s.pool.Get(str))
+				s.data = append(s.data, s.pool.Put(str))
 			}
 			if len(s.data) > len(s.nullMask)<<3 {
 				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
@@ -288,10 +288,10 @@ func (s GDLSeriesString) AppendRaw(v any) GDLSeries {
 		}
 	} else {
 		if str, ok := v.(string); ok {
-			s.data = append(s.data, s.pool.Get(str))
+			s.data = append(s.data, s.pool.Put(str))
 		} else if strv, ok := v.([]string); ok {
 			for _, str := range strv {
-				s.data = append(s.data, s.pool.Get(str))
+				s.data = append(s.data, s.pool.Put(str))
 			}
 		} else {
 			return GDLSeriesError{fmt.Sprintf("GDLSeriesString.AppendRaw: invalid type %T", v)}
@@ -307,7 +307,7 @@ func (s GDLSeriesString) AppendNullable(v any) GDLSeries {
 	}
 
 	if str, ok := v.(NullableString); ok {
-		s.data = append(s.data, s.pool.Get(str.Value))
+		s.data = append(s.data, s.pool.Put(str.Value))
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -319,7 +319,7 @@ func (s GDLSeriesString) AppendNullable(v any) GDLSeries {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
 		for _, str := range strv {
-			s.data = append(s.data, s.pool.Get(str.Value))
+			s.data = append(s.data, s.pool.Put(str.Value))
 			if !str.Valid {
 				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 			}
@@ -858,7 +858,7 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Get(f((*s.data[i])).(string))
+			data[i] = stringPool.Put(f((*s.data[i])).(string))
 		}
 
 		s.isGrouped = false
@@ -877,6 +877,7 @@ type SeriesStringPartition struct {
 	seriesSize   int
 	partition    map[int64][]int
 	indexToGroup []int
+	pool         *StringPool
 }
 
 func (gp SeriesStringPartition) GetSize() int {
@@ -888,15 +889,21 @@ func (gp SeriesStringPartition) GetMap() map[int64][]int {
 }
 
 func (gp SeriesStringPartition) GetValueIndices(val any) []int {
-	// if sub >= len(gp.partitions) {
-	// 	return nil
-	// }
+	if val == nil {
+		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
+			return nulls
+		}
+	} else {
+		if v, ok := val.(string); ok {
+			if addr := gp.pool.Put(v); addr == nil {
+				if vals, ok := gp.partition[(*(*int64)(unsafe.Pointer(unsafe.Pointer(addr))))]; ok {
+					return vals
+				}
+			}
+		}
+	}
 
-	// if v, ok := val.(*string); ok {
-	// 	return gp.partitions[sub][v]
-	// }
-
-	return nil
+	return make([]int, 0)
 }
 
 func (gp SeriesStringPartition) GetKeys() any {
@@ -924,9 +931,9 @@ func (s GDLSeriesString) Group() GDLSeries {
 		}
 
 		partition = SeriesStringPartition{
-			seriesSize:   s.Len(),
-			partition:    map_,
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  map_,
+			pool:       s.pool,
 		}
 	} else {
 
@@ -946,9 +953,9 @@ func (s GDLSeriesString) Group() GDLSeries {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
 
 		partition = SeriesStringPartition{
-			seriesSize:   s.Len(),
-			partition:    allMaps[0],
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  allMaps[0],
+			pool:       s.pool,
 		}
 	}
 
@@ -975,9 +982,9 @@ func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		newPartition = SeriesStringPartition{
-			seriesSize:   s.Len(),
-			partition:    map_,
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  map_,
+			pool:       s.pool,
 		}
 	} else {
 
@@ -1009,9 +1016,9 @@ func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
 
 		newPartition = SeriesStringPartition{
-			seriesSize:   s.Len(),
-			partition:    allMaps[0],
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  allMaps[0],
+			pool:       s.pool,
 		}
 	}
 

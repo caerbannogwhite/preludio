@@ -612,12 +612,12 @@ func (s GDLSeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) GDLSerie
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if s.nullMask[i]&(1<<uint(j)) != 0 {
-						data[i*8+j] = stringPool.Get(NULL_STRING)
+						data[i*8+j] = stringPool.Put(NULL_STRING)
 					} else {
 						if v&(1<<uint(j)) != 0 {
-							data[i*8+j] = stringPool.Get(BOOL_TRUE_STRING)
+							data[i*8+j] = stringPool.Put(BOOL_TRUE_STRING)
 						} else {
-							data[i*8+j] = stringPool.Get(BOOL_FALSE_STRING)
+							data[i*8+j] = stringPool.Put(BOOL_FALSE_STRING)
 						}
 					}
 				}
@@ -626,9 +626,9 @@ func (s GDLSeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) GDLSerie
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if v&(1<<uint(j)) != 0 {
-						data[i*8+j] = stringPool.Get(BOOL_TRUE_STRING)
+						data[i*8+j] = stringPool.Put(BOOL_TRUE_STRING)
 					} else {
-						data[i*8+j] = stringPool.Get(BOOL_FALSE_STRING)
+						data[i*8+j] = stringPool.Put(BOOL_FALSE_STRING)
 					}
 				}
 			}
@@ -884,7 +884,7 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = stringPool.Get(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
+			data[i] = stringPool.Put(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
 		}
 
 		return GDLSeriesString{
@@ -902,11 +902,6 @@ func (s GDLSeriesBool) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 }
 
 ////////////////////////			GROUPING OPERATIONS
-
-type boolIndices struct {
-	trues  []int
-	falses []int
-}
 
 // A partition is trivially a vector of maps (or boolIndices in this case)
 // Each element of the vector represent a sub-group (the default is 1,
@@ -928,9 +923,7 @@ func (p SeriesBoolPartition) GetMap() map[int64][]int {
 func (p SeriesBoolPartition) GetValueIndices(val any) []int {
 	if val == nil {
 		return p.nulls
-	}
-
-	if v, ok := val.(bool); ok {
+	} else if v, ok := val.(bool); ok {
 		if v {
 			return p.partition[1]
 		} else {
@@ -938,7 +931,7 @@ func (p SeriesBoolPartition) GetValueIndices(val any) []int {
 		}
 	}
 
-	return nil
+	return make([]int, 0)
 }
 
 func (gp SeriesBoolPartition) GetKeys() any {

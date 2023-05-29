@@ -234,7 +234,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 					}
 					values[i] = append(values[i].([]float64), f)
 				case typesys.StringType:
-					values[i] = append(values[i].([]*string), stringPool.Get(v))
+					values[i] = append(values[i].([]*string), stringPool.Put(v))
 				}
 			}
 		}
@@ -269,7 +269,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 				}
 				values[i] = append(values[i].([]float64), f)
 			case typesys.StringType:
-				values[i] = append(values[i].([]*string), stringPool.Get(v))
+				values[i] = append(values[i].([]*string), stringPool.Put(v))
 			}
 		}
 	}

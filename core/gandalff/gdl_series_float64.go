@@ -453,14 +453,14 @@ func (s GDLSeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) GDLSe
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = stringPool.Get(NULL_STRING)
+					data[i] = stringPool.Put(NULL_STRING)
 				} else {
-					data[i] = stringPool.Get(floatToString(v))
+					data[i] = stringPool.Put(floatToString(v))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = stringPool.Get(floatToString(v))
+				data[i] = stringPool.Put(floatToString(v))
 			}
 		}
 
@@ -684,7 +684,7 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Get(f(s.data[i]).(string))
+			data[i] = stringPool.Put(f(s.data[i]).(string))
 		}
 
 		return GDLSeriesString{
@@ -753,9 +753,7 @@ func (gp SeriesFloat64Partition) GetValueIndices(val any) []int {
 		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
 			return nulls
 		}
-	}
-
-	if v, ok := val.(float64); ok {
+	} else if v, ok := val.(float64); ok {
 		if part, ok := gp.partition[int64(v)]; ok {
 			return part
 		}
@@ -789,9 +787,8 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 		}
 
 		partition = SeriesFloat64Partition{
-			seriesSize:   s.Len(),
-			partition:    map_,
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  map_,
 		}
 	} else {
 
@@ -811,9 +808,8 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
 
 		partition = SeriesFloat64Partition{
-			seriesSize:   s.Len(),
-			partition:    allMaps[0],
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  allMaps[0],
 		}
 	}
 
@@ -840,9 +836,8 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		newPartition = SeriesFloat64Partition{
-			seriesSize:   s.Len(),
-			partition:    map_,
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  map_,
 		}
 	} else {
 
@@ -874,9 +869,8 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
 
 		newPartition = SeriesFloat64Partition{
-			seriesSize:   s.Len(),
-			partition:    allMaps[0],
-			indexToGroup: make([]int, s.Len()),
+			seriesSize: s.Len(),
+			partition:  allMaps[0],
 		}
 	}
 
