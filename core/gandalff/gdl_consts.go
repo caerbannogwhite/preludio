@@ -17,6 +17,7 @@ const (
 
 	// HASH_MAGIC_NUMBER = 0x9e3779b9
 	HASH_MAGIC_NUMBER = int64(0xa8f4979b77e3f93)
+	HASH_NULL_KEY     = int64(0x7ff8000000000001)
 )
 
 ////////////////////////////////			ENUMS

@@ -793,61 +793,85 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
-	isDense        bool
-	seriesSize     int
-	partition      map[int64][]int
-	partitionDense [][]int
-	nulls          []int
-	indexToGroup   []int
+	isDense             bool
+	seriesSize          int
+	partition           map[int64][]int
+	partitionDense      [][]int
+	partitionDenseNulls []int
+	indexToGroup        []int
 }
 
 func (gp SeriesInt32Partition) GetSize() int {
 	if gp.isDense {
-		return len(gp.partitionDense)
+		nulls := 0
+		if len(gp.partitionDenseNulls) > 0 {
+			nulls = 1
+		}
+		return len(gp.partitionDense) + nulls
 	}
 	return len(gp.partition)
 }
 
 func (gp SeriesInt32Partition) beginSorting() SeriesInt32Partition {
 	gp.indexToGroup = make([]int, gp.seriesSize)
-	for i, part := range gp.partition {
-		for _, idx := range part {
-			gp.indexToGroup[idx] = int(i)
+	if gp.isDense {
+		for i, part := range gp.partitionDense {
+			for _, idx := range part {
+				gp.indexToGroup[idx] = i
+			}
+		}
+
+		for _, idx := range gp.partitionDenseNulls {
+			gp.indexToGroup[idx] = len(gp.partitionDense)
+		}
+	} else {
+		for i, part := range gp.partition {
+			for _, idx := range part {
+				gp.indexToGroup[idx] = int(i)
+			}
 		}
 	}
-
-	for _, idx := range gp.nulls {
-		gp.indexToGroup[idx] = len(gp.partition)
-	}
-
 	return gp
 }
 
 func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
-	// newPartition := make(map[int64][]int, len(gp.partition))
-	// newNullGroup := make([]int, len(gp.nulls))
+	if gp.isDense {
+		newPartitionDense := make([][]int, len(gp.partitionDense))
+		newPartitionDenseNulls := make([]int, len(gp.partitionDenseNulls))
 
-	// for i, part := range gp.partition {
-	// 	newPartition[i] = make([]int, 0, len(part))
-	// }
+		for _, part := range gp.partitionDense {
+			newPartitionDense[gp.indexToGroup[part[0]]] = make([]int, len(part))
+		}
 
-	// for i, g := range gp.indexToGroup {
-	// 	if g < len(gp.partition) {
-	// 		newPartition[int64(g)] = append(newPartition[int64(g)], i)
-	// 	} else {
-	// 		newNullGroup[g-len(gp.partition)] = append(newNullGroup[g-len(gp.partition)], i)
-	// 	}
-	// }
+		for i, idx := range gp.indexToGroup {
+			if idx == len(gp.partitionDense) {
+				newPartitionDenseNulls = append(newPartitionDenseNulls, i)
+			} else {
+				newPartitionDense[idx] = append(newPartitionDense[idx], i)
+			}
+		}
+
+		gp.partitionDense = newPartitionDense
+		gp.partitionDenseNulls = newPartitionDenseNulls
+	} else {
+		newPartition := make(map[int64][]int, len(gp.partition))
+
+		for _, part := range gp.partition {
+			newPartition[int64(gp.indexToGroup[part[0]])] = make([]int, len(part))
+		}
+
+		for i, idx := range gp.indexToGroup {
+			newPartition[int64(idx)] = append(newPartition[int64(idx)], i)
+		}
+
+		gp.partition = newPartition
+	}
 
 	gp.indexToGroup = nil
 	return gp
 }
 
-func (gp SeriesInt32Partition) GetGroupsCount() int {
-	return len(gp.partition)
-}
-
-func (gp SeriesInt32Partition) GetIndices() map[int64][]int {
+func (gp SeriesInt32Partition) GetMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
@@ -855,23 +879,28 @@ func (gp SeriesInt32Partition) GetIndices() map[int64][]int {
 		}
 		return map_
 	}
+
 	return gp.partition
 }
 
 func (gp SeriesInt32Partition) GetValueIndices(val any) []int {
-	// if sub >= len(gp.partitions) {
-	// 	return nil
-	// }
+	if val == nil {
+		if gp.isDense {
+			return gp.partitionDenseNulls
+		} else if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
+			return nulls
+		}
+	}
 
-	// if v, ok := val.(int); ok {
-	// 	return gp.partitions[sub][v]
-	// }
+	if v, ok := val.(int32); ok {
+		if gp.isDense {
+			return gp.partitionDense[v]
+		} else if part, ok := gp.partition[int64(v)]; ok {
+			return part
+		}
+	}
 
-	return nil
-}
-
-func (gp SeriesInt32Partition) GetNullIndices() []int {
-	return gp.nulls
+	return make([]int, 0)
 }
 
 func (gp SeriesInt32Partition) GetKeys() any {
@@ -977,7 +1006,7 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 
 func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 	var newPartition SeriesInt32Partition
-	otherIndeces := partition.GetIndices()
+	otherIndeces := partition.GetMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 

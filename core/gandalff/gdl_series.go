@@ -127,14 +127,11 @@ func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool,
 type SeriesPartition interface {
 	// Returns the number partitions.
 	GetSize() int
-	// Returns the number of groups.
-	GetGroupsCount() int
 	// Returns the indices of the groups.
-	GetIndices() map[int64][]int
-	// Returns the indices for a given value in a given sub-group.
+	GetMap() map[int64][]int
+	// Returns the indices for a given value. The value must be of the same type as the series.
+	// If val is nil then the indices of the null values are returned.
 	GetValueIndices(val any) []int
-	// Returns the null group.
-	GetNullIndices() []int
 	// Returns  the keys of the groups.
 	GetKeys() any
 }

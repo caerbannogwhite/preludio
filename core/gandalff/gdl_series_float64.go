@@ -706,7 +706,6 @@ func (s GDLSeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 type SeriesFloat64Partition struct {
 	seriesSize   int
 	partition    map[int64][]int
-	nulls        []int
 	indexToGroup []int
 }
 
@@ -720,10 +719,6 @@ func (gp SeriesFloat64Partition) beginSorting() SeriesFloat64Partition {
 		for _, idx := range part {
 			gp.indexToGroup[idx] = int(i)
 		}
-	}
-
-	for _, idx := range gp.nulls {
-		gp.indexToGroup[idx] = len(gp.partition)
 	}
 
 	return gp
@@ -749,28 +744,24 @@ func (gp SeriesFloat64Partition) endSorting() SeriesFloat64Partition {
 	return gp
 }
 
-func (gp SeriesFloat64Partition) GetGroupsCount() int {
-	return len(gp.partition)
-}
-
-func (gp SeriesFloat64Partition) GetIndices() map[int64][]int {
+func (gp SeriesFloat64Partition) GetMap() map[int64][]int {
 	return gp.partition
 }
 
 func (gp SeriesFloat64Partition) GetValueIndices(val any) []int {
-	// if sub >= len(gp.partitions) {
-	// 	return nil
-	// }
+	if val == nil {
+		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
+			return nulls
+		}
+	}
 
-	// if v, ok := val.(int); ok {
-	// 	return gp.partitions[sub][v]
-	// }
+	if v, ok := val.(float64); ok {
+		if part, ok := gp.partition[int64(v)]; ok {
+			return part
+		}
+	}
 
-	return nil
-}
-
-func (gp SeriesFloat64Partition) GetNullIndices() []int {
-	return gp.nulls
+	return make([]int, 0)
 }
 
 func (gp SeriesFloat64Partition) GetKeys() any {
@@ -834,7 +825,7 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 
 func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 	var newPartition SeriesFloat64Partition
-	otherIndeces := partition.GetIndices()
+	otherIndeces := partition.GetMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 

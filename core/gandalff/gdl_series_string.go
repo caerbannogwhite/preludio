@@ -876,7 +876,6 @@ func (s GDLSeriesString) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 type SeriesStringPartition struct {
 	seriesSize   int
 	partition    map[int64][]int
-	nulls        []int
 	indexToGroup []int
 }
 
@@ -884,26 +883,7 @@ func (gp SeriesStringPartition) GetSize() int {
 	return len(gp.partition)
 }
 
-func (gp SeriesStringPartition) GetGroupsCount() int {
-	// count := 0
-	// for _, s := range gp.partitions {
-	// 	for _, g := range s {
-	// 		if len(g) > 0 {
-	// 			count++
-	// 		}
-	// 	}
-	// }
-
-	// for _, g := range gp.nullGroups {
-	// 	if len(g) > 0 {
-	// 		count++
-	// 	}
-	// }
-	// return count
-	return 0
-}
-
-func (gp SeriesStringPartition) GetIndices() map[int64][]int {
+func (gp SeriesStringPartition) GetMap() map[int64][]int {
 	return gp.partition
 }
 
@@ -917,10 +897,6 @@ func (gp SeriesStringPartition) GetValueIndices(val any) []int {
 	// }
 
 	return nil
-}
-
-func (gp SeriesStringPartition) GetNullIndices() []int {
-	return gp.nulls
 }
 
 func (gp SeriesStringPartition) GetKeys() any {
@@ -984,7 +960,7 @@ func (s GDLSeriesString) Group() GDLSeries {
 
 func (s GDLSeriesString) SubGroup(partition SeriesPartition) GDLSeries {
 	var newPartition SeriesStringPartition
-	otherIndeces := partition.GetIndices()
+	otherIndeces := partition.GetMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
 
