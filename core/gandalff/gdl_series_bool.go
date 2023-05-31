@@ -103,9 +103,10 @@ func (s GDLSeriesBool) HasNull() bool {
 // Returns the number of null values in the series.
 func (s GDLSeriesBool) NullCount() int {
 	count := 0
-	for _, v := range s.nullMask {
-		for i := 0; i < 8; i++ {
-			count += int((v & (1 << uint(i))) >> uint(i))
+	for _, x := range s.nullMask {
+		for x != 0 {
+			count += int(x & 1)
+			x >>= 1
 		}
 	}
 	return count
@@ -684,12 +685,12 @@ func (s GDLSeriesBool) Filter(mask GDLSeriesBool) GDLSeries {
 
 	elementCount := mask.__trueCount()
 
-	data := __initPackBinVec(elementCount)
+	data := __binVecInit(elementCount)
 	var nullMask []uint8
 
 	if s.isNullable {
 
-		nullMask = __initPackBinVec(elementCount)
+		nullMask = __binVecInit(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.size; srcIdx++ {
@@ -744,12 +745,12 @@ func (s GDLSeriesBool) FilterByMask(mask []bool) GDLSeries {
 		}
 	}
 
-	data := __initPackBinVec(elementCount)
+	data := __binVecInit(elementCount)
 	var nullMask []uint8
 
 	if s.isNullable {
 
-		nullMask = __initPackBinVec(elementCount)
+		nullMask = __binVecInit(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -796,10 +797,10 @@ func (s GDLSeriesBool) FilterByIndeces(indexes []int) GDLSeries {
 	var nullMask []uint8
 
 	size := len(indexes)
-	data = __initPackBinVec(len(indexes))
+	data = __binVecInit(len(indexes))
 
 	if s.isNullable {
-		nullMask = __initPackBinVec(size)
+		nullMask = __binVecInit(size)
 		for dstIdx, srcIdx := range indexes {
 			if srcIdx%8 > dstIdx%8 {
 				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))

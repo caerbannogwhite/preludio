@@ -21,7 +21,7 @@ type GDLSeriesInt32 struct {
 func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) GDLSeries {
 	var nullMask []uint8
 	if isNullable {
-		nullMask = __initPackBinVec(len(data))
+		nullMask = __binVecInit(len(data))
 	} else {
 		nullMask = make([]uint8, 0)
 	}
@@ -80,9 +80,10 @@ func (s GDLSeriesInt32) HasNull() bool {
 // Returns the number of null values in the series.
 func (s GDLSeriesInt32) NullCount() int {
 	count := 0
-	for _, v := range s.nullMask {
-		for i := 0; i < 8; i++ {
-			count += int((v & (1 << uint(i))) >> uint(i))
+	for _, x := range s.nullMask {
+		for x != 0 {
+			count += int(x & 1)
+			x >>= 1
 		}
 	}
 	return count
@@ -107,7 +108,7 @@ func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return s
 	} else {
-		nullMask := __initPackBinVec(len(s.data))
+		nullMask := __binVecInit(len(s.data))
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		s.isNullable = true
@@ -142,7 +143,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 		}
 		return s
 	} else {
-		nullMask := __initPackBinVec(len(s.data))
+		nullMask := __binVecInit(len(s.data))
 		for k, v := range mask {
 			if v {
 				nullMask[k/8] |= 1 << uint(k%8)
@@ -161,7 +162,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 // Makes the series nullable.
 func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 	if !s.isNullable {
-		s.nullMask = __initPackBinVec(len(s.data))
+		s.nullMask = __binVecInit(len(s.data))
 		s.isNullable = true
 	}
 	return s
@@ -221,7 +222,7 @@ func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
 
 		if s.isNullable {
 			data := make([]int, size)
-			nullMask := __initPackBinVec(size)
+			nullMask := __binVecInit(size)
 
 			for i, j := start, 0; i < end; i, j = i+step, j+1 {
 				data[j] = s.data[i]
@@ -412,7 +413,7 @@ func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
 	} else {
 		if o.isNullable {
 			s.data = append(s.data, o.data...)
-			s.nullMask = __initPackBinVec(len(s.data))
+			s.nullMask = __binVecInit(len(s.data))
 			s.isNullable = true
 
 			// merge null masks
@@ -471,7 +472,7 @@ func (s GDLSeriesInt32) DataAsString() []string {
 func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
 	switch t {
 	case typesys.BoolType:
-		data := __initPackBinVec(len(s.data))
+		data := __binVecInit(len(s.data))
 		for i, v := range s.data {
 			if v != 0 {
 				data[i>>3] |= (1 << uint(i%8))
@@ -571,7 +572,7 @@ func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
 	data := make([]int, elementCount)
 	if s.isNullable {
 
-		nullMask = __initPackBinVec(elementCount)
+		nullMask = __binVecInit(elementCount)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
@@ -621,7 +622,7 @@ func (s GDLSeriesInt32) FilterByMask(mask []bool) GDLSeries {
 
 	if s.isNullable {
 
-		nullMask = __initPackBinVec(elementCount)
+		nullMask = __binVecInit(elementCount)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -660,7 +661,7 @@ func (s GDLSeriesInt32) FilterByIndeces(indexes []int) GDLSeries {
 
 	if s.isNullable {
 
-		nullMask = __initPackBinVec(size)
+		nullMask = __binVecInit(size)
 
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
@@ -902,17 +903,23 @@ func (gp SeriesInt32Partition) GetValueIndices(val any) []int {
 }
 
 func (gp SeriesInt32Partition) GetKeys() any {
-	keysMap := make(map[int]bool)
-	// for p := range gp.partitions {
-	// 	for k := range gp.partitions[p] {
-	// 		keysMap[k] = true
-	// 	}
-	// }
+	var keys []int
+	if gp.isDense {
+		keys = make([]int, 0, len(gp.partitionDense))
+		for k, indeces := range gp.partitionDense {
+			if len(indeces) > 0 {
+				keys = append(keys, k)
+			}
+		}
+	} else {
+		keys = make([]int, 0, len(gp.partition))
+		for k := range gp.partition {
+			if k != HASH_NULL_KEY {
+				keys = append(keys, int(k))
+			}
+		}
+	}
 
-	keys := make([]int, 0, len(keysMap))
-	// for k := range keysMap {
-	// 	keys = append(keys, k)
-	// }
 	return keys
 }
 

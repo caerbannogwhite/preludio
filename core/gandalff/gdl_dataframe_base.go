@@ -403,7 +403,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			result.series = append(result.series, GDLSeriesInt32{
 				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __initPackBinVec(len(indeces)),
+				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 			})
 
@@ -417,7 +417,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			result.series = append(result.series, GDLSeriesFloat64{
 				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __initPackBinVec(len(indeces)),
+				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 			})
 
@@ -431,7 +431,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			result.series = append(result.series, GDLSeriesString{
 				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __initPackBinVec(len(indeces)),
+				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 				pool:       series.pool,
 			})
