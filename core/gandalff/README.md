@@ -57,7 +57,8 @@ Charlie,33,60.0,t,Business,2
 
 The data types not checked are not yet supported, but might be in the future.
 
-- [x] Bool
+- [ ] Bool
+- [x] Bool (memory optimized)
 - [ ] Int16
 - [x] Int32 (Golang int)
 - [ ] Int64
