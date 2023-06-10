@@ -58,24 +58,24 @@ func Test_TypeGuesser(t *testing.T) {
 	}
 
 	// Test the int type.
-	if guesser.guessType("0") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.guessType("0").ToString())
+	if guesser.guessType("0") != typesys.Int64Type {
+		t.Error("Expected Int64, got", guesser.guessType("0").ToString())
 	}
 
-	if guesser.guessType("1") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.guessType("1").ToString())
+	if guesser.guessType("1") != typesys.Int64Type {
+		t.Error("Expected Int64, got", guesser.guessType("1").ToString())
 	}
 
-	if guesser.guessType("10000") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.guessType("10000").ToString())
+	if guesser.guessType("10000") != typesys.Int64Type {
+		t.Error("Expected Int64, got", guesser.guessType("10000").ToString())
 	}
 
-	if guesser.guessType("-1") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.guessType("-1").ToString())
+	if guesser.guessType("-1") != typesys.Int64Type {
+		t.Error("Expected Int64, got", guesser.guessType("-1").ToString())
 	}
 
-	if guesser.guessType("-10000") != typesys.Int32Type {
-		t.Error("Expected Int32, got", guesser.guessType("-10000").ToString())
+	if guesser.guessType("-10000") != typesys.Int64Type {
+		t.Error("Expected Int64, got", guesser.guessType("-10000").ToString())
 	}
 
 	// Test the float type.
@@ -198,20 +198,20 @@ Charlie,33,95.0,t
 		t.Error("Expected 'Jane H', got", df.SeriesAt(0).Data().([]string)[3])
 	}
 
-	if df.SeriesAt(1).Data().([]int)[4] != 28 {
-		t.Error("Expected 28, got", df.SeriesAt(1).Data().([]int)[4])
+	if df.SeriesAt(1).Data().([]int64)[4] != 28 {
+		t.Error("Expected 28, got", df.SeriesAt(1).Data().([]int64)[4])
 	}
 
-	if df.SeriesAt(1).Data().([]int)[5] != 32 {
-		t.Error("Expected 32, got", df.SeriesAt(1).Data().([]int)[5])
+	if df.SeriesAt(1).Data().([]int64)[5] != 32 {
+		t.Error("Expected 32, got", df.SeriesAt(1).Data().([]int64)[5])
 	}
 
-	if df.SeriesAt(1).Data().([]int)[6] != 27 {
-		t.Error("Expected 27, got", df.SeriesAt(1).Data().([]int)[6])
+	if df.SeriesAt(1).Data().([]int64)[6] != 27 {
+		t.Error("Expected 27, got", df.SeriesAt(1).Data().([]int64)[6])
 	}
 
-	if df.SeriesAt(1).Data().([]int)[7] != 33 {
-		t.Error("Expected 33, got", df.SeriesAt(1).Data().([]int)[7])
+	if df.SeriesAt(1).Data().([]int64)[7] != 33 {
+		t.Error("Expected 33, got", df.SeriesAt(1).Data().([]int64)[7])
 	}
 
 	if df.SeriesAt(2).Data().([]float64)[0] != 75.0 {
@@ -294,8 +294,8 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 	}
 
 	// Check the column types.
-	if df.Types()[0] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[0].ToString())
+	if df.Types()[0] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[0].ToString())
 	}
 
 	if df.Types()[1] != typesys.StringType {
@@ -318,16 +318,16 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
-	if df.Types()[6] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[6].ToString())
+	if df.Types()[6] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[6].ToString())
 	}
 
 	if df.Types()[7] != typesys.StringType {
 		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
-	if df.Types()[8] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[8].ToString())
+	if df.Types()[8] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[8].ToString())
 	}
 }
 
@@ -377,8 +377,8 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 	}
 
 	// Check the column types.
-	if df.Types()[0] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[0].ToString())
+	if df.Types()[0] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[0].ToString())
 	}
 
 	if df.Types()[1] != typesys.StringType {
@@ -401,15 +401,15 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
-	if df.Types()[6] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[6].ToString())
+	if df.Types()[6] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[6].ToString())
 	}
 
 	if df.Types()[7] != typesys.StringType {
 		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
-	if df.Types()[8] != typesys.Int32Type {
-		b.Error("Expected Int32, got", df.Types()[8].ToString())
+	if df.Types()[8] != typesys.Int64Type {
+		b.Error("Expected Int64, got", df.Types()[8].ToString())
 	}
 }

@@ -970,26 +970,26 @@ func (s GDLSeriesInt64) Group() GDLSeries {
 		worker := func(start, end int, map_ map[int64][]int) {
 			up := end - ((end - start) % 8)
 			for i := start; i < up; {
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 				i++
 			}
 
 			for i := up; i < end; i++ {
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 			}
 		}
 
@@ -1019,7 +1019,7 @@ func (s GDLSeriesInt64) SubGroup(partition SeriesPartition) GDLSeries {
 		var newHash int64
 		for h, v := range otherIndeces {
 			for _, index := range v {
-				newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				newHash = s.data[index] + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -1049,7 +1049,7 @@ func (s GDLSeriesInt64) SubGroup(partition SeriesPartition) GDLSeries {
 			var newHash int64
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
-					newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					newHash = s.data[index] + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 					map_[newHash] = append(map_[newHash], index)
 				}
 			}

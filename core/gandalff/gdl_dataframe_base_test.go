@@ -47,7 +47,7 @@ func Test_BaseDataFrame_Filter(t *testing.T) {
 		}, nil).(GDLSeriesBool).
 		And(
 			df.Series("age").Map(func(v any) any {
-				return v.(int) >= 30
+				return v.(int64) >= 30
 			}, nil).(GDLSeriesBool),
 		)
 

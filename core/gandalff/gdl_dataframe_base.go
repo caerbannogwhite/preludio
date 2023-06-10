@@ -407,6 +407,20 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 				data:       values,
 			})
 
+		case GDLSeriesInt64:
+			values := make([]int64, len(indeces))
+			data := series.__getDataPtr()
+			for i, group := range indeces {
+				values[i] = (*data)[group[0]]
+			}
+
+			result.series = append(result.series, GDLSeriesInt64{
+				name:       series.name,
+				isNullable: series.isNullable,
+				nullMask:   __binVecInit(len(indeces)),
+				data:       values,
+			})
+
 		case GDLSeriesFloat64:
 			values := make([]float64, len(indeces))
 			data := series.__getDataPtr()
