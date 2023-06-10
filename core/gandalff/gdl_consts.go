@@ -45,8 +45,8 @@ const NULL_STRING = "NA"
 const BOOL_TRUE_STRING = "true"
 const BOOL_FALSE_STRING = "false"
 
-func intToString(i int) string {
-	return strconv.FormatInt(int64(i), 10)
+func intToString(i int64) string {
+	return strconv.FormatInt(i, 10)
 }
 
 func floatToString(f float64) string {

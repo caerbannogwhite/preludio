@@ -116,7 +116,7 @@ func (tg typeGuesser) guessType(s string) typesys.BaseType {
 	if tg.boolRegex.MatchString(s) {
 		return typesys.BoolType
 	} else if tg.intRegex.MatchString(s) {
-		return typesys.Int32Type
+		return typesys.Int64Type
 	} else if tg.floatRegex.MatchString(s) {
 		return typesys.Float64Type
 	}
@@ -203,6 +203,8 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			values[i] = make([]bool, 0)
 		case typesys.Int32Type:
 			values[i] = make([]int, 0)
+		case typesys.Int64Type:
+			values[i] = make([]int64, 0)
 		case typesys.Float64Type:
 			values[i] = make([]float64, 0)
 		case typesys.StringType:
@@ -221,18 +223,28 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 						return nil, err
 					}
 					values[i] = append(values[i].([]bool), b)
+
 				case typesys.Int32Type:
 					d, err := strconv.Atoi(v)
 					if err != nil {
 						return nil, err
 					}
 					values[i] = append(values[i].([]int), d)
+
+				case typesys.Int64Type:
+					d, err := strconv.ParseInt(v, 10, 64)
+					if err != nil {
+						return nil, err
+					}
+					values[i] = append(values[i].([]int64), d)
+
 				case typesys.Float64Type:
 					f, err := strconv.ParseFloat(v, 64)
 					if err != nil {
 						return nil, err
 					}
 					values[i] = append(values[i].([]float64), f)
+
 				case typesys.StringType:
 					values[i] = append(values[i].([]*string), stringPool.Put(v))
 				}
@@ -256,18 +268,28 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 					return nil, err
 				}
 				values[i] = append(values[i].([]bool), b)
+
 			case typesys.Int32Type:
 				d, err := strconv.Atoi(v)
 				if err != nil {
 					return nil, err
 				}
 				values[i] = append(values[i].([]int), d)
+
+			case typesys.Int64Type:
+				d, err := strconv.ParseInt(v, 10, 64)
+				if err != nil {
+					return nil, err
+				}
+				values[i] = append(values[i].([]int64), d)
+
 			case typesys.Float64Type:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
 					return nil, err
 				}
 				values[i] = append(values[i].([]float64), f)
+
 			case typesys.StringType:
 				values[i] = append(values[i].([]*string), stringPool.Put(v))
 			}
@@ -289,6 +311,8 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			series[i] = NewGDLSeriesBool(name, isNullable, values[i].([]bool))
 		case typesys.Int32Type:
 			series[i] = NewGDLSeriesInt32(name, isNullable, false, values[i].([]int))
+		case typesys.Int64Type:
+			series[i] = NewGDLSeriesInt64(name, isNullable, false, values[i].([]int64))
 		case typesys.Float64Type:
 			series[i] = NewGDLSeriesFloat64(name, isNullable, false, values[i].([]float64))
 		case typesys.StringType:
