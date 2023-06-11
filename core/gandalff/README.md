@@ -61,7 +61,7 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] Bool (memory optimized)
 - [ ] Int16
 - [x] Int32 (Golang int)
-- [ ] Int64
+- [x] Int64
 - [ ] Float32
 - [x] Float64
 - [ ] Complex64
@@ -222,4 +222,7 @@ type GDLSeries interface {
 
 - [ ] Implement non memory optimized Bool series.
 - [ ] Implement memory optimized Bool series with uint64.
+- [ ] Implement int32 series with int32.
 - [ ] Using uint64 for null mask.
+- [ ] Implement and test grouped sorting.
+- [ ] Implement and test grouped with nulls.
