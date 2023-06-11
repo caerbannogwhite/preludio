@@ -62,6 +62,11 @@ type NullableBool struct {
 	Value bool
 }
 
+type NullableInt8 struct {
+	Valid bool
+	Value int8
+}
+
 type NullableInt16 struct {
 	Valid bool
 	Value int16
