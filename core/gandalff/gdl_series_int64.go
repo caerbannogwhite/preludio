@@ -332,9 +332,9 @@ func (s GDLSeriesInt64) Swap(i, j int) {
 
 func (s GDLSeriesInt64) Append(v any) GDLSeries {
 	switch v := v.(type) {
-	case int:
+	case int64:
 		return s.AppendRaw(v)
-	case []int:
+	case []int64:
 		return s.AppendRaw(v)
 	case NullableInt64:
 		return s.AppendNullable(v)
