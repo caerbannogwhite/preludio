@@ -774,6 +774,21 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 		return s
 
+	case int64:
+		data := make([]int64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(int64)
+		}
+
+		return GDLSeriesInt64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
 	case float64:
 		data := make([]float64, len(s.data))
 		for i := 0; i < len(s.data); i++ {
