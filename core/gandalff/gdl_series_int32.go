@@ -181,19 +181,41 @@ func (s GDLSeriesInt32) GetString(i int) string {
 	return intToString(int64(s.data[i]))
 }
 
-// Set the element at index i. The value v must be of type int or NullableInt32.
+// Set the element at index i. The value v can be of type int8, int16, int, int32,
+// NullableInt8, NullableInt16, NullableInt32.
 func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
-	if ii, ok := v.(int); ok {
-		s.data[i] = ii
-	} else if ni, ok := v.(NullableInt32); ok {
-		if ni.Valid {
-			s.data[i] = ni.Value
+	switch val := v.(type) {
+	case int8:
+		s.data[i] = int(val)
+	case int16:
+		s.data[i] = int(val)
+	case int:
+		s.data[i] = int(val)
+	case int32:
+		s.data[i] = int(val)
+	case NullableInt8:
+		if v.(NullableInt8).Valid {
+			s.data[i] = int(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
-	} else {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Set: provided value %t is not of type int or NullableInt32", v)}
+	case NullableInt16:
+		if v.(NullableInt16).Valid {
+			s.data[i] = int(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+	case NullableInt32:
+		if v.(NullableInt32).Valid {
+			s.data[i] = int(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+	default:
+		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt64.Set: provided value %t is not compatible with type int32 or NullableInt32", v)}
 	}
 
 	s.sorted = SORTED_NONE
