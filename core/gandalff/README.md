@@ -217,3 +217,9 @@ type GDLSeries interface {
 	SortRev() GDLSeries
 }
 ```
+
+### TODO
+
+- [ ] Implement non memory optimized Bool series.
+- [ ] Implement memory optimized Bool series with uint64.
+- [ ] Using uint64 for null mask.
