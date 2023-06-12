@@ -965,10 +965,8 @@ func (gp SeriesInt32Partition) InnerJoin(other SeriesInt32Partition) {
 }
 
 func (s GDLSeriesInt32) Group() GDLSeries {
-
 	var partition SeriesInt32Partition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
-
 		max := s.data[0]
 		min := s.data[0]
 		for _, v := range s.data {
@@ -996,15 +994,15 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 		}
 
 	} else {
-
-		// Initialize the maps and the wait groups
+		// Initialize the maps
 		allMaps := make([]map[int64][]int, THREADS_NUMBER)
 		for i := 0; i < THREADS_NUMBER; i++ {
 			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
+		worker := func(threadNum, start, end int) {
+			map_ := allMaps[threadNum]
 			up := end - ((end - start) % 8)
 			for i := start; i < up; {
 				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
@@ -1030,7 +1028,7 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
 
 		partition = SeriesInt32Partition{
 			isDense:    false,
@@ -1082,8 +1080,9 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
+		worker := func(threadNum, start, end int) {
 			var newHash int64
+			map_ := allMaps[threadNum]
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
 					newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
@@ -1092,7 +1091,7 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 
 		newPartition = SeriesInt32Partition{
 			seriesSize: s.Len(),

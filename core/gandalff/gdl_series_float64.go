@@ -795,13 +795,14 @@ func (s GDLSeriesFloat64) Group() GDLSeries {
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
+		worker := func(threadNum, start, end int) {
+			map_ := allMaps[threadNum]
 			for i := start; i < end; i++ {
 				map_[*(*int64)(unsafe.Pointer((&s.data[i])))] = append(map_[*(*int64)(unsafe.Pointer((&s.data[i])))], i)
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
 
 		partition = SeriesFloat64Partition{
 			seriesSize: s.Len(),
@@ -852,8 +853,9 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
+		worker := func(threadNum, start, end int) {
 			var newHash int64
+			map_ := allMaps[threadNum]
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
 					newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
@@ -862,7 +864,7 @@ func (s GDLSeriesFloat64) SubGroup(partition SeriesPartition) GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 
 		newPartition = SeriesFloat64Partition{
 			seriesSize: s.Len(),

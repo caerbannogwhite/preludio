@@ -843,6 +843,7 @@ type SeriesInt64Partition struct {
 	isDense             bool
 	seriesSize          int
 	partition           map[int64][]int
+	nullKey             []int
 	partitionDense      [][]int
 	partitionDenseNulls []int
 	indexToGroup        []int
@@ -977,7 +978,6 @@ func (s GDLSeriesInt64) Group() GDLSeries {
 
 	var partition SeriesInt64Partition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
-
 		max := s.data[0]
 		min := s.data[0]
 		for _, v := range s.data {
@@ -989,62 +989,104 @@ func (s GDLSeriesInt64) Group() GDLSeries {
 			}
 		}
 
+		var nulls []int
 		map_ := make([][]int, max-min+1)
 		for i := 0; i < len(map_); i++ {
 			map_[i] = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
 		}
 
-		for i, v := range s.data {
-			map_[v-min] = append(map_[v-min], i)
+		if s.HasNull() {
+			nulls = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					nulls = append(nulls, i)
+				} else {
+					map_[v-min] = append(map_[v-min], i)
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				map_[v-min] = append(map_[v-min], i)
+			}
 		}
 
 		partition = SeriesInt64Partition{
-			isDense:        true,
-			seriesSize:     s.Len(),
-			partitionDense: map_,
+			isDense:             true,
+			seriesSize:          s.Len(),
+			partitionDense:      map_,
+			partitionDenseNulls: nulls,
 		}
-
 	} else {
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
-			up := end - ((end - start) % 8)
-			for i := start; i < up; {
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
-				map_[s.data[i]] = append(map_[s.data[i]], i)
-				i++
+		if s.HasNull() {
+			// Initialize the maps
+			allMaps := make([]map[int64][]int, THREADS_NUMBER)
+			for i := 0; i < THREADS_NUMBER; i++ {
+				allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 			}
 
-			for i := up; i < end; i++ {
-				map_[s.data[i]] = append(map_[s.data[i]], i)
+			allNulls := make([][]int, THREADS_NUMBER)
+
+			// Define the worker callback
+			worker := func(threadNum, start, end int) {
+				map_ := allMaps[threadNum]
+				for i := start; i < end; i++ {
+					if s.IsNull(i) {
+						allNulls[threadNum] = append(allNulls[threadNum], i)
+					} else {
+						map_[s.data[i]] = append(map_[s.data[i]], i)
+					}
+				}
 			}
-		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, worker)
+			__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, allNulls, worker)
 
-		partition = SeriesInt64Partition{
-			isDense:    false,
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
+			partition = SeriesInt64Partition{
+				isDense:    false,
+				seriesSize: s.Len(),
+				partition:  allMaps[0],
+			}
+		} else {
+			// Initialize the maps
+			allMaps := make([]map[int64][]int, THREADS_NUMBER)
+			for i := 0; i < THREADS_NUMBER; i++ {
+				allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+			}
+
+			// Define the worker callback
+			worker := func(threadNum, start, end int) {
+				map_ := allMaps[threadNum]
+				up := end - ((end - start) % 8)
+				for i := start; i < up; {
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+					i++
+				}
+
+				for i := up; i < end; i++ {
+					map_[s.data[i]] = append(map_[s.data[i]], i)
+				}
+			}
+
+			__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
+
+			partition = SeriesInt64Partition{
+				isDense:    false,
+				seriesSize: s.Len(),
+				partition:  allMaps[0],
+			}
 		}
 	}
 
@@ -1091,8 +1133,9 @@ func (s GDLSeriesInt64) SubGroup(partition SeriesPartition) GDLSeries {
 		}
 
 		// Define the worker callback
-		worker := func(start, end int, map_ map[int64][]int) {
+		worker := func(threadNum, start, end int) {
 			var newHash int64
+			map_ := allMaps[threadNum]
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
 					newHash = s.data[index] + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
@@ -1101,7 +1144,7 @@ func (s GDLSeriesInt64) SubGroup(partition SeriesPartition) GDLSeries {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 
 		newPartition = SeriesInt64Partition{
 			seriesSize: s.Len(),

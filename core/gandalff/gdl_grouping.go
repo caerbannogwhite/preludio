@@ -6,8 +6,8 @@ import (
 )
 
 func __series_groupby_multithreaded(
-	threadNum, dataLen int, maps []map[int64][]int,
-	worker func(start, end int, map_ map[int64][]int),
+	threadNum, dataLen int, maps []map[int64][]int, nulls [][]int,
+	worker func(threadNum, start, end int),
 ) {
 
 	// Initialize the wait groups array, one for each level where level is the
@@ -42,13 +42,11 @@ func __series_groupby_multithreaded(
 	actualWorker := func(idx int) {
 		start := idx * dataLen / threadNum
 		end := (idx + 1) * dataLen / threadNum
-
-		map_ := maps[idx]
 		if idx == threadNum-1 {
 			end = dataLen
 		}
 
-		worker(start, end, map_)
+		worker(idx, start, end)
 
 		// Notify the wait groups at the first level
 		wg[0][idx/2].Done()
@@ -64,6 +62,10 @@ func __series_groupby_multithreaded(
 
 		for k, v := range maps[idx2] {
 			maps[idx1][k] = append(maps[idx1][k], v...)
+		}
+
+		if nulls != nil {
+			nulls[idx1] = append(nulls[idx1], nulls[idx2]...)
 		}
 
 		// Notify the wait groups at the next level
