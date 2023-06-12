@@ -93,3 +93,13 @@ func __series_groupby_multithreaded(
 	// Wait for the last level (there is only one wait group)
 	wg[len(wg)-1][0].Wait()
 }
+
+func __series_get_nullkey(map_ map[int64][]int, seed int64) int64 {
+	for {
+		if _, ok := map_[seed]; !ok {
+			break
+		}
+		seed = HASH_MAGIC_NUMBER + (seed << 13) + (seed >> 4)
+	}
+	return seed
+}
