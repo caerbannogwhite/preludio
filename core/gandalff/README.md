@@ -226,3 +226,7 @@ type GDLSeries interface {
 - [ ] Using uint64 for null mask.
 - [ ] Implement and test grouped sorting.
 - [ ] Implement and test grouped with nulls.
+- [ ] Implement chunked series.
+- [ ] Implement CSV writer.
+- [ ] Implement Excel reader and writer (https://github.com/tealeg/xlsx).
+- [ ] Implement JSON reader and writer.
