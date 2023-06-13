@@ -718,29 +718,29 @@ func Test_GDLSeriesInt32_Sort(t *testing.T) {
 }
 
 func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
-	// data := []int{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+	data := []int{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
 	// mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
-	// partData := []int{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
-	// p := NewGDLSeriesInt32("part", true, true, partData).Group()
+	partData := []int{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
+	p := NewGDLSeriesInt32("part", true, true, partData).Group()
 
-	// // Create a new series.
-	// s := NewGDLSeriesInt32("test", true, true, data).
-	// 	SubGroup(p.GetPartition()).
-	// 	Sort()
+	// Create a new series.
+	s := NewGDLSeriesInt32("test", true, true, data).
+		SubGroup(p.GetPartition()).
+		Sort()
 
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
+	// Check the length.
+	if s.Len() != 15 {
+		t.Errorf("Expected length of 15, got %d", s.Len())
+	}
 
-	// // Check the data.
-	// result := []int{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
-	// for i, v := range s.Data().([]int) {
-	// 	if v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
+	// Check the data.
+	result := []int{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
+	for i, v := range s.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 
@@ -774,25 +774,25 @@ func Test_GDLSeriesInt32_GroupedSort(t *testing.T) {
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// // 								Reverse sort.
 
-	// dataRev := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-	// // maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
+	dataRev := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
-	// s = NewGDLSeriesInt32("test", true, true, dataRev).
-	// 	SubGroup(p.GetPartition()).
-	// 	SortRev()
+	s = NewGDLSeriesInt32("test", true, true, dataRev).
+		SubGroup(p.GetPartition()).
+		SortRev()
 
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
+	// Check the length.
+	if s.Len() != 15 {
+		t.Errorf("Expected length of 15, got %d", s.Len())
+	}
 
-	// // Check the data.
-	// result = []int{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
-	// for i, v := range s.Data().([]int) {
-	// 	if v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
+	// Check the data.
+	result = []int{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
+	for i, v := range s.Data().([]int) {
+		if v != result[i] {
+			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
+		}
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 

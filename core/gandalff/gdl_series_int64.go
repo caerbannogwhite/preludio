@@ -869,6 +869,7 @@ func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
 			}
 		}
 
+		// put nulls at the end
 		for _, idx := range gp.partitionDenseNulls {
 			gp.indexToGroup[idx] = int64(len(gp.partitionDense))
 		}
@@ -883,11 +884,11 @@ func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
 				}
 			}
 
+			// put nulls at the end
 			for _, idx := range nulls {
 				gp.indexToGroup[idx] = int64(len(gp.partition))
 			}
 		} else {
-
 			for i, part := range gp.partition {
 				for _, idx := range part {
 					gp.indexToGroup[idx] = i
@@ -895,6 +896,7 @@ func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
 			}
 		}
 	}
+
 	return gp
 }
 
@@ -907,10 +909,16 @@ func (gp SeriesInt64Partition) endSorting() SeriesInt64Partition {
 			newPartitionDense[gp.indexToGroup[part[0]]] = make([]int, len(part))
 		}
 
-		for i, idx := range gp.indexToGroup {
-			if idx == int64(len(gp.partitionDense)) {
-				newPartitionDenseNulls = append(newPartitionDenseNulls, i)
-			} else {
+		if len(gp.partitionDenseNulls) > 0 {
+			for i, idx := range gp.indexToGroup {
+				if idx == int64(len(gp.partitionDense)) {
+					newPartitionDenseNulls = append(newPartitionDenseNulls, i)
+				} else {
+					newPartitionDense[idx] = append(newPartitionDense[idx], i)
+				}
+			}
+		} else {
+			for i, idx := range gp.indexToGroup {
 				newPartitionDense[idx] = append(newPartitionDense[idx], i)
 			}
 		}
