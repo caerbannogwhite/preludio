@@ -618,27 +618,27 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 
 func Test_BaseDataFrame_Join(t *testing.T) {
 	dfx := NewBaseDataFrame().
-		AddSeriesFromInts("A", false, false, []int{1, 2, 3, 4, 5}).
-		AddSeriesFromStrings("B", false, []string{"a", "b", "c", "d", "e"})
+		AddSeriesFromInt64("A", false, false, []int64{1, 2, 3, 4, 5}).
+		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e"})
 
 	dfy := NewBaseDataFrame().
-		AddSeriesFromInts("A", false, false, []int{4, 5, 6}).
-		AddSeriesFromStrings("C", false, []string{"d", "e", "f"})
+		AddSeriesFromInt64("A", false, false, []int64{4, 5, 6}).
+		AddSeriesFromString("C", false, []string{"d", "e", "f"})
 
 	///////////////////			INNER JOIN
 
 	res := dfx.Join(INNER_JOIN, dfy, "A")
 
 	if res.GetError() != nil {
-		// t.Error(res.GetError())
+		t.Error(res.GetError())
 	}
 
 	if res.NRows() != 2 {
-		// t.Errorf("Expected 2 rows, got %d", res.NRows())
+		t.Errorf("Expected 2 rows, got %d", res.NRows())
 	}
 
 	if res.NCols() != 3 {
-		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
 
 	///////////////////			LEFT JOIN
@@ -650,11 +650,11 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	if res.NRows() != 5 {
-		// t.Errorf("Expected 5 rows, got %d", res.NRows())
+		t.Errorf("Expected 5 rows, got %d", res.NRows())
 	}
 
 	if res.NCols() != 3 {
-		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
 
 	///////////////////			RIGHT JOIN
@@ -666,11 +666,11 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	if res.NRows() != 3 {
-		// t.Errorf("Expected 3 rows, got %d", res.NRows())
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
 	}
 
 	if res.NCols() != 3 {
-		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
 
 	///////////////////			FULL JOIN
@@ -682,10 +682,10 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	if res.NRows() != 6 {
-		// t.Errorf("Expected 6 rows, got %d", res.NRows())
+		t.Errorf("Expected 6 rows, got %d", res.NRows())
 	}
 
 	if res.NCols() != 3 {
-		// t.Errorf("Expected 3 cols, got %d", res.NCols())
+		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
 }

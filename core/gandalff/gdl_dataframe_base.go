@@ -105,72 +105,90 @@ func (df BaseDataFrame) AddSeries(series GDLSeries) DataFrame {
 	return df
 }
 
-func (df BaseDataFrame) AddSeriesFromBools(name string, isNullable bool, data []bool) DataFrame {
+func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBool: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBool: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
 	return df.AddSeries(NewGDLSeriesBool(name, isNullable, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
 	return df.AddSeries(NewGDLSeriesInt32(name, isNullable, makeCopy, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloats: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloats: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
+	return df.AddSeries(NewGDLSeriesInt64(name, isNullable, makeCopy, data))
+}
+
+func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
 	return df.AddSeries(NewGDLSeriesFloat64(name, isNullable, makeCopy, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromStrings(name string, isNullable bool, data []string) DataFrame {
+func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data []string) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromString: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromString: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
@@ -581,6 +599,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 						j++
 					}
 				}
+
+			case typesys.Int64Type:
 
 			case typesys.Float64Type:
 				// keysA := pA[0].GetKeys().([]float64)

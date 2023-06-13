@@ -38,14 +38,16 @@ type DataFrame interface {
 
 	// AddSeries adds a generic series to the dataframe.
 	AddSeries(series GDLSeries) DataFrame
-	// AddSeriesFromBools adds a series of bools to the dataframe.
-	AddSeriesFromBools(name string, isNullable bool, data []bool) DataFrame
-	// AddSeriesFromInts adds a series of ints to the dataframe.
-	AddSeriesFromInts(name string, isNullable bool, makeCopy bool, data []int) DataFrame
-	// AddSeriesFromFloats adds a series of floats to the dataframe.
-	AddSeriesFromFloats(name string, isNullable bool, makeCopy bool, data []float64) DataFrame
-	// AddSeriesFromStrings adds a series of strings to the dataframe.
-	AddSeriesFromStrings(name string, isNullable bool, data []string) DataFrame
+	// AddSeriesFromBool adds a series of bools to the dataframe.
+	AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame
+	// AddSeriesFromInt32 adds a series of ints to the dataframe.
+	AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int) DataFrame
+	// AddSeriesFromInt64 adds a series of ints to the dataframe.
+	AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame
+	// AddSeriesFromFloat adds a series of floats to the dataframe.
+	AddSeriesFromFloat64(name string, isNullable bool, makeCopy bool, data []float64) DataFrame
+	// AddSeriesFromString adds a series of strings to the dataframe.
+	AddSeriesFromString(name string, isNullable bool, data []string) DataFrame
 
 	// Returns the series with the given name.
 	Series(name string) GDLSeries
