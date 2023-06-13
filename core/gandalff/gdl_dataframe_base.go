@@ -601,6 +601,24 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				}
 
 			case typesys.Int64Type:
+				keysA := pA[0].GetKeys().([]int64)
+				keysB := pB[0].GetKeys().([]int64)
+
+				sort.Slice(keysA, func(i, j int) bool { return keysA[i] < keysA[j] })
+				sort.Slice(keysB, func(i, j int) bool { return keysB[i] < keysB[j] })
+
+				keysIntersection := make([]int64, 0, len(keysA))
+				for i, j := 0, 0; i < len(keysA) && j < len(keysB); {
+					if keysA[i] < keysB[j] {
+						i++
+					} else if keysA[i] > keysB[j] {
+						j++
+					} else {
+						keysIntersection = append(keysIntersection, keysA[i])
+						i++
+						j++
+					}
+				}
 
 			case typesys.Float64Type:
 				// keysA := pA[0].GetKeys().([]float64)

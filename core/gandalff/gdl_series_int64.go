@@ -974,20 +974,18 @@ func (gp SeriesInt64Partition) GetValueIndices(val any) []int {
 }
 
 func (gp SeriesInt64Partition) GetKeys() any {
-	var keys []int
+	var keys []int64
 	if gp.isDense {
-		keys = make([]int, 0, len(gp.partitionDense))
+		keys = make([]int64, 0, len(gp.partitionDense))
 		for k, indeces := range gp.partitionDense {
 			if len(indeces) > 0 {
-				keys = append(keys, k)
+				keys = append(keys, int64(k))
 			}
 		}
 	} else {
-		keys = make([]int, 0, len(gp.partition))
+		keys = make([]int64, 0, len(gp.partition))
 		for k := range gp.partition {
-			if k != HASH_NULL_KEY {
-				keys = append(keys, int(k))
-			}
+			keys = append(keys, k)
 		}
 	}
 
