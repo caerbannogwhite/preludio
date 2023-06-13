@@ -133,7 +133,7 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema) ([]GDLSeries, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema) ([]Series, error) {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
@@ -304,19 +304,19 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	// Create series
-	series := make([]GDLSeries, len(dataTypes))
+	series := make([]Series, len(dataTypes))
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewGDLSeriesBool(name, isNullable, values[i].([]bool))
+			series[i] = NewSeriesBool(name, isNullable, values[i].([]bool))
 		case typesys.Int32Type:
-			series[i] = NewGDLSeriesInt32(name, isNullable, false, values[i].([]int))
+			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int))
 		case typesys.Int64Type:
-			series[i] = NewGDLSeriesInt64(name, isNullable, false, values[i].([]int64))
+			series[i] = NewSeriesInt64(name, isNullable, false, values[i].([]int64))
 		case typesys.Float64Type:
-			series[i] = NewGDLSeriesFloat64(name, isNullable, false, values[i].([]float64))
+			series[i] = NewSeriesFloat64(name, isNullable, false, values[i].([]float64))
 		case typesys.StringType:
-			series[i] = GDLSeriesString{
+			series[i] = SeriesString{
 				name:       name,
 				isNullable: isNullable,
 				data:       values[i].([]*string),

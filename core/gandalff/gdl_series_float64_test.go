@@ -6,13 +6,13 @@ import (
 	"typesys"
 )
 
-func Test_GDLSeriesFloat64_Base(t *testing.T) {
+func Test_SeriesFloat64_Base(t *testing.T) {
 
 	data := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GDLSeriesFloat64.
-	s := NewGDLSeriesFloat64("test", true, true, data)
+	// Create a new SeriesFloat64.
+	s := NewSeriesFloat64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -105,7 +105,7 @@ func Test_GDLSeriesFloat64_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewGDLSeriesFloat64("test", false, true, data)
+	p := NewSeriesFloat64("test", false, true, data)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -123,7 +123,7 @@ func Test_GDLSeriesFloat64_Base(t *testing.T) {
 	}
 
 	// Make the series nullable.
-	p = p.MakeNullable().(GDLSeriesFloat64)
+	p = p.MakeNullable().(SeriesFloat64)
 
 	// Check the nullability.
 	if !p.IsNullable() {
@@ -145,7 +145,7 @@ func Test_GDLSeriesFloat64_Base(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesFloat64_Append(t *testing.T) {
+func Test_SeriesFloat64_Append(t *testing.T) {
 	dataA := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
 	dataB := []float64{11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0}
 	dataC := []float64{21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0, 30.0}
@@ -155,9 +155,9 @@ func Test_GDLSeriesFloat64_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesFloat64("testA", true, true, dataA)
-	sB := NewGDLSeriesFloat64("testB", true, true, dataB)
-	sC := NewGDLSeriesFloat64("testC", true, true, dataC)
+	sA := NewSeriesFloat64("testA", true, true, dataA)
+	sB := NewSeriesFloat64("testB", true, true, dataB)
+	sC := NewSeriesFloat64("testC", true, true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -213,7 +213,7 @@ func Test_GDLSeriesFloat64_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}
-	sD := NewGDLSeriesFloat64("testD", true, true, dataD)
+	sD := NewSeriesFloat64("testD", true, true, dataD)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]float64) {
@@ -226,13 +226,13 @@ func Test_GDLSeriesFloat64_Append(t *testing.T) {
 		r := rand.Float64()
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(GDLSeriesFloat64)
+			sD = sD.Append(r).(SeriesFloat64)
 		case 1:
-			sD = sD.Append([]float64{r}).(GDLSeriesFloat64)
+			sD = sD.Append([]float64{r}).(SeriesFloat64)
 		case 2:
-			sD = sD.Append(NullableFloat64{true, r}).(GDLSeriesFloat64)
+			sD = sD.Append(NullableFloat64{true, r}).(SeriesFloat64)
 		case 3:
-			sD = sD.Append([]NullableFloat64{{false, r}}).(GDLSeriesFloat64)
+			sD = sD.Append([]NullableFloat64{{false, r}}).(SeriesFloat64)
 		}
 
 		if sD.Get(i+10) != r {
@@ -241,12 +241,12 @@ func Test_GDLSeriesFloat64_Append(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesFloat64_Cast(t *testing.T) {
+func Test_SeriesFloat64_Cast(t *testing.T) {
 	data := []float64{0.0, 1.0, 0.0, 3.0, 4.0, 5.0, -6.0, 7.0, 8.0, 9.0}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesFloat64("test", true, true, data)
+	s := NewSeriesFloat64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -325,17 +325,17 @@ func Test_GDLSeriesFloat64_Cast(t *testing.T) {
 	castError := s.Cast(typesys.ErrorType, nil)
 
 	// Check the message.
-	if castError.(GDLSeriesError).msg != "GDLSeriesFloat64.Cast: invalid type Error" {
+	if castError.(SeriesError).msg != "SeriesFloat64.Cast: invalid type Error" {
 		t.Errorf("Expected error, got %v", castError)
 	}
 }
 
-func Test_GDLSeriesFloat64_Filter(t *testing.T) {
+func Test_SeriesFloat64_Filter(t *testing.T) {
 	data := []float64{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0}
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesFloat64("test", true, true, data)
+	s := NewSeriesFloat64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -349,7 +349,7 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewGDLSeriesBool("mask", false, filterMask).(GDLSeriesBool))
+	filtered := s.Filter(NewSeriesBool("mask", false, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -421,8 +421,8 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.FilterByMask(filterMask)
 
-	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesFloat64.FilterByMask: mask length (20) does not match series length (14)" {
-		t.Errorf("Expected GDLSeriesError, got %v", filtered)
+	if e, ok := filtered.(SeriesError); !ok || e.Error() != "SeriesFloat64.FilterByMask: mask length (20) does not match series length (14)" {
+		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
 	// Another test.
@@ -430,7 +430,7 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewGDLSeriesFloat64("test", true, true, data)
+	s = NewSeriesFloat64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -488,12 +488,12 @@ func Test_GDLSeriesFloat64_Filter(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesFloat64_Map(t *testing.T) {
+func Test_SeriesFloat64_Map(t *testing.T) {
 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesFloat64("test", true, true, data)
+	s := NewSeriesFloat64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)
@@ -559,12 +559,12 @@ func Test_GDLSeriesFloat64_Map(t *testing.T) {
 	}
 }
 
-// func Test_GDLSeriesFloat64_Multiplication(t *testing.T) {
+// func Test_SeriesFloat64_Multiplication(t *testing.T) {
 // 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
 // 	// s * 1.5
-// 	res := NewGDLSeriesFloat64("test", true, true, data).Mul(NewGDLSeriesFloat64("test", true, true, []float64{1.5}))
-// 	if e, ok := res.(GDLSeriesError); ok {
+// 	res := NewSeriesFloat64("test", true, true, data).Mul(NewSeriesFloat64("test", true, true, []float64{1.5}))
+// 	if e, ok := res.(SeriesError); ok {
 // 		t.Errorf("Got error: %v", e)
 // 	}
 
@@ -581,8 +581,8 @@ func Test_GDLSeriesFloat64_Map(t *testing.T) {
 // 	}
 
 // 	// 1.5 * s
-// 	res = NewGDLSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewGDLSeriesFloat64("test", true, true, data))
-// 	if e, ok := res.(GDLSeriesError); ok {
+// 	res = NewSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewSeriesFloat64("test", true, true, data))
+// 	if e, ok := res.(SeriesError); ok {
 // 		t.Errorf("Got error: %v", e)
 // 	}
 
@@ -599,7 +599,7 @@ func Test_GDLSeriesFloat64_Map(t *testing.T) {
 // 	}
 // }
 
-func Benchmark_GDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
+func Benchmark_SeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 
 	N := 1_000_000
 	data := make([]float64, N)
@@ -607,17 +607,17 @@ func Benchmark_GDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 		data[i] = float64(i)
 	}
 
-	ser := NewGDLSeriesFloat64("test", true, false, data)
-	scal := NewGDLSeriesFloat64("test", true, false, []float64{1.5})
+	ser := NewSeriesFloat64("test", true, false, data)
+	scal := NewSeriesFloat64("test", true, false, []float64{1.5})
 
 	// s * 1.5
-	var res GDLSeries
+	var res Series
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		res = ser.Mul(scal)
 	}
 
-	if e, ok := res.(GDLSeriesError); ok {
+	if e, ok := res.(SeriesError); ok {
 		b.Errorf("Got error: %v", e)
 	}
 
@@ -627,7 +627,7 @@ func Benchmark_GDLSeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 	}
 }
 
-func Benchmark_GDLSeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
+func Benchmark_SeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
 
 	N := 1_000_000
 	data1 := make([]float64, N)
@@ -637,17 +637,17 @@ func Benchmark_GDLSeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
 		data2[i] = float64(N - i - 1)
 	}
 
-	ser1 := NewGDLSeriesFloat64("test", true, false, data1)
-	ser2 := NewGDLSeriesFloat64("test", true, false, data2)
+	ser1 := NewSeriesFloat64("test", true, false, data1)
+	ser2 := NewSeriesFloat64("test", true, false, data2)
 
 	// s * 1.5
-	var res GDLSeries
+	var res Series
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		res = ser1.Mul(ser2)
 	}
 
-	if e, ok := res.(GDLSeriesError); ok {
+	if e, ok := res.(SeriesError); ok {
 		b.Errorf("Got error: %v", e)
 	}
 

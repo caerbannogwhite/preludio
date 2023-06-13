@@ -16,14 +16,14 @@ type BaseDataFramePartitionEntry struct {
 type BaseDataFrame struct {
 	isGrouped  bool
 	err        error
-	series     []GDLSeries
+	series     []Series
 	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
 }
 
 func NewBaseDataFrame() DataFrame {
 	return &BaseDataFrame{
-		series: make([]GDLSeries, 0),
+		series: make([]Series, 0),
 		pool:   NewStringPool(),
 	}
 }
@@ -86,7 +86,7 @@ func (df BaseDataFrame) GetSeriesIndex(name string) int {
 	return -1
 }
 
-func (df BaseDataFrame) AddSeries(series GDLSeries) DataFrame {
+func (df BaseDataFrame) AddSeries(series Series) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -120,7 +120,7 @@ func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable bool, data []b
 		return df
 	}
 
-	return df.AddSeries(NewGDLSeriesBool(name, isNullable, data))
+	return df.AddSeries(NewSeriesBool(name, isNullable, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
@@ -138,7 +138,7 @@ func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCop
 		return df
 	}
 
-	return df.AddSeries(NewGDLSeriesInt32(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesInt32(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame {
@@ -156,7 +156,7 @@ func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable bool, makeCop
 		return df
 	}
 
-	return df.AddSeries(NewGDLSeriesInt64(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesInt64(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
@@ -174,7 +174,7 @@ func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable bool, makeC
 		return df
 	}
 
-	return df.AddSeries(NewGDLSeriesFloat64(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesFloat64(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data []string) DataFrame {
@@ -192,22 +192,22 @@ func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data [
 		return df
 	}
 
-	return df.AddSeries(NewGDLSeriesString(name, isNullable, data, df.pool))
+	return df.AddSeries(NewSeriesString(name, isNullable, data, df.pool))
 }
 
 // Returns the series with the given name.
-func (df BaseDataFrame) Series(name string) GDLSeries {
+func (df BaseDataFrame) Series(name string) Series {
 	for _, series := range df.series {
 		if series.Name() == name {
 			return series
 		}
 	}
-	return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
+	return SeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
 }
 
 // Returns the series with the given name.
 // For internal use only: returns nil if the series is not found.
-func (df BaseDataFrame) __series(name string) GDLSeries {
+func (df BaseDataFrame) __series(name string) Series {
 	for _, series := range df.series {
 		if series.Name() == name {
 			return series
@@ -217,16 +217,16 @@ func (df BaseDataFrame) __series(name string) GDLSeries {
 }
 
 // Returns the series at the given index.
-func (df BaseDataFrame) SeriesAt(index int) GDLSeries {
+func (df BaseDataFrame) SeriesAt(index int) Series {
 	if index < 0 || index >= len(df.series) {
-		return GDLSeriesError{msg: fmt.Sprintf("BaseDataFrame.SeriesAt: index %d out of bounds", index)}
+		return SeriesError{msg: fmt.Sprintf("BaseDataFrame.SeriesAt: index %d out of bounds", index)}
 	}
 	return df.series[index]
 }
 
 // Returns the series at the given index.
 // For internal use only: returns nil if the series is not found.
-func (df BaseDataFrame) __seriesAt(index int) GDLSeries {
+func (df BaseDataFrame) __seriesAt(index int) Series {
 	if index < 0 || index >= len(df.series) {
 		return nil
 	}
@@ -238,7 +238,7 @@ func (df BaseDataFrame) Select(names ...string) DataFrame {
 		return df
 	}
 
-	seriesList := make([]GDLSeries, 0)
+	seriesList := make([]Series, 0)
 	for _, name := range names {
 		series := df.__series(name)
 		if series != nil {
@@ -276,7 +276,7 @@ func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
 	return selected
 }
 
-func (df BaseDataFrame) Filter(mask GDLSeriesBool) DataFrame {
+func (df BaseDataFrame) Filter(mask SeriesBool) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -286,7 +286,7 @@ func (df BaseDataFrame) Filter(mask GDLSeriesBool) DataFrame {
 		return df
 	}
 
-	seriesList := make([]GDLSeries, 0)
+	seriesList := make([]Series, 0)
 	for _, series := range df.series {
 		seriesList = append(seriesList, series.Filter(mask))
 	}
@@ -404,63 +404,63 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		// TODO: null masks, null values are all mapped to the same group
 
 		switch series := old.(type) {
-		case GDLSeriesBool:
+		case SeriesBool:
 			values := make([]bool, len(indeces))
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(bool)
 			}
-			result.series = append(result.series, NewGDLSeriesBool(old.Name(), old.IsNullable(), values))
+			result.series = append(result.series, NewSeriesBool(old.Name(), old.IsNullable(), values))
 
-		case GDLSeriesInt32:
+		case SeriesInt32:
 			values := make([]int, len(indeces))
 			data := series.__getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
 
-			result.series = append(result.series, GDLSeriesInt32{
+			result.series = append(result.series, SeriesInt32{
 				name:       series.name,
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 			})
 
-		case GDLSeriesInt64:
+		case SeriesInt64:
 			values := make([]int64, len(indeces))
 			data := series.__getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
 
-			result.series = append(result.series, GDLSeriesInt64{
+			result.series = append(result.series, SeriesInt64{
 				name:       series.name,
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 			})
 
-		case GDLSeriesFloat64:
+		case SeriesFloat64:
 			values := make([]float64, len(indeces))
 			data := series.__getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
 
-			result.series = append(result.series, GDLSeriesFloat64{
+			result.series = append(result.series, SeriesFloat64{
 				name:       series.name,
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces)),
 				data:       values,
 			})
 
-		case GDLSeriesString:
+		case SeriesString:
 			values := make([]*string, len(indeces))
 			data := series.__getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
 
-			result.series = append(result.series, GDLSeriesString{
+			result.series = append(result.series, SeriesString{
 				name:       series.name,
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces)),
@@ -687,25 +687,25 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 					for i, group := range *indeces {
 						counts[i] = len(group)
 					}
-					result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, counts))
+					result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, counts))
 
 				case AGGREGATE_SUM:
-					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
 
 				case AGGREGATE_MIN:
-					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
 
 				case AGGREGATE_MAX:
-					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
 
 				case AGGREGATE_MEAN:
-					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
 
 				case AGGREGATE_MEDIAN:
 					// TODO: implement
 
 				case AGGREGATE_STD:
-					result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
 				}
 			}
 		} else {
@@ -722,7 +722,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 				series := df.__series(agg.getSeriesName())
 
 				resultData := make([]float64, len(*indeces))
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, resultData))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, resultData))
 				for gi, group := range *indeces {
 					buffer <- __stats_thread_data{
 						op:      agg.getAggregateType(),
@@ -747,25 +747,25 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 			switch agg.getAggregateType() {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(NewGDLSeriesInt32(agg.getSeriesName(), false, false, []int{df.NRows()}))
+				result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, []int{df.NRows()}))
 
 			case AGGREGATE_SUM:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
 
 			case AGGREGATE_MIN:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
 
 			case AGGREGATE_MAX:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
 
 			case AGGREGATE_MEAN:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
 
 			case AGGREGATE_MEDIAN:
 				// TODO: implement
 
 			case AGGREGATE_STD:
-				result = result.AddSeries(NewGDLSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
 			}
 		}
 	}

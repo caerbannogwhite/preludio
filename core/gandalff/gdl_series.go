@@ -6,7 +6,7 @@ import (
 	"typesys"
 )
 
-type GDLSeries interface {
+type Series interface {
 
 	// Basic accessors.
 
@@ -22,7 +22,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Returns if the series is sorted.
-	IsSorted() GDLSeriesSortOrder
+	IsSorted() SeriesSortOrder
 
 	// Nullability operations.
 
@@ -35,35 +35,35 @@ type GDLSeries interface {
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
-	SetNull(i int) GDLSeries
+	SetNull(i int) Series
 	// Returns the null mask of the series.
 	GetNullMask() []bool
 	// Sets the null mask of the series.
-	SetNullMask(mask []bool) GDLSeries
+	SetNullMask(mask []bool) Series
 	// Makes the series nullable.
-	MakeNullable() GDLSeries
+	MakeNullable() Series
 
 	// Get the element at index i.
 	Get(i int) any
 	// Get the element at index i as a string.
 	GetString(i int) string
 	// Set the element at index i.
-	Set(i int, v any) GDLSeries
+	Set(i int, v any) Series
 	// Take the elements according to the given interval.
-	Take(start, end, step int) GDLSeries
+	Take(start, end, step int) Series
 
 	// Sort Interface.
 	Less(i, j int) bool
 	Swap(i, j int)
 
 	// Append elements to the series.
-	Append(v any) GDLSeries
+	Append(v any) Series
 	// AppendRaw appends a value or a slice of values to the series.
-	AppendRaw(v any) GDLSeries
+	AppendRaw(v any) Series
 	// Append nullable elements to the series.
-	AppendNullable(v any) GDLSeries
+	AppendNullable(v any) Series
 	// Append a series to the series.
-	AppendSeries(other GDLSeries) GDLSeries
+	AppendSeries(other Series) Series
 
 	// All-data accessors.
 
@@ -75,52 +75,52 @@ type GDLSeries interface {
 	DataAsString() []string
 
 	// Casts the series to a given type.
-	Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries
+	Cast(t typesys.BaseType, stringPool *StringPool) Series
 	// Copies the series.
-	Copy() GDLSeries
+	Copy() Series
 
 	// Series operations.
 
 	// Filters out the elements by the given mask series.
-	Filter(mask GDLSeriesBool) GDLSeries
+	Filter(mask SeriesBool) Series
 	// Filters out the elements by the given mask.
-	FilterByMask(mask []bool) GDLSeries
+	FilterByMask(mask []bool) Series
 	// Filters out the elements by the given indices.
-	FilterByIndeces(indices []int) GDLSeries
+	FilterByIndeces(indices []int) Series
 
 	// Maps the elements of the series.
-	Map(f GDLMapFunc, stringPool *StringPool) GDLSeries
+	Map(f GDLMapFunc, stringPool *StringPool) Series
 
 	// Group the elements in the series.
-	Group() GDLSeries
-	SubGroup(gp SeriesPartition) GDLSeries
+	Group() Series
+	SubGroup(gp SeriesPartition) Series
 
 	// Get the partition of the series.
 	GetPartition() SeriesPartition
 
 	// Sorts the elements of the series.
-	Sort() GDLSeries
-	SortRev() GDLSeries
+	Sort() Series
+	SortRev() Series
 }
 
-func NewGDLSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) GDLSeries {
+func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) Series {
 	switch t {
 	case typesys.BoolType:
-		return NewGDLSeriesBool(name, nullable, data.([]bool))
+		return NewSeriesBool(name, nullable, data.([]bool))
 	// case typesys.Int16Type:
-	// 	return NewGDLSeriesInt16(name, nullable, data.([]int16))
+	// 	return NewSeriesInt16(name, nullable, data.([]int16))
 	case typesys.Int32Type:
-		return NewGDLSeriesInt32(name, nullable, makeCopy, data.([]int))
+		return NewSeriesInt32(name, nullable, makeCopy, data.([]int))
 	// case typesys.Int64Type:
-	// 	return NewGDLSeriesInt64(name, nullable, data.([]int64))
+	// 	return NewSeriesInt64(name, nullable, data.([]int64))
 	// case typesys.Float32Type:
-	// 	return NewGDLSeriesFloat32(name, nullable, data.([]float32))
+	// 	return NewSeriesFloat32(name, nullable, data.([]float32))
 	case typesys.Float64Type:
-		return NewGDLSeriesFloat64(name, nullable, makeCopy, data.([]float64))
+		return NewSeriesFloat64(name, nullable, makeCopy, data.([]float64))
 	case typesys.StringType:
-		return NewGDLSeriesString(name, nullable, data.([]string), pool)
+		return NewSeriesString(name, nullable, data.([]string), pool)
 	default:
-		return GDLSeriesError{fmt.Sprintf("NewGDLSeries: unknown type: %v", t)}
+		return SeriesError{fmt.Sprintf("NewSeries: unknown type: %v", t)}
 	}
 }
 
@@ -188,194 +188,194 @@ func (sp *StringPool) PutSync(s string) *string {
 }
 
 // Dummy series for error handling.
-type GDLSeriesError struct {
+type SeriesError struct {
 	msg string
 }
 
-func (s GDLSeriesError) Error() string {
+func (s SeriesError) Error() string {
 	return s.msg
 }
 
 // Returns the length of the series.
-func (s GDLSeriesError) Len() int {
+func (s SeriesError) Len() int {
 	return 0
 }
 
 // Returns if the series is grouped.
-func (s GDLSeriesError) IsGrouped() bool {
+func (s SeriesError) IsGrouped() bool {
 	return false
 }
 
 // Returns if the series admits null values.
-func (s GDLSeriesError) IsNullable() bool {
+func (s SeriesError) IsNullable() bool {
 	return false
 }
 
-func (s GDLSeriesError) IsSorted() GDLSeriesSortOrder {
+func (s SeriesError) IsSorted() SeriesSortOrder {
 	return SORTED_NONE
 }
 
 // Makes the series nullable.
-func (s GDLSeriesError) MakeNullable() GDLSeries {
+func (s SeriesError) MakeNullable() Series {
 	return s
 }
 
 // Returns the name of the series.
-func (s GDLSeriesError) Name() string {
+func (s SeriesError) Name() string {
 	return ""
 }
 
 // Returns the type of the series.
-func (s GDLSeriesError) Type() typesys.BaseType {
+func (s SeriesError) Type() typesys.BaseType {
 	return typesys.ErrorType
 }
 
 // Returns if the series has null values.
-func (s GDLSeriesError) HasNull() bool {
+func (s SeriesError) HasNull() bool {
 	return false
 }
 
 // Returns the number of null values in the series.
-func (s GDLSeriesError) NullCount() int {
+func (s SeriesError) NullCount() int {
 	return 0
 }
 
 // Returns the number of non-null values in the series.
-func (s GDLSeriesError) NonNullCount() int {
+func (s SeriesError) NonNullCount() int {
 	return 0
 }
 
 // Returns if the element at index i is null.
-func (s GDLSeriesError) IsNull(i int) bool {
+func (s SeriesError) IsNull(i int) bool {
 	return false
 }
 
 // Sets the element at index i to null.
-func (s GDLSeriesError) SetNull(i int) GDLSeries {
+func (s SeriesError) SetNull(i int) Series {
 	return nil
 }
 
 // Returns the null mask of the series.
-func (s GDLSeriesError) GetNullMask() []bool {
+func (s SeriesError) GetNullMask() []bool {
 	return []bool{}
 }
 
 // Sets the null mask of the series.
-func (s GDLSeriesError) SetNullMask(mask []bool) GDLSeries {
+func (s SeriesError) SetNullMask(mask []bool) Series {
 	return nil
 }
 
 // Get the element at index i.
-func (s GDLSeriesError) Get(i int) any {
+func (s SeriesError) Get(i int) any {
 	return nil
 }
 
-func (s GDLSeriesError) GetString(i int) string {
+func (s SeriesError) GetString(i int) string {
 	return ""
 }
 
 // Set the element at index i.
-func (s GDLSeriesError) Set(i int, v any) GDLSeries {
+func (s SeriesError) Set(i int, v any) Series {
 	return s
 }
 
 // Take the elements according to the given interval.
-func (s GDLSeriesError) Take(start, end, step int) GDLSeries {
+func (s SeriesError) Take(start, end, step int) Series {
 	return s
 }
 
 // Sort interface.
-func (s GDLSeriesError) Less(i, j int) bool {
+func (s SeriesError) Less(i, j int) bool {
 	return false
 }
 
-func (s GDLSeriesError) Swap(i, j int) {}
+func (s SeriesError) Swap(i, j int) {}
 
 // Append elements to the series.
-func (s GDLSeriesError) Append(v any) GDLSeries {
+func (s SeriesError) Append(v any) Series {
 	return s
 }
 
 // AppendRaw appends a value or a slice of values to the series.
-func (s GDLSeriesError) AppendRaw(v any) GDLSeries {
+func (s SeriesError) AppendRaw(v any) Series {
 	return s
 }
 
 // Append nullable elements to the series.
-func (s GDLSeriesError) AppendNullable(v any) GDLSeries {
+func (s SeriesError) AppendNullable(v any) Series {
 	return s
 }
 
 // Append a series to the series.
-func (s GDLSeriesError) AppendSeries(other GDLSeries) GDLSeries {
+func (s SeriesError) AppendSeries(other Series) Series {
 	return s
 }
 
 // All-data accessors.
 
 // Returns the actual data of the series.
-func (s GDLSeriesError) Data() any {
+func (s SeriesError) Data() any {
 	return nil
 }
 
 // Returns the nullable data of the series.
-func (s GDLSeriesError) DataAsNullable() any {
+func (s SeriesError) DataAsNullable() any {
 	return nil
 }
 
 // Returns the data of the series as a slice of strings.
-func (s GDLSeriesError) DataAsString() []string {
+func (s SeriesError) DataAsString() []string {
 	return []string{}
 }
 
 // Casts the series to a given type.
-func (s GDLSeriesError) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+func (s SeriesError) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 	return s
 }
 
 // Copies the series.
-func (s GDLSeriesError) Copy() GDLSeries {
+func (s SeriesError) Copy() Series {
 	return s
 }
 
 // Series operations.
 
 // Filters out the elements by the given mask series.
-func (s GDLSeriesError) Filter(mask GDLSeriesBool) GDLSeries {
+func (s SeriesError) Filter(mask SeriesBool) Series {
 	return s
 }
 
 // FilterByMask returns a new series with elements filtered by the mask.
-func (s GDLSeriesError) FilterByMask(mask []bool) GDLSeries {
+func (s SeriesError) FilterByMask(mask []bool) Series {
 	return s
 }
 
 // FilterByIndeces returns a new series with elements filtered by the indeces.
-func (s GDLSeriesError) FilterByIndeces(indeces []int) GDLSeries {
+func (s SeriesError) FilterByIndeces(indeces []int) Series {
 	return s
 }
 
-func (s GDLSeriesError) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
+func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	return s
 }
 
 // Group the elements in the series.
-func (s GDLSeriesError) Group() GDLSeries {
+func (s SeriesError) Group() Series {
 	return nil
 }
 
-func (s GDLSeriesError) SubGroup(gp SeriesPartition) GDLSeries {
+func (s SeriesError) SubGroup(gp SeriesPartition) Series {
 	return nil
 }
 
-func (s GDLSeriesError) GetPartition() SeriesPartition {
+func (s SeriesError) GetPartition() SeriesPartition {
 	return nil
 }
 
-func (s GDLSeriesError) Sort() GDLSeries {
+func (s SeriesError) Sort() Series {
 	return s
 }
 
-func (s GDLSeriesError) SortRev() GDLSeries {
+func (s SeriesError) SortRev() Series {
 	return s
 }

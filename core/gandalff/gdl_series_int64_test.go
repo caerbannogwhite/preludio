@@ -6,13 +6,13 @@ import (
 	"typesys"
 )
 
-func Test_GDLSeriesInt64_Base(t *testing.T) {
+func Test_SeriesInt64_Base(t *testing.T) {
 
 	data := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GDLSeriesInt64.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	// Create a new SeriesInt64.
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -105,7 +105,7 @@ func Test_GDLSeriesInt64_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewGDLSeriesInt64("test", false, true, data)
+	p := NewSeriesInt64("test", false, true, data)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -123,7 +123,7 @@ func Test_GDLSeriesInt64_Base(t *testing.T) {
 	}
 
 	// Make the series nullable.
-	p = p.MakeNullable().(GDLSeriesInt64)
+	p = p.MakeNullable().(SeriesInt64)
 
 	// Check the nullability.
 	if !p.IsNullable() {
@@ -145,13 +145,13 @@ func Test_GDLSeriesInt64_Base(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_Take(t *testing.T) {
+func Test_SeriesInt64_Take(t *testing.T) {
 
 	data := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GDLSeriesInt64.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	// Create a new SeriesInt64.
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -245,7 +245,7 @@ func Test_GDLSeriesInt64_Take(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_Append(t *testing.T) {
+func Test_SeriesInt64_Append(t *testing.T) {
 	dataA := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	dataB := []int64{11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	dataC := []int64{21, 22, 23, 24, 25, 26, 27, 28, 29, 30}
@@ -255,9 +255,9 @@ func Test_GDLSeriesInt64_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesInt64("testA", true, true, dataA)
-	sB := NewGDLSeriesInt64("testB", true, true, dataB)
-	sC := NewGDLSeriesInt64("testC", true, true, dataC)
+	sA := NewSeriesInt64("testA", true, true, dataA)
+	sB := NewSeriesInt64("testB", true, true, dataB)
+	sC := NewSeriesInt64("testC", true, true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -313,7 +313,7 @@ func Test_GDLSeriesInt64_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	sD := NewGDLSeriesInt64("testD", true, true, dataD)
+	sD := NewSeriesInt64("testD", true, true, dataD)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]int64) {
@@ -326,13 +326,13 @@ func Test_GDLSeriesInt64_Append(t *testing.T) {
 		r := int64(rand.Intn(100))
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(GDLSeriesInt64)
+			sD = sD.Append(r).(SeriesInt64)
 		case 1:
-			sD = sD.Append([]int64{r}).(GDLSeriesInt64)
+			sD = sD.Append([]int64{r}).(SeriesInt64)
 		case 2:
-			sD = sD.Append(NullableInt64{true, r}).(GDLSeriesInt64)
+			sD = sD.Append(NullableInt64{true, r}).(SeriesInt64)
 		case 3:
-			sD = sD.Append([]NullableInt64{{false, r}}).(GDLSeriesInt64)
+			sD = sD.Append([]NullableInt64{{false, r}}).(SeriesInt64)
 		}
 
 		if sD.Get(i+10) != r {
@@ -341,12 +341,12 @@ func Test_GDLSeriesInt64_Append(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_Cast(t *testing.T) {
+func Test_SeriesInt64_Cast(t *testing.T) {
 	data := []int64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -425,17 +425,17 @@ func Test_GDLSeriesInt64_Cast(t *testing.T) {
 	castError := s.Cast(typesys.ErrorType, nil)
 
 	// Check the message.
-	if castError.(GDLSeriesError).msg != "GDLSeriesInt64.Cast: invalid type Error" {
+	if castError.(SeriesError).msg != "SeriesInt64.Cast: invalid type Error" {
 		t.Errorf("Expected error, got %v", castError)
 	}
 }
 
-func Test_GDLSeriesInt64_Filter(t *testing.T) {
+func Test_SeriesInt64_Filter(t *testing.T) {
 	data := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -449,7 +449,7 @@ func Test_GDLSeriesInt64_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewGDLSeriesBool("filter", false, filterMask).(GDLSeriesBool))
+	filtered := s.Filter(NewSeriesBool("filter", false, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -521,8 +521,8 @@ func Test_GDLSeriesInt64_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.FilterByMask(filterMask)
 
-	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesInt64.FilterByMask: mask length (20) does not match series length (14)" {
-		t.Errorf("Expected GDLSeriesError, got %v", filtered)
+	if e, ok := filtered.(SeriesError); !ok || e.Error() != "SeriesInt64.FilterByMask: mask length (20) does not match series length (14)" {
+		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
 	// Another test.
@@ -530,7 +530,7 @@ func Test_GDLSeriesInt64_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewGDLSeriesInt64("test", true, true, data)
+	s = NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -588,12 +588,12 @@ func Test_GDLSeriesInt64_Filter(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_Map(t *testing.T) {
+func Test_SeriesInt64_Map(t *testing.T) {
 	data := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)
@@ -659,13 +659,13 @@ func Test_GDLSeriesInt64_Map(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_Sort(t *testing.T) {
+func Test_SeriesInt64_Sort(t *testing.T) {
 
 	data := []int64{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
 
 	// Create a new series.
-	s := NewGDLSeriesInt64("test", true, true, data)
+	s := NewSeriesInt64("test", true, true, data)
 
 	// Sort the series.
 	sorted := s.Sort()
@@ -686,7 +686,7 @@ func Test_GDLSeriesInt64_Sort(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// Create a new series.
-	s = NewGDLSeriesInt64("test", true, true, data)
+	s = NewSeriesInt64("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -717,15 +717,15 @@ func Test_GDLSeriesInt64_Sort(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
+func Test_SeriesInt64_GroupedSort(t *testing.T) {
 	data := []int64{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
 	// mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
 	partData := []int64{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
-	p := NewGDLSeriesInt64("part", true, true, partData).Group()
+	p := NewSeriesInt64("part", true, true, partData).Group()
 
 	// Create a new series.
-	s := NewGDLSeriesInt64("test", true, true, data).
+	s := NewSeriesInt64("test", true, true, data).
 		SubGroup(p.GetPartition()).
 		Sort()
 
@@ -744,7 +744,7 @@ func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	// s = NewGDLSeriesInt64("test", true, true, data).
+	// s = NewSeriesInt64("test", true, true, data).
 	// 	SetNullMask(mask).
 	// 	SubGroup(p.GetPartition()).
 	// 	Sort()
@@ -777,7 +777,7 @@ func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
 	dataRev := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
-	s = NewGDLSeriesInt64("test", true, true, dataRev).
+	s = NewSeriesInt64("test", true, true, dataRev).
 		SubGroup(p.GetPartition()).
 		SortRev()
 
@@ -796,7 +796,7 @@ func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
 
 	///////////////////////////////////////////////////////////////////////////////////
 
-	// s = NewGDLSeriesInt64("test", true, true, dataRev).
+	// s = NewSeriesInt64("test", true, true, dataRev).
 	// 	SetNullMask(maskRev).
 	// 	SubGroup(p.GetPartition()).
 	// 	SortRev()
@@ -824,13 +824,13 @@ func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
 	// }
 }
 
-// func Test_GDLSeriesInt64_Multiplication(t *testing.T) {
+// func Test_SeriesInt64_Multiplication(t *testing.T) {
 
 // 	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 
 // 	// s * 2
-// 	res := NewGDLSeriesInt64("test", true, true, &data).Mul(NewGDLSeriesInt64("test", true, true, &[]int{2}))
-// 	if e, ok := res.(GDLSeriesError); ok {
+// 	res := NewSeriesInt64("test", true, true, &data).Mul(NewSeriesInt64("test", true, true, &[]int{2}))
+// 	if e, ok := res.(SeriesError); ok {
 // 		t.Errorf("Got error: %v", e)
 // 	}
 
@@ -847,8 +847,8 @@ func Test_GDLSeriesInt64_GroupedSort(t *testing.T) {
 // 	}
 
 // 	// 2 * s
-// 	res = NewGDLSeriesInt64("test", true, true, &[]int{2}).Mul(NewGDLSeriesInt64("test", true, true, &data))
-// 	if e, ok := res.(GDLSeriesError); ok {
+// 	res = NewSeriesInt64("test", true, true, &[]int{2}).Mul(NewSeriesInt64("test", true, true, &data))
+// 	if e, ok := res.(SeriesError); ok {
 // 		t.Errorf("Got error: %v", e)
 // 	}
 

@@ -26,11 +26,11 @@ const (
 
 ////////////////////////////////			ENUMS
 
-type GDLSeriesSortOrder int16
+type SeriesSortOrder int16
 
 const (
 	// The series is not sorted.
-	SORTED_NONE GDLSeriesSortOrder = iota
+	SORTED_NONE SeriesSortOrder = iota
 	// The series is sorted in ascending order.
 	SORTED_ASC
 	// The series is sorted in descending order.

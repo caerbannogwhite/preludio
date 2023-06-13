@@ -12,12 +12,12 @@ func init() {
 	stringPool = NewStringPool()
 }
 
-func Test_GDLSeriesString_Base(t *testing.T) {
+func Test_SeriesString_Base(t *testing.T) {
 	data := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GDLSeriesString.
-	s := NewGDLSeriesString("test", true, data, stringPool)
+	// Create a new SeriesString.
+	s := NewSeriesString("test", true, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -110,7 +110,7 @@ func Test_GDLSeriesString_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewGDLSeriesString("test", false, data, stringPool)
+	p := NewSeriesString("test", false, data, stringPool)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -128,7 +128,7 @@ func Test_GDLSeriesString_Base(t *testing.T) {
 	}
 
 	// Make the series nullable.
-	p = p.MakeNullable().(GDLSeriesString)
+	p = p.MakeNullable().(SeriesString)
 
 	// Check the nullability.
 	if !p.IsNullable() {
@@ -150,7 +150,7 @@ func Test_GDLSeriesString_Base(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesString_Append(t *testing.T) {
+func Test_SeriesString_Append(t *testing.T) {
 	dataA := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 	dataB := []string{"k", "l", "m", "n", "o", "p", "q", "r", "s", "t"}
 	dataC := []string{"u", "v", "w", "x", "y", "z", "1", "2", "3", "4"}
@@ -160,9 +160,9 @@ func Test_GDLSeriesString_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesString("testA", true, dataA, stringPool)
-	sB := NewGDLSeriesString("testB", true, dataB, stringPool)
-	sC := NewGDLSeriesString("testC", true, dataC, stringPool)
+	sA := NewSeriesString("testA", true, dataA, stringPool)
+	sB := NewSeriesString("testB", true, dataB, stringPool)
+	sC := NewSeriesString("testC", true, dataC, stringPool)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -218,7 +218,7 @@ func Test_GDLSeriesString_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	sD := NewGDLSeriesString("testD", true, dataD, stringPool)
+	sD := NewSeriesString("testD", true, dataD, stringPool)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]string) {
@@ -233,13 +233,13 @@ func Test_GDLSeriesString_Append(t *testing.T) {
 		r := string(alpha[rand.Intn(len(alpha))])
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(GDLSeriesString)
+			sD = sD.Append(r).(SeriesString)
 		case 1:
-			sD = sD.Append([]string{r}).(GDLSeriesString)
+			sD = sD.Append([]string{r}).(SeriesString)
 		case 2:
-			sD = sD.Append(NullableString{true, r}).(GDLSeriesString)
+			sD = sD.Append(NullableString{true, r}).(SeriesString)
 		case 3:
-			sD = sD.Append([]NullableString{{false, r}}).(GDLSeriesString)
+			sD = sD.Append([]NullableString{{false, r}}).(SeriesString)
 		}
 
 		if sD.Get(i+10) != r {
@@ -248,12 +248,12 @@ func Test_GDLSeriesString_Append(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesString_Cast(t *testing.T) {
+func Test_SeriesString_Cast(t *testing.T) {
 	data := []string{"true", "false", "0", "3", "4", "5", "hello", "7", "8", "world"}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesString("test", true, data, stringPool)
+	s := NewSeriesString("test", true, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -348,17 +348,17 @@ func Test_GDLSeriesString_Cast(t *testing.T) {
 	castError := s.Cast(typesys.ErrorType, nil)
 
 	// Check the message.
-	if castError.(GDLSeriesError).msg != "GDLSeriesString.Cast: invalid type Error" {
+	if castError.(SeriesError).msg != "SeriesString.Cast: invalid type Error" {
 		t.Errorf("Expected error, got %v", castError)
 	}
 }
 
-func Test_GDLSeriesString_Filter(t *testing.T) {
+func Test_SeriesString_Filter(t *testing.T) {
 	data := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"}
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewGDLSeriesString("test", true, data, stringPool)
+	s := NewSeriesString("test", true, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -372,7 +372,7 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewGDLSeriesBool("mask", false, filterMask).(GDLSeriesBool))
+	filtered := s.Filter(NewSeriesBool("mask", false, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -444,8 +444,8 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.FilterByMask(filterMask)
 
-	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesString.FilterByMask: mask length (20) does not match series length (14)" {
-		t.Errorf("Expected GDLSeriesError, got %v", filtered)
+	if e, ok := filtered.(SeriesError); !ok || e.Error() != "SeriesString.FilterByMask: mask length (20) does not match series length (14)" {
+		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
 	// Another test.
@@ -453,7 +453,7 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewGDLSeriesString("test", true, data, stringPool)
+	s = NewSeriesString("test", true, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -511,12 +511,12 @@ func Test_GDLSeriesString_Filter(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesString_Map(t *testing.T) {
+func Test_SeriesString_Map(t *testing.T) {
 	data := []string{"", "hello", "world", "this", "is", "a", "test", "of", "the", "map", "function", "in", "the", "series", "", "this", "is", "a", "", "test"}
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesString("test", true, data, NewStringPool())
+	s := NewSeriesString("test", true, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)

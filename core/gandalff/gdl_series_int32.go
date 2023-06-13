@@ -7,18 +7,18 @@ import (
 	"typesys"
 )
 
-// GDLSeriesInt32 represents a series of ints.
-type GDLSeriesInt32 struct {
+// SeriesInt32 represents a series of ints.
+type SeriesInt32 struct {
 	isGrouped  bool
 	isNullable bool
-	sorted     GDLSeriesSortOrder
+	sorted     SeriesSortOrder
 	name       string
 	data       []int
 	nullMask   []uint8
 	partition  *SeriesInt32Partition
 }
 
-func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) GDLSeries {
+func NewSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) Series {
 	var nullMask []uint8
 	if isNullable {
 		nullMask = __binVecInit(len(data))
@@ -32,43 +32,43 @@ func NewGDLSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) 
 		data = actualData
 	}
 
-	return GDLSeriesInt32{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
+	return SeriesInt32{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
 }
 
 ////////////////////////			BASIC ACCESSORS
 
 // Returns the number of elements in the series.
-func (s GDLSeriesInt32) Len() int {
+func (s SeriesInt32) Len() int {
 	return len(s.data)
 }
 
 // Returns the name of the series.
-func (s GDLSeriesInt32) Name() string {
+func (s SeriesInt32) Name() string {
 	return s.name
 }
 
 // Returns the type of the series.
-func (s GDLSeriesInt32) Type() typesys.BaseType {
+func (s SeriesInt32) Type() typesys.BaseType {
 	return typesys.Int32Type
 }
 
 // Returns if the series is grouped.
-func (s GDLSeriesInt32) IsGrouped() bool {
+func (s SeriesInt32) IsGrouped() bool {
 	return s.isGrouped
 }
 
 // Returns if the series admits null values.
-func (s GDLSeriesInt32) IsNullable() bool {
+func (s SeriesInt32) IsNullable() bool {
 	return s.isNullable
 }
 
 // Returns if the series is sorted.
-func (s GDLSeriesInt32) IsSorted() GDLSeriesSortOrder {
+func (s SeriesInt32) IsSorted() SeriesSortOrder {
 	return s.sorted
 }
 
 // Returns if the series has null values.
-func (s GDLSeriesInt32) HasNull() bool {
+func (s SeriesInt32) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
 			return true
@@ -78,7 +78,7 @@ func (s GDLSeriesInt32) HasNull() bool {
 }
 
 // Returns the number of null values in the series.
-func (s GDLSeriesInt32) NullCount() int {
+func (s SeriesInt32) NullCount() int {
 	count := 0
 	for _, x := range s.nullMask {
 		for x != 0 {
@@ -90,12 +90,12 @@ func (s GDLSeriesInt32) NullCount() int {
 }
 
 // Returns the number of non-null values in the series.
-func (s GDLSeriesInt32) NonNullCount() int {
+func (s SeriesInt32) NonNullCount() int {
 	return s.Len() - s.NullCount()
 }
 
 // Returns if the element at index i is null.
-func (s GDLSeriesInt32) IsNull(i int) bool {
+func (s SeriesInt32) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
 	}
@@ -103,7 +103,7 @@ func (s GDLSeriesInt32) IsNull(i int) bool {
 }
 
 // Sets the element at index i to null.
-func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
+func (s SeriesInt32) SetNull(i int) Series {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return s
@@ -119,7 +119,7 @@ func (s GDLSeriesInt32) SetNull(i int) GDLSeries {
 }
 
 // Returns the null mask of the series.
-func (s GDLSeriesInt32) GetNullMask() []bool {
+func (s SeriesInt32) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
 	for _, v := range s.nullMask {
@@ -132,7 +132,7 @@ func (s GDLSeriesInt32) GetNullMask() []bool {
 }
 
 // Sets the null mask of the series.
-func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
+func (s SeriesInt32) SetNullMask(mask []bool) Series {
 	if s.isNullable {
 		for k, v := range mask {
 			if v {
@@ -160,7 +160,7 @@ func (s GDLSeriesInt32) SetNullMask(mask []bool) GDLSeries {
 }
 
 // Makes the series nullable.
-func (s GDLSeriesInt32) MakeNullable() GDLSeries {
+func (s SeriesInt32) MakeNullable() Series {
 	if !s.isNullable {
 		s.nullMask = __binVecInit(len(s.data))
 		s.isNullable = true
@@ -169,12 +169,12 @@ func (s GDLSeriesInt32) MakeNullable() GDLSeries {
 }
 
 // Get the element at index i.
-func (s GDLSeriesInt32) Get(i int) any {
+func (s SeriesInt32) Get(i int) any {
 	return s.data[i]
 }
 
 // Get the element at index i as a string.
-func (s GDLSeriesInt32) GetString(i int) string {
+func (s SeriesInt32) GetString(i int) string {
 	if s.isNullable && s.IsNull(i) {
 		return NULL_STRING
 	}
@@ -183,7 +183,7 @@ func (s GDLSeriesInt32) GetString(i int) string {
 
 // Set the element at index i. The value v can be of type int8, int16, int, int32,
 // NullableInt8, NullableInt16, NullableInt32.
-func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
+func (s SeriesInt32) Set(i int, v any) Series {
 	switch val := v.(type) {
 	case int8:
 		s.data[i] = int(val)
@@ -215,7 +215,7 @@ func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 	default:
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt64.Set: provided value %t is not compatible with type int32 or NullableInt32", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt64.Set: provided value %t is not compatible with type int32 or NullableInt32", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -223,9 +223,9 @@ func (s GDLSeriesInt32) Set(i int, v any) GDLSeries {
 }
 
 // Take the elements according to the given interval.
-func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
+func (s SeriesInt32) Take(start, end, step int) Series {
 	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
-		return NewGDLSeriesInt32(s.name, s.isNullable, false, []int{})
+		return NewSeriesInt32(s.name, s.isNullable, false, []int{})
 	} else
 
 	// reverse
@@ -252,7 +252,7 @@ func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
 					nullMask[j>>3] |= 1 << uint(j%8)
 				}
 			}
-			return GDLSeriesInt32{
+			return SeriesInt32{
 				isGrouped:  false,
 				isNullable: true,
 				sorted:     SORTED_NONE,
@@ -265,7 +265,7 @@ func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
 			for i, j := start, 0; i < end; i, j = i+step, j+1 {
 				data[j] = s.data[i]
 			}
-			return GDLSeriesInt32{
+			return SeriesInt32{
 				isGrouped:  false,
 				isNullable: false,
 				sorted:     SORTED_NONE,
@@ -277,7 +277,7 @@ func (s GDLSeriesInt32) Take(start, end, step int) GDLSeries {
 	}
 }
 
-func (s GDLSeriesInt32) Less(i, j int) bool {
+func (s SeriesInt32) Less(i, j int) bool {
 	if s.isGrouped {
 		if s.partition.indexToGroup[i] != s.partition.indexToGroup[j] {
 			return s.partition.indexToGroup[i] < s.partition.indexToGroup[j]
@@ -299,7 +299,7 @@ func (s GDLSeriesInt32) Less(i, j int) bool {
 	return s.data[i] < s.data[j]
 }
 
-func (s GDLSeriesInt32) Swap(i, j int) {
+func (s SeriesInt32) Swap(i, j int) {
 	if s.isGrouped {
 		s.partition.indexToGroup[i], s.partition.indexToGroup[j] = s.partition.indexToGroup[j], s.partition.indexToGroup[i]
 	}
@@ -321,7 +321,7 @@ func (s GDLSeriesInt32) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s GDLSeriesInt32) Append(v any) GDLSeries {
+func (s SeriesInt32) Append(v any) Series {
 	switch v := v.(type) {
 	case int:
 		return s.AppendRaw(v)
@@ -331,17 +331,17 @@ func (s GDLSeriesInt32) Append(v any) GDLSeries {
 		return s.AppendNullable(v)
 	case []NullableInt32:
 		return s.AppendNullable(v)
-	case GDLSeriesInt32:
+	case SeriesInt32:
 		return s.AppendSeries(v)
-	case GDLSeriesError:
+	case SeriesError:
 		return v
 	default:
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Append: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Append: invalid type %T", v)}
 	}
 }
 
 // Append appends a value or a slice of values to the series.
-func (s GDLSeriesInt32) AppendRaw(v any) GDLSeries {
+func (s SeriesInt32) AppendRaw(v any) Series {
 	if s.isNullable {
 		if i, ok := v.(int); ok {
 			s.data = append(s.data, i)
@@ -354,7 +354,7 @@ func (s GDLSeriesInt32) AppendRaw(v any) GDLSeries {
 				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 			}
 		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendRaw: invalid type %T", v)}
+			return SeriesError{fmt.Sprintf("SeriesInt32.AppendRaw: invalid type %T", v)}
 		}
 	} else {
 		if b, ok := v.(int); ok {
@@ -362,16 +362,16 @@ func (s GDLSeriesInt32) AppendRaw(v any) GDLSeries {
 		} else if bv, ok := v.([]int); ok {
 			s.data = append(s.data, bv...)
 		} else {
-			return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendRaw: invalid type %T", v)}
+			return SeriesError{fmt.Sprintf("SeriesInt32.AppendRaw: invalid type %T", v)}
 		}
 	}
 	return s
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s GDLSeriesInt32) AppendNullable(v any) GDLSeries {
+func (s SeriesInt32) AppendNullable(v any) Series {
 	if !s.isNullable {
-		return GDLSeriesError{"GDLSeriesInt32.AppendNullable: series is not nullable"}
+		return SeriesError{"SeriesInt32.AppendNullable: series is not nullable"}
 	}
 
 	if b, ok := v.(NullableInt32); ok {
@@ -393,18 +393,18 @@ func (s GDLSeriesInt32) AppendNullable(v any) GDLSeries {
 			}
 		}
 	} else {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.AppendNullable: invalid type %T", v)}
 	}
 
 	return s
 }
 
 // AppendSeries appends a series to the series.
-func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
+func (s SeriesInt32) AppendSeries(other Series) Series {
 	var ok bool
-	var o GDLSeriesInt32
-	if o, ok = other.(GDLSeriesInt32); !ok {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.AppendSeries: invalid type %T", other)}
+	var o SeriesInt32
+	if o, ok = other.(SeriesInt32); !ok {
+		return SeriesError{fmt.Sprintf("SeriesInt32.AppendSeries: invalid type %T", other)}
 	}
 
 	if s.isNullable {
@@ -460,11 +460,11 @@ func (s GDLSeriesInt32) AppendSeries(other GDLSeries) GDLSeries {
 
 ////////////////////////			ALL DATA ACCESSORS
 
-func (s GDLSeriesInt32) Data() any {
+func (s SeriesInt32) Data() any {
 	return s.data
 }
 
-func (s GDLSeriesInt32) DataAsNullable() any {
+func (s SeriesInt32) DataAsNullable() any {
 	data := make([]NullableInt32, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableInt32{Valid: !s.IsNull(i), Value: v}
@@ -472,7 +472,7 @@ func (s GDLSeriesInt32) DataAsNullable() any {
 	return data
 }
 
-func (s GDLSeriesInt32) DataAsString() []string {
+func (s SeriesInt32) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
 		for i, v := range s.data {
@@ -491,7 +491,7 @@ func (s GDLSeriesInt32) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries {
+func (s SeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 	switch t {
 	case typesys.BoolType:
 		data := __binVecInit(len(s.data))
@@ -501,7 +501,7 @@ func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeri
 			}
 		}
 
-		return GDLSeriesBool{
+		return SeriesBool{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -520,7 +520,7 @@ func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeri
 			data[i] = float64(v)
 		}
 
-		return GDLSeriesFloat64{
+		return SeriesFloat64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -531,7 +531,7 @@ func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeri
 
 	case typesys.StringType:
 		if stringPool == nil {
-			return GDLSeriesError{"GDLSeriesInt32.Cast: StringPool is nil"}
+			return SeriesError{"SeriesInt32.Cast: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -549,7 +549,7 @@ func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeri
 			}
 		}
 
-		return GDLSeriesString{
+		return SeriesString{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -559,33 +559,33 @@ func (s GDLSeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) GDLSeri
 		}
 
 	default:
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Cast: invalid type %s", t.ToString())}
 	}
 }
 
-func (s GDLSeriesInt32) Copy() GDLSeries {
+func (s SeriesInt32) Copy() Series {
 	data := make([]int, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
 
-	return GDLSeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
+	return SeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-func (s GDLSeriesInt32) __getDataPtr() *[]int {
+func (s SeriesInt32) __getDataPtr() *[]int {
 	return &s.data
 }
 
 ////////////////////////			SERIES OPERATIONS
 
 // Filters out the elements by the given mask series.
-func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
+func (s SeriesInt32) Filter(mask SeriesBool) Series {
 	if mask.size != s.Len() {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
 	}
 
 	if mask.isNullable {
-		return GDLSeriesError{"GDLSeriesInt32.Filter: mask series cannot be nullable for this operation"}
+		return SeriesError{"SeriesInt32.Filter: mask series cannot be nullable for this operation"}
 	}
 
 	elementCount := mask.__trueCount()
@@ -625,9 +625,9 @@ func (s GDLSeriesInt32) Filter(mask GDLSeriesBool) GDLSeries {
 }
 
 // FilterByMask returns a new series with elements filtered by the mask.
-func (s GDLSeriesInt32) FilterByMask(mask []bool) GDLSeries {
+func (s SeriesInt32) FilterByMask(mask []bool) Series {
 	if len(mask) != len(s.data) {
-		return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+		return SeriesError{fmt.Sprintf("SeriesInt32.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
 	elementCount := 0
@@ -674,7 +674,7 @@ func (s GDLSeriesInt32) FilterByMask(mask []bool) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesInt32) FilterByIndeces(indexes []int) GDLSeries {
+func (s SeriesInt32) FilterByIndeces(indexes []int) Series {
 	var data []int
 	var nullMask []uint8
 
@@ -705,7 +705,7 @@ func (s GDLSeriesInt32) FilterByIndeces(indexes []int) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
+func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -752,7 +752,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			wg.Wait()
 		}
 
-		return GDLSeriesBool{
+		return SeriesBool{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -780,7 +780,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data[i] = f(s.data[i]).(int64)
 		}
 
-		return GDLSeriesInt64{
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -795,7 +795,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data[i] = f(s.data[i]).(float64)
 		}
 
-		return GDLSeriesFloat64{
+		return SeriesFloat64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -806,7 +806,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 
 	case string:
 		if stringPool == nil {
-			return GDLSeriesError{"GDLSeriesInt32.Map: StringPool is nil"}
+			return SeriesError{"SeriesInt32.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -814,7 +814,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 			data[i] = stringPool.Put(f(s.data[i]).(string))
 		}
 
-		return GDLSeriesString{
+		return SeriesString{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -825,7 +825,7 @@ func (s GDLSeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) GDLSeries {
 		}
 	}
 
-	return GDLSeriesError{fmt.Sprintf("GDLSeriesInt32.Map: Unsupported type %T", v)}
+	return SeriesError{fmt.Sprintf("SeriesInt32.Map: Unsupported type %T", v)}
 }
 
 ////////////////////////			GROUPING OPERATIONS
@@ -964,7 +964,7 @@ func (gp SeriesInt32Partition) InnerJoin(other SeriesInt32Partition) {
 
 }
 
-func (s GDLSeriesInt32) Group() GDLSeries {
+func (s SeriesInt32) Group() Series {
 	var partition SeriesInt32Partition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 		max := s.data[0]
@@ -1043,7 +1043,7 @@ func (s GDLSeriesInt32) Group() GDLSeries {
 	return s
 }
 
-func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
+func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesInt32Partition
 	otherIndeces := partition.GetMap()
 
@@ -1105,13 +1105,13 @@ func (s GDLSeriesInt32) SubGroup(partition SeriesPartition) GDLSeries {
 	return s
 }
 
-func (s GDLSeriesInt32) GetPartition() SeriesPartition {
+func (s SeriesInt32) GetPartition() SeriesPartition {
 	return s.partition
 }
 
 ////////////////////////			SORTING OPERATIONS
 
-func (s GDLSeriesInt32) Sort() GDLSeries {
+func (s SeriesInt32) Sort() Series {
 	if s.sorted != SORTED_ASC {
 		if s.isGrouped {
 			*s.partition = (*s.partition).beginSorting()
@@ -1125,7 +1125,7 @@ func (s GDLSeriesInt32) Sort() GDLSeries {
 	return s
 }
 
-func (s GDLSeriesInt32) SortRev() GDLSeries {
+func (s SeriesInt32) SortRev() Series {
 	if s.sorted != SORTED_DESC {
 		if s.isGrouped {
 			*s.partition = (*s.partition).beginSorting()
@@ -1141,27 +1141,27 @@ func (s GDLSeriesInt32) SortRev() GDLSeries {
 
 ////////////////////////			ARITHMETIC OPERATIONS
 
-func (s GDLSeriesInt32) Mul(other GDLSeries) GDLSeries {
-	return GDLSeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}
+func (s SeriesInt32) Mul(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
-func (s GDLSeriesInt32) Div(other GDLSeries) GDLSeries {
-	return GDLSeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), other.Type().ToString())}
+func (s SeriesInt32) Div(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
-func (s GDLSeriesInt32) Mod(other GDLSeries) GDLSeries {
-	return GDLSeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), other.Type().ToString())}
+func (s SeriesInt32) Mod(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
-func (s GDLSeriesInt32) Add(other GDLSeries) GDLSeries {
-	return GDLSeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
+func (s SeriesInt32) Add(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
-func (s GDLSeriesInt32) Sub(other GDLSeries) GDLSeries {
-	return GDLSeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), other.Type().ToString())}
+func (s SeriesInt32) Sub(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }

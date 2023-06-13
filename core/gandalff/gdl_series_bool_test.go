@@ -6,12 +6,12 @@ import (
 	"typesys"
 )
 
-func Test_GDLSeriesBool_Base(t *testing.T) {
+func Test_SeriesBool_Base(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
-	// Create a new GDLSeriesBool.
-	s := NewGDLSeriesBool("test", true, data)
+	// Create a new SeriesBool.
+	s := NewSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -104,7 +104,7 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewGDLSeriesBool("test", false, data)
+	p := NewSeriesBool("test", false, data)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -122,7 +122,7 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 	}
 
 	// Make the series nullable.
-	p = p.MakeNullable().(GDLSeriesBool)
+	p = p.MakeNullable().(SeriesBool)
 
 	// Check the nullability.
 	if !p.IsNullable() {
@@ -144,7 +144,7 @@ func Test_GDLSeriesBool_Base(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesBool_Append(t *testing.T) {
+func Test_SeriesBool_Append(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
 	dataC := []bool{true, true, true, true, true, true, true, true, true, true}
@@ -154,9 +154,9 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesBool("testA", true, dataA)
-	sB := NewGDLSeriesBool("testB", true, dataB)
-	sC := NewGDLSeriesBool("testC", true, dataC)
+	sA := NewSeriesBool("testA", true, dataA)
+	sB := NewSeriesBool("testB", true, dataB)
+	sC := NewSeriesBool("testC", true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -212,7 +212,7 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewGDLSeriesBool("testD", true, dataD)
+	sD := NewSeriesBool("testD", true, dataD)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]bool) {
@@ -225,13 +225,13 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 		if rand.Float32() > 0.5 {
 			switch i % 4 {
 			case 0:
-				sD = sD.Append(true).(GDLSeriesBool)
+				sD = sD.Append(true).(SeriesBool)
 			case 1:
-				sD = sD.Append([]bool{true}).(GDLSeriesBool)
+				sD = sD.Append([]bool{true}).(SeriesBool)
 			case 2:
-				sD = sD.Append(NullableBool{true, true}).(GDLSeriesBool)
+				sD = sD.Append(NullableBool{true, true}).(SeriesBool)
 			case 3:
-				sD = sD.Append([]NullableBool{{false, true}}).(GDLSeriesBool)
+				sD = sD.Append([]NullableBool{{false, true}}).(SeriesBool)
 			}
 
 			if sD.Get(i+10) != true {
@@ -240,13 +240,13 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 		} else {
 			switch i % 4 {
 			case 0:
-				sD = sD.Append(false).(GDLSeriesBool)
+				sD = sD.Append(false).(SeriesBool)
 			case 1:
-				sD = sD.Append([]bool{false}).(GDLSeriesBool)
+				sD = sD.Append([]bool{false}).(SeriesBool)
 			case 2:
-				sD = sD.Append(NullableBool{true, false}).(GDLSeriesBool)
+				sD = sD.Append(NullableBool{true, false}).(SeriesBool)
 			case 3:
-				sD = sD.Append([]NullableBool{{false, false}}).(GDLSeriesBool)
+				sD = sD.Append([]NullableBool{{false, false}}).(SeriesBool)
 			}
 
 			if sD.Get(i+10) != false {
@@ -256,12 +256,12 @@ func Test_GDLSeriesBool_Append(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesBool_Cast(t *testing.T) {
+func Test_SeriesBool_Cast(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewGDLSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -345,12 +345,12 @@ func Test_GDLSeriesBool_Cast(t *testing.T) {
 	castError := s.Cast(typesys.ErrorType, nil)
 
 	// Check the message.
-	if castError.(GDLSeriesError).msg != "GDLSeriesBool.Cast: invalid type Error" {
+	if castError.(SeriesError).msg != "SeriesBool.Cast: invalid type Error" {
 		t.Errorf("Expected error, got %v", castError)
 	}
 }
 
-func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
+func Test_SeriesBool_LogicOperators(t *testing.T) {
 	dataA := []bool{true, false, true, false, true, false, true, false, true, false}
 	dataB := []bool{false, true, false, false, true, false, false, true, false, false}
 
@@ -358,15 +358,15 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewGDLSeriesBool("testA", true, dataA)
-	sB := NewGDLSeriesBool("testB", true, dataB)
+	sA := NewSeriesBool("testA", true, dataA)
+	sB := NewSeriesBool("testB", true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
 	sB.SetNullMask(maskB)
 
-	sbA := sA.(GDLSeriesBool)
-	sbB := sB.(GDLSeriesBool)
+	sbA := sA.(SeriesBool)
+	sbB := sB.(SeriesBool)
 
 	// Check the And() method.
 	and := sbA.And(sbB)
@@ -392,15 +392,15 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 
 	// Check the Or() method.
 	// Create two new series.
-	sA = NewGDLSeriesBool("testA", true, dataA)
-	sB = NewGDLSeriesBool("testB", true, dataB)
+	sA = NewSeriesBool("testA", true, dataA)
+	sB = NewSeriesBool("testB", true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
 	sB.SetNullMask(maskB)
 
-	sbA = sA.(GDLSeriesBool)
-	sbB = sB.(GDLSeriesBool)
+	sbA = sA.(SeriesBool)
+	sbB = sB.(SeriesBool)
 	or := sbA.Or(sbB)
 
 	// Check the size.
@@ -423,8 +423,8 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := NewGDLSeriesBool("test", true, dataA).
-		SetNullMask(maskA).(GDLSeriesBool).
+	not := NewSeriesBool("test", true, dataA).
+		SetNullMask(maskA).(SeriesBool).
 		Not()
 
 	// Check the size.
@@ -447,12 +447,12 @@ func Test_GDLSeriesBool_LogicOperators(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesBool_Filter(t *testing.T) {
+func Test_SeriesBool_Filter(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false, false, true, true}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewGDLSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -466,7 +466,7 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewGDLSeriesBool("mask", false, filterMask).(GDLSeriesBool))
+	filtered := s.Filter(NewSeriesBool("mask", false, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -538,8 +538,8 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.FilterByMask(filterMask)
 
-	if e, ok := filtered.(GDLSeriesError); !ok || e.Error() != "GDLSeriesBool.FilterByMask: mask length (13) does not match series length (9)" {
-		t.Errorf("Expected GDLSeriesError, got %v", filtered)
+	if e, ok := filtered.(SeriesError); !ok || e.Error() != "SeriesBool.FilterByMask: mask length (13) does not match series length (9)" {
+		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
 	// Another test.
@@ -547,7 +547,7 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewGDLSeriesBool("test", true, data)
+	s = NewSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -605,12 +605,12 @@ func Test_GDLSeriesBool_Filter(t *testing.T) {
 	}
 }
 
-func Test_GDLSeriesBool_Map(t *testing.T) {
+func Test_SeriesBool_Map(t *testing.T) {
 	data := []bool{true, false, true, false, true, false, true, false, true, false, false, true, true}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewGDLSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)

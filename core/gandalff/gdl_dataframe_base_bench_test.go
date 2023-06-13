@@ -100,10 +100,10 @@ func Benchmark_Filter_Q1_1e5(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).Or(
+			}, nil).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool)).(GDLSeriesBool))
+				}, nil).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -121,10 +121,10 @@ func Benchmark_Filter_Q1_1e6(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).Or(
+			}, nil).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool)).(GDLSeriesBool))
+				}, nil).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -142,10 +142,10 @@ func Benchmark_Filter_Q1_1e7(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).Or(
+			}, nil).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool)).(GDLSeriesBool))
+				}, nil).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -163,27 +163,27 @@ func Benchmark_Filter_Q2_1e5(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).And(
+			}, nil).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool).Or(
+				}, nil).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(GDLSeriesBool),
+					}, nil).(SeriesBool),
 				),
-			).(GDLSeriesBool).And(
+			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int) == 5
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int) == 1
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool),
+				}, nil).(SeriesBool),
+			).(SeriesBool),
 		)
 	}
 	b.StopTimer()
@@ -202,27 +202,27 @@ func Benchmark_Filter_Q2_1e6(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).And(
+			}, nil).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool).Or(
+				}, nil).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(GDLSeriesBool),
+					}, nil).(SeriesBool),
 				),
-			).(GDLSeriesBool).And(
+			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int) == 5
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int) == 1
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool),
+				}, nil).(SeriesBool),
+			).(SeriesBool),
 		)
 	}
 	b.StopTimer()
@@ -241,27 +241,27 @@ func Benchmark_Filter_Q2_1e7(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int) > 500
-			}, nil).(GDLSeriesBool).And(
+			}, nil).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(GDLSeriesBool).Or(
+				}, nil).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(GDLSeriesBool),
+					}, nil).(SeriesBool),
 				),
-			).(GDLSeriesBool).And(
+			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int) == 5
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool).And(
+				}, nil).(SeriesBool),
+			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int) == 1
-				}, nil).(GDLSeriesBool),
-			).(GDLSeriesBool),
+				}, nil).(SeriesBool),
+			).(SeriesBool),
 		)
 	}
 	b.StopTimer()

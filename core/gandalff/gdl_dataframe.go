@@ -37,7 +37,7 @@ type DataFrame interface {
 	// Add new series to the dataframe.
 
 	// AddSeries adds a generic series to the dataframe.
-	AddSeries(series GDLSeries) DataFrame
+	AddSeries(series Series) DataFrame
 	// AddSeriesFromBool adds a series of bools to the dataframe.
 	AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame
 	// AddSeriesFromInt32 adds a series of ints to the dataframe.
@@ -50,16 +50,16 @@ type DataFrame interface {
 	AddSeriesFromString(name string, isNullable bool, data []string) DataFrame
 
 	// Returns the series with the given name.
-	Series(name string) GDLSeries
+	Series(name string) Series
 
 	// Returns the series at the given index.
-	SeriesAt(index int) GDLSeries
+	SeriesAt(index int) Series
 
 	Select(names ...string) DataFrame
 
 	SelectAt(indices ...int) DataFrame
 
-	Filter(mask GDLSeriesBool) DataFrame
+	Filter(mask SeriesBool) DataFrame
 
 	GroupBy(by ...string) DataFrame
 
