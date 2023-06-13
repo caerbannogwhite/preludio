@@ -224,7 +224,7 @@ type GDLSeries interface {
 - [ ] Implement memory optimized Bool series with uint64.
 - [ ] Implement int32 series with int32.
 - [ ] Using uint64 for null mask.
-- [ ] Implement and test grouped sorting.
+- [ ] Implement and test grouped sorting for all types.
 - [ ] Implement and test grouped with nulls.
 - [ ] Implement chunked series.
 - [ ] Implement CSV writer.
