@@ -78,16 +78,21 @@ The data types not checked are not yet supported, but might be in the future.
   - [x] FilterByMask
   - [x] FilterByIndex
 
-- [x] Group
+- [ ] Group
 
   - [x] Group
   - [x] SubGroup
+  - [ ] Group with nulls
+  - [ ] SubGroup with nulls
 
 - [x] Map
 - [ ] Sort
 
   - [x] Sort
   - [ ] SortRev
+  - [ ] Sort with nulls
+  - [ ] SortRev with nulls
+
 
 - [ ] Take
 
@@ -97,6 +102,16 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] Filter
 - [x] GroupBy
 - [ ] Join
+
+	- [ ] Inner
+	- [ ] Left
+	- [ ] Right
+	- [ ] Outer
+	- [ ] Inner with nulls
+	- [ ] Left with nulls
+	- [ ] Right with nulls
+	- [ ] Outer with nulls
+
 - [ ] Map
 - [ ] OrderBy
 - [x] Select
