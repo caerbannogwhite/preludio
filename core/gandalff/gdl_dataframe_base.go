@@ -567,72 +567,95 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	dfGrouped := df.GroupBy(on...).(BaseDataFrame)
 	otherGrouped := other.GroupBy(on...).(BaseDataFrame)
 
+	colsDiffA := make([]string, 0)
+	colsDiffB := make([]string, 0)
+
+	// Get the columns that are not in the join columns
+	for _, name := range df.Names() {
+		found := false
+		for _, joinName := range on {
+			if name == joinName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			colsDiffA = append(colsDiffA, name)
+		}
+	}
+
+	for _, name := range other.Names() {
+		found := false
+		for _, joinName := range on {
+			if name == joinName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			colsDiffB = append(colsDiffB, name)
+		}
+	}
+
+	joined := NewBaseDataFrame()
+
 	switch how {
 	case INNER_JOIN:
 		// TODO: implement
 		pA := dfGrouped.GetPartitions()
 		pB := otherGrouped.GetPartitions()
 
-		for i := range on {
+		// Get the maps, keys and sort them
+		mapA := pA[len(pA)-1].GetMap()
+		mapB := pB[len(pB)-1].GetMap()
 
-			switch types[i] {
-			case typesys.BoolType:
-				// keysA := pA[0].GetKeys().([]bool)
-				// keysB := pB[0].GetKeys().([]bool)
+		keysA := make([]int64, 0, len(mapA))
+		keysB := make([]int64, 0, len(mapB))
 
-			case typesys.Int32Type:
-				keysA := pA[0].GetKeys().([]int)
-				keysB := pB[0].GetKeys().([]int)
+		for key := range mapA {
+			keysA = append(keysA, key)
+		}
 
-				sort.Ints(keysA)
-				sort.Ints(keysB)
+		for key := range mapB {
+			keysB = append(keysB, key)
+		}
 
-				keysIntersection := make([]int, 0)
-				for i, j := 0, 0; i < len(keysA) && j < len(keysB); {
-					if keysA[i] < keysB[j] {
-						i++
-					} else if keysA[i] > keysB[j] {
-						j++
-					} else {
-						keysIntersection = append(keysIntersection, keysA[i])
-						i++
-						j++
-					}
-				}
+		sort.Slice(keysA, func(i, j int) bool { return keysA[i] < keysA[j] })
+		sort.Slice(keysB, func(i, j int) bool { return keysB[i] < keysB[j] })
 
-			case typesys.Int64Type:
-				keysA := pA[0].GetKeys().([]int64)
-				keysB := pB[0].GetKeys().([]int64)
-
-				sort.Slice(keysA, func(i, j int) bool { return keysA[i] < keysA[j] })
-				sort.Slice(keysB, func(i, j int) bool { return keysB[i] < keysB[j] })
-
-				keysIntersection := make([]int64, 0, len(keysA))
-				for i, j := 0, 0; i < len(keysA) && j < len(keysB); {
-					if keysA[i] < keysB[j] {
-						i++
-					} else if keysA[i] > keysB[j] {
-						j++
-					} else {
-						keysIntersection = append(keysIntersection, keysA[i])
-						i++
-						j++
-					}
-				}
-
-			case typesys.Float64Type:
-				// keysA := pA[0].GetKeys().([]float64)
-				// keysB := pB[0].GetKeys().([]float64)
-
-			case typesys.StringType:
-				// keysA := pA[0].GetKeys().([]string)
-				// keysB := pB[0].GetKeys().([]string)
-
-			default:
-				df.err = fmt.Errorf("BaseDataFrame.Join: invalid type")
-				return df
+		// Find the intersection
+		keysIntersection := make([]int64, 0, len(keysA))
+		for i, j := 0, 0; i < len(keysA) && j < len(keysB); {
+			if keysA[i] < keysB[j] {
+				i++
+			} else if keysA[i] > keysB[j] {
+				j++
+			} else {
+				keysIntersection = append(keysIntersection, keysA[i])
+				i++
+				j++
 			}
+		}
 
+		// Get indices of the intersection
+		indices := make([]int, 0, len(keysIntersection))
+		for _, key := range keysIntersection {
+			indices = append(indices, mapA[key][0])
+		}
+
+		// Join columns
+		for i := range on {
+			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indices))
+		}
+
+		// A columns
+		for _, name := range colsDiffA {
+			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indices))
+		}
+
+		// B columns
+		for _, name := range colsDiffB {
+			joined = joined.AddSeries(other.Series(name).FilterByIndeces(indices))
 		}
 
 	case LEFT_JOIN:
@@ -644,8 +667,6 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	case OUTER_JOIN:
 		// TODO: implement
 	}
-
-	joined := NewBaseDataFrame()
 
 	return joined
 }

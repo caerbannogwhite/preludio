@@ -3,7 +3,6 @@ package gandalff
 import "strconv"
 
 const (
-
 	// The default capacity of a series.
 	DEFAULT_SERIES_INITIAL_CAPACITY = 10
 
