@@ -673,6 +673,8 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
 
+	res.PrettyPrint()
+
 	///////////////////			FULL JOIN
 
 	res = dfx.Join(OUTER_JOIN, dfy, "A")
@@ -688,4 +690,6 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	if res.NCols() != 3 {
 		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
+
+	res.PrettyPrint()
 }
