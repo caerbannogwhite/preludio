@@ -667,7 +667,7 @@ func (s SeriesBool) Copy() Series {
 	}
 }
 
-func (s SeriesBool) __getDataPtr() *[]uint8 {
+func (s SeriesBool) getDataPtr() *[]uint8 {
 	return &s.data
 }
 

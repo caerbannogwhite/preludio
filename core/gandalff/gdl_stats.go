@@ -22,7 +22,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesInt32:
 				sum_ := int(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -30,7 +30,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesInt64:
 				sum_ := int64(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -38,7 +38,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesFloat64:
 				sum_ := float64(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -54,7 +54,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesInt32:
 				sum_ := int(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -62,7 +62,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesInt64:
 				sum_ := int64(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -70,7 +70,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 
 			case SeriesFloat64:
 				sum_ := float64(0)
-				data := series.__getDataPtr()
+				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
 				}
@@ -85,14 +85,14 @@ func __gdl_sum__(s Series) float64 {
 	sum := 0.0
 	switch series := s.(type) {
 	case SeriesBool:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		for i := 0; i < series.Len(); i++ {
 			sum += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
 		}
 		return sum
 
 	case SeriesInt32:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		sum_ := int(0)
 		for i := 0; i < series.Len(); i++ {
 			sum_ += data[i]
@@ -100,7 +100,7 @@ func __gdl_sum__(s Series) float64 {
 		return float64(sum_)
 
 	case SeriesFloat64:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		for i := 0; i < series.Len(); i++ {
 			sum += data[i]
 		}
@@ -115,7 +115,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 	sum := make([]float64, len(groups))
 	switch series := s.(type) {
 	case SeriesBool:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		for gi, group := range groups {
 			for _, i := range group {
 				sum[gi] += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
@@ -124,7 +124,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesInt32:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
@@ -173,7 +173,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesInt64:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
@@ -222,7 +222,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesFloat64:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
@@ -544,7 +544,7 @@ func __gdl_mean__(s Series) float64 {
 	switch series := s.(type) {
 	case SeriesBool:
 		sum := 0.0
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		for i := 0; i < series.Len(); i++ {
 			sum += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
 		}
@@ -573,7 +573,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 	sum := make([]float64, len(groups))
 	switch series := s.(type) {
 	case SeriesBool:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 		for gi, group := range groups {
 			for _, i := range group {
 				sum[gi] += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
@@ -583,7 +583,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesInt32:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
@@ -633,7 +633,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesInt64:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
@@ -683,7 +683,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		return sum
 
 	case SeriesFloat64:
-		data := *series.__getDataPtr()
+		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {

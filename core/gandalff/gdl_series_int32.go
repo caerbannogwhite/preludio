@@ -572,7 +572,7 @@ func (s SeriesInt32) Copy() Series {
 	return SeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-func (s SeriesInt32) __getDataPtr() *[]int {
+func (s SeriesInt32) getDataPtr() *[]int {
 	return &s.data
 }
 

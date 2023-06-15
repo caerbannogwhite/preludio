@@ -581,7 +581,7 @@ func (s SeriesInt64) Copy() Series {
 	return SeriesInt64{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-func (s SeriesInt64) __getDataPtr() *[]int64 {
+func (s SeriesInt64) getDataPtr() *[]int64 {
 	return &s.data
 }
 

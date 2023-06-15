@@ -413,7 +413,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesInt32:
 			values := make([]int, len(indeces))
-			data := series.__getDataPtr()
+			data := series.getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
@@ -427,7 +427,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesInt64:
 			values := make([]int64, len(indeces))
-			data := series.__getDataPtr()
+			data := series.getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
@@ -441,7 +441,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesFloat64:
 			values := make([]float64, len(indeces))
-			data := series.__getDataPtr()
+			data := series.getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}
@@ -455,7 +455,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesString:
 			values := make([]*string, len(indeces))
-			data := series.__getDataPtr()
+			data := series.getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
 			}

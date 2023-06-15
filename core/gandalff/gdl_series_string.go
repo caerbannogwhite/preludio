@@ -566,7 +566,7 @@ func (s SeriesString) Copy() Series {
 	return NewSeriesString(s.name, s.isNullable, data, s.pool)
 }
 
-func (s SeriesString) __getDataPtr() *[]*string {
+func (s SeriesString) getDataPtr() *[]*string {
 	return &s.data
 }
 

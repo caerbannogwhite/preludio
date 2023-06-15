@@ -491,7 +491,7 @@ func (s SeriesFloat64) Copy() Series {
 		isGrouped: s.isGrouped, sorted: s.sorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-func (s SeriesFloat64) __getDataPtr() *[]float64 {
+func (s SeriesFloat64) getDataPtr() *[]float64 {
 	return &s.data
 }
 
