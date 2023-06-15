@@ -49,7 +49,7 @@ func (s SeriesInt64) Name() string {
 
 // Returns the type of the series.
 func (s SeriesInt64) Type() typesys.BaseType {
-	return typesys.Int32Type
+	return typesys.Int64Type
 }
 
 // Returns if the series is grouped.

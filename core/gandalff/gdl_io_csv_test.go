@@ -169,8 +169,8 @@ Charlie,33,95.0,t
 		t.Error("Expected String, got", df.Types()[0].ToString())
 	}
 
-	if df.Types()[1] != typesys.Int32Type {
-		t.Error("Expected Int32, got", df.Types()[1].ToString())
+	if df.Types()[1] != typesys.Int64Type {
+		t.Error("Expected Int64, got", df.Types()[1].ToString())
 	}
 
 	if df.Types()[2] != typesys.Float64Type {

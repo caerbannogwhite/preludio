@@ -28,8 +28,8 @@ func Test_SeriesInt64_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != typesys.Int32Type {
-		t.Errorf("Expected type of Int32Type, got %s", s.Type().ToString())
+	if s.Type() != typesys.Int64Type {
+		t.Errorf("Expected type of Int64Type, got %s", s.Type().ToString())
 	}
 
 	// Check the data.
