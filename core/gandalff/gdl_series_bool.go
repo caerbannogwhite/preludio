@@ -940,6 +940,10 @@ func (gp SeriesBoolPartition) GetKeys() any {
 	return keys
 }
 
+func (gp SeriesBoolPartition) debugPrint() {
+	fmt.Println("SeriesBoolPartition")
+}
+
 func (s SeriesBool) Group() Series {
 
 	map_ := make(map[int64][]int)

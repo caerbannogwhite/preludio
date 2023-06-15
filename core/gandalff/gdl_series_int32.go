@@ -834,6 +834,7 @@ type SeriesInt32Partition struct {
 	isDense             bool
 	seriesSize          int
 	partition           map[int64][]int
+	partitionDenseMin   int
 	partitionDense      [][]int
 	partitionDenseNulls []int
 	indexToGroup        []int
@@ -913,7 +914,7 @@ func (gp SeriesInt32Partition) GetMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
-			map_[int64(i)] = part
+			map_[int64(i+gp.partitionDenseMin)] = part
 		}
 		return map_
 	}
@@ -960,8 +961,12 @@ func (gp SeriesInt32Partition) GetKeys() any {
 	return keys
 }
 
-func (gp SeriesInt32Partition) InnerJoin(other SeriesInt32Partition) {
-
+func (gp SeriesInt32Partition) debugPrint() {
+	fmt.Println("SeriesInt32Partition")
+	map_ := gp.GetMap()
+	for k, v := range map_ {
+		fmt.Printf("%4d: %v\n", k, v)
+	}
 }
 
 func (s SeriesInt32) Group() Series {
@@ -988,9 +993,10 @@ func (s SeriesInt32) Group() Series {
 		}
 
 		partition = SeriesInt32Partition{
-			isDense:        true,
-			seriesSize:     s.Len(),
-			partitionDense: map_,
+			isDense:           true,
+			seriesSize:        s.Len(),
+			partitionDenseMin: min,
+			partitionDense:    map_,
 		}
 
 	} else {

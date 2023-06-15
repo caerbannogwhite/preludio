@@ -773,6 +773,15 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 	return keys
 }
 
+func (gp SeriesFloat64Partition) debugPrint() {
+	fmt.Println("SeriesFloat64Partition")
+	map_ := gp.GetMap()
+	for k, v := range map_ {
+		f := *(*float64)(unsafe.Pointer(&k))
+		fmt.Printf("%4.4f: %v\n", f, v)
+	}
+}
+
 func (s SeriesFloat64) Group() Series {
 
 	var partition SeriesFloat64Partition

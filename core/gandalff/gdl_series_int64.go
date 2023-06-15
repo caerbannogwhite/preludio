@@ -844,6 +844,7 @@ type SeriesInt64Partition struct {
 	seriesSize          int
 	partition           map[int64][]int
 	nullKey             NullableInt64
+	partitionDenseMin   int64
 	partitionDense      [][]int
 	partitionDenseNulls []int
 	indexToGroup        []int64
@@ -947,7 +948,7 @@ func (gp SeriesInt64Partition) GetMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
-			map_[int64(i)] = part
+			map_[int64(i)+gp.partitionDenseMin] = part
 		}
 		return map_
 	}
@@ -992,8 +993,12 @@ func (gp SeriesInt64Partition) GetKeys() any {
 	return keys
 }
 
-func (gp SeriesInt64Partition) InnerJoin(other SeriesInt64Partition) {
-
+func (gp SeriesInt64Partition) debugPrint() {
+	fmt.Println("SeriesInt64Partition")
+	map_ := gp.GetMap()
+	for k, v := range map_ {
+		fmt.Printf("%4d: %v\n", k, v)
+	}
 }
 
 func (s SeriesInt64) Group() Series {
@@ -1034,6 +1039,7 @@ func (s SeriesInt64) Group() Series {
 		partition = SeriesInt64Partition{
 			isDense:             true,
 			seriesSize:          s.Len(),
+			partitionDenseMin:   min,
 			partitionDense:      map_,
 			partitionDenseNulls: nulls,
 		}

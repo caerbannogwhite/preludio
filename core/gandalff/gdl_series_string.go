@@ -917,6 +917,15 @@ func (gp SeriesStringPartition) GetKeys() any {
 	return keys
 }
 
+func (gp SeriesStringPartition) debugPrint() {
+	fmt.Println("SeriesStringPartition")
+	map_ := gp.GetMap()
+	for k, v := range map_ {
+		s := *(*string)(unsafe.Pointer(&k))
+		fmt.Printf("%10s: %v\n", s, v)
+	}
+}
+
 func (s SeriesString) Group() Series {
 
 	var partition SeriesStringPartition

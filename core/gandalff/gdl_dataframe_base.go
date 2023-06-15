@@ -605,6 +605,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		pA := dfGrouped.GetPartitions()
 		pB := otherGrouped.GetPartitions()
 
+		pA[len(pA)-1].debugPrint()
+		pB[len(pB)-1].debugPrint()
+
 		// Get the maps, keys and sort them
 		mapA := pA[len(pA)-1].GetMap()
 		mapB := pB[len(pB)-1].GetMap()
