@@ -605,9 +605,6 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		pA := dfGrouped.GetPartitions()
 		pB := otherGrouped.GetPartitions()
 
-		pA[len(pA)-1].debugPrint()
-		pB[len(pB)-1].debugPrint()
-
 		// Get the maps, keys and sort them
 		mapA := pA[len(pA)-1].GetMap()
 		mapB := pB[len(pB)-1].GetMap()
@@ -641,24 +638,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// Get indices of the intersection
-		indices := make([]int, 0, len(keysIntersection))
+		indicesA := make([]int, 0, len(keysIntersection))
+		indicesB := make([]int, 0, len(keysIntersection))
+
 		for _, key := range keysIntersection {
-			indices = append(indices, mapA[key][0])
+			indicesA = append(indicesA, mapA[key][0])
+			indicesB = append(indicesB, mapB[key][0])
 		}
 
 		// Join columns
 		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indices))
+			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indicesA))
 		}
 
 		// A columns
 		for _, name := range colsDiffA {
-			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indices))
+			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indicesA))
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
-			joined = joined.AddSeries(other.Series(name).FilterByIndeces(indices))
+			joined = joined.AddSeries(other.Series(name).FilterByIndeces(indicesB))
 		}
 
 	case LEFT_JOIN:
