@@ -714,13 +714,14 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysAOnly))).
+					SetNullMask(nullMask).
+					AppendSeries(ser_)
 
 			case typesys.Int64Type:
 				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysAOnly))).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
-
-			// case typesys.Float32Type:
 
 			case typesys.Float64Type:
 				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysAOnly))).
@@ -755,7 +756,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Join columns
 		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indicesB))
+			joined = joined.AddSeries(otherGrouped.Series(on[i]).FilterByIndeces(indicesB))
 		}
 
 		nullMask := make([]bool, len(keysBOnly))
@@ -768,27 +769,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ := df.Series(name).FilterByIndeces(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).
-					SetNullMask(nullMask).
-					AppendSeries(ser_)
+				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
+				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysBOnly))).SetNullMask(nullMask))
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).
-					SetNullMask(nullMask).
-					AppendSeries(ser_)
-
-				// case typesys.Float32Type:
+				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).SetNullMask(nullMask))
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysBOnly))).
-					SetNullMask(nullMask).
-					AppendSeries(ser_)
+				ser_ = ser_.AppendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysBOnly))).SetNullMask(nullMask))
+
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, len(keysBOnly)), df.pool).
-					SetNullMask(nullMask).
-					AppendSeries(ser_)
+				ser_ = ser_.AppendSeries(NewSeriesString(ser_.Name(), true, make([]string, len(keysBOnly)), df.pool).SetNullMask(nullMask))
 			}
 
 			joined = joined.AddSeries(ser_)
@@ -841,18 +834,20 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysBOnly))).
+					SetNullMask(nullMaskA).
+					AppendSeries(ser_)
 
 			case typesys.Int64Type:
 				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).
 					SetNullMask(nullMaskA).
 					AppendSeries(ser_)
 
-				// case typesys.Float32Type:
-
 			case typesys.Float64Type:
 				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysBOnly))).
 					SetNullMask(nullMaskA).
 					AppendSeries(ser_)
+
 			case typesys.StringType:
 				ser_ = NewSeriesString(ser_.Name(), true, make([]string, len(keysBOnly)), df.pool).
 					SetNullMask(nullMaskA).
@@ -872,18 +867,20 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysAOnly))).
+					SetNullMask(nullMaskB).
+					AppendSeries(ser_)
 
 			case typesys.Int64Type:
 				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysAOnly))).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
-				// case typesys.Float32Type:
-
 			case typesys.Float64Type:
 				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysAOnly))).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
+
 			case typesys.StringType:
 				ser_ = NewSeriesString(ser_.Name(), true, make([]string, len(keysAOnly)), df.pool).
 					SetNullMask(nullMaskB).
