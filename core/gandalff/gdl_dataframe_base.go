@@ -73,8 +73,13 @@ func (df BaseDataFrame) GetError() error {
 	return df.err
 }
 
-func (df BaseDataFrame) GetPool() *StringPool {
+func (df BaseDataFrame) GetStringPool() *StringPool {
 	return df.pool
+}
+
+func (df BaseDataFrame) SetStringPool(pool *StringPool) DataFrame {
+	df.pool = pool
+	return df
 }
 
 func (df BaseDataFrame) GetSeriesIndex(name string) int {
@@ -363,7 +368,7 @@ func (df BaseDataFrame) Ungroup() DataFrame {
 	return df
 }
 
-func (df BaseDataFrame) GetPartitions() []SeriesPartition {
+func (df BaseDataFrame) getPartitions() []SeriesPartition {
 	if df.err != nil {
 		return nil
 	}
@@ -599,8 +604,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 	joined := NewBaseDataFrame()
 
-	pA := dfGrouped.GetPartitions()
-	pB := otherGrouped.GetPartitions()
+	pA := dfGrouped.getPartitions()
+	pB := otherGrouped.getPartitions()
 
 	// Get the maps, keys and sort them
 	mapA := pA[len(pA)-1].GetMap()
@@ -1139,6 +1144,6 @@ func (df BaseDataFrame) PrettyPrint() {
 
 ////////////////////////			IO
 
-func (df BaseDataFrame) FromCSV() *GDLCsvReader {
-	return NewGDLCsvReader()
+func (df BaseDataFrame) FromCSV() *CsvReader {
+	return NewCsvReader(df.pool)
 }

@@ -30,7 +30,8 @@ type DataFrame interface {
 
 	GetError() error
 
-	GetPool() *StringPool
+	GetStringPool() *StringPool
+	SetStringPool(pool *StringPool) DataFrame
 
 	GetSeriesIndex(name string) int
 
@@ -65,7 +66,7 @@ type DataFrame interface {
 
 	Ungroup() DataFrame
 
-	GetPartitions() []SeriesPartition
+	getPartitions() []SeriesPartition
 
 	Join(how DataFrameJoinType, other DataFrame, on ...string) DataFrame
 
@@ -75,7 +76,7 @@ type DataFrame interface {
 
 	PrettyPrint()
 
-	FromCSV() *GDLCsvReader
+	FromCSV() *CsvReader
 }
 
 ////////////////////////			AGGREGATORS

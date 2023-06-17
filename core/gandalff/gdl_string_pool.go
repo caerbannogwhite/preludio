@@ -52,3 +52,21 @@ func (sp *StringPool) PutSync(s string) *string {
 	sp.pool[s] = &s
 	return sp.pool[s]
 }
+
+func (sp *StringPool) Len() int {
+	return len(sp.pool)
+}
+
+func (sp *StringPool) Merge(other *StringPool) {
+	var result map[string]*string
+	if len(sp.pool) > len(other.pool) {
+		result = sp.pool
+		for k, v := range other.pool {
+			if _, ok := result[k]; !ok {
+				result[k] = v
+			}
+		}
+	} else {
+		result = other.pool
+	}
+}

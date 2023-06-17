@@ -15,57 +15,59 @@ const CSV_READER_DEFAULT_DELIMITER = ','
 const CSV_READER_DEFAULT_HEADER = true
 const CSV_READER_DEFAULT_GUESS_DATA_TYPE_LEN = 1000
 
-type GDLCsvReader struct {
+type CsvReader struct {
 	header           bool
 	delimiter        rune
 	guessDataTypeLen int
 	path             string
 	reader           io.Reader
 	schema           *typesys.Schema
+	pool             *StringPool
 }
 
-func NewGDLCsvReader() *GDLCsvReader {
-	return &GDLCsvReader{
+func NewCsvReader(pool *StringPool) *CsvReader {
+	return &CsvReader{
 		header:           CSV_READER_DEFAULT_HEADER,
 		delimiter:        CSV_READER_DEFAULT_DELIMITER,
 		guessDataTypeLen: CSV_READER_DEFAULT_GUESS_DATA_TYPE_LEN,
 		path:             "",
 		reader:           nil,
 		schema:           nil,
+		pool:             pool,
 	}
 }
 
-func (r *GDLCsvReader) SetHeader(header bool) *GDLCsvReader {
+func (r *CsvReader) SetHeader(header bool) *CsvReader {
 	r.header = header
 	return r
 }
 
-func (r *GDLCsvReader) SetDelimiter(delimiter rune) *GDLCsvReader {
+func (r *CsvReader) SetDelimiter(delimiter rune) *CsvReader {
 	r.delimiter = delimiter
 	return r
 }
 
-func (r *GDLCsvReader) SetGuessDataTypeLen(guessDataTypeLen int) *GDLCsvReader {
+func (r *CsvReader) SetGuessDataTypeLen(guessDataTypeLen int) *CsvReader {
 	r.guessDataTypeLen = guessDataTypeLen
 	return r
 }
 
-func (r *GDLCsvReader) SetPath(path string) *GDLCsvReader {
+func (r *CsvReader) SetPath(path string) *CsvReader {
 	r.path = path
 	return r
 }
 
-func (r *GDLCsvReader) SetReader(reader io.Reader) *GDLCsvReader {
+func (r *CsvReader) SetReader(reader io.Reader) *CsvReader {
 	r.reader = reader
 	return r
 }
 
-func (r *GDLCsvReader) SetSchema(schema *typesys.Schema) *GDLCsvReader {
+func (r *CsvReader) SetSchema(schema *typesys.Schema) *CsvReader {
 	r.schema = schema
 	return r
 }
 
-func (r *GDLCsvReader) Read() DataFrame {
+func (r *CsvReader) Read() DataFrame {
 	if r.path != "" {
 		file, err := os.OpenFile(r.path, os.O_RDONLY, 0666)
 		if err != nil {
@@ -76,10 +78,10 @@ func (r *GDLCsvReader) Read() DataFrame {
 	}
 
 	if r.reader == nil {
-		return BaseDataFrame{err: fmt.Errorf("GDLCsvReader: no reader specified")}
+		return BaseDataFrame{err: fmt.Errorf("CsvReader: no reader specified")}
 	}
 
-	series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema)
+	series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema, r.pool)
 	if err != nil {
 		return BaseDataFrame{err: err}
 	}
@@ -133,14 +135,19 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema) ([]Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, pool *StringPool) ([]Series, error) {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
 	//		and guess the data types in parallel
 
 	isNullable := false
-	stringPool := NewStringPool()
+	var stringPool *StringPool
+	if pool == nil {
+		stringPool = NewStringPool()
+	} else {
+		stringPool = pool
+	}
 
 	// Initialize TypeGuesser
 	tg := newTypeGuesser()
