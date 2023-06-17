@@ -688,6 +688,4 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	if res.NCols() != 3 {
 		t.Errorf("Expected 3 cols, got %d", res.NCols())
 	}
-
-	res.PrettyPrint()
 }
