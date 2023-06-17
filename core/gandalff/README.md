@@ -60,7 +60,7 @@ The data types not checked are not yet supported, but might be in the future.
 - [ ] Bool
 - [x] Bool (memory optimized)
 - [ ] Int16
-- [x] Int32 (Golang int)
+- [x] Int32
 - [x] Int64
 - [ ] Float32
 - [x] Float64
@@ -93,7 +93,6 @@ The data types not checked are not yet supported, but might be in the future.
   - [ ] Sort with nulls
   - [ ] SortRev with nulls
 
-
 - [ ] Take
 
 ### Supported operations for DataFrame
@@ -103,14 +102,14 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] GroupBy
 - [ ] Join
 
-	- [ ] Inner
-	- [ ] Left
-	- [ ] Right
-	- [ ] Outer
-	- [ ] Inner with nulls
-	- [ ] Left with nulls
-	- [ ] Right with nulls
-	- [ ] Outer with nulls
+  - [ ] Inner
+  - [ ] Left
+  - [ ] Right
+  - [ ] Outer
+  - [ ] Inner with nulls
+  - [ ] Left with nulls
+  - [ ] Right with nulls
+  - [ ] Outer with nulls
 
 - [ ] Map
 - [ ] OrderBy
@@ -237,7 +236,6 @@ type GDLSeries interface {
 
 - [ ] Implement non memory optimized Bool series.
 - [ ] Implement memory optimized Bool series with uint64.
-- [ ] Implement int32 series with int32.
 - [ ] Using uint64 for null mask.
 - [ ] Implement and test grouped sorting for all types.
 - [ ] Implement and test grouped with nulls.
