@@ -564,7 +564,7 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		return s
 
 	case typesys.Int32Type:
-		data := make([]int, s.size)
+		data := make([]int32, s.size)
 		for i, v := range s.data {
 			for j := 0; j < 8 && i*8+j < s.size; j++ {
 				if v&(1<<uint(j)) != 0 {
@@ -574,6 +574,26 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Int64Type:
+		data := make([]int64, s.size)
+		for i, v := range s.data {
+			for j := 0; j < 8 && i*8+j < s.size; j++ {
+				if v&(1<<uint(j)) != 0 {
+					data[i*8+j] = 1
+				}
+			}
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
@@ -848,13 +868,28 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 		return s
 
-	case int:
-		data := make([]int, s.size)
+	case int32:
+		data := make([]int32, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int)
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int32)
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case int64:
+		data := make([]int64, s.size)
+		for i := 0; i < s.size; i++ {
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int64)
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,

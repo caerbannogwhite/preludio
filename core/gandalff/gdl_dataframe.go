@@ -41,7 +41,7 @@ type DataFrame interface {
 	// AddSeriesFromBool adds a series of bools to the dataframe.
 	AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame
 	// AddSeriesFromInt32 adds a series of ints to the dataframe.
-	AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int) DataFrame
+	AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int32) DataFrame
 	// AddSeriesFromInt64 adds a series of ints to the dataframe.
 	AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame
 	// AddSeriesFromFloat adds a series of floats to the dataframe.

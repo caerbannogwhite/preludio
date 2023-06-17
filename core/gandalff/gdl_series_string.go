@@ -475,7 +475,7 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		}
 
 	case typesys.Int32Type:
-		data := make([]int, len(s.data))
+		data := make([]int32, len(s.data))
 		nullMask := __binVecInit(len(s.data))
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
@@ -488,7 +488,7 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 					if err != nil {
 						nullMask[i>>3] |= (1 << uint(i%8))
 					} else {
-						data[i] = d
+						data[i] = int32(d)
 					}
 				}
 			}
@@ -498,12 +498,50 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 				if err != nil {
 					nullMask[i>>3] |= (1 << uint(i%8))
 				} else {
-					data[i] = d
+					data[i] = int32(d)
 				}
 			}
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+		}
+
+	case typesys.Int64Type:
+		data := make([]int64, len(s.data))
+		nullMask := __binVecInit(len(s.data))
+		if s.isNullable {
+			copy(nullMask, s.nullMask)
+		}
+
+		if s.isNullable {
+			for i, v := range s.data {
+				if !s.IsNull(i) {
+					d, err := strconv.ParseInt(*v, 10, 64)
+					if err != nil {
+						nullMask[i>>3] |= (1 << uint(i%8))
+					} else {
+						data[i] = d
+					}
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				d, err := strconv.ParseInt(*v, 10, 64)
+				if err != nil {
+					nullMask[i>>3] |= (1 << uint(i%8))
+				} else {
+					data[i] = d
+				}
+			}
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -822,13 +860,28 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			nullMask:   s.nullMask,
 		}
 
-	case int:
-		data := make([]int, len(s.data))
+	case int32:
+		data := make([]int32, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f((*s.data[i])).(int)
+			data[i] = f((*s.data[i])).(int32)
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case int64:
+		data := make([]int64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f((*s.data[i])).(int64)
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,

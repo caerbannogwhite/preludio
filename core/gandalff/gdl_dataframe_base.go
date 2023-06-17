@@ -123,7 +123,7 @@ func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable bool, data []b
 	return df.AddSeries(NewSeriesBool(name, isNullable, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int32) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -412,7 +412,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			result.series = append(result.series, NewSeriesBool(old.Name(), old.IsNullable(), values))
 
 		case SeriesInt32:
-			values := make([]int, len(indeces))
+			values := make([]int32, len(indeces))
 			data := series.getDataPtr()
 			for i, group := range indeces {
 				values[i] = (*data)[group[0]]
@@ -714,7 +714,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysAOnly))).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysAOnly))).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
@@ -768,7 +768,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysBOnly))).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysBOnly))).SetNullMask(nullMask))
 
 			case typesys.Int64Type:
 				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).SetNullMask(nullMask))
@@ -833,7 +833,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).SetNullMask(nullMaskA))
 
 			case typesys.Int32Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysBOnly))).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysBOnly))).SetNullMask(nullMaskA))
 
 			case typesys.Int64Type:
 				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).SetNullMask(nullMaskA))
@@ -858,7 +858,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int, len(keysAOnly))).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysAOnly))).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
@@ -936,9 +936,9 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 				switch agg.getAggregateType() {
 				case AGGREGATE_COUNT:
-					counts := make([]int, len(*indeces))
+					counts := make([]int32, len(*indeces))
 					for i, group := range *indeces {
-						counts[i] = len(group)
+						counts[i] = int32(len(group))
 					}
 					result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, counts))
 
@@ -1000,7 +1000,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 			switch agg.getAggregateType() {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, []int{df.NRows()}))
+				result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, []int32{int32(df.NRows())}))
 
 			case AGGREGATE_SUM:
 				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))

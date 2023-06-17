@@ -73,7 +73,7 @@ type NullableInt16 struct {
 
 type NullableInt32 struct {
 	Valid bool
-	Value int
+	Value int32
 }
 
 type NullableInt64 struct {

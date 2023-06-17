@@ -8,7 +8,7 @@ import (
 
 func Test_SeriesInt32_Base(t *testing.T) {
 
-	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt32.
@@ -33,7 +33,7 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]int) {
+	for i, v := range s.Data().([]int32) {
 		if v != data[i] {
 			t.Errorf("Expected data of []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, got %v", s.Data())
 		}
@@ -52,7 +52,7 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]int32) {
 		if s.IsNull(i) != mask[i] {
 			t.Errorf("Expected IsNull(%d) to be %t, got %t", i, mask[i], s.IsNull(i))
 		}
@@ -69,12 +69,12 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the SetNull method.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]int32) {
 		s.SetNull(i)
 	}
 
 	// Check the null values.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]int32) {
 		if !s.IsNull(i) {
 			t.Errorf("Expected IsNull(%d) to be true, got false", i)
 		}
@@ -86,20 +86,20 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the Get method.
-	for i := range s.Data().([]int) {
-		if s.Get(i).(int) != data[i] {
+	for i := range s.Data().([]int32) {
+		if s.Get(i).(int32) != data[i] {
 			t.Errorf("Expected Get(%d) to be %d, got %d", i, data[i], s.Get(i).(int))
 		}
 	}
 
 	// Check the Set method.
-	for i := range s.Data().([]int) {
+	for i := range s.Data().([]int32) {
 		s.Set(i, i+10)
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]int) {
-		if v != i+10 {
+	for i, v := range s.Data().([]int32) {
+		if v != int32(i+10) {
 			t.Errorf("Expected data of []int{10, 11, 12, 13, 14, 15, 16, 17, 18, 19}, got %v", s.Data())
 		}
 	}
@@ -147,7 +147,7 @@ func Test_SeriesInt32_Base(t *testing.T) {
 
 func Test_SeriesInt32_Take(t *testing.T) {
 
-	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt32.
@@ -165,7 +165,7 @@ func Test_SeriesInt32_Take(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]int) {
+	for i, v := range result.Data().([]int32) {
 		if v != data[i] {
 			t.Errorf("Expected data of []int{1, 2, 3, 4, 5}, got %v", result.Data())
 		}
@@ -187,7 +187,7 @@ func Test_SeriesInt32_Take(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]int) {
+	for i, v := range result.Data().([]int32) {
 		if v != data[i+5] {
 			t.Errorf("Expected data of []int{6, 7, 8, 9, 10}, got %v", result.Data())
 		}
@@ -209,7 +209,7 @@ func Test_SeriesInt32_Take(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]int) {
+	for i, v := range result.Data().([]int32) {
 		if v != data[i*2] {
 			t.Errorf("Expected data of []int{1, 3, 5}, got %v", result.Data())
 		}
@@ -231,7 +231,7 @@ func Test_SeriesInt32_Take(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]int) {
+	for i, v := range result.Data().([]int32) {
 		if v != data[i*2+5] {
 			t.Errorf("Expected data of []int{6, 8, 10}, got %v", result.Data())
 		}
@@ -246,9 +246,9 @@ func Test_SeriesInt32_Take(t *testing.T) {
 }
 
 func Test_SeriesInt32_Append(t *testing.T) {
-	dataA := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	dataB := []int{11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
-	dataC := []int{21, 22, 23, 24, 25, 26, 27, 28, 29, 30}
+	dataA := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	dataB := []int32{11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	dataC := []int32{21, 22, 23, 24, 25, 26, 27, 28, 29, 30}
 
 	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
@@ -278,7 +278,7 @@ func Test_SeriesInt32_Append(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]int) {
+	for i, v := range result.Data().([]int32) {
 		if i < 10 {
 			if v != dataA[i] {
 				t.Errorf("Expected %d, got %d at index %d", dataA[i], v, i)
@@ -312,23 +312,23 @@ func Test_SeriesInt32_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	dataD := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	dataD := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	sD := NewSeriesInt32("testD", true, true, dataD)
 
 	// Check the original data.
-	for i, v := range sD.Data().([]int) {
+	for i, v := range sD.Data().([]int32) {
 		if v != dataD[i] {
 			t.Errorf("Expected %d, got %d at index %d", dataD[i], v, i)
 		}
 	}
 
 	for i := 0; i < 100; i++ {
-		r := rand.Intn(100)
+		r := int32(rand.Intn(100))
 		switch i % 4 {
 		case 0:
 			sD = sD.Append(r).(SeriesInt32)
 		case 1:
-			sD = sD.Append([]int{r}).(SeriesInt32)
+			sD = sD.Append([]int32{r}).(SeriesInt32)
 		case 2:
 			sD = sD.Append(NullableInt32{true, r}).(SeriesInt32)
 		case 3:
@@ -342,7 +342,7 @@ func Test_SeriesInt32_Append(t *testing.T) {
 }
 
 func Test_SeriesInt32_Cast(t *testing.T) {
-	data := []int{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
+	data := []int32{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
@@ -353,11 +353,6 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 
 	// Cast to bool.
 	result := s.Cast(typesys.BoolType, nil)
-
-	// Check the length.
-	if result.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", result.Len())
-	}
 
 	// Check the data.
 	expected := []bool{false, true, false, true, true, true, true, true, true, true}
@@ -374,13 +369,26 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 		}
 	}
 
+	// Cast to int64.
+	result = s.Cast(typesys.Int64Type, nil)
+
+	// Check the data.
+	expectedInt := []int64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
+	for i, v := range result.Data().([]int64) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %d, got %d at index %d", expectedInt[i], v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
+		}
+	}
+
 	// Cast to float64.
 	result = s.Cast(typesys.Float64Type, nil)
-
-	// Check the length.
-	if result.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", result.Len())
-	}
 
 	// Check the data.
 	expectedFloat := []float64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
@@ -399,11 +407,6 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 
 	// Cast to string.
 	result = s.Cast(typesys.StringType, NewStringPool())
-
-	// Check the length.
-	if result.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", result.Len())
-	}
 
 	// Check the data.
 	expectedString := []string{"0", "1", NULL_STRING, "3", "4", NULL_STRING, "6", "7", NULL_STRING, "9"}
@@ -431,7 +434,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 }
 
 func Test_SeriesInt32_Filter(t *testing.T) {
-	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	data := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
@@ -444,7 +447,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	filterMask := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, true}
 	filterIndeces := []int{0, 2, 3, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19}
 
-	result := []int{1, 3, 4, 6, 7, 9, 10, 11, 13, 14, 16, 17, 19, 20}
+	result := []int32{1, 3, 4, 6, 7, 9, 10, 11, 13, 14, 16, 17, 19, 20}
 	resultMask := []bool{false, false, false, false, false, false, false, true, false, true, false, true, false, true}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -457,7 +460,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]int) {
+	for i, v := range filtered.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -480,7 +483,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]int) {
+	for i, v := range filtered.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -503,7 +506,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]int) {
+	for i, v := range filtered.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -526,7 +529,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Another test.
-	data = []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
+	data = []int32{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
@@ -539,7 +542,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	filterMask = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
 	filterIndeces = []int{0, 15, 22}
 
-	result = []int{2, -28, 2}
+	result = []int32{2, -28, 2}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the FilterByMask() method.
@@ -551,7 +554,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]int) {
+	for i, v := range filtered.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -574,7 +577,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]int) {
+	for i, v := range filtered.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -589,7 +592,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 }
 
 func Test_SeriesInt32_Map(t *testing.T) {
-	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
+	data := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, -2, 323, 24, -23, 4, 42, 5, -6, 7}
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
@@ -600,7 +603,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 
 	// Map the series to bool.
 	resBool := s.Map(func(v any) any {
-		if v.(int) >= 7 && v.(int) <= 100 {
+		if v.(int32) >= 7 && v.(int32) <= 100 {
 			return true
 		}
 		return false
@@ -613,27 +616,42 @@ func Test_SeriesInt32_Map(t *testing.T) {
 		}
 	}
 
-	// Map the series to int.
+	// Map the series to int32.
 	resInt := s.Map(func(v any) any {
-		if v.(int) < 0 {
-			return -(v.(int)) % 7
+		if v.(int32) < 0 {
+			return -(v.(int32)) % 7
 		}
-		return v.(int) % 7
+		return v.(int32) % 7
 	}, nil)
 
-	expectedInt := []int{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
-	for i, v := range resInt.Data().([]int) {
-		if v != expectedInt[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
+	expectedInt32 := []int32{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt.Data().([]int32) {
+		if v != expectedInt32[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt32[i], v, i)
+		}
+	}
+
+	// Map the series to int64.
+	resInt64 := s.Map(func(v any) any {
+		if v.(int32) >= 0 {
+			return int64(v.(int32) % 7)
+		}
+		return int64(-v.(int32) % 7)
+	}, nil)
+
+	expectedInt64 := []int64{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt64.Data().([]int64) {
+		if v != expectedInt64[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt64[i], v, i)
 		}
 	}
 
 	// Map the series to float64.
 	resFloat64 := s.Map(func(v any) any {
-		if v.(int) >= 0 {
-			return float64(-v.(int))
+		if v.(int32) >= 0 {
+			return float64(-v.(int32))
 		}
-		return float64(v.(int))
+		return float64(v.(int32))
 	}, nil)
 
 	expectedFloat64 := []float64{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -2, -323, -24, -23, -4, -42, -5, -6, -7}
@@ -645,7 +663,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 
 	// Map the series to string.
 	resString := s.Map(func(v any) any {
-		if v.(int) >= 0 {
+		if v.(int32) >= 0 {
 			return "pos"
 		}
 		return "neg"
@@ -661,7 +679,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 
 func Test_SeriesInt32_Sort(t *testing.T) {
 
-	data := []int{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
+	data := []int32{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
 
 	// Create a new series.
@@ -676,8 +694,8 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 	}
 
 	// Check the data.
-	result := []int{-173, -28, 2, 2, 3, 4, 4, 9, 9, 12, 31, 42, 42, 42, 48, 79, 323, 323, 425, 492, 674, 9811, 47005}
-	for i, v := range sorted.Data().([]int) {
+	result := []int32{-173, -28, 2, 2, 3, 4, 4, 9, 9, 12, 31, 42, 42, 42, 48, 79, 323, 323, 425, 492, 674, 9811, 47005}
+	for i, v := range sorted.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -700,8 +718,8 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 	}
 
 	// Check the data.
-	result = []int{-28, 2, 2, 3, 4, 4, 9, 9, 42, 48, 79, 323, 323, 425, 492, 47005, 42, 674, 9811, 12, -173, 42, 31}
-	for i, v := range sorted.Data().([]int) {
+	result = []int32{-28, 2, 2, 3, 4, 4, 9, 9, 42, 48, 79, 323, 323, 425, 492, 47005, 42, 674, 9811, 12, -173, 42, 31}
+	for i, v := range sorted.Data().([]int32) {
 		if i < 16 && v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -718,10 +736,10 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 }
 
 func Test_SeriesInt32_GroupedSort(t *testing.T) {
-	data := []int{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+	data := []int32{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
 	// mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
-	partData := []int{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
+	partData := []int32{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
 	p := NewSeriesInt32("part", true, true, partData).Group()
 
 	// Create a new series.
@@ -735,8 +753,8 @@ func Test_SeriesInt32_GroupedSort(t *testing.T) {
 	}
 
 	// Check the data.
-	result := []int{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
-	for i, v := range s.Data().([]int) {
+	result := []int32{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
+	for i, v := range s.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}
@@ -774,7 +792,7 @@ func Test_SeriesInt32_GroupedSort(t *testing.T) {
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// // 								Reverse sort.
 
-	dataRev := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+	dataRev := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
 
 	s = NewSeriesInt32("test", true, true, dataRev).
@@ -787,8 +805,8 @@ func Test_SeriesInt32_GroupedSort(t *testing.T) {
 	}
 
 	// Check the data.
-	result = []int{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
-	for i, v := range s.Data().([]int) {
+	result = []int32{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
+	for i, v := range s.Data().([]int32) {
 		if v != result[i] {
 			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
 		}

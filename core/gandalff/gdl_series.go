@@ -106,14 +106,10 @@ func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, da
 	switch t {
 	case typesys.BoolType:
 		return NewSeriesBool(name, nullable, data.([]bool))
-	// case typesys.Int16Type:
-	// 	return NewSeriesInt16(name, nullable, data.([]int16))
 	case typesys.Int32Type:
-		return NewSeriesInt32(name, nullable, makeCopy, data.([]int))
-	// case typesys.Int64Type:
-	// 	return NewSeriesInt64(name, nullable, data.([]int64))
-	// case typesys.Float32Type:
-	// 	return NewSeriesFloat32(name, nullable, data.([]float32))
+		return NewSeriesInt32(name, nullable, makeCopy, data.([]int32))
+	case typesys.Int64Type:
+		return NewSeriesInt64(name, nullable, makeCopy, data.([]int64))
 	case typesys.Float64Type:
 		return NewSeriesFloat64(name, nullable, makeCopy, data.([]float64))
 	case typesys.StringType:

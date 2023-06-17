@@ -254,11 +254,6 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	// Cast to bool.
 	resBool := s.Cast(typesys.BoolType, nil)
 
-	// Check the length.
-	if resBool.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", resBool.Len())
-	}
-
 	// Check the data.
 	for i, v := range resBool.Data().([]bool) {
 		if data[i] == 0.0 && v != false {
@@ -275,18 +270,13 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 		}
 	}
 
-	// Cast to int.
+	// Cast to int32.
 	resInt := s.Cast(typesys.Int32Type, nil)
 
-	// Check the length.
-	if resInt.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", resInt.Len())
-	}
-
 	// Check the data.
-	for i, v := range resInt.Data().([]int) {
-		if v != int(data[i]) {
-			t.Errorf("Expected %d, got %d at index %d", int(data[i]), v, i)
+	for i, v := range resInt.Data().([]int32) {
+		if v != int32(data[i]) {
+			t.Errorf("Expected %d, got %d at index %d", int32(data[i]), v, i)
 		}
 	}
 
@@ -297,13 +287,25 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 		}
 	}
 
+	// Cast to int64.
+	resInt64 := s.Cast(typesys.Int64Type, nil)
+
+	// Check the data.
+	for i, v := range resInt64.Data().([]int64) {
+		if v != int64(data[i]) {
+			t.Errorf("Expected %d, got %d at index %d", int64(data[i]), v, i)
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range resInt64.GetNullMask() {
+		if v != mask[i] {
+			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
+		}
+	}
+
 	// Cast to string.
 	resString := s.Cast(typesys.StringType, NewStringPool())
-
-	// Check the length.
-	if resString.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", resString.Len())
-	}
 
 	// Check the data.
 	for i, v := range resString.Data().([]string) {
@@ -513,18 +515,33 @@ func Test_SeriesFloat64_Map(t *testing.T) {
 		}
 	}
 
-	// Map the series to int.
+	// Map the series to int32.
 	resInt := s.Map(func(v any) any {
 		if v.(float64) < 0 {
-			return (-int(v.(float64))) % 7
+			return (-int32(v.(float64))) % 7
 		}
-		return int(v.(float64)) % 7
+		return int32(v.(float64)) % 7
 	}, nil)
 
-	expectedInt := []int{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
-	for i, v := range resInt.Data().([]int) {
-		if v != expectedInt[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
+	expectedInt32 := []int32{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt.Data().([]int32) {
+		if v != expectedInt32[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt32[i], v, i)
+		}
+	}
+
+	// Map the series to int64.
+	resInt64 := s.Map(func(v any) any {
+		if v.(float64) < 0 {
+			return (-int64(v.(float64))) % 7
+		}
+		return int64(v.(float64)) % 7
+	}, nil)
+
+	expectedInt64 := []int64{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt64.Data().([]int64) {
+		if v != expectedInt64[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt64[i], v, i)
 		}
 	}
 

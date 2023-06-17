@@ -21,7 +21,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 			case SeriesBool:
 
 			case SeriesInt32:
-				sum_ := int(0)
+				sum_ := int32(0)
 				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
@@ -53,7 +53,7 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 			case SeriesBool:
 
 			case SeriesInt32:
-				sum_ := int(0)
+				sum_ := int32(0)
 				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
@@ -93,7 +93,7 @@ func __gdl_sum__(s Series) float64 {
 
 	case SeriesInt32:
 		data := *series.getDataPtr()
-		sum_ := int(0)
+		sum_ := int32(0)
 		for i := 0; i < series.Len(); i++ {
 			sum_ += data[i]
 		}
@@ -129,7 +129,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
-				sum_ := int(0)
+				sum_ := int32(0)
 				for _, i := range group {
 					sum_ += data[i]
 				}
@@ -150,7 +150,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 
 		worker := func() {
 			for td := range buffer {
-				sum_ := int(0)
+				sum_ := int32(0)
 				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
@@ -588,7 +588,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
-				sum_ := int(0)
+				sum_ := int32(0)
 				for _, i := range group {
 					sum_ += data[i]
 				}
@@ -610,7 +610,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 
 		worker := func() {
 			for td := range buffer {
-				sum_ := int(0)
+				sum_ := int32(0)
 				for _, i := range td.indeces {
 					sum_ += data[i]
 				}

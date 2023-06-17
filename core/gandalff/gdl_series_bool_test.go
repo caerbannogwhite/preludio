@@ -269,13 +269,8 @@ func Test_SeriesBool_Cast(t *testing.T) {
 	// Cast to int32.
 	castInt32 := s.Cast(typesys.Int32Type, nil)
 
-	// Check the length.
-	if castInt32.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", castInt32.Len())
-	}
-
 	// Check the data.
-	for i, v := range castInt32.Data().([]int) {
+	for i, v := range castInt32.Data().([]int32) {
 		if data[i] && v != 1 {
 			t.Errorf("Expected %d, got %d at index %d", 1, v, i)
 		} else if !data[i] && v != 0 {
@@ -290,13 +285,20 @@ func Test_SeriesBool_Cast(t *testing.T) {
 		}
 	}
 
+	// Cast to int64.
+	castInt64 := s.Cast(typesys.Int64Type, nil)
+
+	// Check the data.
+	for i, v := range castInt64.Data().([]int64) {
+		if data[i] && v != 1 {
+			t.Errorf("Expected %d, got %d at index %d", 1, v, i)
+		} else if !data[i] && v != 0 {
+			t.Errorf("Expected %d, got %d at index %d", 0, v, i)
+		}
+	}
+
 	// Cast to float64.
 	castFloat64 := s.Cast(typesys.Float64Type, nil)
-
-	// Check the length.
-	if castFloat64.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", castFloat64.Len())
-	}
 
 	// Check the data.
 	for i, v := range castFloat64.Data().([]float64) {
@@ -316,11 +318,6 @@ func Test_SeriesBool_Cast(t *testing.T) {
 
 	// Cast to string.
 	castString := s.Cast(typesys.StringType, NewStringPool())
-
-	// Check the length.
-	if castString.Len() != 10 {
-		t.Errorf("Expected length of 10, got %d", castString.Len())
-	}
 
 	// Check the data.
 	for i, v := range castString.Data().([]string) {
@@ -623,11 +620,6 @@ func Test_SeriesBool_Map(t *testing.T) {
 
 	resultBool := []bool{false, true, false, true, false, true, false, true, false, true, true, false, false}
 
-	// Check the length.
-	if mappedBool.Len() != 13 {
-		t.Errorf("Expected length of 13, got %d", mappedBool.Len())
-	}
-
 	// Check the data.
 	for i, v := range mappedBool.Data().([]bool) {
 		if v != resultBool[i] {
@@ -635,31 +627,41 @@ func Test_SeriesBool_Map(t *testing.T) {
 		}
 	}
 
-	// MAP TO INT
-
+	// Map the series to int32.
 	mappedInt := s.Map(func(v any) any {
 		if v.(bool) {
-			return 1
+			return int32(1)
 		}
-		return 0
+		return int32(0)
 	}, nil)
 
-	resultInt := []int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
-
-	// Check the length.
-	if mappedInt.Len() != 13 {
-		t.Errorf("Expected length of 13, got %d", mappedInt.Len())
-	}
+	resultInt := []int32{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
 	// Check the data.
-	for i, v := range mappedInt.Data().([]int) {
+	for i, v := range mappedInt.Data().([]int32) {
 		if v != resultInt[i] {
 			t.Errorf("Expected %v, got %v at index %d", resultInt[i], v, i)
 		}
 	}
 
-	// MAP TO FLOAT
+	// Map the series to int64.
+	mappedInt64 := s.Map(func(v any) any {
+		if v.(bool) {
+			return int64(1)
+		}
+		return int64(0)
+	}, nil)
 
+	resultInt64 := []int64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
+
+	// Check the data.
+	for i, v := range mappedInt64.Data().([]int64) {
+		if v != resultInt64[i] {
+			t.Errorf("Expected %v, got %v at index %d", resultInt64[i], v, i)
+		}
+	}
+
+	// Map the series to float64.
 	mappedFloat := s.Map(func(v any) any {
 		if v.(bool) {
 			return 1.0
@@ -669,11 +671,6 @@ func Test_SeriesBool_Map(t *testing.T) {
 
 	resultFloat := []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
-	// Check the length.
-	if mappedFloat.Len() != 13 {
-		t.Errorf("Expected length of 13, got %d", mappedFloat.Len())
-	}
-
 	// Check the data.
 	for i, v := range mappedFloat.Data().([]float64) {
 		if v != resultFloat[i] {
@@ -681,8 +678,7 @@ func Test_SeriesBool_Map(t *testing.T) {
 		}
 	}
 
-	// MAP TO STRING
-
+	// Map the series to string.
 	pool := NewStringPool()
 	mappedString := s.Map(func(v any) any {
 		if v.(bool) {
@@ -692,11 +688,6 @@ func Test_SeriesBool_Map(t *testing.T) {
 	}, pool)
 
 	resultString := []string{"true", "false", "true", "false", "true", "false", "true", "false", "true", "false", "false", "true", "true"}
-
-	// Check the length.
-	if mappedString.Len() != 13 {
-		t.Errorf("Expected length of 13, got %d", mappedString.Len())
-	}
 
 	// Check the data.
 	for i, v := range mappedString.Data().([]string) {

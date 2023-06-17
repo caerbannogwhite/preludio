@@ -202,7 +202,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		case typesys.BoolType:
 			values[i] = make([]bool, 0)
 		case typesys.Int32Type:
-			values[i] = make([]int, 0)
+			values[i] = make([]int32, 0)
 		case typesys.Int64Type:
 			values[i] = make([]int64, 0)
 		case typesys.Float64Type:
@@ -229,7 +229,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 					if err != nil {
 						return nil, err
 					}
-					values[i] = append(values[i].([]int), d)
+					values[i] = append(values[i].([]int32), int32(d))
 
 				case typesys.Int64Type:
 					d, err := strconv.ParseInt(v, 10, 64)
@@ -274,7 +274,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 				if err != nil {
 					return nil, err
 				}
-				values[i] = append(values[i].([]int), d)
+				values[i] = append(values[i].([]int32), int32(d))
 
 			case typesys.Int64Type:
 				d, err := strconv.ParseInt(v, 10, 64)
@@ -310,7 +310,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		case typesys.BoolType:
 			series[i] = NewSeriesBool(name, isNullable, values[i].([]bool))
 		case typesys.Int32Type:
-			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int))
+			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32))
 		case typesys.Int64Type:
 			series[i] = NewSeriesInt64(name, isNullable, false, values[i].([]int64))
 		case typesys.Float64Type:

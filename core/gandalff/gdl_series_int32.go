@@ -13,12 +13,12 @@ type SeriesInt32 struct {
 	isNullable bool
 	sorted     SeriesSortOrder
 	name       string
-	data       []int
+	data       []int32
 	nullMask   []uint8
 	partition  *SeriesInt32Partition
 }
 
-func NewSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) Series {
+func NewSeriesInt32(name string, isNullable bool, makeCopy bool, data []int32) Series {
 	var nullMask []uint8
 	if isNullable {
 		nullMask = __binVecInit(len(data))
@@ -27,7 +27,7 @@ func NewSeriesInt32(name string, isNullable bool, makeCopy bool, data []int) Ser
 	}
 
 	if makeCopy {
-		actualData := make([]int, len(data))
+		actualData := make([]int32, len(data))
 		copy(actualData, data)
 		data = actualData
 	}
@@ -186,30 +186,30 @@ func (s SeriesInt32) GetString(i int) string {
 func (s SeriesInt32) Set(i int, v any) Series {
 	switch val := v.(type) {
 	case int8:
-		s.data[i] = int(val)
+		s.data[i] = int32(val)
 	case int16:
-		s.data[i] = int(val)
+		s.data[i] = int32(val)
 	case int:
-		s.data[i] = int(val)
+		s.data[i] = int32(val)
 	case int32:
-		s.data[i] = int(val)
+		s.data[i] = int32(val)
 	case NullableInt8:
 		if v.(NullableInt8).Valid {
-			s.data[i] = int(val.Value)
+			s.data[i] = int32(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 	case NullableInt16:
 		if v.(NullableInt16).Valid {
-			s.data[i] = int(val.Value)
+			s.data[i] = int32(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 	case NullableInt32:
 		if v.(NullableInt32).Valid {
-			s.data[i] = int(val.Value)
+			s.data[i] = int32(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
@@ -225,7 +225,7 @@ func (s SeriesInt32) Set(i int, v any) Series {
 // Take the elements according to the given interval.
 func (s SeriesInt32) Take(start, end, step int) Series {
 	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
-		return NewSeriesInt32(s.name, s.isNullable, false, []int{})
+		return NewSeriesInt32(s.name, s.isNullable, false, []int32{})
 	} else
 
 	// reverse
@@ -243,7 +243,7 @@ func (s SeriesInt32) Take(start, end, step int) Series {
 		}
 
 		if s.isNullable {
-			data := make([]int, size)
+			data := make([]int32, size)
 			nullMask := __binVecInit(size)
 
 			for i, j := start, 0; i < end; i, j = i+step, j+1 {
@@ -261,7 +261,7 @@ func (s SeriesInt32) Take(start, end, step int) Series {
 				nullMask:   nullMask,
 			}
 		} else {
-			data := make([]int, size)
+			data := make([]int32, size)
 			for i, j := start, 0; i < end; i, j = i+step, j+1 {
 				data[j] = s.data[i]
 			}
@@ -323,9 +323,9 @@ func (s SeriesInt32) Swap(i, j int) {
 
 func (s SeriesInt32) Append(v any) Series {
 	switch v := v.(type) {
-	case int:
+	case int32:
 		return s.AppendRaw(v)
-	case []int:
+	case []int32:
 		return s.AppendRaw(v)
 	case NullableInt32:
 		return s.AppendNullable(v)
@@ -343,12 +343,12 @@ func (s SeriesInt32) Append(v any) Series {
 // Append appends a value or a slice of values to the series.
 func (s SeriesInt32) AppendRaw(v any) Series {
 	if s.isNullable {
-		if i, ok := v.(int); ok {
+		if i, ok := v.(int32); ok {
 			s.data = append(s.data, i)
 			if len(s.data) > len(s.nullMask)<<3 {
 				s.nullMask = append(s.nullMask, 0)
 			}
-		} else if iv, ok := v.([]int); ok {
+		} else if iv, ok := v.([]int32); ok {
 			s.data = append(s.data, iv...)
 			if len(s.data) > len(s.nullMask)<<3 {
 				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
@@ -357,9 +357,9 @@ func (s SeriesInt32) AppendRaw(v any) Series {
 			return SeriesError{fmt.Sprintf("SeriesInt32.AppendRaw: invalid type %T", v)}
 		}
 	} else {
-		if b, ok := v.(int); ok {
+		if b, ok := v.(int32); ok {
 			s.data = append(s.data, b)
-		} else if bv, ok := v.([]int); ok {
+		} else if bv, ok := v.([]int32); ok {
 			s.data = append(s.data, bv...)
 		} else {
 			return SeriesError{fmt.Sprintf("SeriesInt32.AppendRaw: invalid type %T", v)}
@@ -514,6 +514,21 @@ func (s SeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 	case typesys.Int32Type:
 		return s
 
+	case typesys.Int64Type:
+		data := make([]int64, len(s.data))
+		for i, v := range s.data {
+			data[i] = int64(v)
+		}
+
+		return SeriesInt64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
 		for i, v := range s.data {
@@ -564,7 +579,7 @@ func (s SeriesInt32) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 }
 
 func (s SeriesInt32) Copy() Series {
-	data := make([]int, len(s.data))
+	data := make([]int32, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
@@ -572,7 +587,7 @@ func (s SeriesInt32) Copy() Series {
 	return SeriesInt32{isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
 }
 
-func (s SeriesInt32) getDataPtr() *[]int {
+func (s SeriesInt32) getDataPtr() *[]int32 {
 	return &s.data
 }
 
@@ -591,7 +606,7 @@ func (s SeriesInt32) Filter(mask SeriesBool) Series {
 	elementCount := mask.__trueCount()
 	var nullMask []uint8
 
-	data := make([]int, elementCount)
+	data := make([]int32, elementCount)
 	if s.isNullable {
 
 		nullMask = __binVecInit(elementCount)
@@ -637,10 +652,10 @@ func (s SeriesInt32) FilterByMask(mask []bool) Series {
 		}
 	}
 
-	var data []int
+	var data []int32
 	var nullMask []uint8
 
-	data = make([]int, elementCount)
+	data = make([]int32, elementCount)
 
 	if s.isNullable {
 
@@ -675,11 +690,11 @@ func (s SeriesInt32) FilterByMask(mask []bool) Series {
 }
 
 func (s SeriesInt32) FilterByIndeces(indexes []int) Series {
-	var data []int
+	var data []int32
 	var nullMask []uint8
 
 	size := len(indexes)
-	data = make([]int, size)
+	data = make([]int32, size)
 
 	if s.isNullable {
 
@@ -762,10 +777,10 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			nullMask:   s.nullMask,
 		}
 
-	case int:
-		data := make([]int, len(s.data))
+	case int32:
+		data := make([]int32, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int)
+			data[i] = f(s.data[i]).(int32)
 		}
 
 		s.isGrouped = false
@@ -834,7 +849,7 @@ type SeriesInt32Partition struct {
 	isDense             bool
 	seriesSize          int
 	partition           map[int64][]int
-	partitionDenseMin   int
+	partitionDenseMin   int32
 	partitionDense      [][]int
 	partitionDenseNulls []int
 	indexToGroup        []int
@@ -914,7 +929,7 @@ func (gp SeriesInt32Partition) GetMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
-			map_[int64(i+gp.partitionDenseMin)] = part
+			map_[int64(i+int(gp.partitionDenseMin))] = part
 		}
 		return map_
 	}

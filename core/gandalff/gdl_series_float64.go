@@ -427,12 +427,28 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		}
 
 	case typesys.Int32Type:
-		data := make([]int, len(s.data))
+		data := make([]int32, len(s.data))
 		for i, v := range s.data {
-			data[i] = int(v)
+			data[i] = int32(v)
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+		}
+
+	case typesys.Int64Type:
+		data := make([]int64, len(s.data))
+		for i, v := range s.data {
+			data[i] = int64(v)
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
@@ -651,13 +667,28 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			nullMask:   s.nullMask,
 		}
 
-	case int:
-		data := make([]int, len(s.data))
+	case int32:
+		data := make([]int32, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int)
+			data[i] = f(s.data[i]).(int32)
 		}
 
 		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
+
+	case int64:
+		data := make([]int64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(int64)
+		}
+
+		return SeriesInt64{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
