@@ -944,6 +944,7 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
+	series    *SeriesBool
 	partition map[int64][]int
 	nulls     []int
 }
@@ -977,13 +978,16 @@ func (gp SeriesBoolPartition) GetKeys() any {
 
 func (gp SeriesBoolPartition) debugPrint() {
 	fmt.Println("SeriesBoolPartition")
+	data := gp.series.Data().([]bool)
+	for k, v := range gp.partition {
+		fmt.Printf("%10v - %5v: %v\n", k, data[v[0]], v)
+	}
 }
 
 func (s SeriesBool) Group() Series {
-
 	map_ := make(map[int64][]int)
-	for i := 0; i < s.size; i++ {
-		map_[int64(s.data[i>>3]&(1<<(i%8)))] = append(map_[int64(s.data[i>>3]&(1<<(i%8)))], i)
+	for index := 0; index < s.size; index++ {
+		map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))] = append(map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))], index)
 	}
 
 	return SeriesBool{
@@ -994,6 +998,7 @@ func (s SeriesBool) Group() Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolPartition{
+			series:    &s,
 			partition: map_,
 			nulls:     nil,
 		}}
@@ -1005,7 +1010,7 @@ func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
 	var newHash int64
 	for h, indexes := range partition.GetMap() {
 		for _, index := range indexes {
-			newHash = int64(s.data[index>>3]&(1<<(index%8))) + HASH_MAGIC_NUMBER + (h << 12) + (h >> 4)
+			newHash = int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 			newMap[newHash] = append(newMap[newHash], index)
 		}
 	}
@@ -1018,6 +1023,7 @@ func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolPartition{
+			series:    &s,
 			partition: newMap,
 			nulls:     nil,
 		}}

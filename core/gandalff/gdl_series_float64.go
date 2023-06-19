@@ -736,6 +736,7 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesFloat64Partition struct {
+	series       *SeriesFloat64
 	seriesSize   int
 	partition    map[int64][]int
 	indexToGroup []int
@@ -806,10 +807,10 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 
 func (gp SeriesFloat64Partition) debugPrint() {
 	fmt.Println("SeriesFloat64Partition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		f := *(*float64)(unsafe.Pointer(&k))
-		fmt.Printf("%4.4f: %v\n", f, v)
+	data := gp.series.Data().([]float64)
+	for k, v := range gp.partition {
+		// f := *(*float64)(unsafe.Pointer(&k))
+		fmt.Printf("%v - %10.4f: %v\n", k, data[v[0]], v)
 	}
 }
 
@@ -823,6 +824,7 @@ func (s SeriesFloat64) Group() Series {
 		}
 
 		partition = SeriesFloat64Partition{
+			series:     &s,
 			seriesSize: s.Len(),
 			partition:  map_,
 		}
@@ -845,6 +847,7 @@ func (s SeriesFloat64) Group() Series {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
 
 		partition = SeriesFloat64Partition{
+			series:     &s,
 			seriesSize: s.Len(),
 			partition:  allMaps[0],
 		}
@@ -873,6 +876,7 @@ func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
 		}
 
 		newPartition = SeriesFloat64Partition{
+			series:     &s,
 			seriesSize: s.Len(),
 			partition:  map_,
 		}
@@ -907,6 +911,7 @@ func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 
 		newPartition = SeriesFloat64Partition{
+			series:     &s,
 			seriesSize: s.Len(),
 			partition:  allMaps[0],
 		}
