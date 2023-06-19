@@ -81,12 +81,16 @@ func (r *CsvReader) Read() DataFrame {
 		return BaseDataFrame{err: fmt.Errorf("CsvReader: no reader specified")}
 	}
 
+	if r.pool == nil {
+		r.pool = NewStringPool()
+	}
+
 	series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema, r.pool)
 	if err != nil {
 		return BaseDataFrame{err: err}
 	}
 
-	df := NewBaseDataFrame()
+	df := NewBaseDataFrame().SetStringPool(r.pool)
 	for _, s := range series {
 		df = df.AddSeries(s)
 	}
@@ -135,18 +139,15 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, pool *StringPool) ([]Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]Series, error) {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
 	//		and guess the data types in parallel
 
 	isNullable := false
-	var stringPool *StringPool
-	if pool == nil {
-		stringPool = NewStringPool()
-	} else {
-		stringPool = pool
+	if stringPool == nil {
+		return nil, fmt.Errorf("readCSV: string pool cannot be nil")
 	}
 
 	// Initialize TypeGuesser

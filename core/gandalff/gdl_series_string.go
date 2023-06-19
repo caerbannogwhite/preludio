@@ -39,6 +39,14 @@ func NewSeriesString(name string, isNullable bool, data []string, pool *StringPo
 
 ////////////////////////			BASIC ACCESSORS
 
+func (s SeriesString) SetStringPool(pool *StringPool) Series {
+	for i, v := range s.data {
+		s.data[i] = pool.Put(*v)
+	}
+	s.pool = pool
+	return s
+}
+
 // Returns the number of elements in the series.
 func (s SeriesString) Len() int {
 	return len(s.data)

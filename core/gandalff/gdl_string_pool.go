@@ -1,6 +1,9 @@
 package gandalff
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 type StringPool struct {
 	sync.RWMutex
@@ -57,16 +60,8 @@ func (sp *StringPool) Len() int {
 	return len(sp.pool)
 }
 
-func (sp *StringPool) Merge(other *StringPool) {
-	var result map[string]*string
-	if len(sp.pool) > len(other.pool) {
-		result = sp.pool
-		for k, v := range other.pool {
-			if _, ok := result[k]; !ok {
-				result[k] = v
-			}
-		}
-	} else {
-		result = other.pool
+func (sp *StringPool) debugPrint() {
+	for k, v := range sp.pool {
+		fmt.Printf("%s: %p\n", k, v)
 	}
 }

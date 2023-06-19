@@ -78,6 +78,12 @@ func (df BaseDataFrame) GetStringPool() *StringPool {
 }
 
 func (df BaseDataFrame) SetStringPool(pool *StringPool) DataFrame {
+	for i, series := range df.series {
+		if s, ok := series.(SeriesString); ok {
+			df.series[i] = s.SetStringPool(pool)
+		}
+	}
+
 	df.pool = pool
 	return df
 }
@@ -565,6 +571,15 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		if df.Series(name).Type() != other.Series(name).Type() {
 			df.err = fmt.Errorf("BaseDataFrame.Join: columns \"%s\" have different types", name)
 			return df
+		}
+	}
+
+	// CASE: the dataframes have different string pools
+	if df.GetStringPool() != other.GetStringPool() {
+		if df.NRows() < other.NRows() {
+			df = df.SetStringPool(other.GetStringPool()).(BaseDataFrame)
+		} else {
+			other = other.SetStringPool(df.GetStringPool())
 		}
 	}
 
