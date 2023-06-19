@@ -74,7 +74,7 @@ type DataFrame interface {
 
 	Agg(...aggregator) DataFrame
 
-	PrettyPrint()
+	PrettyPrint(nrows int)
 
 	FromCSV() *CsvReader
 }

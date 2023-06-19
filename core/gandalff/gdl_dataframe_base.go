@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"sync"
 	"typesys"
@@ -1055,7 +1056,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func (df BaseDataFrame) PrettyPrint() {
+func (df BaseDataFrame) PrettyPrint(nrows int) {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return
@@ -1137,7 +1138,13 @@ func (df BaseDataFrame) PrettyPrint() {
 	fmt.Println("+")
 
 	// data
-	for i := 0; i < df.NRows(); i++ {
+	if nrows >= 0 {
+		nrows = int(math.Min(float64(nrows), float64(df.NRows())))
+	} else {
+		nrows = df.NRows()
+	}
+
+	for i := 0; i < nrows; i++ {
 		fmt.Printf("    ")
 		for _, c := range df.series {
 			fmt.Printf(fmtString, truncate(c.GetString(i), colSize))

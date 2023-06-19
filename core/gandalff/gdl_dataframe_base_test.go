@@ -102,9 +102,9 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 		df.Filter(
 			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }, nil).(SeriesBool).
 				And(
-					df.Series("Founded").Map(func(v any) any { return v.(int) >= 2000 }, nil)).(SeriesBool).
+					df.Series("Founded").Map(func(v any) any { return v.(int64) >= 2000 }, nil)).(SeriesBool).
 				And(
-					df.Series("Number of employees").Map(func(v any) any { return v.(int) < 1000 }, nil)).(SeriesBool),
+					df.Series("Number of employees").Map(func(v any) any { return v.(int64) < 1000 }, nil)).(SeriesBool),
 		)
 	}
 	b.StopTimer()
@@ -282,83 +282,83 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	}
 }
 
-// func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
+func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 
-// 	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
-// 	if err != nil {
-// 		b.Error(err)
-// 	}
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
 
-// 	df := NewBaseDataFrame().FromCSV().
-// 		SetReader(f).
-// 		SetDelimiter(',').
-// 		SetHeader(true).
-// 		SetGuessDataTypeLen(3).
-// 		Read()
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
 
-// 	f.Close()
+	f.Close()
 
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		df.Ungroup().GroupBy("Country", "Industry").Agg(Count())
-// 	}
-// 	b.StopTimer()
-// }
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Count())
+	}
+	b.StopTimer()
+}
 
-// func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
-// 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
-// 		SetReader(strings.NewReader(data1)).
-// 		SetDelimiter(',').
-// 		SetHeader(true).
-// 		SetGuessDataTypeLen(3).
-// 		Read()
+func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
 
-// 	if df.GetError() != nil {
-// 		t.Error(df.GetError())
-// 	}
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
 
-// 	res := df.GroupBy("department").
-// 		Agg(Sum("age"), Sum("weight"), Sum("junior"), Sum("salary band"))
+	res := df.GroupBy("department").
+		Agg(Sum("age"), Sum("weight"), Sum("junior"), Sum("salary band"))
 
-// 	if res.GetError() != nil {
-// 		t.Error(res.GetError())
-// 	}
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
 
-// 	exp := map[string][]float64{
-// 		"HR":       {61.0, 165.0, 1.0, 5.0},
-// 		"IT":       {114.0, 295.5, 2.0, 13.0},
-// 		"Business": {60.0, 125.0, 1.0, 6.0},
-// 	}
+	exp := map[string][]float64{
+		"HR":       {61.0, 165.0, 1.0, 5.0},
+		"IT":       {114.0, 295.5, 2.0, 13.0},
+		"Business": {60.0, 125.0, 1.0, 6.0},
+	}
 
-// 	if res.NRows() != 3 {
-// 		t.Errorf("Expected 3 rows, got %d", res.NRows())
-// 	}
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
 
-// 	for i := 0; i < res.NRows(); i++ {
-// 		dept := res.Series("department").Get(i).(string)
-// 		age := res.Series("age").Get(i).(float64)
-// 		weight := res.Series("weight").Get(i).(float64)
-// 		junior := res.Series("junior").Get(i).(float64)
-// 		salary := res.Series("salary band").Get(i).(float64)
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
 
-// 		if age != exp[dept][0] {
-// 			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
-// 		}
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
 
-// 		if weight != exp[dept][1] {
-// 			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
-// 		}
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
 
-// 		if junior != exp[dept][2] {
-// 			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
-// 		}
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
 
-// 		if salary != exp[dept][3] {
-// 			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
-// 		}
-// 	}
-// }
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
 
 // func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
@@ -470,106 +470,106 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 // 	}
 // }
 
-// func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
-// 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
-// 		SetReader(strings.NewReader(data1)).
-// 		SetDelimiter(',').
-// 		SetHeader(true).
-// 		SetGuessDataTypeLen(3).
-// 		Read()
+func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
+	// Create a new dataframe from the CSV data.
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
 
-// 	if df.GetError() != nil {
-// 		t.Error(df.GetError())
-// 	}
+	if df.GetError() != nil {
+		t.Error(df.GetError())
+	}
 
-// 	res := df.GroupBy("department").
-// 		Agg(Mean("age"), Mean("weight"), Mean("junior"), Mean("salary band"))
+	res := df.GroupBy("department").
+		Agg(Mean("age"), Mean("weight"), Mean("junior"), Mean("salary band"))
 
-// 	if res.GetError() != nil {
-// 		t.Error(res.GetError())
-// 	}
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
 
-// 	exp := map[string][]float64{
-// 		"Business": {30.0, 62.5, 0.5, 3.0},
-// 		"HR":       {30.5, 82.5, 0.5, 2.5},
-// 		"IT":       {28.5, 73.875, 0.5, 3.25},
-// 	}
+	exp := map[string][]float64{
+		"Business": {30.0, 62.5, 0.5, 3.0},
+		"HR":       {30.5, 82.5, 0.5, 2.5},
+		"IT":       {28.5, 73.875, 0.5, 3.25},
+	}
 
-// 	if res.NRows() != 3 {
-// 		t.Errorf("Expected 3 rows, got %d", res.NRows())
-// 	}
+	if res.NRows() != 3 {
+		t.Errorf("Expected 3 rows, got %d", res.NRows())
+	}
 
-// 	for i := 0; i < res.NRows(); i++ {
-// 		dept := res.Series("department").Get(i).(string)
-// 		age := res.Series("age").Get(i).(float64)
-// 		weight := res.Series("weight").Get(i).(float64)
-// 		junior := res.Series("junior").Get(i).(float64)
-// 		salary := res.Series("salary band").Get(i).(float64)
+	for i := 0; i < res.NRows(); i++ {
+		dept := res.Series("department").Get(i).(string)
+		age := res.Series("age").Get(i).(float64)
+		weight := res.Series("weight").Get(i).(float64)
+		junior := res.Series("junior").Get(i).(float64)
+		salary := res.Series("salary band").Get(i).(float64)
 
-// 		if age != exp[dept][0] {
-// 			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
-// 		}
+		if age != exp[dept][0] {
+			t.Errorf("Expected 'age' %f, got %f", exp[dept][0], age)
+		}
 
-// 		if weight != exp[dept][1] {
-// 			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
-// 		}
+		if weight != exp[dept][1] {
+			t.Errorf("Expected 'weight' %f, got %f", exp[dept][1], weight)
+		}
 
-// 		if junior != exp[dept][2] {
-// 			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
-// 		}
+		if junior != exp[dept][2] {
+			t.Errorf("Expected 'junior' %f, got %f", exp[dept][2], junior)
+		}
 
-// 		if salary != exp[dept][3] {
-// 			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
-// 		}
-// 	}
-// }
+		if salary != exp[dept][3] {
+			t.Errorf("Expected 'salary band' %f, got %f", exp[dept][3], salary)
+		}
+	}
+}
 
-// func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
+func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
 
-// 	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
-// 	if err != nil {
-// 		b.Error(err)
-// 	}
+	f, err := os.OpenFile("testdata\\organizations-100000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
 
-// 	df := NewBaseDataFrame().FromCSV().
-// 		SetReader(f).
-// 		SetDelimiter(',').
-// 		SetHeader(true).
-// 		SetGuessDataTypeLen(3).
-// 		Read()
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
 
-// 	f.Close()
+	f.Close()
 
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
-// 	}
-// 	b.StopTimer()
-// }
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
+	}
+	b.StopTimer()
+}
 
-// func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
+func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
-// 	f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
-// 	if err != nil {
-// 		b.Error(err)
-// 	}
+	f, err := os.OpenFile("testdata\\organizations-500000.csv", os.O_RDONLY, 0666)
+	if err != nil {
+		b.Error(err)
+	}
 
-// 	df := NewBaseDataFrame().FromCSV().
-// 		SetReader(f).
-// 		SetDelimiter(',').
-// 		SetHeader(true).
-// 		SetGuessDataTypeLen(3).
-// 		Read()
+	df := NewBaseDataFrame().FromCSV().
+		SetReader(f).
+		SetDelimiter(',').
+		SetHeader(true).
+		SetGuessDataTypeLen(3).
+		Read()
 
-// 	f.Close()
+	f.Close()
 
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
-// 	}
-// 	b.StopTimer()
-// }
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		df.Ungroup().GroupBy("Country", "Industry").Agg(Mean("Number of employees"))
+	}
+	b.StopTimer()
+}
 
 // func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
