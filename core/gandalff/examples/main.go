@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func Example01() {
-	data := `
+const (
+	data1 = `
 name,age,weight,junior,department,salary band
 Alice C,29,75.0,F,HR,4
 John Doe,30,80.5,true,IT,2
@@ -19,9 +19,19 @@ Ursula,27,65.0,f,Business,4
 Charlie,33,60.0,t,Business,2
 `
 
+	data2 = `
+department,number of employees,budget
+IT,4,100000
+HR,2,50000
+Business,2,50000
+Operations,4,250000
+`
+)
+
+func Example01() {
 	NewBaseDataFrame().
 		FromCSV().
-		SetReader(strings.NewReader(data)).
+		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read().
@@ -42,7 +52,35 @@ Charlie,33,60.0,t,Business,2
 	// +------------+------------+------------+------------+------------+
 }
 
+func Example02() {
+	pool := NewStringPool()
+
+	employees := NewBaseDataFrame().
+		SetStringPool(pool).
+		FromCSV().
+		SetReader(strings.NewReader(data1)).
+		SetDelimiter(',').
+		SetHeader(true).
+		Read()
+
+	departments := NewBaseDataFrame().
+		SetStringPool(pool).
+		FromCSV().
+		SetReader(strings.NewReader(data2)).
+		SetDelimiter(',').
+		SetHeader(true).
+		Read()
+
+	departments.PrettyPrint()
+
+	employees.Join(LEFT_JOIN, departments, "department").
+		PrettyPrint()
+}
+
 func main() {
-	fmt.Println("Example01:")
-	Example01()
+	// fmt.Println("Example01:")
+	// Example01()
+
+	fmt.Println("Example02:")
+	Example02()
 }
