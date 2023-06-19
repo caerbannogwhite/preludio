@@ -956,11 +956,11 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 				switch agg.getAggregateType() {
 				case AGGREGATE_COUNT:
-					counts := make([]int32, len(*indeces))
+					counts := make([]int64, len(*indeces))
 					for i, group := range *indeces {
-						counts[i] = int32(len(group))
+						counts[i] = int64(len(group))
 					}
-					result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, counts))
+					result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, counts))
 
 				case AGGREGATE_SUM:
 					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
@@ -1020,7 +1020,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 			switch agg.getAggregateType() {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(NewSeriesInt32(agg.getSeriesName(), false, false, []int32{int32(df.NRows())}))
+				result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, []int64{int64(df.NRows())}))
 
 			case AGGREGATE_SUM:
 				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))

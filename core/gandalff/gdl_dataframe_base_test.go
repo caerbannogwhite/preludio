@@ -129,7 +129,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 		t.Error(res.GetError())
 	}
 
-	exp1 := map[string]int32{
+	exp1 := map[string]int64{
 		"HR":       2,
 		"IT":       4,
 		"Business": 2,
@@ -141,7 +141,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 
 	for i := 0; i < res.NRows(); i++ {
 		dept := res.Series("department").Get(i).(string)
-		n := res.Series("n").Get(i).(int32)
+		n := res.Series("n").Get(i).(int64)
 
 		if n != exp1[dept] {
 			t.Errorf("Expected %d, got %d", exp1[dept], n)
@@ -154,7 +154,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 		t.Error(res.GetError())
 	}
 
-	exp2 := map[bool]map[string]int32{
+	exp2 := map[bool]map[string]int64{
 		true: {
 			"HR":       1,
 			"IT":       2,
@@ -174,7 +174,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	for i := 0; i < res.NRows(); i++ {
 		junior := res.Series("junior").Get(i).(bool)
 		dept := res.Series("department").Get(i).(string)
-		n := res.Series("n").Get(i).(int32)
+		n := res.Series("n").Get(i).(int64)
 
 		if n != exp2[junior][dept] {
 			t.Errorf("Expected %d, got %d", exp2[junior][dept], n)
@@ -187,7 +187,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 		t.Error(res.GetError())
 	}
 
-	exp3 := map[string]map[bool]int32{
+	exp3 := map[string]map[bool]int64{
 		"HR": {
 			true:  1,
 			false: 1,
@@ -209,7 +209,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	for i := 0; i < res.NRows(); i++ {
 		junior := res.Series("junior").Get(i).(bool)
 		dept := res.Series("department").Get(i).(string)
-		n := res.Series("n").Get(i).(int32)
+		n := res.Series("n").Get(i).(int64)
 
 		if n != exp3[dept][junior] {
 			t.Errorf("Expected %d, got %d", exp3[dept][junior], n)
@@ -222,7 +222,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 		t.Error(res.GetError())
 	}
 
-	exp4 := map[string]map[int64]int32{
+	exp4 := map[string]map[int64]int64{
 		"HR": {
 			1: 1,
 			4: 1,
@@ -245,7 +245,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	for i := 0; i < res.NRows(); i++ {
 		salaryBand := res.Series("salary band").Get(i).(int64)
 		dept := res.Series("department").Get(i).(string)
-		n := res.Series("n").Get(i).(int32)
+		n := res.Series("n").Get(i).(int64)
 
 		if n != exp4[dept][salaryBand] {
 			t.Errorf("Expected %d, got %d", exp4[dept][salaryBand], n)
@@ -258,7 +258,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 		t.Error(res.GetError())
 	}
 
-	exp5 := map[float64]int32{
+	exp5 := map[float64]int64{
 		75.0: 1,
 		80.5: 1,
 		85.0: 1,
@@ -274,7 +274,7 @@ func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 
 	for i := 0; i < res.NRows(); i++ {
 		weight := res.Series("weight").Get(i).(float64)
-		n := res.Series("n").Get(i).(int32)
+		n := res.Series("n").Get(i).(int64)
 
 		if n != exp5[weight] {
 			t.Errorf("Expected %d, got %d", exp5[weight], n)
