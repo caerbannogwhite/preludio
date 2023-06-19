@@ -982,8 +982,8 @@ func (gp SeriesStringPartition) debugPrint() {
 	fmt.Println("SeriesStringPartition")
 	map_ := gp.GetMap()
 	for k, v := range map_ {
-		s := *(*string)(unsafe.Pointer(&k))
-		fmt.Printf("%10s: %v\n", s, v)
+		ptr := (*string)(unsafe.Pointer(uintptr(k)))
+		fmt.Printf("%10s: %v\n", *ptr, v)
 	}
 }
 
@@ -992,8 +992,11 @@ func (s SeriesString) Group() Series {
 	var partition SeriesStringPartition
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+
+		var ptr unsafe.Pointer
 		for i := 0; i < len(s.data); i++ {
-			map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))] = append(map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))], i)
+			ptr = unsafe.Pointer(s.data[i])
+			map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 		}
 
 		partition = SeriesStringPartition{
@@ -1012,8 +1015,10 @@ func (s SeriesString) Group() Series {
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {
 			map_ := allMaps[threadNum]
+			var ptr unsafe.Pointer
 			for i := start; i < end; i++ {
-				map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))] = append(map_[(*(*int64)(unsafe.Pointer(unsafe.Pointer(s.data[i]))))], i)
+				ptr = unsafe.Pointer(s.data[i])
+				map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 			}
 		}
 
@@ -1041,9 +1046,11 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 		var newHash int64
+		var ptr unsafe.Pointer
 		for h, v := range otherIndeces {
 			for _, index := range v {
-				newHash = *(*int64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				ptr = unsafe.Pointer(s.data[index])
+				newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -1072,10 +1079,13 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {
 			var newHash int64
+			var ptr unsafe.Pointer
+
 			map_ := allMaps[threadNum]
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
-					newHash = *(*int64)(unsafe.Pointer(unsafe.Pointer((s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					ptr = unsafe.Pointer(s.data[index])
+					newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 					map_[newHash] = append(map_[newHash], index)
 				}
 			}
