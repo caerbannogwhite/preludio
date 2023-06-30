@@ -9,7 +9,7 @@ func checkEqSliceInt32(a, b []int32, t *testing.T, msg string) bool {
 
 	for i, x := range a {
 		if x != b[i] {
-			t.Errorf("%s: expected %v, got %v at %d", msg, b, a, i)
+			t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
 			return false
 		}
 	}
@@ -23,7 +23,7 @@ func checkEqSliceInt64(a, b []int64, t *testing.T, msg string) bool {
 
 	for i, x := range a {
 		if x != b[i] {
-			t.Errorf("%s: expected %v, got %v at %d", msg, b, a, i)
+			t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
 			return false
 		}
 	}
@@ -37,7 +37,7 @@ func checkEqSliceFloat64(a, b []float64, t *testing.T, msg string) bool {
 
 	for i, x := range a {
 		if x != b[i] {
-			t.Errorf("%s: expected %v, got %v at %d", msg, b, a, i)
+			t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
 			return false
 		}
 	}
@@ -51,7 +51,7 @@ func checkEqSliceString(a, b []string, t *testing.T, msg string) bool {
 
 	for i, x := range a {
 		if x != b[i] {
-			t.Errorf("%s: expected %v, got %v at %d", msg, b, a, i)
+			t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
 			return false
 		}
 	}

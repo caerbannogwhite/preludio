@@ -678,8 +678,12 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		indicesB := make([]int, 0, len(keysIntersection))
 
 		for _, key := range keysIntersection {
-			indicesA = append(indicesA, mapA[key][0])
-			indicesB = append(indicesB, mapB[key][0])
+			for _, indexA := range mapA[key] {
+				for _, indexB := range mapB[key] {
+					indicesA = append(indicesA, indexA)
+					indicesB = append(indicesB, indexB)
+				}
+			}
 		}
 
 		// Join columns
@@ -702,12 +706,16 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		indicesB := make([]int, 0, len(keysIntersection))
 
 		for _, key := range keysAOnly {
-			indicesA = append(indicesA, mapA[key][0])
+			indicesA = append(indicesA, mapA[key]...)
 		}
 
 		for _, key := range keysIntersection {
-			indicesA = append(indicesA, mapA[key][0])
-			indicesB = append(indicesB, mapB[key][0])
+			for _, indexA := range mapA[key] {
+				for _, indexB := range mapB[key] {
+					indicesA = append(indicesA, indexA)
+					indicesB = append(indicesB, indexB)
+				}
+			}
 		}
 
 		// Join columns
@@ -720,7 +728,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indicesA))
 		}
 
-		nullMask := make([]bool, len(keysAOnly))
+		padBlen := len(indicesA) - len(indicesB)
+		nullMask := make([]bool, padBlen)
 		for i := range nullMask {
 			nullMask[i] = true
 		}
@@ -730,27 +739,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ := other.Series(name).FilterByIndeces(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, len(keysAOnly))).
+				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, padBlen)).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysAOnly))).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysAOnly))).
+				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysAOnly))).
+				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, len(keysAOnly)), df.pool).
+				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 			}
@@ -763,12 +772,16 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		indicesB := make([]int, 0, len(keysB))
 
 		for _, key := range keysIntersection {
-			indicesA = append(indicesA, mapA[key][0])
-			indicesB = append(indicesB, mapB[key][0])
+			for _, indexA := range mapA[key] {
+				for _, indexB := range mapB[key] {
+					indicesA = append(indicesA, indexA)
+					indicesB = append(indicesB, indexB)
+				}
+			}
 		}
 
 		for _, key := range keysBOnly {
-			indicesB = append(indicesB, mapB[key][0])
+			indicesB = append(indicesB, mapB[key]...)
 		}
 
 		// Join columns
@@ -776,7 +789,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			joined = joined.AddSeries(otherGrouped.Series(on[i]).FilterByIndeces(indicesB))
 		}
 
-		nullMask := make([]bool, len(keysBOnly))
+		padAlen := len(indicesB) - len(indicesA)
+		nullMask := make([]bool, padAlen)
 		for i := range nullMask {
 			nullMask[i] = true
 		}
@@ -786,19 +800,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ := df.Series(name).FilterByIndeces(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysBOnly))).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Int64Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Float64Type:
-				ser_ = ser_.AppendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysBOnly))).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMask))
 
 			case typesys.StringType:
-				ser_ = ser_.AppendSeries(NewSeriesString(ser_.Name(), true, make([]string, len(keysBOnly)), df.pool).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
 			}
 
 			joined = joined.AddSeries(ser_)
@@ -814,16 +828,20 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		indicesB := make([]int, 0, len(keysB))
 
 		for _, key := range keysAOnly {
-			indicesA = append(indicesA, mapA[key][0])
+			indicesA = append(indicesA, mapA[key]...)
 		}
 
 		for _, key := range keysIntersection {
-			indicesA = append(indicesA, mapA[key][0])
-			indicesB = append(indicesB, mapB[key][0])
+			for _, indexA := range mapA[key] {
+				for _, indexB := range mapB[key] {
+					indicesA = append(indicesA, indexA)
+					indicesB = append(indicesB, indexB)
+				}
+			}
 		}
 
 		for _, key := range keysBOnly {
-			indicesB = append(indicesB, mapB[key][0])
+			indicesB = append(indicesB, mapB[key]...)
 		}
 
 		// Join columns
@@ -836,12 +854,14 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 						FilterByIndeces(indicesBOnly)))
 		}
 
-		nullMaskA := make([]bool, len(keysBOnly))
+		padAlen := len(indicesBOnly) - len(indicesA)
+		nullMaskA := make([]bool, padAlen)
 		for i := range nullMaskA {
 			nullMaskA[i] = true
 		}
 
-		nullMaskB := make([]bool, len(keysAOnly))
+		padBlen := len(indicesA) - len(indicesBOnly)
+		nullMaskB := make([]bool, padBlen)
 		for i := range nullMaskB {
 			nullMaskB[i] = true
 		}
@@ -851,19 +871,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ := df.Series(name).FilterByIndeces(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, len(keysBOnly))).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Int32Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysBOnly))).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Int64Type:
-				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysBOnly))).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Float64Type:
-				ser_ = ser_.AppendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysBOnly))).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.StringType:
-				ser_ = ser_.AppendSeries(NewSeriesString(ser_.Name(), true, make([]string, len(keysBOnly)), df.pool).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
 			}
 
 			joined = joined.AddSeries(ser_)
@@ -874,27 +894,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ := other.Series(name).FilterByIndeces(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, len(keysAOnly))).
+				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, padBlen)).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, len(keysAOnly))).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, len(keysAOnly))).
+				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, len(keysAOnly))).
+				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, len(keysAOnly)), df.pool).
+				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 			}
