@@ -38,7 +38,7 @@ func Example01() {
 		Select("department", "age", "weight", "junior").
 		GroupBy("department").
 		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
-		PrettyPrint()
+		PrettyPrint(20)
 
 	// Output:
 	// +------------+------------+------------+------------+------------+
@@ -71,16 +71,65 @@ func Example02() {
 		SetHeader(true).
 		Read()
 
-	departments.PrettyPrint()
+	departments.PrettyPrint(20)
 
 	employees.Join(LEFT_JOIN, departments, "department").
-		PrettyPrint()
+		PrettyPrint(20)
+}
+
+func Example03() {
+	x := `
+a,b
+1,2
+2,2
+3,3
+3,4
+4,4
+`
+
+	y := `
+a,b
+1,2
+2,2
+2,3
+3,3
+4,4
+`
+
+	dfX := NewBaseDataFrame().
+		FromCSV().
+		SetReader(strings.NewReader(x)).
+		SetDelimiter(',').
+		SetHeader(true).
+		Read()
+
+	dfY := NewBaseDataFrame().
+		FromCSV().
+		SetReader(strings.NewReader(y)).
+		SetDelimiter(',').
+		SetHeader(true).
+		Read()
+
+	dfX.Join(INNER_JOIN, dfY, "a", "b").
+		PrettyPrint(20)
+
+	dfX.Join(LEFT_JOIN, dfY, "a", "b").
+		PrettyPrint(20)
+
+	dfX.Join(RIGHT_JOIN, dfY, "a", "b").
+		PrettyPrint(20)
+
+	dfX.Join(OUTER_JOIN, dfY, "a", "b").
+		PrettyPrint(20)
 }
 
 func main() {
 	// fmt.Println("Example01:")
 	// Example01()
 
-	fmt.Println("Example02:")
-	Example02()
+	// fmt.Println("Example02:")
+	// Example02()
+
+	fmt.Println("Example03:")
+	Example03()
 }
