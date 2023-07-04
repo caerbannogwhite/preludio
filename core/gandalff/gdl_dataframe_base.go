@@ -827,25 +827,32 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		indicesA := make([]int, 0, len(keysA))
 		indicesB := make([]int, 0, len(keysB))
 
+		padAlen := 0
+		padBlen := 0
+
 		for _, key := range keysAOnly {
 			indicesA = append(indicesA, mapA[key]...)
+			padBlen += len(mapA[key])
 		}
 
+		intersectionLen := 0
 		for _, key := range keysIntersection {
 			for _, indexA := range mapA[key] {
 				for _, indexB := range mapB[key] {
 					indicesA = append(indicesA, indexA)
 					indicesB = append(indicesB, indexB)
+					intersectionLen++
 				}
 			}
 		}
 
 		for _, key := range keysBOnly {
 			indicesB = append(indicesB, mapB[key]...)
+			padAlen += len(mapB[key])
 		}
 
 		// Join columns
-		indicesBOnly := indicesB[len(keysIntersection):]
+		indicesBOnly := indicesB[intersectionLen:]
 		for i := range on {
 			joined = joined.AddSeries(
 				dfGrouped.Series(on[i]).
@@ -854,13 +861,11 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 						FilterByIndeces(indicesBOnly)))
 		}
 
-		padAlen := len(indicesBOnly) - len(indicesA)
 		nullMaskA := make([]bool, padAlen)
 		for i := range nullMaskA {
 			nullMaskA[i] = true
 		}
 
-		padBlen := len(indicesA) - len(indicesBOnly)
 		nullMaskB := make([]bool, padBlen)
 		for i := range nullMaskB {
 			nullMaskB[i] = true

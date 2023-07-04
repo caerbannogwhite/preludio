@@ -709,25 +709,25 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 
 	///////////////////			FULL JOIN
 
-	// res = dfx.Join(OUTER_JOIN, dfy, "A")
+	res = dfx.Join(OUTER_JOIN, dfy, "A")
 
-	// if res.GetError() != nil {
-	// 	t.Error(res.GetError())
-	// }
+	if res.GetError() != nil {
+		t.Error(res.GetError())
+	}
 
-	// if res.NRows() != 9 {
-	// 	t.Errorf("Expected 9 rows, got %d", res.NRows())
-	// }
+	if res.NRows() != 9 {
+		t.Errorf("Expected 9 rows, got %d", res.NRows())
+	}
 
-	// if res.NCols() != 3 {
-	// 	t.Errorf("Expected 3 cols, got %d", res.NCols())
-	// }
+	if res.NCols() != 3 {
+		t.Errorf("Expected 3 cols, got %d", res.NCols())
+	}
 
-	// resAexp = []int64{1, 1, 2, 3, 4, 5, 5, 6, 6}
-	// resBexp = []string{"a", "b", "c", "d", "e", "f", "g", "", ""}
-	// resCexp = []string{"", "", "", "", "h", "i", "i", "j", "k"}
+	resAexp = []int64{1, 1, 2, 3, 4, 5, 5, 6, 6}
+	resBexp = []string{"a", "b", "c", "d", "e", "f", "g", "", ""}
+	resCexp = []string{"", "", "", "", "h", "i", "i", "j", "k"}
 
-	// checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Full Join")
-	// checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Full Join")
-	// checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Full Join")
+	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Full Join")
+	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Full Join")
+	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Full Join")
 }
