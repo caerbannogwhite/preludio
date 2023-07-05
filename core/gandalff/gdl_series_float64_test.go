@@ -576,45 +576,87 @@ func Test_SeriesFloat64_Map(t *testing.T) {
 	}
 }
 
-// func Test_SeriesFloat64_Multiplication(t *testing.T) {
-// 	data := []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+func Test_SeriesFloat64_Arithmetic_Add(t *testing.T) {
+	var res Series
 
-// 	// s * 1.5
-// 	res := NewSeriesFloat64("test", true, true, data).Mul(NewSeriesFloat64("test", true, true, []float64{1.5}))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
+	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
 
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
+	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
 
-// 	// Check the data.
-// 	for i, v := range res.Data().([]float64) {
-// 		if v != data[i]*1.5 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
-// 		}
-// 	}
+	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
 
-// 	// 1.5 * s
-// 	res = NewSeriesFloat64("test", true, true, []float64{1.5}).Mul(NewSeriesFloat64("test", true, true, data))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
+	// int32
+	res = f64s.Add(i32s)
+	if res.Data().([]float64)[0] != 2.0 {
+		t.Errorf("Expected %v, got %v", 2.0, res.Data().([]float64)[0])
+	}
 
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
+	res = f64s.Add(i32v)
+	if res.Data().([]float64)[0] != 2.0 || res.Data().([]float64)[1] != 3.0 || res.Data().([]float64)[2] != 4.0 {
+		t.Errorf("Expected %v, got %v", []float64{2.0, 3.0, 4.0}, res.Data().([]float64))
+	}
 
-// 	// Check the data.
-// 	for i, v := range res.Data().([]float64) {
-// 		if v != data[i]*1.5 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*1.5, v, i)
-// 		}
-// 	}
-// }
+	res = f64s.Add(i32s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected null value at index 0")
+	}
+
+	res = f64s.Add(i32v_)
+	if res.IsNull(0) == true || res.IsNull(1) == true || res.IsNull(2) == false {
+		t.Errorf("Expected null value at index 0 and 1")
+	}
+
+	// int64
+	res = f64s.Add(i64s)
+	if res.Data().([]float64)[0] != 2.0 {
+		t.Errorf("Expected %v, got %v", 2.0, res.Data().([]float64)[0])
+	}
+
+	res = f64s.Add(i64v)
+	if res.Data().([]float64)[0] != 2.0 || res.Data().([]float64)[1] != 3.0 || res.Data().([]float64)[2] != 4.0 {
+		t.Errorf("Expected %v, got %v", []float64{2.0, 3.0, 4.0}, res.Data().([]float64))
+	}
+
+	res = f64s.Add(i64s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected null value at index 0")
+	}
+
+	res = f64s.Add(i64v_)
+	if res.IsNull(0) == true || res.IsNull(1) == true || res.IsNull(2) == false {
+		t.Errorf("Expected null value at index 0 and 1")
+	}
+
+	// float64
+	res = f64s.Add(f64s)
+	if res.Data().([]float64)[0] != 2.0 {
+		t.Errorf("Expected %v, got %v", 2.0, res.Data().([]float64)[0])
+	}
+
+	res = f64s.Add(f64v)
+	if res.Data().([]float64)[0] != 2.0 || res.Data().([]float64)[1] != 3.0 || res.Data().([]float64)[2] != 4.0 {
+		t.Errorf("Expected %v, got %v", []float64{2.0, 3.0, 4.0}, res.Data().([]float64))
+	}
+
+	res = f64s.Add(f64s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected null value at index 0")
+	}
+
+	res = f64s.Add(f64v_)
+	if res.IsNull(0) == true || res.IsNull(1) == true || res.IsNull(2) == false {
+		t.Errorf("Expected null value at index 0 and 1")
+	}
+}
 
 func Benchmark_SeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 
@@ -624,7 +666,7 @@ func Benchmark_SeriesFloat64_Mul_SerScal_Perf(b *testing.B) {
 		data[i] = float64(i)
 	}
 
-	ser := NewSeriesFloat64("test", true, false, data)
+	ser := NewSeriesFloat64("test", true, false, data).(SeriesFloat64)
 	scal := NewSeriesFloat64("test", true, false, []float64{1.5})
 
 	// s * 1.5
@@ -654,7 +696,7 @@ func Benchmark_SeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
 		data2[i] = float64(N - i - 1)
 	}
 
-	ser1 := NewSeriesFloat64("test", true, false, data1)
+	ser1 := NewSeriesFloat64("test", true, false, data1).(SeriesFloat64)
 	ser2 := NewSeriesFloat64("test", true, false, data2)
 
 	// s * 1.5
