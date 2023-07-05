@@ -10,15 +10,13 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"typesys"
-
-	avo "github.com/mmcloughlin/avo/build"
 )
 
 const (
 	GOROUTINES           = 4
 	RESULT_VAR_NAME      = "result"
 	RESULT_SIZE_VAR_NAME = "resultSize"
-	FINAL_RETURN_FMT     = "GDLSeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
+	FINAL_RETURN_FMT     = "SeriesError{fmt.Sprintf(\"Cannot %s %%s and %%s\", s.Type().ToString(), other.Type().ToString())}"
 )
 
 type BuildInfo struct {
@@ -463,21 +461,21 @@ func generateSwitchType(operation Operation, op1SeriesType string, op1InnerType 
 func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) string {
 	switch computeResInnerType(opCode, op1, op2) {
 	case typesys.BoolType:
-		return "GDLSeriesBool"
+		return "SeriesBool"
 	case typesys.Int16Type:
-		return "GDLSeriesInt16"
+		return "SeriesInt16"
 	case typesys.Int32Type:
-		return "GDLSeriesInt32"
+		return "SeriesInt32"
 	case typesys.Int64Type:
-		return "GDLSeriesInt64"
+		return "SeriesInt64"
 	case typesys.Float32Type:
-		return "GDLSeriesFloat32"
+		return "SeriesFloat32"
 	case typesys.Float64Type:
-		return "GDLSeriesFloat64"
+		return "SeriesFloat64"
 	case typesys.StringType:
-		return "GDLSeriesString"
+		return "SeriesString"
 	}
-	return "GDLSeriesError"
+	return "SeriesError"
 }
 
 func computeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) typesys.BaseType {
@@ -514,8 +512,7 @@ func generateOperations() {
 
 				case "Div":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
+						generateSwitchType(info.Operations["Div"], info.SeriesType, info.InnerType, "s", "other"),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -525,8 +522,7 @@ func generateOperations() {
 
 				case "Mod":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
+						// generateSwitchType(info.Operations["Mod"], info.SeriesType, info.InnerType, "s", "other"),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -536,8 +532,7 @@ func generateOperations() {
 
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
+						generateSwitchType(info.Operations["Add"], info.SeriesType, info.InnerType, "s", "other"),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -547,8 +542,7 @@ func generateOperations() {
 
 				case "Sub":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						// generateSwitchType("s", "GDLSeriesInt32", "[]int",
-						// 	"other", []string{"GDLSeriesInt32", "GDLSeriesFloat64"}, []string{"[]int", "[]float64"}),
+						generateSwitchType(info.Operations["Sub"], info.SeriesType, info.InnerType, "s", "other"),
 
 						// default: return GDLErrorSeries
 						&ast.ReturnStmt{
@@ -573,12 +567,5 @@ func generateOperations() {
 }
 
 func main() {
-	avo.TEXT("Mul", avo.NOSPLIT, "func(x, y float64) float64")
-	avo.Doc("Mul multiplies x and y.")
-	x := avo.Load(avo.Param("x"), avo.GP64())
-	y := avo.Load(avo.Param("y"), avo.GP64())
-	avo.ADDQ(x, y)
-	avo.Store(y, avo.ReturnIndex(0))
-	avo.RET()
-	avo.Generate()
+	generateOperations()
 }
