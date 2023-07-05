@@ -2,7 +2,7 @@ package typesys
 
 type BOOL []bool
 type INT16 []int16
-type INT32 []int
+type INT32 []int32
 type INT64 []int64
 type FLOAT32 []float32
 type FLOAT64 []float64
@@ -61,7 +61,7 @@ func (bt BaseType) ToGoType() string {
 	case Int16Type:
 		return "[]int16"
 	case Int32Type:
-		return "[]int"
+		return "[]int32"
 	case Int64Type:
 		return "[]int64"
 	case Float32Type:
