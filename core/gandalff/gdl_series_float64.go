@@ -17,7 +17,7 @@ type SeriesFloat64 struct {
 	partition  *SeriesFloat64Partition
 }
 
-func NewSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) SeriesFloat64 {
+func NewSeriesFloat64(name string, isNullable bool, makeCopy bool, data []float64) Series {
 	var nullMask []uint8
 	if isNullable {
 		nullMask = __binVecInit(len(data))
@@ -940,10 +940,795 @@ func (s SeriesFloat64) SortRev() Series {
 ////////////////////////			ARITHMETIC OPERATIONS
 
 func (s SeriesFloat64) Mul(other Series) Series {
+	switch o := other.(type) {
+	case SeriesInt32:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesInt64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesFloat64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] * o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] * o.data[0]
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[0]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] * o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	}
 	return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesFloat64) Div(other Series) Series {
+	switch o := other.(type) {
+	case SeriesInt32:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesInt64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesFloat64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] / o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] / o.data[0]
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[0]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] / o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	}
 	return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
@@ -954,11 +1739,795 @@ func (s SeriesFloat64) Mod(other Series) Series {
 }
 
 func (s SeriesFloat64) Add(other Series) Series {
+	switch o := other.(type) {
+	case SeriesInt32:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesInt64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesFloat64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] + o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] + o.data[0]
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[0]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] + o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	}
 	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
 func (s SeriesFloat64) Sub(other Series) Series {
+	switch o := other.(type) {
+	case SeriesInt32:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesInt64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - float64(o.data[0])
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[0])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - float64(o.data[i])
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	case SeriesFloat64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						result := s.data
+						result[0] = s.data[0] - o.data[0]
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						result := s.data
+						result[0] = s.data[0] - o.data[0]
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(o.data)
+						result := make([]float64, resultSize)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[0] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[0]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[0]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: true, name: s.name, data: result, nullMask: s.nullMask}
+					} else {
+						resultSize := len(s.data)
+						result := s.data
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.data[i] - o.data[i]
+						}
+						return SeriesFloat64{isNullable: false, name: s.name, data: result, nullMask: s.nullMask}
+					}
+				}
+			}
+		}
+	}
 	return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
