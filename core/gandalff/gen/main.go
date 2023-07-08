@@ -442,10 +442,8 @@ func generateOperations() {
 				switch funcDecl.Name.Name {
 				case "Mul":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						COMMMENT_GENERATED_CODE,
-
+						// COMMMENT_GENERATED_CODE,
 						generateSwitchType(info.Operations["Mul"], info.SeriesType, info.InnerType, "s", "other"),
-
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
 						},
@@ -453,10 +451,8 @@ func generateOperations() {
 
 				case "Div":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						COMMMENT_GENERATED_CODE,
-
+						// COMMMENT_GENERATED_CODE,
 						generateSwitchType(info.Operations["Div"], info.SeriesType, info.InnerType, "s", "other"),
-
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
 						},
@@ -473,9 +469,7 @@ func generateOperations() {
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						COMMMENT_GENERATED_CODE,
-
 						generateSwitchType(info.Operations["Add"], info.SeriesType, info.InnerType, "s", "other"),
-
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
 						},
@@ -484,9 +478,7 @@ func generateOperations() {
 				case "Sub":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						COMMMENT_GENERATED_CODE,
-
 						generateSwitchType(info.Operations["Sub"], info.SeriesType, info.InnerType, "s", "other"),
-
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
 						},
