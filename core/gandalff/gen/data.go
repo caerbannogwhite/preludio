@@ -112,7 +112,7 @@ var DATA = map[string]SeriesFile{
 						SeriesType: "SeriesString",
 						InnerType:  typesys.StringType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(intToString(int64(%s.data[%s])) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
@@ -233,7 +233,7 @@ var DATA = map[string]SeriesFile{
 						SeriesType: "SeriesString",
 						InnerType:  typesys.StringType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(intToString(%s.data[%s]) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
@@ -354,7 +354,7 @@ var DATA = map[string]SeriesFile{
 						SeriesType: "SeriesString",
 						InnerType:  typesys.StringType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(floatToString(%s.data[%s]) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
