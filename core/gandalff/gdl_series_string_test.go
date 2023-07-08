@@ -585,3 +585,49 @@ func Test_SeriesString_Map(t *testing.T) {
 		}
 	}
 }
+
+func Test_SeriesString_Arithmetic_Add(t *testing.T) {
+	var res Series
+
+	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+
+	// i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
+	// i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
+	// i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
+	// i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+
+	// f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
+	// f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
+	// f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
+	// f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+
+	pool := NewStringPool()
+	ss := NewSeriesString("test", true, []string{"1"}, pool).(SeriesString)
+	// ss_ := NewSeriesString("test", true, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	// sv := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).(SeriesString)
+	// sv_ := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+
+	// scalar | int32
+	res = ss.Add(i32s)
+	if res.Data().([]string)[0] != "11" {
+		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	}
+
+	res = ss.Add(i32v)
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
+		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	}
+
+	res = ss.Add(i32s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	}
+
+	res = ss.Add(i32v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	}
+}
