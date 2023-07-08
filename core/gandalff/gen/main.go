@@ -84,6 +84,13 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 		}
 	}
 
+	resultGoType := resInnerType.ToGoType()
+
+	// Special case for the result type
+	if resInnerType == typesys.StringType {
+		resultGoType = "[]*string"
+	}
+
 	stmts := []ast.Stmt{
 
 		// assign the result size
@@ -107,7 +114,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				&ast.CallExpr{
 					Fun: &ast.Ident{Name: "make"},
 					Args: []ast.Expr{
-						&ast.Ident{Name: resInnerType.ToGoType()},
+						&ast.Ident{Name: resultGoType},
 						&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
 					},
 				},
@@ -229,28 +236,44 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 	statements = append(statements, generateOperationLoop(info)...)
 
 	// ? - Generate the return statement with the result series
+	params := []ast.Expr{
+		&ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "isNullable"},
+			Value: &ast.Ident{Name: fmt.Sprintf("%v", resIsNullable)},
+		},
+		&ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "name"},
+			Value: &ast.Ident{Name: fmt.Sprintf("%s.name", info.Op1VarName)},
+		},
+		&ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "data"},
+			Value: &ast.Ident{Name: RESULT_VAR_NAME},
+		},
+		&ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "nullMask"},
+			Value: &ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+		},
+	}
+
+	if resSeriesType == "SeriesString" {
+		if info.Op1SeriesType == "SeriesString" {
+			params = append(params, &ast.KeyValueExpr{
+				Key:   &ast.Ident{Name: "pool"},
+				Value: &ast.Ident{Name: fmt.Sprintf("%s.pool", info.Op1VarName)},
+			})
+		} else {
+			params = append(params, &ast.KeyValueExpr{
+				Key:   &ast.Ident{Name: "pool"},
+				Value: &ast.Ident{Name: fmt.Sprintf("%s.pool", info.Op2VarName)},
+			})
+		}
+	}
+
 	statements = append(statements, &ast.ReturnStmt{
 		Results: []ast.Expr{
 			&ast.CompositeLit{
 				Type: &ast.Ident{Name: resSeriesType},
-				Elts: []ast.Expr{
-					&ast.KeyValueExpr{
-						Key:   &ast.Ident{Name: "isNullable"},
-						Value: &ast.Ident{Name: fmt.Sprintf("%v", resIsNullable)},
-					},
-					&ast.KeyValueExpr{
-						Key:   &ast.Ident{Name: "name"},
-						Value: &ast.Ident{Name: fmt.Sprintf("%s.name", info.Op1VarName)},
-					},
-					&ast.KeyValueExpr{
-						Key:   &ast.Ident{Name: "data"},
-						Value: &ast.Ident{Name: RESULT_VAR_NAME},
-					},
-					&ast.KeyValueExpr{
-						Key:   &ast.Ident{Name: "nullMask"},
-						Value: &ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
-					},
-				},
+				Elts: params,
 			},
 		},
 	})

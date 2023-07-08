@@ -108,6 +108,13 @@ var DATA = map[string]SeriesFile{
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) + %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
+					{
+						SeriesType: "SeriesString",
+						InnerType:  typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+						},
+					},
 				},
 			},
 
@@ -220,6 +227,13 @@ var DATA = map[string]SeriesFile{
 						InnerType:  typesys.Float64Type,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) + %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesString",
+						InnerType:  typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
@@ -336,6 +350,13 @@ var DATA = map[string]SeriesFile{
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] + %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
+					{
+						SeriesType: "SeriesString",
+						InnerType:  typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.GetString(%s) + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+						},
+					},
 				},
 			},
 
@@ -367,4 +388,8 @@ var DATA = map[string]SeriesFile{
 			},
 		},
 	},
+
+	// "gdl_series_string.go": {
+	// 	Operations: map[string]Operation{},
+	// },
 }
