@@ -389,7 +389,43 @@ var DATA = map[string]SeriesFile{
 		},
 	},
 
-	// "gdl_series_string.go": {
-	// 	Operations: map[string]Operation{},
-	// },
+	"gdl_series_string.go": {
+		SeriesType: "SeriesString",
+		InnerType:  typesys.StringType,
+		Operations: map[string]Operation{
+			"Add": {
+				OpCode: typesys.OP_BINARY_ADD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesInt32",
+						InnerType:  typesys.Int32Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + intToString(int64(%s.data[%s])))", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesInt64",
+						InnerType:  typesys.Int64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + intToString(%s.data[%s]))", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesFloat64",
+						InnerType:  typesys.Float64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + floatToString(%s.data[%s]))", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesString",
+						InnerType:  typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + *%s.data[%s])", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+		},
+	},
 }
