@@ -1123,5 +1123,656 @@ func (s SeriesString) SortRev() Series {
 ////////////////////////			ARITHMETIC OPERATIONS
 
 func (s SeriesString) Add(other Series) Series {
+	switch o := other.(type) {
+	case SeriesInt32:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		}
+	case SeriesInt64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		}
+	case SeriesFloat64:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		}
+	case SeriesString:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
+						}
+						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
+						}
+						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+					}
+				}
+			}
+		}
+	}
 	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
