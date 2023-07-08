@@ -801,6 +801,69 @@ func Test_SeriesFloat64_Arithmetic_Div(t *testing.T) {
 	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
+
+	// vector | int32
+	res = f64v.Div(i32s)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 2 || res.Data().([]float64)[2] != 3 {
+		t.Errorf("Expected %v, got %v", []float64{1, 2, 3}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(i32v)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 1 {
+		t.Errorf("Expected %v, got %v", []float64{1, 1, 1}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(i32s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Div(i32v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	// vector | int64
+	res = f64v.Div(i64s)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 2 || res.Data().([]float64)[2] != 3 {
+		t.Errorf("Expected %v, got %v", []float64{1, 2, 3}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(i64v)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 1 {
+		t.Errorf("Expected %v, got %v", []float64{1, 1, 1}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(i64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Div(i64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	// vector | float64
+	res = f64v.Div(f64s)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 2 || res.Data().([]float64)[2] != 3 {
+		t.Errorf("Expected %v, got %v", []float64{1, 2, 3}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(f64v)
+	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 1 {
+		t.Errorf("Expected %v, got %v", []float64{1, 1, 1}, res.Data().([]float64))
+	}
+
+	res = f64v.Div(f64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Div(f64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
 }
 
 func Test_SeriesFloat64_Arithmetic_Sub(t *testing.T) {
@@ -880,6 +943,69 @@ func Test_SeriesFloat64_Arithmetic_Sub(t *testing.T) {
 	}
 
 	res = f64s.Sub(f64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	// vector | int32
+	res = f64v.Sub(i32s)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 2 {
+		t.Errorf("Expected %v, got %v", []float64{0, 1, 2}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(i32v)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 0 || res.Data().([]float64)[2] != 0 {
+		t.Errorf("Expected %v, got %v", []float64{0, 0, 0}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(i32s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Sub(i32v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	// vector | int64
+	res = f64v.Sub(i64s)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 2 {
+		t.Errorf("Expected %v, got %v", []float64{0, 1, 2}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(i64v)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 0 || res.Data().([]float64)[2] != 0 {
+		t.Errorf("Expected %v, got %v", []float64{0, 0, 0}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(i64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Sub(i64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	// vector | float64
+	res = f64v.Sub(f64s)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 1 || res.Data().([]float64)[2] != 2 {
+		t.Errorf("Expected %v, got %v", []float64{0, 1, 2}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(f64v)
+	if res.Data().([]float64)[0] != 0 || res.Data().([]float64)[1] != 0 || res.Data().([]float64)[2] != 0 {
+		t.Errorf("Expected %v, got %v", []float64{0, 0, 0}, res.Data().([]float64))
+	}
+
+	res = f64v.Sub(f64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	}
+
+	res = f64v.Sub(f64v_)
 	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
