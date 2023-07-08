@@ -35,3 +35,41 @@ func __binVecCount(v []uint8) int {
 	}
 	return count
 }
+
+// This function computes the bitwise OR of two binary vectors.
+// The result is stored in the third argument.
+func __binVecOrSS(a, b, res []uint8) {
+	res[0] = a[0] | b[0]
+}
+
+// This function computes the bitwise OR of a binary vectors.
+// The result is stored in the second argument.
+func __binVecOrSV(a, b, res []uint8) {
+	if a[0] == 0 {
+		copy(res, b)
+	} else {
+		for i := range res {
+			res[i] = 0xFF
+		}
+	}
+}
+
+// This function computes the bitwise OR of a binary vectors.
+// The result is stored in the second argument.
+func __binVecOrVS(a, b, res []uint8) {
+	if b[0] == 0 {
+		copy(res, a)
+	} else {
+		for i := range res {
+			res[i] = 0xFF
+		}
+	}
+}
+
+// This function computes the bitwise OR of two binary vectors.
+// The result is stored in the third argument.
+func __binVecOrVV(a, b, res []uint8) {
+	for i := range res {
+		res[i] = a[i] | b[i]
+	}
+}
