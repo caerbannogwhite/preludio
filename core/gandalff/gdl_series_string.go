@@ -1122,10 +1122,6 @@ func (s SeriesString) SortRev() Series {
 
 ////////////////////////			ARITHMETIC OPERATIONS
 
-func (s SeriesString) Mul(other Series) Series {
-	return s
-}
-
 func (s SeriesString) Add(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 }
