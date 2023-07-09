@@ -251,11 +251,16 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 
 	switch resSeriesType {
 
-	// BOOL Memory optimized: convert the result to a binary vector
+	// BOOL Memory optimized: convert the result to a binary vector and add the size to the result series
 	case "SeriesBool":
 		params = append(params, &ast.KeyValueExpr{
 			Key:   &ast.Ident{Name: "data"},
 			Value: &ast.Ident{Name: fmt.Sprintf("boolVecToBinVec(%s)", RESULT_VAR_NAME)},
+		})
+
+		params = append(params, &ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "size"},
+			Value: &ast.Ident{Name: RESULT_SIZE_VAR_NAME},
 		})
 
 	// STRING Memory optimized: add the pool to the result string series
