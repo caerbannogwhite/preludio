@@ -780,7 +780,65 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 }
 
 func Test_SeriesString_Logical_Eq(t *testing.T) {
-	// TODO: add tests for all types
+	pool := NewStringPool()
+	ss := NewSeriesString("test", true, []string{"1"}, pool).(SeriesString)
+	ss_ := NewSeriesString("test", true, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).(SeriesString)
+	sv_ := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+
+	// scalar | scalar
+	res := ss.Eq(ss)
+	if res.Data().([]bool)[0] != true {
+		t.Errorf("Expected %v, got %v", true, res.Data().([]bool)[0])
+	}
+
+	res = ss.Eq(ss_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	}
+
+	// scalar | vector
+	res = ss.Eq(sv)
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{true, false, false}, res.Data().([]bool))
+	}
+
+	res = ss.Eq(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	// vector | scalar
+	res = sv.Eq(ss)
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{true, false, false}, res.Data().([]bool))
+	}
+
+	res = sv_.Eq(ss)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	// vector | vector
+	res = sv.Eq(sv)
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.Data().([]bool))
+	}
+
+	res = sv.Eq(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	res = sv_.Eq(sv)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	res = sv_.Eq(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
 }
 
 func Test_SeriesString_Logical_Ne(t *testing.T) {
@@ -788,7 +846,65 @@ func Test_SeriesString_Logical_Ne(t *testing.T) {
 }
 
 func Test_SeriesString_Logical_Lt(t *testing.T) {
-	// TODO: add tests for all types
+	pool := NewStringPool()
+	ss := NewSeriesString("test", true, []string{"1"}, pool).(SeriesString)
+	ss_ := NewSeriesString("test", true, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).(SeriesString)
+	sv_ := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+
+	// scalar | scalar
+	res := ss.Lt(ss)
+	if res.Data().([]bool)[0] != false {
+		t.Errorf("Expected %v, got %v", false, res.Data().([]bool)[0])
+	}
+
+	res = ss.Lt(ss_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	}
+
+	// scalar | vector
+	res = ss.Lt(sv)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{false, true, true}, res.Data().([]bool))
+	}
+
+	res = ss.Lt(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	// vector | scalar
+	res = sv.Lt(ss)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = sv_.Lt(ss)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	// vector | vector
+	res = sv.Lt(sv)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = sv.Lt(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	res = sv_.Lt(sv)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
+
+	res = sv_.Lt(sv_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
+	}
 }
 
 func Test_SeriesString_Logical_Le(t *testing.T) {
