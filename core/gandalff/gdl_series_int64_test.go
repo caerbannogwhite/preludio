@@ -1495,3 +1495,27 @@ func Test_SeriesInt64_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
 }
+
+func Test_SeriesInt64_Logical_Eq(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesInt64_Logical_Ne(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesInt64_Logical_Lt(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesInt64_Logical_Le(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesInt64_Logical_Gt(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesInt64_Logical_Ge(t *testing.T) {
+	// TODO: add tests for all types
+}

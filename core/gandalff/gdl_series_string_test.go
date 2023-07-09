@@ -778,3 +778,27 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
 	}
 }
+
+func Test_SeriesString_Logical_Eq(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesString_Logical_Ne(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesString_Logical_Lt(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesString_Logical_Le(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesString_Logical_Gt(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesString_Logical_Ge(t *testing.T) {
+	// TODO: add tests for all types
+}
