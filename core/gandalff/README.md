@@ -134,7 +134,7 @@ This is how the interface for the Series type currently looks like
 with all the methods that are currently implemented.
 
 ```go
-type GDLSeries interface {
+type Series interface {
 
 	// Basic accessors.
 
@@ -150,7 +150,7 @@ type GDLSeries interface {
 	// Returns if the series admits null values.
 	IsNullable() bool
 	// Returns if the series is sorted.
-	IsSorted() GDLSeriesSortOrder
+	IsSorted() SeriesSortOrder
 
 	// Nullability operations.
 
@@ -163,35 +163,35 @@ type GDLSeries interface {
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.
-	SetNull(i int) GDLSeries
+	SetNull(i int) Series
 	// Returns the null mask of the series.
 	GetNullMask() []bool
 	// Sets the null mask of the series.
-	SetNullMask(mask []bool) GDLSeries
+	SetNullMask(mask []bool) Series
 	// Makes the series nullable.
-	MakeNullable() GDLSeries
+	MakeNullable() Series
 
 	// Get the element at index i.
 	Get(i int) any
 	// Get the element at index i as a string.
 	GetString(i int) string
 	// Set the element at index i.
-	Set(i int, v any) GDLSeries
+	Set(i int, v any) Series
 	// Take the elements according to the given interval.
-	Take(start, end, step int) GDLSeries
+	Take(start, end, step int) Series
 
 	// Sort Interface.
 	Less(i, j int) bool
 	Swap(i, j int)
 
 	// Append elements to the series.
-	Append(v any) GDLSeries
+	Append(v any) Series
 	// AppendRaw appends a value or a slice of values to the series.
-	AppendRaw(v any) GDLSeries
+	AppendRaw(v any) Series
 	// Append nullable elements to the series.
-	AppendNullable(v any) GDLSeries
+	AppendNullable(v any) Series
 	// Append a series to the series.
-	AppendSeries(other GDLSeries) GDLSeries
+	AppendSeries(other Series) Series
 
 	// All-data accessors.
 
@@ -203,32 +203,40 @@ type GDLSeries interface {
 	DataAsString() []string
 
 	// Casts the series to a given type.
-	Cast(t typesys.BaseType, stringPool *StringPool) GDLSeries
+	Cast(t typesys.BaseType, stringPool *StringPool) Series
 	// Copies the series.
-	Copy() GDLSeries
+	Copy() Series
 
 	// Series operations.
 
 	// Filters out the elements by the given mask series.
-	Filter(mask GDLSeriesBool) GDLSeries
+	Filter(mask SeriesBool) Series
 	// Filters out the elements by the given mask.
-	FilterByMask(mask []bool) GDLSeries
+	FilterByMask(mask []bool) Series
 	// Filters out the elements by the given indices.
-	FilterByIndeces(indices []int) GDLSeries
+	FilterByIndeces(indices []int) Series
 
 	// Maps the elements of the series.
-	Map(f GDLMapFunc, stringPool *StringPool) GDLSeries
+	Map(f GDLMapFunc, stringPool *StringPool) Series
 
 	// Group the elements in the series.
-	Group() GDLSeries
-	SubGroup(gp GDLSeriesPartition) GDLSeries
+	Group() Series
+	SubGroup(gp SeriesPartition) Series
 
 	// Get the partition of the series.
-	GetPartition() GDLSeriesPartition
+	GetPartition() SeriesPartition
 
 	// Sorts the elements of the series.
-	Sort() GDLSeries
-	SortRev() GDLSeries
+	Sort() Series
+	SortRev() Series
+
+	// Logical operations.
+	Eq(other Series) Series
+	Ne(other Series) Series
+	Gt(other Series) Series
+	Ge(other Series) Series
+	Lt(other Series) Series
+	Le(other Series) Series
 }
 ```
 
