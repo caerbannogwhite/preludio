@@ -696,18 +696,18 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 
 	// vector | int32
 	res = sv.Add(i32s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
+		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
 	}
 
 	res = sv.Add(i32v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "14" || res.Data().([]string)[2] != "16" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
 	}
 
 	res = sv.Add(i32s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
 	}
 
 	res = sv.Add(i32v_)
@@ -717,18 +717,18 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 
 	// vector | int64
 	res = sv.Add(i64s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
+		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
 	}
 
 	res = sv.Add(i64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "14" || res.Data().([]string)[2] != "16" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
 	}
 
 	res = sv.Add(i64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
 	}
 
 	res = sv.Add(i64v_)
@@ -738,18 +738,18 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 
 	// vector | float64
 	res = sv.Add(f64s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
+		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
 	}
 
 	res = sv.Add(f64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "14" || res.Data().([]string)[2] != "16" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
 	}
 
 	res = sv.Add(f64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
 	}
 
 	res = sv.Add(f64v_)
@@ -759,18 +759,18 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 
 	// vector | string
 	res = sv.Add(ss)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
+		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
 	}
 
 	res = sv.Add(sv)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "14" || res.Data().([]string)[2] != "16" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
 	}
 
 	res = sv.Add(ss_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
 	}
 
 	res = sv.Add(sv_)
