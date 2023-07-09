@@ -1599,13 +1599,13 @@ func Test_SeriesInt32_Logical_Eq(t *testing.T) {
 	}
 
 	res = i32v.Eq(i32s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
 
 	res = i32v.Eq(i32v)
-	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.Data().([]bool))
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.Data().([]bool))
 	}
 
 	res = i32v.Eq(i32v_)
@@ -1620,13 +1620,13 @@ func Test_SeriesInt32_Logical_Eq(t *testing.T) {
 	}
 
 	res = i32v.Eq(i64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
 	}
 
 	res = i32v.Eq(i64v)
-	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.Data().([]bool))
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.Data().([]bool))
 	}
 
 	res = i32v.Eq(i64v_)
@@ -1641,13 +1641,13 @@ func Test_SeriesInt32_Logical_Eq(t *testing.T) {
 	}
 
 	res = i32v.Eq(f64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
 	}
 
 	res = i32v.Eq(f64v)
-	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.Data().([]bool))
+	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.Data().([]bool))
 	}
 
 	res = i32v.Eq(f64v_)
