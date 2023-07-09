@@ -1171,22 +1171,22 @@ func (s SeriesBool) Not() Series {
 
 ////////////////////////			ARITHMETIC OPERATIONS
 
-func (s SeriesBool) Mul(other Series) Series {
-	return s
-}
+// func (s SeriesBool) Mul(other Series) Series {
+// 	return s
+// }
 
-func (s SeriesBool) Div(other Series) Series {
-	return s
-}
+// func (s SeriesBool) Div(other Series) Series {
+// 	return s
+// }
 
-func (s SeriesBool) Mod(other Series) Series {
-	return s
-}
+// func (s SeriesBool) Mod(other Series) Series {
+// 	return s
+// }
 
-func (s SeriesBool) Add(other Series) Series {
-	return s
-}
+// func (s SeriesBool) Add(other Series) Series {
+// 	return s
+// }
 
-func (s SeriesBool) Sub(other Series) Series {
-	return s
-}
+// func (s SeriesBool) Sub(other Series) Series {
+// 	return s
+// }
