@@ -1134,14 +1134,14 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1150,13 +1150,13 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = s.pool.Put(*s.data[0] + intToString(int64(o.data[0])))
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1169,7 +1169,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1178,7 +1178,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1189,7 +1189,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1197,7 +1197,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1212,7 +1212,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1221,7 +1221,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1232,7 +1232,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1240,7 +1240,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[0])))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1253,7 +1253,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1262,7 +1262,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1273,7 +1273,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1281,7 +1281,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(int64(o.data[i])))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1296,14 +1296,14 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1312,13 +1312,13 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = s.pool.Put(*s.data[0] + intToString(o.data[0]))
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1331,7 +1331,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1340,7 +1340,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1351,7 +1351,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1359,7 +1359,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1374,7 +1374,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1383,7 +1383,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1394,7 +1394,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1402,7 +1402,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[0]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1415,7 +1415,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1424,7 +1424,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1435,7 +1435,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1443,7 +1443,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + intToString(o.data[i]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1458,14 +1458,14 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1474,13 +1474,13 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = s.pool.Put(*s.data[0] + floatToString(o.data[0]))
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1493,7 +1493,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1502,7 +1502,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1513,7 +1513,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1521,7 +1521,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1536,7 +1536,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1545,7 +1545,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1556,7 +1556,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1564,7 +1564,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[0]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1577,7 +1577,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1586,7 +1586,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1597,7 +1597,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1605,7 +1605,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + floatToString(o.data[i]))
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1620,14 +1620,14 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1636,13 +1636,13 @@ func (s SeriesString) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = s.pool.Put(*s.data[0] + *o.data[0])
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1655,7 +1655,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1664,7 +1664,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1675,7 +1675,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
@@ -1683,7 +1683,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[0] + *o.data[i])
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1698,7 +1698,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1707,7 +1707,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1718,7 +1718,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1726,7 +1726,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[0])
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			} else {
@@ -1739,7 +1739,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1748,7 +1748,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1759,7 +1759,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
 						}
-						return SeriesString{isNullable: true, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
@@ -1767,7 +1767,7 @@ func (s SeriesString) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.pool.Put(*s.data[i] + *o.data[i])
 						}
-						return SeriesString{isNullable: false, name: s.name, data: result, nullMask: resultNullMask, pool: s.pool}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
 			}
@@ -1779,26 +1779,34 @@ func (s SeriesString) Add(other Series) Series {
 
 ////////////////////////			LOGICAL OPERATIONS
 
+// The body of this function has been generated by the code generator at
+// https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff/gen
 func (s SeriesString) Eq(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesString) Ne(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesString) Gt(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesString) Ge(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesString) Lt(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }
 
 func (s SeriesString) Le(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
+
 }

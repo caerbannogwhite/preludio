@@ -18,36 +18,6 @@ type SeriesBool struct {
 	partition  *SeriesBoolPartition
 }
 
-func NewSeriesBool(name string, isNullable bool, data []bool) Series {
-	size := len(data)
-	var actualData []uint8
-	if size%8 == 0 {
-		actualData = make([]uint8, (size >> 3))
-		for i := 0; i < size; i++ {
-			if data[i] {
-				actualData[i>>3] |= 1 << uint(i%8)
-			}
-		}
-	} else {
-		actualData = make([]uint8, (size>>3)+1)
-		for i := 0; i < size; i++ {
-			if data[i] {
-				actualData[i>>3] |= 1 << uint(i%8)
-			}
-		}
-	}
-
-	var nullMask []uint8
-	if isNullable {
-		nullMask = make([]uint8, len(actualData))
-
-	} else {
-		nullMask = make([]uint8, 0)
-	}
-
-	return SeriesBool{isNullable: isNullable, name: name, size: size, data: actualData, nullMask: nullMask}
-}
-
 ////////////////////////			BASIC ACCESSORS
 
 func (s SeriesBool) __trueCount() int {
