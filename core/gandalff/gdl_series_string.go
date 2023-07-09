@@ -1776,3 +1776,29 @@ func (s SeriesString) Add(other Series) Series {
 	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
+
+////////////////////////			LOGICAL OPERATIONS
+
+func (s SeriesString) Eq(other Series) Series {
+	return s
+}
+
+func (s SeriesString) Ne(other Series) Series {
+	return s
+}
+
+func (s SeriesString) Gt(other Series) Series {
+	return s
+}
+
+func (s SeriesString) Ge(other Series) Series {
+	return s
+}
+
+func (s SeriesString) Lt(other Series) Series {
+	return s
+}
+
+func (s SeriesString) Le(other Series) Series {
+	return s
+}

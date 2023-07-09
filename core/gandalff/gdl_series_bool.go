@@ -1190,3 +1190,29 @@ func (s SeriesBool) Not() Series {
 // func (s SeriesBool) Sub(other Series) Series {
 // 	return s
 // }
+
+////////////////////////			LOGICAL OPERATIONS
+
+func (s SeriesBool) Eq(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Ne(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Gt(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Ge(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Lt(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Le(other Series) Series {
+	return s
+}

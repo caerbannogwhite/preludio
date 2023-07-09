@@ -3379,3 +3379,29 @@ func (s SeriesInt64) Sub(other Series) Series {
 	return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
+
+////////////////////////			LOGICAL OPERATIONS
+
+func (s SeriesInt64) Eq(other Series) Series {
+	return s
+}
+
+func (s SeriesInt64) Ne(other Series) Series {
+	return s
+}
+
+func (s SeriesInt64) Gt(other Series) Series {
+	return s
+}
+
+func (s SeriesInt64) Ge(other Series) Series {
+	return s
+}
+
+func (s SeriesInt64) Lt(other Series) Series {
+	return s
+}
+
+func (s SeriesInt64) Le(other Series) Series {
+	return s
+}
