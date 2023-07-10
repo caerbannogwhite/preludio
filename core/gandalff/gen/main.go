@@ -120,49 +120,101 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 		},
 	}
 
-	if info.Op1Nullable || info.Op2Nullable {
-		stmts = append(stmts, &ast.AssignStmt{
-			Lhs: []ast.Expr{
-				&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
-			},
-			Tok: token.DEFINE,
-			Rhs: []ast.Expr{
-				&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
-			},
-		})
+	if info.Op1Nullable {
+		if info.Op2Nullable {
 
-		funcName := "__binVecOrSS"
-		switch sizeCase {
-		case 0:
-			funcName = "__binVecOrSS"
-		case 1:
-			funcName = "__binVecOrSV"
-		case 2:
-			funcName = "__binVecOrVS"
-		case 3:
-			funcName = "__binVecOrVV"
-		}
-
-		stmts = append(stmts, &ast.ExprStmt{
-			X: &ast.CallExpr{
-				Fun: &ast.Ident{Name: funcName},
-				Args: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op1VarName)},
-					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op2VarName)},
+			// Both operands are nullable:
+			// call the binary vector or function to merge the null masks
+			stmts = append(stmts, &ast.AssignStmt{
+				Lhs: []ast.Expr{
 					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
 				},
-			},
-		})
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+				},
+			})
+
+			funcName := "__binVecOrSS"
+			switch sizeCase {
+			case 0:
+				funcName = "__binVecOrSS"
+			case 1:
+				funcName = "__binVecOrSV"
+			case 2:
+				funcName = "__binVecOrVS"
+			case 3:
+				funcName = "__binVecOrVV"
+			}
+
+			stmts = append(stmts, &ast.ExprStmt{
+				X: &ast.CallExpr{
+					Fun: &ast.Ident{Name: funcName},
+					Args: []ast.Expr{
+						&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op1VarName)},
+						&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op2VarName)},
+						&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+					},
+				},
+			})
+		} else {
+
+			// Only the first operand is nullable:
+			// copy the null mask of the first operand
+			stmts = append(stmts, &ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+				},
+			})
+
+			stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
+				Fun: &ast.Ident{Name: "copy"},
+				Args: []ast.Expr{
+					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op1VarName)},
+				}},
+			})
+		}
 	} else {
-		stmts = append(stmts, &ast.AssignStmt{
-			Lhs: []ast.Expr{
-				&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
-			},
-			Tok: token.DEFINE,
-			Rhs: []ast.Expr{
-				&ast.Ident{Name: "__binVecInit(0)"},
-			},
-		})
+		if info.Op2Nullable {
+
+			// Only the second operand is nullable:
+			// copy the null mask of the second operand
+			stmts = append(stmts, &ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+				},
+			})
+
+			stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
+				Fun: &ast.Ident{Name: "copy"},
+				Args: []ast.Expr{
+					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op2VarName)},
+				}},
+			})
+		} else {
+
+			// None of the operands is nullable:
+			// initialize the null mask to 0
+			stmts = append(stmts, &ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.Ident{Name: "__binVecInit(0)"},
+				},
+			})
+		}
 	}
 
 	return stmts
