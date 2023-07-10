@@ -78,6 +78,24 @@ func Example02() {
 }
 
 func Example03() {
+	s := NewSeriesInt64("nums", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9}).
+		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesInt64).
+		Mul(NewSeriesInt32("nums2", false, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9})).(SeriesInt64).
+		Add(NewSeriesInt64("scalar", false, false, []int64{1})).
+		Gt(NewSeriesFloat64("nums", false, false, []float64{20}))
+
+	p := NewSeriesString("nums", true, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()).
+		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesString).
+		Add(NewSeriesString("nums2", false, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()))
+
+	fmt.Println(s.Data())
+	fmt.Println(s.GetNullMask())
+
+	fmt.Println(p.Data())
+	fmt.Println(p.GetNullMask())
+}
+
+func Example04() {
 	x := `
 a,b
 1,2
@@ -124,12 +142,12 @@ a,b
 }
 
 func main() {
-	// fmt.Println("Example01:")
-	// Example01()
+	fmt.Println("Example01:")
+	Example01()
 
-	// fmt.Println("Example02:")
-	// Example02()
+	fmt.Println("Example02:")
+	Example02()
 
-	fmt.Println("Example03:")
-	Example03()
+	// fmt.Println("Example03:")
+	// Example03()
 }
