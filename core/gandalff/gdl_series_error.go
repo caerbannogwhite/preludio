@@ -194,3 +194,29 @@ func (s SeriesError) Sort() Series {
 func (s SeriesError) SortRev() Series {
 	return s
 }
+
+////////////////////////			LOGICAL OPERATIONS
+
+func (s SeriesError) Eq(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Ne(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Gt(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Ge(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Lt(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Le(other Series) Series {
+	return s
+}

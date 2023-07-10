@@ -73,3 +73,13 @@ func __binVecOrVV(a, b, res []uint8) {
 		res[i] = a[i] | b[i]
 	}
 }
+
+func boolVecToBinVec(v []bool) []uint8 {
+	actualData := make([]uint8, (len(v)+7)>>3)
+	for i := 0; i < len(v); i++ {
+		if v[i] {
+			actualData[i>>3] |= 1 << uint(i%8)
+		}
+	}
+	return actualData
+}

@@ -146,7 +146,7 @@ func (op OPCODE) CommuteOperands(lop, rop Primitive) (Primitive, Primitive) {
 
 func (op OPCODE) IsCommutative() bool {
 	switch op {
-	case OP_BINARY_ADD, OP_BINARY_MUL, OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR:
+	case OP_BINARY_ADD, OP_BINARY_MUL, OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR, OP_BINARY_EQ, OP_BINARY_NE:
 		return true
 	}
 	return false
@@ -155,7 +155,8 @@ func (op OPCODE) IsCommutative() bool {
 func (op OPCODE) IsBinaryOp() bool {
 	switch op {
 	case OP_BINARY_ADD, OP_BINARY_SUB, OP_BINARY_MUL, OP_BINARY_DIV, OP_BINARY_MOD,
-		OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR, OP_BINARY_LSHIFT, OP_BINARY_RSHIFT:
+		OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR, OP_BINARY_LSHIFT, OP_BINARY_RSHIFT,
+		OP_BINARY_EQ, OP_BINARY_NE, OP_BINARY_LT, OP_BINARY_LE, OP_BINARY_GT, OP_BINARY_GE:
 		return true
 	}
 	return false
@@ -540,6 +541,364 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 			switch rop.Base {
 			case BoolType, Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
 				return Primitive{Base: Float64Type, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY EQUALITY
+
+	case OP_BINARY_EQ:
+		switch lop.Base {
+		case BoolType:
+			switch rop.Base {
+			case BoolType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY INEQUALITY
+
+	case OP_BINARY_NE:
+		switch lop.Base {
+		case BoolType:
+			switch rop.Base {
+			case BoolType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY LESS THAN
+
+	case OP_BINARY_LT:
+		switch lop.Base {
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY LESS THAN OR EQUAL TO
+
+	case OP_BINARY_LE:
+		switch lop.Base {
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY GREATER THAN
+
+	case OP_BINARY_GT:
+		switch lop.Base {
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY GREATER THAN OR EQUAL TO
+
+	case OP_BINARY_GE:
+		switch lop.Base {
+		case Int16Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Int64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float32Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case Float64Type:
+			switch rop.Base {
+			case Int16Type, Int32Type, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case StringType:
+			switch rop.Base {
+			case StringType:
+				return Primitive{Base: BoolType, Size: size}
 			default:
 				return Primitive{Base: ErrorType}
 			}

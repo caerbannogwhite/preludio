@@ -577,147 +577,106 @@ func Test_SeriesFloat64_Map(t *testing.T) {
 }
 
 func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {
-	var res Series
-
 	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
 	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
 	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
 	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
 	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
 	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | int32
-	res = f64s.Mul(i32s)
-	if res.Data().([]float64)[0] != 4 {
-		t.Errorf("Expected %v, got %v", 4, res.Data().([]float64)[0])
+	if !checkEqSlice(f64s.Mul(i32s).Data().([]float64), []float64{4}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i32v)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64s.Mul(i32v).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i32s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(f64s.Mul(i32s_).GetNullMask(), []bool{true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i32v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64s.Mul(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 
 	// scalar | int64
-	res = f64s.Mul(i64s)
-	if res.Data().([]float64)[0] != 4 {
-		t.Errorf("Expected %v, got %v", 4, res.Data().([]float64)[0])
+	if !checkEqSlice(f64s.Mul(i64s).Data().([]float64), []float64{4}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i64v)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64s.Mul(i64v).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i64s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(f64s.Mul(i64s_).GetNullMask(), []bool{true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(i64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64s.Mul(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 
 	// scalar | float64
-	res = f64s.Mul(f64s)
-	if res.Data().([]float64)[0] != 4 {
-		t.Errorf("Expected %v, got %v", 4, res.Data().([]float64)[0])
+	if !checkEqSlice(f64s.Mul(f64s).Data().([]float64), []float64{4}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(f64v)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64s.Mul(f64v).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(f64s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(f64s.Mul(f64s_).GetNullMask(), []bool{true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64s.Mul(f64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64s.Mul(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 
 	// vector | int32
-	res = f64v.Mul(i32s)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(i32s).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i32v)
-	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 9 {
-		t.Errorf("Expected %v, got %v", []float64{1, 4, 9}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(i32v).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i32s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i32v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 
 	// vector | int64
-	res = f64v.Mul(i64s)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(i64s).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i64v)
-	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 9 {
-		t.Errorf("Expected %v, got %v", []float64{1, 4, 9}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(i64v).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(i64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 
 	// vector | float64
-	res = f64v.Mul(f64s)
-	if res.Data().([]float64)[0] != 2 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 6 {
-		t.Errorf("Expected %v, got %v", []float64{2, 4, 6}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(f64s).Data().([]float64), []float64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(f64v)
-	if res.Data().([]float64)[0] != 1 || res.Data().([]float64)[1] != 4 || res.Data().([]float64)[2] != 9 {
-		t.Errorf("Expected %v, got %v", []float64{1, 4, 9}, res.Data().([]float64))
+	if !checkEqSlice(f64v.Mul(f64v).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(f64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
-
-	res = f64v.Mul(f64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	if !checkEqSlice(f64v.Mul(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
 	}
 }
 
@@ -1260,4 +1219,169 @@ func Benchmark_SeriesFloat64_Mul_SerSer_Perf(b *testing.B) {
 	if res.Len() != N {
 		b.Errorf("Expected length of %d, got %d", N, res.Len())
 	}
+}
+
+func Test_SeriesFloat64_Logical_Eq(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesFloat64_Logical_Ne(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesFloat64_Logical_Lt(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesFloat64_Logical_Le(t *testing.T) {
+	// TODO: add tests for all types
+}
+
+func Test_SeriesFloat64_Logical_Gt(t *testing.T) {
+	var res Series
+
+	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+
+	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+
+	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+
+	// scalar | int32
+	res = f64s.Gt(i32s)
+	if res.Data().([]bool)[0] != false {
+		t.Errorf("Expected %v, got %v", []bool{false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(i32s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", []bool{true}, res.GetNullMask())
+	}
+
+	res = f64s.Gt(i32v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(i32v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+
+	// scalar | int64
+	res = f64s.Gt(i64s)
+	if res.Data().([]bool)[0] != false {
+		t.Errorf("Expected %v, got %v", []bool{false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(i64s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", []bool{true}, res.GetNullMask())
+	}
+
+	res = f64s.Gt(i64v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(i64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+
+	// scalar | float64
+	res = f64s.Gt(f64s)
+	if res.Data().([]bool)[0] != false {
+		t.Errorf("Expected %v, got %v", []bool{false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(f64s_)
+	if res.IsNull(0) == false {
+		t.Errorf("Expected %v, got %v", []bool{true}, res.GetNullMask())
+	}
+
+	res = f64s.Gt(f64v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64s.Gt(f64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+
+	// vector | int32
+	res = f64v.Gt(i32s)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{false, true, true}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(i32s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	res = f64v.Gt(i32v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(i32v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+
+	// vector | int64
+	res = f64v.Gt(i64s)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{false, true, true}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(i64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	res = f64v.Gt(i64v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(i64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+
+	// vector | float64
+	res = f64v.Gt(f64s)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != true || res.Data().([]bool)[2] != true {
+		t.Errorf("Expected %v, got %v", []bool{false, true, true}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(f64s_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
+		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
+	}
+
+	res = f64v.Gt(f64v)
+	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
+	}
+
+	res = f64v.Gt(f64v_)
+	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
+		t.Errorf("Expected %v, got %v", []bool{false, false, true}, res.GetNullMask())
+	}
+}
+
+func Test_SeriesFloat64_Logical_Ge(t *testing.T) {
+	// TODO: add tests for all types
 }

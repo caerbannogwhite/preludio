@@ -100,6 +100,14 @@ type Series interface {
 	// Sorts the elements of the series.
 	Sort() Series
 	SortRev() Series
+
+	// Logical operations.
+	Eq(other Series) Series
+	Ne(other Series) Series
+	Gt(other Series) Series
+	Ge(other Series) Series
+	Lt(other Series) Series
+	Le(other Series) Series
 }
 
 func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) Series {
