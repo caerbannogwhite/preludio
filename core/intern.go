@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"typesys"
 
+	"gandalff"
+
 	"github.com/go-gota/gota/dataframe"
 )
 
@@ -108,113 +110,141 @@ func (i *__p_intern__) getValue() interface{} {
 }
 
 func (i *__p_intern__) isBoolScalar() bool {
-	if s, ok := i.expr[0].([]bool); ok && len(s) == 1 {
+	if s, ok := i.expr[0].(gandalff.SeriesBool); ok && s.Len() == 1 {
 		return true
 	}
 	return false
 }
 
 func (i *__p_intern__) isBoolVector() bool {
-	if s, ok := i.expr[0].([]bool); ok && len(s) > 1 {
+	if _, ok := i.expr[0].(gandalff.SeriesBool); ok {
 		return true
 	}
 	return false
 }
 
 func (i *__p_intern__) getBoolScalar() (bool, error) {
-	if v, ok := i.expr[0].([]bool); ok && len(v) == 1 {
-		return v[0], nil
+	if s, ok := i.expr[0].(gandalff.SeriesBool); ok && s.Len() == 1 {
+		return s.Get(0).(bool), nil
 	}
 	return false, fmt.Errorf("expecting bool scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getBoolVector() ([]bool, error) {
-	if v, ok := i.expr[0].([]bool); ok {
-		return v, nil
+	if s, ok := i.expr[0].(gandalff.SeriesBool); ok {
+		return s.Data().([]bool), nil
 	}
 	return []bool{}, fmt.Errorf("expecting bool vector, got %T", i.expr[0])
 }
 
-func (i *__p_intern__) isIntegerScalar() bool {
-	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
+func (i *__p_intern__) isInt32Scalar() bool {
+	if s, ok := i.expr[0].(gandalff.SeriesInt32); ok && s.Len() == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *__p_intern__) isIntegerVector() bool {
-	if v, ok := i.expr[0].([]int); ok && len(v) > 1 {
+func (i *__p_intern__) isInt32Vector() bool {
+	if _, ok := i.expr[0].(gandalff.SeriesInt32); ok {
 		return true
 	}
 	return false
 }
 
-func (i *__p_intern__) getIntegerScalar() (int, error) {
-	if v, ok := i.expr[0].([]int); ok && len(v) == 1 {
-		return v[0], nil
+func (i *__p_intern__) getInt32Scalar() (int32, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesInt32); ok && s.Len() == 1 {
+		return s.Get(0).(int32), nil
 	}
-	return 0, fmt.Errorf("expecting integer scalar, got %T", i.expr[0])
+	return 0, fmt.Errorf("expecting int32 scalar, got %T", i.expr[0])
 }
 
-func (i *__p_intern__) getIntegerVector() ([]int, error) {
-	if v, ok := i.expr[0].([]int); ok {
-		return v, nil
+func (i *__p_intern__) getInt32Vector() ([]int32, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesInt32); ok {
+		return s.Data().([]int32), nil
 	}
-	return []int{}, fmt.Errorf("expecting integer vector, got %T", i.expr[0])
+	return []int32{}, fmt.Errorf("expecting int32 vector, got %T", i.expr[0])
 }
 
-func (i *__p_intern__) isFloatScalar() bool {
-	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
+func (i *__p_intern__) isInt64Scalar() bool {
+	if s, ok := i.expr[0].(gandalff.SeriesInt64); ok && s.Len() == 1 {
 		return true
 	}
 	return false
 }
 
-func (i *__p_intern__) isFloatVector() bool {
-	if v, ok := i.expr[0].([]float64); ok && len(v) > 1 {
+func (i *__p_intern__) isInt64Vector() bool {
+	if _, ok := i.expr[0].(gandalff.SeriesInt64); ok {
 		return true
 	}
 	return false
 }
 
-func (i *__p_intern__) getFloatScalar() (float64, error) {
-	if v, ok := i.expr[0].([]float64); ok && len(v) == 1 {
-		return v[0], nil
+func (i *__p_intern__) getInt64Scalar() (int64, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesInt64); ok && s.Len() == 1 {
+		return s.Get(0).(int64), nil
+	}
+	return 0, fmt.Errorf("expecting int64 scalar, got %T", i.expr[0])
+}
+
+func (i *__p_intern__) getInt64Vector() ([]int64, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesInt64); ok {
+		return s.Data().([]int64), nil
+	}
+	return []int64{}, fmt.Errorf("expecting int64 vector, got %T", i.expr[0])
+}
+
+func (i *__p_intern__) isFloat64Scalar() bool {
+	if s, ok := i.expr[0].(gandalff.SeriesFloat64); ok && s.Len() == 1 {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) isFloat64Vector() bool {
+	if _, ok := i.expr[0].(gandalff.SeriesFloat64); ok {
+		return true
+	}
+	return false
+}
+
+func (i *__p_intern__) getFloat64Scalar() (float64, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesFloat64); ok && s.Len() == 1 {
+		return s.Get(0).(float64), nil
 	}
 	return 0, fmt.Errorf("expecting float scalar, got %T", i.expr[0])
 }
 
-func (i *__p_intern__) getFloatVector() ([]float64, error) {
-	if v, ok := i.expr[0].([]float64); ok {
-		return v, nil
+func (i *__p_intern__) getFloat64Vector() ([]float64, error) {
+	if s, ok := i.expr[0].(gandalff.SeriesFloat64); ok {
+		return s.Data().([]float64), nil
 	}
 	return []float64{}, fmt.Errorf("expecting float vector, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) isStringScalar() bool {
-	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
+	if s, ok := i.expr[0].(gandalff.SeriesString); ok && s.Len() == 1 {
 		return true
 	}
 	return false
 }
 
 func (i *__p_intern__) isStringVector() bool {
-	if v, ok := i.expr[0].([]string); ok && len(v) > 1 {
+	if _, ok := i.expr[0].(gandalff.SeriesString); ok {
 		return true
 	}
 	return false
 }
 
 func (i *__p_intern__) getStringScalar() (string, error) {
-	if v, ok := i.expr[0].([]string); ok && len(v) == 1 {
-		return v[0], nil
+	if s, ok := i.expr[0].(gandalff.SeriesString); ok && s.Len() == 1 {
+		return s.Get(0).(string), nil
 	}
 	return "", fmt.Errorf("expecting string scalar, got %T", i.expr[0])
 }
 
 func (i *__p_intern__) getStringVector() ([]string, error) {
-	if v, ok := i.expr[0].([]string); ok {
-		return v, nil
+	if s, ok := i.expr[0].(gandalff.SeriesString); ok {
+		return s.Data().([]string), nil
 	}
 	return []string{}, fmt.Errorf("expecting string vector, got %T", i.expr[0])
 }

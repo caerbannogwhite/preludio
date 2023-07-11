@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"gandalff"
+
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
@@ -198,7 +200,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 	named := map[string]*__p_intern__{}
 
 	var err error
-	var df dataframe.DataFrame
+	var df gandalff.DataFrame
 
 	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {

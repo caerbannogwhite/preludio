@@ -10,7 +10,8 @@ import (
 	"strings"
 	"typesys"
 
-	"github.com/go-gota/gota/dataframe"
+	"gandalff"
+
 	"github.com/go-gota/gota/series"
 )
 
@@ -36,7 +37,7 @@ type ByteEater struct {
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                typesys.PreludioOutput
-	__currentDataFrame      *dataframe.DataFrame
+	__currentDataFrame      gandalff.DataFrame
 	__currentResult         *__p_intern__
 }
 
