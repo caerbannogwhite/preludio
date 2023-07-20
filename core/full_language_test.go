@@ -2,10 +2,9 @@ package preludiocore
 
 import (
 	"bytefeeder"
+	"gandalff"
 	"os"
 	"testing"
-
-	"github.com/go-gota/gota/dataframe"
 )
 
 func init() {
@@ -313,7 +312,7 @@ func Test_Function_readCSV(t *testing.T) {
 	var bytecode []byte
 	var source string
 	var err error
-	var df dataframe.DataFrame
+	var df gandalff.DataFrame
 
 	// CSV, comma delimiter, no header
 	content := `true,hello,.43403,0

@@ -18,8 +18,8 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
-	var df dataframe.DataFrame
-	var series_ []series.Series
+	var df gandalff.DataFrame
+	var series_ []gandalff.Series
 	positional, _, err := vm.GetFunctionParams(funcName, nil, true, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -33,37 +33,40 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	}
 
 	if list, err := positional[1].getList(); err == nil {
-		series_ = make([]series.Series, len(list))
+		series_ = make([]gandalff.Series, len(list))
 
 		for i, val := range list {
 			switch col := val.getValue().(type) {
 			case []bool:
-				series_[i] = series.New(col, series.Bool, val.name)
-			case []int:
-				series_[i] = series.New(col, series.Int, val.name)
+				series_[i] = gandalff.NewSeriesBool(val.name, true, col)
+			case []int64:
+				series_[i] = gandalff.NewSeriesInt64(val.name, true, false, col)
 			case []float64:
-				series_[i] = series.New(col, series.Float, val.name)
+				series_[i] = gandalff.NewSeriesFloat64(val.name, true, false, col)
 			case []string:
-				series_[i] = series.New(col, series.String, val.name)
+				series_[i] = gandalff.NewSeriesString(val.name, true, col, vm.__stringPool)
 			}
 		}
 	} else {
 		val := positional[1].getValue()
-		series_ = make([]series.Series, 1)
+		series_ = make([]gandalff.Series, 1)
 		switch col := val.(type) {
 		case []bool:
-			series_ = append(series_, series.New(col, series.Bool, positional[1].name))
-		case []int:
-			series_ = append(series_, series.New(col, series.Int, positional[1].name))
+			series_ = append(series_, gandalff.NewSeriesBool(positional[1].name, true, col))
+		case []int64:
+			series_ = append(series_, gandalff.NewSeriesInt64(positional[1].name, true, false, col))
 		case []float64:
-			series_ = append(series_, series.New(col, series.Float, positional[1].name))
+			series_ = append(series_, gandalff.NewSeriesFloat64(positional[1].name, true, false, col))
 		case []string:
-			series_ = append([]series.Series{}, series.New(col, series.String, positional[1].name))
+			series_ = append(series_, gandalff.NewSeriesString(positional[1].name, true, col, vm.__stringPool))
 		}
 
 	}
 
-	df = df.CBind(dataframe.New(series_...))
+	for _, s := range series_ {
+		df = df.AddSeries(s)
+	}
+
 	vm.stackPush(newPInternTerm(df))
 }
 
@@ -84,17 +87,17 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 	} else {
 		// var symbol __p_symbol__
 		// var list __p_list__
-		var df dataframe.DataFrame
+		var df gandalff.DataFrame
 
 		// Describe all
 		if len(positional) == 1 {
 			switch v := positional[0].getValue().(type) {
 			case []bool:
-			case []int:
+			case []int64:
 			case []float64:
 			case []string:
 			case __p_list__:
-			case dataframe.DataFrame:
+			case gandalff.DataFrame:
 				df = v
 			}
 
@@ -118,7 +121,7 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 			// case []float64:
 			// case []string:
 			// case __p_list__:
-			// case dataframe.DataFrame:
+			// case gandalff.DataFrame:
 			// 	fmt.Println(v.Select().Describe())
 			// }
 		}
@@ -143,7 +146,7 @@ func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
 
 	var header bool
 	var path string
-	var df dataframe.DataFrame
+	var df gandalff.DataFrame
 	var outputFile *os.File
 
 	df, err = positional[0].getDataframe()
@@ -347,7 +350,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
-	var df dataframe.DataFrame
+	var df gandalff.DataFrame
 	var symbol __p_symbol__
 	var list __p_list__
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
@@ -380,9 +383,9 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 			}
 			names[i] = string(symbol)
 		}
-		df = df.Select(names)
+		df = df.Select(names...)
 	} else {
-		df = df.Select([]string{string(symbol)})
+		df = df.Select([]string{string(symbol)}...)
 	}
 
 	vm.stackPush(newPInternTerm(df))
@@ -398,8 +401,8 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
-	var df dataframe.DataFrame
-	var num int
+	var df gandalff.DataFrame
+	var num int64
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -412,18 +415,13 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 		return
 	}
 
-	num, err = positional[1].getIntegerScalar()
+	num, err = positional[1].getInt64Scalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
-	rows := make([]int, num)
-	for i, _ := range rows {
-		rows[i] = i
-	}
-
-	df = df.Subset(rows)
+	df = df.Take(0, int(num), 1)
 
 	vm.stackPush(newPInternTerm(df))
 }
@@ -480,7 +478,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 			vm.stackPush(newPInternTerm(v))
 
 		// DATAFRAME
-		case dataframe.DataFrame:
+		case gandalff.DataFrame:
 			// TODO
 
 		default:
@@ -493,7 +491,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := *vm.__currentDataFrame
+	df := vm.__currentDataFrame
 	names := make([]string, 0)
 	for name := range series_ {
 		names = append(names, name)
@@ -507,7 +505,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	}
 
 	df = df.Drop(names).CBind(dataframe.New(vals...))
-	vm.__currentDataFrame = &df
+	vm.__currentDataFrame = df
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -614,7 +612,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 			vm.stackPush(newPInternTerm(v))
 
 		// DATAFRAME
-		case dataframe.DataFrame:
+		case gandalff.DataFrame:
 			// TODO
 		}
 
@@ -642,7 +640,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	}
 
 	var err error
-	var num int
+	var num int64
 	var strOld, strNew string
 	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
 	if err != nil {
@@ -674,7 +672,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	}
 
 	// GET num
-	num, err = named["n"].getIntegerScalar()
+	num, err = named["n"].getInt64Scalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -690,7 +688,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 		// BASE TYPES
 		case []string:
 			for i := range v {
-				v[i] = strings.Replace(v[i], strOld, strNew, num)
+				v[i] = strings.Replace(v[i], strOld, strNew, int(num))
 			}
 			vm.stackPush(newPInternTerm(v))
 
@@ -700,7 +698,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 				switch t := e.getValue().(type) {
 				case []string:
 					for j := range v {
-						t[j] = strings.Replace(t[j], strOld, strNew, num)
+						t[j] = strings.Replace(t[j], strOld, strNew, int(num))
 						if err != nil {
 							vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 							return
@@ -716,7 +714,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			vm.stackPush(newPInternTerm(v))
 
 		// DATAFRAME
-		case dataframe.DataFrame:
+		case gandalff.DataFrame:
 			// TODO
 
 		default:

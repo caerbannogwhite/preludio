@@ -11,8 +11,6 @@ import (
 	"typesys"
 
 	"gandalff"
-
-	"github.com/go-gota/gota/series"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -37,6 +35,7 @@ type ByteEater struct {
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                typesys.PreludioOutput
+	__stringPool            *gandalff.StringPool
 	__currentDataFrame      gandalff.DataFrame
 	__currentResult         *__p_intern__
 }
@@ -112,6 +111,8 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
+
+	vm.__stringPool = gandalff.NewStringPool()
 
 	return vm
 }
@@ -537,7 +538,7 @@ MAIN_LOOP:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.stackPush(newPInternTerm([]int{int(val)}))
+				vm.stackPush(newPInternTerm([]int64{val}))
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
@@ -778,18 +779,18 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			ser := vm.__currentDataFrame.Col(string(symbol))
+			ser := vm.__currentDataFrame.Series(string(symbol))
 			switch ser.Type() {
-			case series.Bool:
-				val, _ := ser.Bool()
+			case typesys.BoolType:
+				val, _ := ser.Data().([]bool)
 				return val
-			case series.Int:
-				val, _ := ser.Int()
+			case typesys.Int64Type:
+				val, _ := ser.Data().([]int64)
 				return val
-			case series.Float:
-				return ser.Float()
-			case series.String:
-				return ser.Records()
+			case typesys.Float64Type:
+				return ser.Data().([]float64)
+			case typesys.StringType:
+				return ser.Data().([]string)
 			}
 		}
 	}
@@ -811,7 +812,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 // the current DataFrame
 func (vm *ByteEater) setCurrentDataFrame() {
 	df, _ := vm.stackLast().getDataframe()
-	vm.__currentDataFrame = &df
+	vm.__currentDataFrame = df
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	for _, name := range df.Names() {
