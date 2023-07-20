@@ -30,10 +30,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
 				t.Error("Expected [0, 0, 1, 0], got", v)
 			}
@@ -48,10 +48,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 3 || v[3] != 0 {
 				t.Error("Expected [1, 0, 3, 0] got", v)
 			}
@@ -66,10 +66,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 0.0 || v[2] != 7.0 || v[3] != 0.0 {
 				t.Error("Expected [5.0, 0.0, 7.0, 0.0] got", v)
 			}
@@ -102,10 +102,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 3 || v[3] != 4 {
 				t.Error("Expected [0, 0, 3, 4] got", v)
 			}
@@ -120,10 +120,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 1 || v[1] != 4 || v[2] != 9 || v[3] != 16 {
 				t.Error("Expected [1, 4, 9, 16] got", v)
 			}
@@ -138,10 +138,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 12.0 || v[2] != 21.0 || v[3] != 32.0 {
 				t.Error("Expected [5.0, 12.0, 21.0, 32.0] got", v)
 			}
@@ -177,10 +177,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 0.0 || v[1] != 0.0 || v[2] != 7.0 || v[3] != 8.0 {
 				t.Error("Expected [0.0, 0.0, 7.0, 8.0] got", v)
 			}
@@ -195,10 +195,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 12.0 || v[2] != 21.0 || v[3] != 32.0 {
 				t.Error("Expected [0.0, 0.0, 21.0, 0.0] got", v)
 			}
@@ -213,10 +213,10 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 25.0 || v[1] != 36.0 || v[2] != 49.0 || v[3] != 64.0 {
 				t.Error("Expected [25.0, 36.0, 49.0, 64.0] got", v)
 			}
@@ -314,10 +314,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if !math.IsInf(v[0], 1) || !math.IsNaN(v[1]) || v[2] != 1.0 || v[3] != 0.0 {
 				t.Error("Expected [+Inf, NaN, 1.0, 0.0]")
 			}
@@ -332,10 +332,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 1.0 || v[1] != 0.0 || v[2] != 0.3333333333333333 || v[3] != 0.0 {
 				t.Error("Expected [1.0, 0.0, 0.3333333333333333, 0.0]")
 			}
@@ -350,10 +350,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 0.2 || v[1] != 0.0 || v[2] != 0.14285714285714285 || v[3] != 0.0 {
 				t.Error("Expected [0.2, 0.0, 0.14285714285714285, 0.0]")
 			}
@@ -382,10 +382,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 1.0 || !math.IsInf(v[1], 1) || v[2] != 3.0 || !math.IsInf(v[3], 1) {
 				t.Error("Expected [1.0, +Inf, 3.0, +Inf]")
 			}
@@ -400,10 +400,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 1.0 || v[1] != 1.0 || v[2] != 1.0 || v[3] != 1.0 {
 				t.Error("Expected [1.0, 1.0, 1.0, 1.0]")
 			}
@@ -418,10 +418,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 0.2 || v[1] != 0.3333333333333333 || v[2] != 0.42857142857142855 || v[3] != 0.5 {
 				t.Error("Expected [0.2, 0.3333333333333333, 0.42857142857142855, 0.5]")
 			}
@@ -450,10 +450,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || !math.IsInf(v[1], 1) || v[2] != 7.0 || !math.IsInf(v[3], 1) {
 				t.Error("Expected [5.0, +Inf, 7.0, +Inf]")
 			}
@@ -468,10 +468,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 3.0 || v[2] != 2.3333333333333335 || v[3] != 2.0 {
 				t.Error("Expected [5.0, 3.0, 2.3333333333333335, 2.0]")
 			}
@@ -486,10 +486,10 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 1 || v[1] != 1 || v[2] != 1 || v[3] != 1 {
 				t.Error("Expected [1, 1, 1, 1]")
 			}
@@ -573,10 +573,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 2 || v[3] != 1 {
 				t.Error("Expected [1, 0, 2, 1] got", v)
 			}
@@ -591,10 +591,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 2 || v[1] != 2 || v[2] != 4 || v[3] != 4 {
 				t.Error("Expected [2, 2, 4, 4] got", v)
 			}
@@ -609,10 +609,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 6.0 || v[2] != 8.0 || v[3] != 8.0 {
 				t.Error("Expected [6.0, 6.0, 8.0, 8.0] got", v)
 			}
@@ -648,10 +648,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 2 || v[1] != 2 || v[2] != 4 || v[3] != 4 {
 				t.Error("Expected [2, 2, 4, 4] got", v)
 			}
@@ -666,10 +666,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 2 || v[1] != 4 || v[2] != 6 || v[3] != 8 {
 				t.Error("Expected [2, 4, 6, 8] got", v)
 			}
@@ -684,10 +684,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 8.0 || v[2] != 10.0 || v[3] != 12.0 {
 				t.Error("Expected [6.0, 8.0, 10.0, 12.0] got", v)
 			}
@@ -723,10 +723,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 6.0 || v[2] != 8.0 || v[3] != 8.0 {
 				t.Error("Expected [6.0, 6.0, 8.0, 8.0] got", v)
 			}
@@ -741,10 +741,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 8.0 || v[2] != 10.0 || v[3] != 12.0 {
 				t.Error("Expected [6.0, 8.0, 10.0, 12.0] got", v)
 			}
@@ -759,10 +759,10 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 10.0 || v[1] != 12.0 || v[2] != 14.0 || v[3] != 16.0 {
 				t.Error("Expected [10.0, 12.0, 14.0, 16.0] got", v)
 			}
@@ -881,10 +881,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 0 || v[3] != -1 {
 				t.Error("Expected [1, 0, 0, -1] got", v)
 			}
@@ -899,10 +899,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 0 || v[1] != -2 || v[2] != -2 || v[3] != -4 {
 				t.Error("Expected [0, -2, -2, -4] got", v)
 			}
@@ -917,10 +917,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != -4.0 || v[1] != -6.0 || v[2] != -6.0 || v[3] != -8.0 {
 				t.Error("Expected [-4.0, -6.0, -6.0, -8.0] got", v)
 			}
@@ -949,10 +949,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 2 || v[2] != 2 || v[3] != 4 {
 				t.Error("Expected [0, 2, 2, 4] got", v)
 			}
@@ -967,10 +967,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 0 {
 				t.Error("Expected [0, 0, 0, 0] got", v)
 			}
@@ -985,10 +985,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != -4.0 || v[1] != -4.0 || v[2] != -4.0 || v[3] != -4.0 {
 				t.Error("Expected [-4.0, -4.0, -4.0, -4.0] got", v)
 			}
@@ -1017,10 +1017,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 4.0 || v[1] != 6.0 || v[2] != 6.0 || v[3] != 8.0 {
 				t.Error("Expected [4.0, 6.0, 6.0, 8.0] got", v)
 			}
@@ -1035,10 +1035,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 4.0 || v[1] != 4.0 || v[2] != 4.0 || v[3] != 4.0 {
 				t.Error("Expected [4.0, 4.0, 4.0, 4.0] got", v)
 			}
@@ -1053,10 +1053,10 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0 || v[3] != 0.0 {
 				t.Error("Expected [0.0, 0.0, 0.0, 0.0] got", v)
 			}

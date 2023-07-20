@@ -262,16 +262,16 @@ func (i *__p_intern__) getSymbol() (__p_symbol__, error) {
 }
 
 func (i *__p_intern__) isDataframe() bool {
-	_, ok := i.expr[0].(dataframe.DataFrame)
+	_, ok := i.expr[0].(gandalff.DataFrame)
 	return ok
 }
 
-func (i *__p_intern__) getDataframe() (dataframe.DataFrame, error) {
+func (i *__p_intern__) getDataframe() (gandalff.DataFrame, error) {
 	switch v := i.expr[0].(type) {
-	case dataframe.DataFrame:
+	case gandalff.DataFrame:
 		return v, nil
 	default:
-		return dataframe.DataFrame{}, fmt.Errorf("expecting dataframe, got %T", v)
+		return nil, fmt.Errorf("expecting dataframe, got %T", v)
 	}
 }
 
@@ -317,39 +317,39 @@ func (l *__p_list__) listToBoolVector() ([]bool, error) {
 	return res, nil
 }
 
-func (i *__p_intern__) listToIntegerVector() ([]int, error) {
+func (i *__p_intern__) listToInt64Vector() ([]int64, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
-		res := make([]int, len(l))
+		res := make([]int64, len(l))
 		for j, e := range l {
-			v, err := e.getIntegerScalar()
+			v, err := e.getInt64Scalar()
 			if err != nil {
-				return []int{}, fmt.Errorf("expecting list of integers")
+				return []int64{}, fmt.Errorf("expecting list of integers")
 			}
 			res[j] = v
 		}
 		return res, nil
 	} else {
-		return []int{}, fmt.Errorf("expecting list of integers")
+		return []int64{}, fmt.Errorf("expecting list of integers")
 	}
 }
 
-func (l *__p_list__) listToIntegerVector() ([]int, error) {
-	res := make([]int, len(*l))
+func (l *__p_list__) listToInt64Vector() ([]int64, error) {
+	res := make([]int64, len(*l))
 	for j, e := range *l {
-		v, err := e.getIntegerScalar()
+		v, err := e.getInt64Scalar()
 		if err != nil {
-			return []int{}, fmt.Errorf("expecting list of integers")
+			return []int64{}, fmt.Errorf("expecting list of integers")
 		}
 		res[j] = v
 	}
 	return res, nil
 }
 
-func (i *__p_intern__) listToFloatVector() ([]float64, error) {
+func (i *__p_intern__) listToFloat64Vector() ([]float64, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]float64, len(l))
 		for j, e := range l {
-			v, err := e.getFloatScalar()
+			v, err := e.getFloat64Scalar()
 			if err != nil {
 				return []float64{}, fmt.Errorf("expecting list of floats")
 			}
@@ -361,10 +361,10 @@ func (i *__p_intern__) listToFloatVector() ([]float64, error) {
 	}
 }
 
-func (l *__p_list__) listToFloatVector() ([]float64, error) {
+func (l *__p_list__) listToFloat64Vector() ([]float64, error) {
 	res := make([]float64, len(*l))
 	for j, e := range *l {
-		v, err := e.getFloatScalar()
+		v, err := e.getFloat64Scalar()
 		if err != nil {
 			return []float64{}, fmt.Errorf("expecting list of floats")
 		}

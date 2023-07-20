@@ -44,9 +44,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 1 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 1 {
 			t.Error("Expected 1, got", i, err)
 		}
 	}
@@ -58,9 +58,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 5 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 5 {
 			t.Error("Expected 5, got", i, err)
 		}
 
@@ -69,9 +69,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isFloatScalar() == false {
+		} else if be.__currentResult.isFloat64Scalar() == false {
 			t.Error("Expected float scalar, got", be.__currentResult)
-		} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.3333333333333333 {
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.3333333333333333 {
 			t.Error("Expected 0.3333333333333333, got", f, err)
 		}
 
@@ -80,9 +80,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 412 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 412 {
 			t.Error("Expected 412, got", i, err)
 		}
 
@@ -91,9 +91,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != -1 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != -1 {
 			t.Error("Expected -1, got", i, err)
 		}
 
@@ -102,9 +102,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 3 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 3 {
 			t.Error("Expected 3, got", i, err)
 		}
 	}
@@ -116,9 +116,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloatScalar() == false {
+	} else if be.__currentResult.isFloat64Scalar() == false {
 		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.006626175 {
+	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.006626175 {
 		t.Error("Expected 0.006626175, got", f, err)
 	}
 
@@ -127,9 +127,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloatScalar() == false {
+	} else if be.__currentResult.isFloat64Scalar() == false {
 		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 0.00044174499999999995 {
+	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.00044174499999999995 {
 		t.Error("Expected 0.00044174499999999995, got", f, err)
 	}
 
@@ -175,9 +175,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isIntegerScalar() == false {
+	} else if be.__currentResult.isInt64Scalar() == false {
 		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 33 {
+	} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 33 {
 		t.Error("Expected 33, got", i, err)
 	}
 
@@ -197,9 +197,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloatScalar() == false {
+	} else if be.__currentResult.isFloat64Scalar() == false {
 		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 41.16 {
+	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 41.16 {
 		t.Error("Expected 41.16, got", f, err)
 	}
 
@@ -208,9 +208,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isIntegerScalar() == false {
+	} else if be.__currentResult.isInt64Scalar() == false {
 		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 27 {
+	} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 27 {
 		t.Error("Expected 27, got", i, err)
 	}
 
@@ -230,9 +230,9 @@ func Test_Expressions(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloatScalar() == false {
+	} else if be.__currentResult.isFloat64Scalar() == false {
 		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 6.308411214953271 {
+	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 6.308411214953271 {
 		t.Error("Expected 6.308411214953271, got", f, err)
 	}
 
@@ -243,9 +243,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isIntegerScalar() == false {
+		} else if be.__currentResult.isInt64Scalar() == false {
 			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != -61 {
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != -61 {
 			t.Error("Expected -61, got", i, err)
 		}
 
@@ -254,9 +254,9 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isFloatScalar() == false {
+		} else if be.__currentResult.isFloat64Scalar() == false {
 			t.Error("Expected float scalar, got", be.__currentResult)
-		} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 9.949628981268441e+29 {
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 9.949628981268441e+29 {
 			t.Error("Expected 9.949628981268441e+29, got", f, err)
 		}
 	}
@@ -277,9 +277,9 @@ func Test_Assignements(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isIntegerScalar() == false {
+	} else if be.__currentResult.isInt64Scalar() == false {
 		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getIntegerScalar(); err != nil || i != 33 {
+	} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 33 {
 		t.Error("Expected 33, got", i, err)
 	}
 
@@ -295,9 +295,9 @@ func Test_Assignements(t *testing.T) {
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloatScalar() == false {
+	} else if be.__currentResult.isFloat64Scalar() == false {
 		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloatScalar(); err != nil || f != 1.000000040200004 {
+	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 1.000000040200004 {
 		t.Error("Expected 1.000000040200004, got", f, err)
 	}
 
