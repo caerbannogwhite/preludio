@@ -84,6 +84,33 @@ var DATA = map[string]SeriesFile{
 				},
 			},
 
+			"Mod": {
+				OpCode: typesys.OP_BINARY_MOD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesInt32",
+						InnerType:  typesys.Int32Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] %% %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesInt64",
+						InnerType:  typesys.Int64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(%s.data[%s]) %% %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesFloat64",
+						InnerType:  typesys.Float64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(%s.data[%s]) %% int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
 			"Add": {
 				OpCode: typesys.OP_BINARY_ADD,
 				ApplyTo: []OperationApplyTo{
@@ -367,6 +394,33 @@ var DATA = map[string]SeriesFile{
 				},
 			},
 
+			"Mod": {
+				OpCode: typesys.OP_BINARY_MOD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesInt32",
+						InnerType:  typesys.Int32Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] %% int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesInt64",
+						InnerType:  typesys.Int64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] %% %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesFloat64",
+						InnerType:  typesys.Float64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] %% int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
 			"Add": {
 				OpCode: typesys.OP_BINARY_ADD,
 				ApplyTo: []OperationApplyTo{
@@ -645,6 +699,33 @@ var DATA = map[string]SeriesFile{
 						InnerType:  typesys.Float64Type,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] / %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Mod": {
+				OpCode: typesys.OP_BINARY_MOD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesInt32",
+						InnerType:  typesys.Int32Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(%s.data[%s]) %% int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesInt64",
+						InnerType:  typesys.Int64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(%s.data[%s]) %% %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesType: "SeriesFloat64",
+						InnerType:  typesys.Float64Type,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(%s.data[%s]) %% int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
 					},
 				},
