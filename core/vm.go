@@ -532,24 +532,24 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.stackPush(newPInternTerm([]bool{val}))
+				vm.stackPush(newPInternTerm(gandalff.NewSeriesBool("", true, []bool{val})))
 
 			case typesys.TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.stackPush(newPInternTerm([]int64{val}))
+				vm.stackPush(newPInternTerm(gandalff.NewSeriesInt64("", true, false, []int64{val})))
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
-				vm.stackPush(newPInternTerm([]float64{val}))
+				vm.stackPush(newPInternTerm(gandalff.NewSeriesFloat64("", true, false, []float64{val})))
 
 			case typesys.TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.stackPush(newPInternTerm([]string{termVal}))
+				vm.stackPush(newPInternTerm(gandalff.NewSeriesString("", true, []string{termVal}, vm.__stringPool)))
 
 			case typesys.TERM_SYMBOL:
 				termType = "SYMBOL"

@@ -521,7 +521,8 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 		i++
 	}
 
-	df = df.Drop(names).CBind(dataframe.New(vals...))
+	// TODO: fix this
+	// df = df.Drop(names).CBind(dataframe.New(vals...))
 	vm.__currentDataFrame = df
 }
 
