@@ -423,9 +423,9 @@ MAIN_LOOP:
 			case "from":
 				PreludioFunc_From("from", vm)
 			case "writeCSV":
-				PreludioFunc_WriteCsv("writeCSV", vm)
+				PreludioFunc_WriteCSV("writeCSV", vm)
 			case "readCSV":
-				PreludioFunc_ReadCsv("readCSV", vm)
+				PreludioFunc_ReadCSV("readCSV", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":

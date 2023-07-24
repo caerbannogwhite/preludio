@@ -337,7 +337,7 @@ false,"hello again",0.000000000001,0`
 	} else if be.__currentResult.isDataframe() == false {
 		t.Error("Expected dataframe, got", be.__currentResult)
 	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		records := df.Records()
+		records := df.Records(false)
 
 		if len(records) != 5 {
 			t.Error("Expected 5 records, got", len(records))
@@ -379,7 +379,7 @@ false;"hello again";0.000000000001;0`
 	} else if be.__currentResult.isDataframe() == false {
 		t.Error("Expected dataframe, got", be.__currentResult)
 	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		records := df.Records()
+		records := df.Records(false)
 
 		if len(records) != 5 {
 			t.Error("Expected 5 records, got", len(records))
@@ -422,7 +422,7 @@ false	"hello again"	0.000000000001	0`
 	} else if be.__currentResult.isDataframe() == false {
 		t.Error("Expected dataframe, got", be.__currentResult)
 	} else if df, err = be.__currentResult.getDataframe(); err != nil {
-		records := df.Records()
+		records := df.Records(false)
 
 		if len(records) != 4 {
 			t.Error("Expected 4 records, got", len(records))

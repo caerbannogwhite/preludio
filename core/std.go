@@ -129,12 +129,12 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 }
 
 // Write a Dataframe into a CSV file
-func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
+func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		// "delimiter": newPInternTerm([]string{","}),
-		"header": newPInternTerm([]bool{true}),
+		"delimiter": newPInternTerm([]string{","}),
+		"header":    newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -173,15 +173,15 @@ func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
 		return
 	}
 
-	// delimiter, err = named["delimiter"].getStringScalar()
-	// if err != nil {
-	// 	vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-	// 	return
-	// }
+	delimiter, err := named["delimiter"].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
 
-	// if len(delimiter) > 1 {
-	// 	vm.PrintWarning("delimiter length greater than 1, ignoring remaining characters")
-	// }
+	if len(delimiter) > 1 {
+		vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
+	}
 
 	header, err = named["header"].getBoolScalar()
 	if err != nil {
@@ -189,9 +189,14 @@ func PreludioFunc_WriteCsv(funcName string, vm *ByteEater) {
 		return
 	}
 
-	err = df.WriteCSV(outputFile, dataframe.WriteHeader(header))
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Error()))
+	res := df.ToCSV().
+		SetDelimiter(rune(delimiter[0])).
+		SetHeader(header).
+		SetWriter(outputFile).
+		Write()
+
+	if res.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.GetError()))
 		return
 	}
 }
@@ -222,7 +227,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 }
 
 // Read a Dataframe form CSV file
-func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
+func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
@@ -269,9 +274,21 @@ func PreludioFunc_ReadCsv(funcName string, vm *ByteEater) {
 		}
 	}
 
-	df := dataframe.ReadCSV(inputFile, dataframe.WithDelimiter(del))
-	if df.Error() != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Error()))
+	header, err := named["header"].getBoolScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := gandalff.NewBaseDataFrame().
+		FromCSV().
+		SetReader(inputFile).
+		SetDelimiter(del).
+		SetHeader(header).
+		Read()
+
+	if df.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.GetError()))
 		return
 	}
 
@@ -310,9 +327,9 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 					return
 				}
 				s[i] = series.New(vals, series.Bool, e.name)
-			case []int:
-				var vals []int
-				vals, err = e.listToIntegerVector()
+			case []int64:
+				var vals []int64
+				vals, err = e.listToInt64Vector()
 				if err != nil {
 					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 					return
@@ -320,7 +337,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				s[i] = series.New(vals, series.Int, e.name)
 			case []float64:
 				var vals []float64
-				vals, err = e.listToFloatVector()
+				vals, err = e.listToFloat64Vector()
 				if err != nil {
 					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 					return
