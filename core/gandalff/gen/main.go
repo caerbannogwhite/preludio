@@ -548,13 +548,13 @@ func generateOperations() {
 						},
 					}
 
-				// case "Pow":
-				// 	fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-				// 		generateSwitchType(info.Operations["Pow"], info.SeriesType, info.InnerType, "s", "other"),
-				// 		&ast.ReturnStmt{
-				// 			Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use power"))},
-				// 		},
-				// 	}
+				case "Pow":
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType(info.Operations["Pow"], info.SeriesType, info.InnerType, "s", "other"),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use power"))},
+						},
+					}
 
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
