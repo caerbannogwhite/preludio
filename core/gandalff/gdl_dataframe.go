@@ -74,9 +74,14 @@ type DataFrame interface {
 
 	Agg(...aggregator) DataFrame
 
-	PrettyPrint(nrows int)
+	// IO
+
+	Describe() string
+	Records(header bool) [][]string
+	PrettyPrint(nrows int) DataFrame
 
 	FromCSV() *CsvReader
+	ToCSV() *CsvWriter
 }
 
 ////////////////////////			AGGREGATORS

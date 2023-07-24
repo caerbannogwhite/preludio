@@ -1081,10 +1081,42 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func (df BaseDataFrame) PrettyPrint(nrows int) {
+func (df BaseDataFrame) Describe() string {
+	return ""
+}
+
+func (df BaseDataFrame) Records(header bool) [][]string {
+	var out [][]string
+	if header {
+		out = make([][]string, df.NRows()+1)
+	} else {
+		out = make([][]string, df.NRows())
+	}
+
+	h := 0
+	if header {
+		out[0] = make([]string, df.NCols())
+		for j := 0; j < df.NCols(); j++ {
+			out[0][j] = df.__seriesAt(j).Name()
+		}
+
+		h = 1
+	}
+
+	for i := 0 + h; i < df.NRows()+h; i++ {
+		out[i] = make([]string, df.NCols())
+		for j := 0; j < df.NCols(); j++ {
+			out[i][j] = df.__seriesAt(j).GetString(i - h)
+		}
+	}
+
+	return out
+}
+
+func (df BaseDataFrame) PrettyPrint(nrows int) DataFrame {
 	if df.err != nil {
 		fmt.Println(df.err)
-		return
+		return df
 	}
 
 	if df.isGrouped {
@@ -1187,10 +1219,16 @@ func (df BaseDataFrame) PrettyPrint(nrows int) {
 		}
 	}
 	fmt.Println("+")
+
+	return df
 }
 
 ////////////////////////			IO
 
 func (df BaseDataFrame) FromCSV() *CsvReader {
 	return NewCsvReader(df.pool)
+}
+
+func (df BaseDataFrame) ToCSV() *CsvWriter {
+	return NewCsvWriter().SetDataFrame(df)
 }
