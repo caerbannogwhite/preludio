@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	. "gandalff"
+	"os"
 	"strings"
 )
 
@@ -29,7 +30,7 @@ Operations,4,250000
 )
 
 func Example01() {
-	NewBaseDataFrame().
+	df := NewBaseDataFrame().
 		FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
@@ -50,6 +51,12 @@ func Example01() {
 	// |         IT |         25 |         85 |        0.5 |          4 |
 	// |   Business |         27 |         65 |        0.5 |          2 |
 	// +------------+------------+------------+------------+------------+
+
+	f, _ := os.Create("test.csv")
+	df.ToCSV().
+		SetDelimiter('\t').
+		SetWriter(f).
+		Write()
 }
 
 func Example02() {
