@@ -109,130 +109,133 @@ func Test_Expressions(t *testing.T) {
 	}
 
 	// FLOAT
+	{
+		bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 * 5`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 * 5`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isFloat64Scalar() == false {
+			t.Error("Expected float scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.006626175 {
+			t.Error("Expected 0.006626175, got", f, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloat64Scalar() == false {
-		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.006626175 {
-		t.Error("Expected 0.006626175, got", f, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 / 3`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 / 3`)
-	be.RunBytecode(bytecode)
-
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloat64Scalar() == false {
-		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.00044174499999999995 {
-		t.Error("Expected 0.00044174499999999995, got", f, err)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isFloat64Scalar() == false {
+			t.Error("Expected float scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.00044174499999999995 {
+			t.Error("Expected 0.00044174499999999995, got", f, err)
+		}
 	}
 
 	// STRING
+	{
+		bytecode, _, _ = bytefeeder.CompileSource(`"hello" + "world"`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`"hello" + "world"`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isStringScalar() == false {
+			t.Error("Expected string scalar, got", be.__currentResult)
+		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "helloworld" {
+			t.Error("Expected helloworld, got", s, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isStringScalar() == false {
-		t.Error("Expected string scalar, got", be.__currentResult)
-	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "helloworld" {
-		t.Error("Expected helloworld, got", s, err)
-	}
+		// bytecode, _, _ = bytefeeder.CompileSource(`"hello" * -2`)
+		// be.RunBytecode(bytecode)
 
-	// bytecode, _, _ = bytefeeder.CompileSource(`"hello" * -2`)
-	// be.RunBytecode(bytecode)
+		// if be.__currentResult == nil {
+		// 	t.Error("Expected result, got nil")
+		// } else if be.__currentResult.isStringScalar() == false {
+		// 	t.Error("Expected string scalar, got", be.__currentResult)
+		// } else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "" {
+		// 	t.Error("Expected '', got", s, err)
+		// }
 
-	// if be.__currentResult == nil {
-	// 	t.Error("Expected result, got nil")
-	// } else if be.__currentResult.isStringScalar() == false {
-	// 	t.Error("Expected string scalar, got", be.__currentResult)
-	// } else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "" {
-	// 	t.Error("Expected '', got", s, err)
-	// }
+		bytecode, _, _ = bytefeeder.CompileSource(`"hello" * 3`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`"hello" * 3`)
-	be.RunBytecode(bytecode)
-
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isStringScalar() == false {
-		t.Error("Expected string scalar, got", be.__currentResult)
-	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "hellohellohello" {
-		t.Error("Expected hellohellohello, got", s, err)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isStringScalar() == false {
+			t.Error("Expected string scalar, got", be.__currentResult)
+		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "hellohellohello" {
+			t.Error("Expected hellohellohello, got", s, err)
+		}
 	}
 
 	// LONG EXPRESSIONS
+	{
+		bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isInt64Scalar() == false {
+			t.Error("Expected integer scalar, got", be.__currentResult)
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 33 {
+			t.Error("Expected 33, got", i, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isInt64Scalar() == false {
-		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 33 {
-		t.Error("Expected 33, got", i, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isStringScalar() == false {
+			t.Error("Expected string scalar, got", be.__currentResult)
+		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "5hello" {
+			t.Error("Expected 5hello, got", s, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isStringScalar() == false {
-		t.Error("Expected string scalar, got", be.__currentResult)
-	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "5hello" {
-		t.Error("Expected 5hello, got", s, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isFloat64Scalar() == false {
+			t.Error("Expected float scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 41.16 {
+			t.Error("Expected 41.16, got", f, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloat64Scalar() == false {
-		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 41.16 {
-		t.Error("Expected 41.16, got", f, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isInt64Scalar() == false {
+			t.Error("Expected integer scalar, got", be.__currentResult)
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 27 {
+			t.Error("Expected 27, got", i, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isInt64Scalar() == false {
-		t.Error("Expected integer scalar, got", be.__currentResult)
-	} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 27 {
-		t.Error("Expected 27, got", i, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * (6 % 7 + "hello")`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * (6 % 7 + "hello")`)
-	be.RunBytecode(bytecode)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isStringScalar() == false {
+			t.Error("Expected string scalar, got", be.__currentResult)
+		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "-36hello6hello6hello6hello6hello" {
+			t.Error("Expected -36hello6hello6hello6hello6hello, got", s, err)
+		}
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isStringScalar() == false {
-		t.Error("Expected string scalar, got", be.__currentResult)
-	} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "-36hello6hello6hello6hello6hello" {
-		t.Error("Expected -36hello6hello6hello6hello6hello, got", s, err)
-	}
+		bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * 3)) - (4 + (5 * (6 % 7 + 8))) / ((9) + (10 * 11 - 12 % 13))`)
+		be.RunBytecode(bytecode)
 
-	bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * 3)) - (4 + (5 * (6 % 7 + 8))) / ((9) + (10 * 11 - 12 % 13))`)
-	be.RunBytecode(bytecode)
-
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloat64Scalar() == false {
-		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 6.308411214953271 {
-		t.Error("Expected 6.308411214953271, got", f, err)
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isFloat64Scalar() == false {
+			t.Error("Expected float scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 6.308411214953271 {
+			t.Error("Expected 6.308411214953271, got", f, err)
+		}
 	}
 
 	// EXTREME EXPRESSIONS
