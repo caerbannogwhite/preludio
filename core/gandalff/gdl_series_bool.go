@@ -60,6 +60,16 @@ func (s SeriesBool) IsSorted() SeriesSortOrder {
 	return s.sorted
 }
 
+// Returns if the series is error.
+func (s SeriesBool) IsError() bool {
+	return false
+}
+
+// Returns the error message of the series.
+func (s SeriesBool) GetError() string {
+	return ""
+}
+
 // Returns if the series has null values.
 func (s SeriesBool) HasNull() bool {
 	for _, v := range s.nullMask {

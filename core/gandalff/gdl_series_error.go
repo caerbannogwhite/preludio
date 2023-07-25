@@ -7,10 +7,6 @@ type SeriesError struct {
 	msg string
 }
 
-func (s SeriesError) Error() string {
-	return s.msg
-}
-
 // Returns the length of the series.
 func (s SeriesError) Len() int {
 	return 0
@@ -28,6 +24,16 @@ func (s SeriesError) IsNullable() bool {
 
 func (s SeriesError) IsSorted() SeriesSortOrder {
 	return SORTED_NONE
+}
+
+// Returns if the series is error.
+func (s SeriesError) IsError() bool {
+	return true
+}
+
+// Returns the error message of the series.
+func (s SeriesError) GetError() string {
+	return s.msg
 }
 
 // Makes the series nullable.

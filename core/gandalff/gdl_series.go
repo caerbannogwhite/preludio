@@ -22,6 +22,10 @@ type Series interface {
 	IsNullable() bool
 	// Returns if the series is sorted.
 	IsSorted() SeriesSortOrder
+	// Returns if the series is error.
+	IsError() bool
+	// Returns the error message of the series.
+	GetError() string
 
 	// Nullability operations.
 

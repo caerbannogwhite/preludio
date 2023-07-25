@@ -14,7 +14,7 @@ func Test_Series(t *testing.T) {
 		FilterByMask([]bool{true, false, true, false, true, false, true, false, true, false, true, true, false})
 
 	if e, ok := r.(SeriesError); ok {
-		t.Errorf("Expected a series, got an error: %s", e.Error())
+		t.Errorf("Expected a series, got an error: %s", e.GetError())
 	}
 
 	if r.Len() != 7 {
