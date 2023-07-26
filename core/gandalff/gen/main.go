@@ -304,7 +304,7 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 	switch resSeriesType {
 
 	// BOOL Memory optimized: convert the result to a binary vector and add the size to the result series
-	case "SeriesBool":
+	case "SeriesBoolMemOpt":
 		params = append(params, &ast.KeyValueExpr{
 			Key:   &ast.Ident{Name: "data"},
 			Value: &ast.Ident{Name: fmt.Sprintf("boolVecToBinVec(%s)", RESULT_VAR_NAME)},
