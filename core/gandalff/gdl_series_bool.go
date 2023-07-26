@@ -655,14 +655,19 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	v := f(s.Get(0))
 	switch v.(type) {
 	case bool:
+		data := make([]bool, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			s.data[i] = f(s.data[i]).(bool)
+			data[i] = f(s.data[i]).(bool)
 		}
 
-		s.isGrouped = false
-		s.sorted = SORTED_NONE
-
-		return s
+		return SeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
 
 	case int32:
 		data := make([]int32, len(s.data))

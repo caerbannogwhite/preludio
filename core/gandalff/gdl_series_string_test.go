@@ -445,7 +445,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.Filter: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.FilterByMask: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 

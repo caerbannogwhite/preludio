@@ -535,7 +535,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBoolMemOpt.Filter: mask length (13) does not match series length (9)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBoolMemOpt.FilterByMask: mask length (13) does not match series length (9)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
