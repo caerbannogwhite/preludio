@@ -117,7 +117,7 @@ func (df BaseDataFrame) AddSeries(series Series) DataFrame {
 	return df
 }
 
-func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame {
+func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -132,10 +132,10 @@ func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable bool, data []b
 		return df
 	}
 
-	return df.AddSeries(NewSeriesBool(name, isNullable, data))
+	return df.AddSeries(NewSeriesBool(name, isNullable, makeCopy, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int32) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable, makeCopy bool, data []int32) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -153,7 +153,7 @@ func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable bool, makeCop
 	return df.AddSeries(NewSeriesInt32(name, isNullable, makeCopy, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable, makeCopy bool, data []int64) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -171,7 +171,7 @@ func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable bool, makeCop
 	return df.AddSeries(NewSeriesInt64(name, isNullable, makeCopy, data))
 }
 
-func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable bool, makeCopy bool, data []float64) DataFrame {
+func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -421,7 +421,12 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			for i, group := range indeces {
 				values[i] = old.Get(group[0]).(bool)
 			}
-			result.series = append(result.series, NewSeriesBool(old.Name(), old.IsNullable(), values))
+			result.series = append(result.series, SeriesBool{
+				name:       series.name,
+				isNullable: series.isNullable,
+				nullMask:   __binVecInit(len(indeces)),
+				data:       values,
+			})
 
 		case SeriesInt32:
 			values := make([]int32, len(indeces))
@@ -688,17 +693,17 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Join columns
 		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indicesA))
+			joined = joined.AddSeries(dfGrouped.Series(on[i]).Filter(indicesA))
 		}
 
 		// A columns
 		for _, name := range colsDiffA {
-			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indicesA))
+			joined = joined.AddSeries(df.Series(name).Filter(indicesA))
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
-			joined = joined.AddSeries(other.Series(name).FilterByIndeces(indicesB))
+			joined = joined.AddSeries(other.Series(name).Filter(indicesB))
 		}
 
 	case LEFT_JOIN:
@@ -720,12 +725,12 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Join columns
 		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).FilterByIndeces(indicesA))
+			joined = joined.AddSeries(dfGrouped.Series(on[i]).Filter(indicesA))
 		}
 
 		// A columns
 		for _, name := range colsDiffA {
-			joined = joined.AddSeries(df.Series(name).FilterByIndeces(indicesA))
+			joined = joined.AddSeries(df.Series(name).Filter(indicesA))
 		}
 
 		padBlen := len(indicesA) - len(indicesB)
@@ -736,10 +741,10 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// B columns
 		for _, name := range colsDiffB {
-			ser_ := other.Series(name).FilterByIndeces(indicesB)
+			ser_ := other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, padBlen)).
+				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
 					SetNullMask(nullMask).
 					AppendSeries(ser_)
 
@@ -786,7 +791,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Join columns
 		for i := range on {
-			joined = joined.AddSeries(otherGrouped.Series(on[i]).FilterByIndeces(indicesB))
+			joined = joined.AddSeries(otherGrouped.Series(on[i]).Filter(indicesB))
 		}
 
 		padAlen := len(indicesB) - len(indicesA)
@@ -797,10 +802,10 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// A columns
 		for _, name := range colsDiffA {
-			ser_ := df.Series(name).FilterByIndeces(indicesA)
+			ser_ := df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
 				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
@@ -820,7 +825,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// B columns
 		for _, name := range colsDiffB {
-			joined = joined.AddSeries(other.Series(name).FilterByIndeces(indicesB))
+			joined = joined.AddSeries(other.Series(name).Filter(indicesB))
 		}
 
 	case OUTER_JOIN:
@@ -856,9 +861,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for i := range on {
 			joined = joined.AddSeries(
 				dfGrouped.Series(on[i]).
-					FilterByIndeces(indicesA).AppendSeries(
+					Filter(indicesA).AppendSeries(
 					otherGrouped.Series(on[i]).
-						FilterByIndeces(indicesBOnly)))
+						Filter(indicesBOnly)))
 		}
 
 		nullMaskA := make([]bool, padAlen)
@@ -873,10 +878,10 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// A columns
 		for _, name := range colsDiffA {
-			ser_ := df.Series(name).FilterByIndeces(indicesA)
+			ser_ := df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, make([]bool, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.AppendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Int32Type:
 				ser_ = ser_.AppendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
@@ -896,10 +901,10 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// B columns
 		for _, name := range colsDiffB {
-			ser_ := other.Series(name).FilterByIndeces(indicesB)
+			ser_ := other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, make([]bool, padBlen)).
+				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
 					SetNullMask(nullMaskB).
 					AppendSeries(ser_)
 

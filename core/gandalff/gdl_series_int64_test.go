@@ -452,7 +452,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("filter", false, filterMask).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool("filter", false, true, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -474,8 +474,8 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -497,8 +497,8 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -522,9 +522,9 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// try to filter by a series with a different length.
-	filtered = filtered.FilterByMask(filterMask)
+	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.FilterByMask: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.Filter: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
@@ -545,8 +545,8 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	result = []int64{2, -28, 2}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 3 {
@@ -568,8 +568,8 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 3 {

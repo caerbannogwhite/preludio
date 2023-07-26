@@ -673,8 +673,28 @@ func (s SeriesBoolMemOpt) getDataPtr() *[]uint8 {
 
 ////////////////////////			SERIES OPERATIONS
 
-// Filters out the elements by the given mask series.
-func (s SeriesBoolMemOpt) Filter(mask SeriesBoolMemOpt) Series {
+// Filters out the elements by the given mask.
+// Mask can be a bool series, a slice of bools or a slice of ints.
+func (s SeriesBoolMemOpt) Filter(mask any) Series {
+	switch mask := mask.(type) {
+	case SeriesBool:
+		return s.filterBool(mask)
+	case SeriesBoolMemOpt:
+		return s.filterBoolMemOpt(mask)
+	case []bool:
+		return s.filterBoolSlice(mask)
+	case []int:
+		return s.filterIntSlice(mask)
+	default:
+		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Filter: invalid type %T", mask)}
+	}
+}
+
+func (s SeriesBoolMemOpt) filterBool(mask SeriesBool) Series {
+	return s.filterBoolSlice(mask.data)
+}
+
+func (s SeriesBoolMemOpt) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	if mask.size != s.size {
 		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Filter: mask length (%d) does not match series length (%d)", mask.size, s.size)}
 	}
@@ -732,8 +752,7 @@ func (s SeriesBoolMemOpt) Filter(mask SeriesBoolMemOpt) Series {
 	return s
 }
 
-// FilterByMask returns a new series with elements filtered by the mask.
-func (s SeriesBoolMemOpt) FilterByMask(mask []bool) Series {
+func (s SeriesBoolMemOpt) filterBoolSlice(mask []bool) Series {
 	if len(mask) != s.size {
 		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), s.size)}
 	}
@@ -792,7 +811,7 @@ func (s SeriesBoolMemOpt) FilterByMask(mask []bool) Series {
 	return s
 }
 
-func (s SeriesBoolMemOpt) FilterByIndeces(indexes []int) Series {
+func (s SeriesBoolMemOpt) filterIntSlice(indexes []int) Series {
 	var data []uint8
 	var nullMask []uint8
 

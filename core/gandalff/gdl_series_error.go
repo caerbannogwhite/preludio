@@ -161,18 +161,9 @@ func (s SeriesError) Copy() Series {
 
 // Series operations.
 
-// Filters out the elements by the given mask series.
-func (s SeriesError) Filter(mask SeriesBool) Series {
-	return s
-}
-
-// FilterByMask returns a new series with elements filtered by the mask.
-func (s SeriesError) FilterByMask(mask []bool) Series {
-	return s
-}
-
-// FilterByIndeces returns a new series with elements filtered by the indeces.
-func (s SeriesError) FilterByIndeces(indeces []int) Series {
+// Filters out the elements by the given mask.
+// Mask can be a bool series, a slice of bools or a slice of ints.
+func (s SeriesError) Filter(mask any) Series {
 	return s
 }
 

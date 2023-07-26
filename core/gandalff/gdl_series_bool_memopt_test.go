@@ -485,8 +485,8 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -508,8 +508,8 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -533,9 +533,9 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// try to filter by a series with a different length.
-	filtered = filtered.FilterByMask(filterMask)
+	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBoolMemOpt.FilterByMask: mask length (13) does not match series length (9)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBoolMemOpt.Filter: mask length (13) does not match series length (9)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
@@ -556,8 +556,8 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	result = []bool{true, true, true}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 3 {
@@ -579,8 +579,8 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 3 {

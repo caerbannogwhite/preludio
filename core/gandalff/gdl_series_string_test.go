@@ -373,7 +373,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("mask", false, filterMask).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool("mask", false, true, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -395,8 +395,8 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -418,8 +418,8 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -443,9 +443,9 @@ func Test_SeriesString_Filter(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// try to filter by a series with a different length.
-	filtered = filtered.FilterByMask(filterMask)
+	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.FilterByMask: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.Filter: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
@@ -466,8 +466,8 @@ func Test_SeriesString_Filter(t *testing.T) {
 	result = []string{"a", "p", "w"}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 3 {
@@ -489,8 +489,8 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 3 {

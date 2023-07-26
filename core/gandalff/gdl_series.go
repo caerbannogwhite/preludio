@@ -84,12 +84,9 @@ type Series interface {
 
 	// Series operations.
 
-	// Filters out the elements by the given mask series.
-	Filter(mask SeriesBool) Series
 	// Filters out the elements by the given mask.
-	FilterByMask(mask []bool) Series
-	// Filters out the elements by the given indices.
-	FilterByIndeces(indices []int) Series
+	// Mask can be a bool series, a slice of bools or a slice of ints.
+	Filter(mask any) Series
 
 	// Maps the elements of the series.
 	Map(f GDLMapFunc, stringPool *StringPool) Series
@@ -117,7 +114,7 @@ type Series interface {
 func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) Series {
 	switch t {
 	case typesys.BoolType:
-		return NewSeriesBool(name, nullable, data.([]bool))
+		return NewSeriesBool(name, nullable, makeCopy, data.([]bool))
 	case typesys.Int32Type:
 		return NewSeriesInt32(name, nullable, makeCopy, data.([]int32))
 	case typesys.Int64Type:

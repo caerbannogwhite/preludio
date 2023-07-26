@@ -11,7 +11,7 @@ func Test_SeriesBool_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesBool.
-	s := NewSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -104,7 +104,7 @@ func Test_SeriesBool_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesBool("test", false, data)
+	p := NewSeriesBool("test", false, true, data)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -154,9 +154,9 @@ func Test_SeriesBool_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesBool("testA", true, dataA)
-	sB := NewSeriesBool("testB", true, dataB)
-	sC := NewSeriesBool("testC", true, dataC)
+	sA := NewSeriesBool("testA", true, true, dataA)
+	sB := NewSeriesBool("testB", true, true, dataB)
+	sC := NewSeriesBool("testC", true, true, dataC)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -212,7 +212,7 @@ func Test_SeriesBool_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewSeriesBool("testD", true, dataD)
+	sD := NewSeriesBool("testD", true, true, dataD)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]bool) {
@@ -261,7 +261,7 @@ func Test_SeriesBool_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -355,8 +355,8 @@ func Test_SeriesBool_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewSeriesBool("testA", true, dataA)
-	sB := NewSeriesBool("testB", true, dataB)
+	sA := NewSeriesBool("testA", true, true, dataA)
+	sB := NewSeriesBool("testB", true, true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -389,8 +389,8 @@ func Test_SeriesBool_LogicOperators(t *testing.T) {
 
 	// Check the Or() method.
 	// Create two new series.
-	sA = NewSeriesBool("testA", true, dataA)
-	sB = NewSeriesBool("testB", true, dataB)
+	sA = NewSeriesBool("testA", true, true, dataA)
+	sB = NewSeriesBool("testB", true, true, dataB)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -420,7 +420,7 @@ func Test_SeriesBool_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := NewSeriesBool("test", true, dataA).
+	not := NewSeriesBool("test", true, true, dataA).
 		SetNullMask(maskA).(SeriesBool).
 		Not()
 
@@ -449,7 +449,7 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -463,7 +463,7 @@ func Test_SeriesBool_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("mask", false, filterMask).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool("mask", false, true, filterMask).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -485,8 +485,8 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -508,8 +508,8 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -533,9 +533,9 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	/////////////////////////////////////////////////////////////////////////////////////
 
 	// try to filter by a series with a different length.
-	filtered = filtered.FilterByMask(filterMask)
+	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBool.FilterByMask: mask length (13) does not match series length (9)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBool.Filter: mask length (13) does not match series length (9)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
@@ -544,7 +544,7 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesBool("test", true, data)
+	s = NewSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -556,8 +556,8 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	result = []bool{true, true, true}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByMask() method.
-	filtered = s.FilterByMask(filterMask)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterMask)
 
 	// Check the length.
 	if filtered.Len() != 3 {
@@ -579,8 +579,8 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
-	// 							Check the FilterByIndeces() method.
-	filtered = s.FilterByIndeces(filterIndeces)
+	// 							Check the Filter() method.
+	filtered = s.Filter(filterIndeces)
 
 	// Check the length.
 	if filtered.Len() != 3 {
@@ -607,7 +607,7 @@ func Test_SeriesBool_Map(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBool("test", true, data)
+	s := NewSeriesBool("test", true, true, data)
 
 	// Set the null mask.
 	s.SetNullMask(mask)

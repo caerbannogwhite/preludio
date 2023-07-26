@@ -316,7 +316,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewSeriesBool(name, isNullable, values[i].([]bool))
+			series[i] = NewSeriesBool(name, isNullable, false, values[i].([]bool))
 		case typesys.Int32Type:
 			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32))
 		case typesys.Int64Type:
