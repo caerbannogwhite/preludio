@@ -2660,14 +2660,14 @@ func (s SeriesInt32) Pow(other Series) Series {
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
-						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
+						result[0] = int32(math.Pow(float64(s.data[0]), float64(o.data[0])))
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
-						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
+						result[0] = int32(math.Pow(float64(s.data[0]), float64(o.data[0])))
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
@@ -2676,13 +2676,13 @@ func (s SeriesInt32) Pow(other Series) Series {
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
-						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
+						result[0] = int32(math.Pow(float64(s.data[0]), float64(o.data[0])))
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(0)
-						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
+						result[0] = int32(math.Pow(float64(s.data[0]), float64(o.data[0])))
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
@@ -2694,7 +2694,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2703,7 +2703,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
@@ -2714,7 +2714,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2722,7 +2722,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(0)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
@@ -2737,7 +2737,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2746,7 +2746,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
@@ -2757,7 +2757,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2765,7 +2765,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(0)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
@@ -2778,7 +2778,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2787,7 +2787,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
@@ -2798,7 +2798,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
@@ -2806,7 +2806,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(0)
 						for i := 0; i < resultSize; i++ {
-							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
+							result[i] = int32(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
