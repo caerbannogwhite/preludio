@@ -419,7 +419,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		case SeriesBool:
 			values := make([]bool, len(indeces))
 			for i, group := range indeces {
-				values[i] = old.Get(group[0]).(bool)
+				values[i] = series.data[group[0]]
 			}
 			result.series = append(result.series, SeriesBool{
 				name:       series.name,
@@ -430,9 +430,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesInt32:
 			values := make([]int32, len(indeces))
-			data := series.getDataPtr()
 			for i, group := range indeces {
-				values[i] = (*data)[group[0]]
+				values[i] = series.data[group[0]]
 			}
 
 			result.series = append(result.series, SeriesInt32{
@@ -444,9 +443,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesInt64:
 			values := make([]int64, len(indeces))
-			data := series.getDataPtr()
 			for i, group := range indeces {
-				values[i] = (*data)[group[0]]
+				values[i] = series.data[group[0]]
 			}
 
 			result.series = append(result.series, SeriesInt64{
@@ -458,9 +456,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesFloat64:
 			values := make([]float64, len(indeces))
-			data := series.getDataPtr()
 			for i, group := range indeces {
-				values[i] = (*data)[group[0]]
+				values[i] = series.data[group[0]]
 			}
 
 			result.series = append(result.series, SeriesFloat64{
@@ -472,9 +469,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 		case SeriesString:
 			values := make([]*string, len(indeces))
-			data := series.getDataPtr()
 			for i, group := range indeces {
-				values[i] = (*data)[group[0]]
+				values[i] = series.data[group[0]]
 			}
 
 			result.series = append(result.series, SeriesString{

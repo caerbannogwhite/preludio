@@ -842,6 +842,8 @@ func (s SeriesBool) GetPartition() SeriesPartition {
 	return s.partition
 }
 
+////////////////////////			SORTING OPERATIONS
+
 func (s SeriesBool) Sort() Series {
 	return s
 }
@@ -850,31 +852,7 @@ func (s SeriesBool) SortRev() Series {
 	return s
 }
 
-////////////////////////			SORTING OPERATIONS
-
 ////////////////////////			LOGIC OPERATIONS
-
-// And performs logical AND operation between two series
-// If one of the series is nullable, the result series will be nullable
-// If the other series is not a boolean series, the result will be an error
-func (s SeriesBool) And(other Series) Series {
-	if other.Type() != typesys.BoolType {
-		return SeriesError{fmt.Sprintf("SeriesBool: cannot perform AND operation between %T and %T", s, other)}
-	}
-
-	return s
-}
-
-// Or performs logical OR operation between two series
-// If one of the series is nullable, the result series will be nullable
-// If the other series is not a boolean series, the result will be nil
-func (s SeriesBool) Or(other Series) Series {
-	if other.Type() != typesys.BoolType {
-		return SeriesError{fmt.Sprintf("SeriesBool: cannot perform OR operation between %T and %T", s, other)}
-	}
-
-	return s
-}
 
 // Not performs logical NOT operation on series
 func (s SeriesBool) Not() Series {
@@ -885,27 +863,35 @@ func (s SeriesBool) Not() Series {
 	return s
 }
 
+func (s SeriesBool) And(other Series) Series {
+	return s
+}
+
+func (s SeriesBool) Or(other Series) Series {
+	return s
+}
+
 ////////////////////////			ARITHMETIC OPERATIONS
 
-// func (s SeriesBool) Mul(other Series) Series {
-// 	return s
-// }
+func (s SeriesBool) Mul(other Series) Series {
+	return s
+}
 
-// func (s SeriesBool) Div(other Series) Series {
-// 	return s
-// }
+func (s SeriesBool) Div(other Series) Series {
+	return s
+}
 
-// func (s SeriesBool) Mod(other Series) Series {
-// 	return s
-// }
+func (s SeriesBool) Mod(other Series) Series {
+	return s
+}
 
-// func (s SeriesBool) Add(other Series) Series {
-// 	return s
-// }
+func (s SeriesBool) Add(other Series) Series {
+	return s
+}
 
-// func (s SeriesBool) Sub(other Series) Series {
-// 	return s
-// }
+func (s SeriesBool) Sub(other Series) Series {
+	return s
+}
 
 ////////////////////////			LOGICAL OPERATIONS
 
