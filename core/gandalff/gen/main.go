@@ -486,8 +486,6 @@ func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) stri
 	switch computeResInnerType(opCode, op1, op2) {
 	case typesys.BoolType:
 		return "SeriesBool"
-	case typesys.Int16Type:
-		return "SeriesInt16"
 	case typesys.Int32Type:
 		return "SeriesInt32"
 	case typesys.Int64Type:
@@ -569,6 +567,22 @@ func generateOperations() {
 						generateSwitchType(info.Operations["Sub"], info.SeriesType, info.InnerType, "s", "other"),
 						&ast.ReturnStmt{
 							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
+						},
+					}
+
+				case "And":
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType(info.Operations["And"], info.SeriesType, info.InnerType, "s", "other"),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "and"))},
+						},
+					}
+
+				case "Or":
+					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
+						generateSwitchType(info.Operations["Or"], info.SeriesType, info.InnerType, "s", "other"),
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "or"))},
 						},
 					}
 
