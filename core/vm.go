@@ -532,7 +532,7 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.stackPush(newPInternTerm(gandalff.NewSeriesBool("", true, []bool{val})))
+				vm.stackPush(newPInternTerm(gandalff.NewSeriesBool("", true, false, []bool{val})))
 
 			case typesys.TERM_INTEGER:
 				termType = "INTEGER"

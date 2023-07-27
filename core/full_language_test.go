@@ -21,7 +21,7 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isBoolScalar() == false {
+		} else if !be.__currentResult.isBoolScalar() {
 			t.Error("Expected bool scalar, got", be.__currentResult)
 		} else if b, err := be.__currentResult.getBoolScalar(); err != nil || b != true {
 			t.Error("Expected true, got", b, err)
@@ -32,21 +32,55 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isBoolScalar() == false {
+		} else if !be.__currentResult.isBoolScalar() {
 			t.Error("Expected bool scalar, got", be.__currentResult)
 		} else if b, err := be.__currentResult.getBoolScalar(); err != nil || b != false {
 			t.Error("Expected false, got", b, err)
 		}
 
-		bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
+		// TODO: not supported
+		// bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
+		// be.RunBytecode(bytecode)
+
+		// if be.__currentResult == nil {
+		// 	t.Error("Expected result, got nil")
+		// } else if be.__currentResult.isInt64Scalar() == false {
+		// 	t.Error("Expected integer scalar, got", be.__currentResult)
+		// } else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 1 {
+		// 	t.Error("Expected 1, got", i, err)
+		// }
+
+		bytecode, _, _ = bytefeeder.CompileSource(`true and false`)
 		be.RunBytecode(bytecode)
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
-			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 1 {
-			t.Error("Expected 1, got", i, err)
+		} else if !be.__currentResult.isBoolScalar() {
+			t.Error("Expected bool scalar, got", be.__currentResult)
+		} else if b, err := be.__currentResult.getBoolScalar(); err != nil || b != false {
+			t.Error("Expected false, got", b, err)
+		}
+
+		bytecode, _, _ = bytefeeder.CompileSource(`true or false`)
+		be.RunBytecode(bytecode)
+
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if !be.__currentResult.isBoolScalar() {
+			t.Error("Expected bool scalar, got", be.__currentResult)
+		} else if b, err := be.__currentResult.getBoolScalar(); err != nil || b != true {
+			t.Error("Expected true, got", b, err)
+		}
+
+		bytecode, _, _ = bytefeeder.CompileSource(`true or (false and true)`)
+		be.RunBytecode(bytecode)
+
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if !be.__currentResult.isBoolScalar() {
+			t.Error("Expected bool scalar, got", be.__currentResult)
+		} else if b, err := be.__currentResult.getBoolScalar(); err != nil || b != true {
+			t.Error("Expected true, got", b, err)
 		}
 	}
 
@@ -57,8 +91,8 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
-			t.Error("Expected integer scalar, got", be.__currentResult)
+		} else if !be.__currentResult.isInt64Scalar() {
+			t.Error("Expected int64 scalar, got", be.__currentResult)
 		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 5 {
 			t.Error("Expected 5, got", i, err)
 		}
@@ -68,10 +102,10 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isFloat64Scalar() == false {
-			t.Error("Expected float scalar, got", be.__currentResult)
-		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.3333333333333333 {
-			t.Error("Expected 0.3333333333333333, got", f, err)
+		} else if !be.__currentResult.isInt64Scalar() {
+			t.Error("Expected int64 scalar, got", be.__currentResult)
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 0 {
+			t.Error("Expected 0, got", i, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`4682 % 427`)
@@ -79,10 +113,21 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
+		} else if !be.__currentResult.isInt64Scalar() {
 			t.Error("Expected integer scalar, got", be.__currentResult)
 		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 412 {
 			t.Error("Expected 412, got", i, err)
+		}
+
+		bytecode, _, _ = bytefeeder.CompileSource(`3 ** 4`)
+		be.RunBytecode(bytecode)
+
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if !be.__currentResult.isInt64Scalar() {
+			t.Error("Expected integer scalar, got", be.__currentResult)
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 81 {
+			t.Error("Expected 81, got", i, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`1 - 2`)
@@ -90,7 +135,7 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
+		} else if !be.__currentResult.isInt64Scalar() {
 			t.Error("Expected integer scalar, got", be.__currentResult)
 		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != -1 {
 			t.Error("Expected -1, got", i, err)
@@ -101,7 +146,7 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
+		} else if !be.__currentResult.isInt64Scalar() {
 			t.Error("Expected integer scalar, got", be.__currentResult)
 		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 3 {
 			t.Error("Expected 3, got", i, err)

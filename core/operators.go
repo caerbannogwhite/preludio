@@ -197,7 +197,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 					result = s1.And(t2.(gandalff.Series))
 
 				default:
-					return fmt.Errorf("binary \"&&\" operator not implemented for %s and %s",
+					return fmt.Errorf("binary \"and\" operator not implemented for %s and %s",
 						t1.(gandalff.Series).Type().ToString(),
 						t2.(gandalff.Series).Type().ToString())
 				}
@@ -208,7 +208,7 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 					result = s1.Or(t2.(gandalff.Series))
 
 				default:
-					return fmt.Errorf("binary \"||\" operator not implemented for %s and %s",
+					return fmt.Errorf("binary \"or\" operator not implemented for %s and %s",
 						t1.(gandalff.Series).Type().ToString(),
 						t2.(gandalff.Series).Type().ToString())
 				}
@@ -216,37 +216,37 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			case typesys.OP_BINARY_EQ:
 				result = t1.(gandalff.Series).Eq(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"==\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \"==\" operator error: %s", s.GetError())
 				}
 
 			case typesys.OP_BINARY_NE:
 				result = t1.(gandalff.Series).Ne(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"!=\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \"!=\" operator error: %s", s.GetError())
 				}
 
 			case typesys.OP_BINARY_LT:
 				result = t1.(gandalff.Series).Lt(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"<\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \"<\" operator error: %s", s.GetError())
 				}
 
 			case typesys.OP_BINARY_LE:
 				result = t1.(gandalff.Series).Le(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"<=\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \"<=\" operator error: %s", s.GetError())
 				}
 
 			case typesys.OP_BINARY_GT:
 				result = t1.(gandalff.Series).Gt(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \">\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \">\" operator error: %s", s.GetError())
 				}
 
 			case typesys.OP_BINARY_GE:
 				result = t1.(gandalff.Series).Ge(t2.(gandalff.Series))
 				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \">=\" operator error: %s", s.Error())
+					return fmt.Errorf("binary \">=\" operator error: %s", s.GetError())
 				}
 			}
 		}

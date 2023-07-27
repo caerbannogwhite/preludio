@@ -38,7 +38,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		for i, val := range list {
 			switch col := val.getValue().(type) {
 			case []bool:
-				series_[i] = gandalff.NewSeriesBool(val.name, true, col)
+				series_[i] = gandalff.NewSeriesBool(val.name, true, false, col)
 			case []int64:
 				series_[i] = gandalff.NewSeriesInt64(val.name, true, false, col)
 			case []float64:
@@ -52,7 +52,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		series_ = make([]gandalff.Series, 1)
 		switch col := val.(type) {
 		case []bool:
-			series_ = append(series_, gandalff.NewSeriesBool(positional[1].name, true, col))
+			series_ = append(series_, gandalff.NewSeriesBool(positional[1].name, true, false, col))
 		case []int64:
 			series_ = append(series_, gandalff.NewSeriesInt64(positional[1].name, true, false, col))
 		case []float64:
