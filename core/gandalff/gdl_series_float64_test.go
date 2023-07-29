@@ -577,6 +577,12 @@ func Test_SeriesFloat64_Map(t *testing.T) {
 }
 
 func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
 	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
 	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
 	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
@@ -594,6 +600,20 @@ func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {
 	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
 	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	// scalar | bool
+	if !checkEqSlice(f64s.Mul(bools).Data().([]float64), []float64{2}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64s.Mul(boolv).Data().([]float64), []float64{2, 0, 2, 0, 2, 0, 2, 2, 0, 0}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64s.Mul(bools_).GetNullMask(), []bool{true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64s.Mul(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
 
 	// scalar | int32
 	if !checkEqSlice(f64s.Mul(i32s).Data().([]float64), []float64{4}, nil, "Float64 Mul") {
@@ -634,6 +654,20 @@ func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {
 		t.Errorf("Error in Float64 Mul")
 	}
 	if !checkEqSlice(f64s.Mul(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+
+	// vector | bool
+	if !checkEqSlice(f64v.Mul(bools).Data().([]float64), []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64v.Mul(boolv).Data().([]float64), []float64{1, 0, 3, 0, 5, 0, 7, 8, 0, 0}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64v.Mul(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mul") {
+		t.Errorf("Error in Float64 Mul")
+	}
+	if !checkEqSlice(f64v.Mul(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mul") {
 		t.Errorf("Error in Float64 Mul")
 	}
 
