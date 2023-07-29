@@ -887,6 +887,36 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 		default:
 			return Primitive{Base: ErrorType}
 		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY AND
+	case OP_BINARY_AND:
+		switch lop.Base {
+		case BoolType:
+			switch rop.Base {
+			case BoolType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+		default:
+			return Primitive{Base: ErrorType}
+		}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////				BINARY OR
+	case OP_BINARY_OR:
+		switch lop.Base {
+		case BoolType:
+			switch rop.Base {
+			case BoolType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+		default:
+			return Primitive{Base: ErrorType}
+		}
 	}
 
 	return Primitive{Base: ErrorType}
