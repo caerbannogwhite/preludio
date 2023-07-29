@@ -1652,8 +1652,9 @@ func (s SeriesInt32) Mul(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2147,8 +2148,9 @@ func (s SeriesInt32) Div(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2642,8 +2644,9 @@ func (s SeriesInt32) Mod(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -3137,8 +3140,9 @@ func (s SeriesInt32) Pow(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -3794,8 +3798,9 @@ func (s SeriesInt32) Add(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -4289,8 +4294,9 @@ func (s SeriesInt32) Sub(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -4786,8 +4792,9 @@ func (s SeriesInt32) Eq(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -5281,8 +5288,9 @@ func (s SeriesInt32) Ne(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -5776,8 +5784,9 @@ func (s SeriesInt32) Gt(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -6271,8 +6280,9 @@ func (s SeriesInt32) Ge(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -6766,8 +6776,9 @@ func (s SeriesInt32) Lt(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -7261,7 +7272,8 @@ func (s SeriesInt32) Le(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }

@@ -1794,8 +1794,9 @@ func (s SeriesString) Add(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -1967,8 +1968,9 @@ func (s SeriesString) Eq(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2138,8 +2140,9 @@ func (s SeriesString) Ne(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2309,8 +2312,9 @@ func (s SeriesString) Gt(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2480,8 +2484,9 @@ func (s SeriesString) Ge(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2651,8 +2656,9 @@ func (s SeriesString) Lt(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2822,7 +2828,8 @@ func (s SeriesString) Le(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
