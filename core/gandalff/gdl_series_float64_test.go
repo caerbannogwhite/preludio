@@ -992,6 +992,12 @@ func Test_SeriesFloat64_Arithmetic_Mod(t *testing.T) {
 }
 
 func Test_SeriesFloat64_Arithmetic_Pow(t *testing.T) {
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
 	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
 	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
 	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
@@ -1009,6 +1015,20 @@ func Test_SeriesFloat64_Arithmetic_Pow(t *testing.T) {
 	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
 	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	// scalar | bool
+	if !checkEqSlice(f64s.Pow(bools).Data().([]float64), []float64{2}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64s.Pow(boolv).Data().([]float64), []float64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64s.Pow(bools_).GetNullMask(), []bool{true}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64s.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
 
 	// scalar | int32
 	if !checkEqSlice(f64s.Pow(i32s).Data().([]float64), []float64{4}, nil, "Float64 Pow") {
@@ -1049,6 +1069,20 @@ func Test_SeriesFloat64_Arithmetic_Pow(t *testing.T) {
 		t.Errorf("Error in Float64 Pow")
 	}
 	if !checkEqSlice(f64s.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+
+	// vector | bool
+	if !checkEqSlice(f64v.Pow(bools).Data().([]float64), []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64v.Pow(boolv).Data().([]float64), []float64{1, 1, 3, 1, 5, 1, 7, 8, 1, 1}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64v.Pow(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Pow") {
+		t.Errorf("Error in Float64 Pow")
+	}
+	if !checkEqSlice(f64v.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Pow") {
 		t.Errorf("Error in Float64 Pow")
 	}
 
