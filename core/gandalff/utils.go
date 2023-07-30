@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"math"
 	"testing"
 )
 
@@ -99,6 +100,9 @@ func checkEqSliceFloat64(a, b []float64, t *testing.T, msg string) bool {
 
 	if t == nil {
 		for i, x := range a {
+			if math.IsNaN(x) && math.IsNaN(b[i]) {
+				continue
+			}
 			if x != b[i] {
 				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
 				return false
@@ -106,6 +110,9 @@ func checkEqSliceFloat64(a, b []float64, t *testing.T, msg string) bool {
 		}
 	} else {
 		for i, x := range a {
+			if math.IsNaN(x) && math.IsNaN(b[i]) {
+				continue
+			}
 			if x != b[i] {
 				t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
 				return false
