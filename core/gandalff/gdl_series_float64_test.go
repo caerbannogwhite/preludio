@@ -1,6 +1,7 @@
 package gandalff
 
 import (
+	"math"
 	"math/rand"
 	"testing"
 	"typesys"
@@ -715,6 +716,12 @@ func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {
 }
 
 func Test_SeriesFloat64_Arithmetic_Div(t *testing.T) {
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
 	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
 	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
 	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
@@ -732,6 +739,20 @@ func Test_SeriesFloat64_Arithmetic_Div(t *testing.T) {
 	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
 	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	// scalar | bool
+	if !checkEqSlice(f64s.Div(bools).Data().([]float64), []float64{2}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64s.Div(boolv).Data().([]float64), []float64{2, math.Inf(1), 2, math.Inf(1), 2, math.Inf(1), 2, 2, math.Inf(1), math.Inf(1)}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64s.Div(bools_).GetNullMask(), []bool{true}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64s.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
 
 	// scalar | int32
 	if !checkEqSlice(f64s.Div(i32s).Data().([]float64), []float64{1}, nil, "Float64 Div") {
@@ -772,6 +793,20 @@ func Test_SeriesFloat64_Arithmetic_Div(t *testing.T) {
 		t.Errorf("Error in Float64 Div")
 	}
 	if !checkEqSlice(f64s.Div(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+
+	// vector | bool
+	if !checkEqSlice(f64v.Div(bools).Data().([]float64), []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64v.Div(boolv).Data().([]float64), []float64{1, math.Inf(1), 3, math.Inf(1), 5, math.Inf(1), 7, 8, math.Inf(1), math.Inf(1)}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64v.Div(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Div") {
+		t.Errorf("Error in Float64 Div")
+	}
+	if !checkEqSlice(f64v.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Div") {
 		t.Errorf("Error in Float64 Div")
 	}
 
