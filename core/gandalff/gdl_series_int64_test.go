@@ -1146,6 +1146,12 @@ func Test_SeriesInt64_Arithmetic_Div(t *testing.T) {
 }
 
 func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
 	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
 	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
 	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
@@ -1164,88 +1170,116 @@ func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
 	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
+	// scalar | bool
+	if !checkEqSlice(i64s.Mod(bools).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64s.Mod(boolv).Data().([]float64), []float64{0, math.NaN(), 0, math.NaN(), 0, math.NaN(), 0, 0, math.NaN(), math.NaN()}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64s.Mod(bools_).GetNullMask(), []bool{true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64s.Mod(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+
 	// scalar | int32
-	if !checkEqSlice(i64s.Mod(i32s).Data().([]int64), []int64{0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i32s).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i32v).Data().([]int64), []int64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i32v).Data().([]float64), []float64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i32s_).GetNullMask(), []bool{true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i32s_).GetNullMask(), []bool{true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 
 	// scalar | int64
-	if !checkEqSlice(i64s.Mod(i64s).Data().([]int64), []int64{0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i64s).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i64v).Data().([]int64), []int64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i64v).Data().([]float64), []float64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i64s_).GetNullMask(), []bool{true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i64s_).GetNullMask(), []bool{true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 
 	// scalar | float64
-	if !checkEqSlice(i64s.Mod(f64s).Data().([]int64), []int64{0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(f64s).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(f64v).Data().([]int64), []int64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(f64v).Data().([]float64), []float64{0, 0, 2, 2, 2, 2, 2, 2, 2, 2}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(f64s_).GetNullMask(), []bool{true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(f64s_).GetNullMask(), []bool{true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64s.Mod(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64s.Mod(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+
+	// vector | bool
+	if !checkEqSlice(i64v.Mod(bools).Data().([]float64), []float64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64v.Mod(boolv).Data().([]float64), []float64{0, math.NaN(), 0, math.NaN(), 0, math.NaN(), 0, 0, math.NaN(), math.NaN()}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64v.Mod(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
+	}
+	if !checkEqSlice(i64v.Mod(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 
 	// vector | int32
-	if !checkEqSlice(i64v.Mod(i32s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i32s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i32v).Data().([]int64), []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i32v).Data().([]float64), []float64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 
 	// vector | int64
-	if !checkEqSlice(i64v.Mod(i64s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i64s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i64v).Data().([]int64), []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i64v).Data().([]float64), []float64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 
 	// vector | float64
-	if !checkEqSlice(i64v.Mod(f64s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(f64s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(f64v).Data().([]int64), []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(f64v).Data().([]float64), []float64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
-	if !checkEqSlice(i64v.Mod(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Float64 Mod") {
-		t.Errorf("Error in Float64 Mod")
+	if !checkEqSlice(i64v.Mod(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Mod") {
+		t.Errorf("Error in Int64 Mod")
 	}
 }
 
