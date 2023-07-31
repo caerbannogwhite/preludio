@@ -1193,3 +1193,177 @@ func Test_SeriesBool_Arithmetic_Pow(t *testing.T) {
 		t.Errorf("Error in Bool Pow")
 	}
 }
+
+func Test_SeriesBool_Arithmetic_Add(t *testing.T) {
+	pool := NewStringPool()
+
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
+	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+
+	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	ss := NewSeriesString("test", true, []string{"2"}, pool).(SeriesString)
+	sv := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
+	ss_ := NewSeriesString("test", true, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv_ := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
+
+	// scalar | bool
+	if !checkEqSlice(bools.Add(bools).Data().([]int64), []int64{2}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(boolv).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(bools_).GetNullMask(), []bool{true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// scalar | int32
+	if !checkEqSlice(bools.Add(i32s).Data().([]int32), []int32{3}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i32v).Data().([]int32), []int32{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i32s_).GetNullMask(), []bool{true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// scalar | int64
+	if !checkEqSlice(bools.Add(i64s).Data().([]int64), []int64{3}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i64v).Data().([]int64), []int64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i64s_).GetNullMask(), []bool{true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// scalar | float64
+	if !checkEqSlice(bools.Add(f64s).Data().([]float64), []float64{3}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(f64v).Data().([]float64), []float64{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(f64s_).GetNullMask(), []bool{true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// scalar | string
+	if !checkEqSlice(bools.Add(ss).Data().([]string), []string{"true2"}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(sv).Data().([]string), []string{"true1", "true2", "true3", "true4", "true5", "true6", "true7", "true8", "true9", "true10"}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(ss_).GetNullMask(), []bool{true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(bools.Add(sv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// vector | bool
+	if !checkEqSlice(boolv.Add(bools).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(boolv).Data().([]int64), []int64{2, 0, 2, 0, 2, 0, 2, 2, 0, 0}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// vector | int32
+	if !checkEqSlice(boolv.Add(i32s).Data().([]int32), []int32{3, 2, 3, 2, 3, 2, 3, 3, 2, 2}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i32v).Data().([]int32), []int32{2, 2, 4, 4, 6, 6, 8, 9, 9, 10}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// vector | int64
+	if !checkEqSlice(boolv.Add(i64s).Data().([]int64), []int64{3, 2, 3, 2, 3, 2, 3, 3, 2, 2}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i64v).Data().([]int64), []int64{2, 2, 4, 4, 6, 6, 8, 9, 9, 10}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// vector | float64
+	if !checkEqSlice(boolv.Add(f64s).Data().([]float64), []float64{3, 2, 3, 2, 3, 2, 3, 3, 2, 2}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(f64v).Data().([]float64), []float64{2, 2, 4, 4, 6, 6, 8, 9, 9, 10}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+
+	// vector | string
+	if !checkEqSlice(boolv.Add(ss).Data().([]string), []string{"true2", "false2", "true2", "false2", "true2", "false2", "true2", "true2", "false2", "false2"}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(sv).Data().([]string), []string{"true1", "false2", "true3", "false4", "true5", "false6", "true7", "true8", "false9", "false10"}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(ss_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+	if !checkEqSlice(boolv.Add(sv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Add") {
+		t.Errorf("Error in Bool Add")
+	}
+}

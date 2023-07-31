@@ -587,195 +587,106 @@ func Test_SeriesString_Map(t *testing.T) {
 }
 
 func Test_SeriesString_Arithmetic_Add(t *testing.T) {
-	var res Series
-
-	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
-
-	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
-
-	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
-
 	pool := NewStringPool()
-	ss := NewSeriesString("test", true, []string{"1"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).(SeriesString)
-	sv_ := NewSeriesString("test", true, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
+	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+
+	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	ss := NewSeriesString("test", true, []string{"2"}, pool).(SeriesString)
+	sv := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
+	ss_ := NewSeriesString("test", true, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv_ := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
+
+	// scalar | bool
+	if !checkEqSlice(ss.Add(bools).Data().([]string), []string{"2true"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
+	}
+	if !checkEqSlice(ss.Add(boolv).Data().([]string), []string{"2true", "2false", "2true", "2false", "2true", "2false", "2true", "2true", "2false", "2false"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
+	}
+	if !checkEqSlice(ss.Add(bools_).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
+	}
+	if !checkEqSlice(ss.Add(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
+	}
 
 	// scalar | int32
-	res = ss.Add(i32s)
-	if res.Data().([]string)[0] != "11" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(i32s).Data().([]string), []string{"22"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i32v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(i32v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i32s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(i32s_).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i32v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
 
 	// scalar | int64
-	res = ss.Add(i64s)
-	if res.Data().([]string)[0] != "11" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(i64s).Data().([]string), []string{"22"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(i64v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i64s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(i64s_).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(i64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
 
 	// scalar | float64
-	res = ss.Add(f64s)
-	if res.Data().([]string)[0] != "11" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(f64s).Data().([]string), []string{"22"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(f64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(f64v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(f64s_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(f64s_).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(f64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
 
 	// scalar | string
-	res = ss.Add(ss)
-	if res.Data().([]string)[0] != "11" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(ss).Data().([]string), []string{"22"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(sv)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "12" || res.Data().([]string)[2] != "13" {
-		t.Errorf("Expected %v, got %v", "11", res.Data().([]string)[0])
+	if !checkEqSlice(ss.Add(sv).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(ss_)
-	if res.IsNull(0) == false {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(ss_).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
-
-	res = ss.Add(sv_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
-	}
-
-	// vector | int32
-	res = sv.Add(i32s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
-		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
-	}
-
-	res = sv.Add(i32v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
-		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
-	}
-
-	res = sv.Add(i32s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
-	}
-
-	res = sv.Add(i32v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
-	}
-
-	// vector | int64
-	res = sv.Add(i64s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
-		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
-	}
-
-	res = sv.Add(i64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
-		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
-	}
-
-	res = sv.Add(i64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
-	}
-
-	res = sv.Add(i64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
-	}
-
-	// vector | float64
-	res = sv.Add(f64s)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
-		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
-	}
-
-	res = sv.Add(f64v)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
-		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
-	}
-
-	res = sv.Add(f64s_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
-	}
-
-	res = sv.Add(f64v_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
-	}
-
-	// vector | string
-	res = sv.Add(ss)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "21" || res.Data().([]string)[2] != "31" {
-		t.Errorf("Expected %v, got %v", []string{"11", "21", "31"}, res.Data().([]string))
-	}
-
-	res = sv.Add(sv)
-	if res.Data().([]string)[0] != "11" || res.Data().([]string)[1] != "22" || res.Data().([]string)[2] != "33" {
-		t.Errorf("Expected %v, got %v", []string{"11", "22", "33"}, res.Data().([]string))
-	}
-
-	res = sv.Add(ss_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == false {
-		t.Errorf("Expected %v, got %v", []bool{true, true, true}, []bool{res.IsNull(0), res.IsNull(1), res.IsNull(2)})
-	}
-
-	res = sv.Add(sv_)
-	if res.IsNull(0) == false || res.IsNull(1) == false || res.IsNull(2) == true {
-		t.Errorf("Expected %v, got %v", true, res.IsNull(0))
+	if !checkEqSlice(ss.Add(sv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Error in String Add")
 	}
 }
 
