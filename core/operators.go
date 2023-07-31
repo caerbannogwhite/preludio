@@ -82,172 +82,82 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			}
 
 			switch op {
-
-			///////////////////////////////////////////////////////////////////
-			////////					MULTIPLICATION
-
 			case typesys.OP_BINARY_MUL:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Mul(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Mul(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"*\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
-
-			///////////////////////////////////////////////////////////////////
-			////////					DIVISION
 
 			case typesys.OP_BINARY_DIV:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Div(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Div(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"/\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
-
-			///////////////////////////////////////////////////////////////////
-			////////					MODULUS
 
 			case typesys.OP_BINARY_MOD:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Mod(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Mod(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"%%\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
-
-			///////////////////////////////////////////////////////////////////
-			////////					POWER
 
 			case typesys.OP_BINARY_POW:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Pow(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Pow(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"^\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
-
-			///////////////////////////////////////////////////////////////////
-			////////					ADDITION
 
 			case typesys.OP_BINARY_ADD:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Add(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Add(t2.(gandalff.Series))
-
-				case gandalff.SeriesString:
-					result = s1.Add(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"+\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
-
-			///////////////////////////////////////////////////////////////////
-			////////					SUBTRACTION
 
 			case typesys.OP_BINARY_SUB:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesInt64:
+				if s1, ok := t1.(gandalff.Series); ok {
 					result = s1.Sub(t2.(gandalff.Series))
-
-				case gandalff.SeriesFloat64:
-					result = s1.Sub(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"-\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
 
-			///////////////////////////////////////////////////////////////////
-			////////					LOGICAL
-
 			case typesys.OP_BINARY_AND:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesBool:
+				if s1, ok := t1.(gandalff.SeriesBool); ok {
 					result = s1.And(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"and\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
 
 			case typesys.OP_BINARY_OR:
-				switch s1 := t1.(type) {
-				case gandalff.SeriesBool:
+				if s1, ok := t1.(gandalff.SeriesBool); ok {
 					result = s1.Or(t2.(gandalff.Series))
-
-				default:
-					return fmt.Errorf("binary \"or\" operator not implemented for %s and %s",
-						t1.(gandalff.Series).Type().ToString(),
-						t2.(gandalff.Series).Type().ToString())
 				}
 
 			case typesys.OP_BINARY_EQ:
-				result = t1.(gandalff.Series).Eq(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"==\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Eq(t2.(gandalff.Series))
 				}
 
 			case typesys.OP_BINARY_NE:
-				result = t1.(gandalff.Series).Ne(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"!=\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Ne(t2.(gandalff.Series))
 				}
 
 			case typesys.OP_BINARY_LT:
-				result = t1.(gandalff.Series).Lt(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"<\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Lt(t2.(gandalff.Series))
 				}
 
 			case typesys.OP_BINARY_LE:
-				result = t1.(gandalff.Series).Le(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \"<=\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Le(t2.(gandalff.Series))
 				}
 
 			case typesys.OP_BINARY_GT:
-				result = t1.(gandalff.Series).Gt(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \">\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Gt(t2.(gandalff.Series))
 				}
 
 			case typesys.OP_BINARY_GE:
-				result = t1.(gandalff.Series).Ge(t2.(gandalff.Series))
-				if s, ok := result.(gandalff.SeriesError); ok {
-					return fmt.Errorf("binary \">=\" operator error: %s", s.GetError())
+				if s1, ok := t1.(gandalff.Series); ok {
+					result = s1.Ge(t2.(gandalff.Series))
 				}
+			}
+
+			if _, ok := result.(gandalff.SeriesError); ok {
+				return fmt.Errorf("operator %s not supported between %s and %s",
+					operatorToString(op),
+					t1.(gandalff.Series).Type().ToString(),
+					t2.(gandalff.Series).Type().ToString())
 			}
 		}
 

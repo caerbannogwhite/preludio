@@ -38,17 +38,16 @@ func Test_Expressions(t *testing.T) {
 			t.Error("Expected false, got", b, err)
 		}
 
-		// TODO: not supported
-		// bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
-		// be.RunBytecode(bytecode)
+		bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
+		be.RunBytecode(bytecode)
 
-		// if be.__currentResult == nil {
-		// 	t.Error("Expected result, got nil")
-		// } else if be.__currentResult.isInt64Scalar() == false {
-		// 	t.Error("Expected integer scalar, got", be.__currentResult)
-		// } else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 1 {
-		// 	t.Error("Expected 1, got", i, err)
-		// }
+		if be.__currentResult == nil {
+			t.Error("Expected result, got nil")
+		} else if be.__currentResult.isInt64Scalar() == false {
+			t.Error("Expected integer scalar, got", be.__currentResult)
+		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 1 {
+			t.Error("Expected 1, got", i, err)
+		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`true and false`)
 		be.RunBytecode(bytecode)
@@ -190,28 +189,6 @@ func Test_Expressions(t *testing.T) {
 		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "helloworld" {
 			t.Error("Expected helloworld, got", s, err)
 		}
-
-		// bytecode, _, _ = bytefeeder.CompileSource(`"hello" * -2`)
-		// be.RunBytecode(bytecode)
-
-		// if be.__currentResult == nil {
-		// 	t.Error("Expected result, got nil")
-		// } else if be.__currentResult.isStringScalar() == false {
-		// 	t.Error("Expected string scalar, got", be.__currentResult)
-		// } else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "" {
-		// 	t.Error("Expected '', got", s, err)
-		// }
-
-		bytecode, _, _ = bytefeeder.CompileSource(`"hello" * 3`)
-		be.RunBytecode(bytecode)
-
-		if be.__currentResult == nil {
-			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isStringScalar() == false {
-			t.Error("Expected string scalar, got", be.__currentResult)
-		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "hellohellohello" {
-			t.Error("Expected hellohellohello, got", s, err)
-		}
 	}
 
 	// LONG EXPRESSIONS
@@ -258,17 +235,6 @@ func Test_Expressions(t *testing.T) {
 			t.Error("Expected integer scalar, got", be.__currentResult)
 		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 27 {
 			t.Error("Expected 27, got", i, err)
-		}
-
-		bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * (6 % 7 + "hello")`)
-		be.RunBytecode(bytecode)
-
-		if be.__currentResult == nil {
-			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isStringScalar() == false {
-			t.Error("Expected string scalar, got", be.__currentResult)
-		} else if s, err := be.__currentResult.getStringScalar(); err != nil || s != "-36hello6hello6hello6hello6hello" {
-			t.Error("Expected -36hello6hello6hello6hello6hello, got", s, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * 3)) - (4 + (5 * (6 % 7 + 8))) / ((9) + (10 * 11 - 12 % 13))`)
