@@ -1,5 +1,9 @@
 package gandalff
 
+func NewSeriesError(err string) SeriesError {
+	return SeriesError{msg: err}
+}
+
 func NewSeriesBool(name string, isNullable, makeCopy bool, data []bool) Series {
 	var nullMask []uint8
 	if isNullable {
