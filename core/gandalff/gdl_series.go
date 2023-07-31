@@ -60,13 +60,9 @@ type Series interface {
 	Swap(i, j int)
 
 	// Append elements to the series.
+	// Value can be a single value, slice of values,
+	// a nullable value, a slice of nullable values or a series.
 	Append(v any) Series
-	// AppendRaw appends a value or a slice of values to the series.
-	AppendRaw(v any) Series
-	// Append nullable elements to the series.
-	AppendNullable(v any) Series
-	// Append a series to the series.
-	AppendSeries(other Series) Series
 
 	// All-data accessors.
 
@@ -101,6 +97,14 @@ type Series interface {
 	// Sorts the elements of the series.
 	Sort() Series
 	SortRev() Series
+
+	// Arithmetic operations.
+	Mul(other Series) Series
+	Div(other Series) Series
+	Mod(other Series) Series
+	Pow(other Series) Series
+	Add(other Series) Series
+	Sub(other Series) Series
 
 	// Logical operations.
 	Eq(other Series) Series

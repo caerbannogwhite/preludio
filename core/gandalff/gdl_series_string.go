@@ -271,11 +271,11 @@ func (s SeriesString) Swap(i, j int) {
 func (s SeriesString) Append(v any) Series {
 	switch v := v.(type) {
 	case string, []string:
-		return s.AppendRaw(v)
+		return s.appendRaw(v)
 	case NullableString, []NullableString:
-		return s.AppendNullable(v)
+		return s.appendNullable(v)
 	case SeriesString:
-		return s.AppendSeries(v)
+		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
@@ -284,7 +284,7 @@ func (s SeriesString) Append(v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesString) AppendRaw(v any) Series {
+func (s SeriesString) appendRaw(v any) Series {
 	if s.isNullable {
 		if str, ok := v.(string); ok {
 			s.data = append(s.data, s.pool.Put(str))
@@ -316,7 +316,7 @@ func (s SeriesString) AppendRaw(v any) Series {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesString) AppendNullable(v any) Series {
+func (s SeriesString) appendNullable(v any) Series {
 	if !s.isNullable {
 		return SeriesError{"SeriesString.AppendNullable: series is not nullable"}
 	}
@@ -352,7 +352,7 @@ func (s SeriesString) AppendNullable(v any) Series {
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesString) AppendSeries(other Series) Series {
+func (s SeriesString) appendSeries(other Series) Series {
 	var ok bool
 	var o SeriesString
 	if o, ok = other.(SeriesString); !ok {
@@ -1141,6 +1141,22 @@ func (s SeriesString) SortRev() Series {
 ////////////////////////			SORTING OPERATIONS
 
 ////////////////////////			ARITHMETIC OPERATIONS
+
+func (s SeriesString) Mul(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot multiply SeriesString and %T", other)}
+}
+
+func (s SeriesString) Div(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot divide SeriesString and %T", other)}
+}
+
+func (s SeriesString) Mod(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot modulo SeriesString and %T", other)}
+}
+
+func (s SeriesString) Pow(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot power SeriesString and %T", other)}
+}
 
 func (s SeriesString) Add(other Series) Series {
 	switch o := other.(type) {
@@ -1958,6 +1974,10 @@ func (s SeriesString) Add(other Series) Series {
 		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
 
+}
+
+func (s SeriesString) Sub(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot subtract SeriesString and %T", other)}
 }
 
 func (s SeriesString) Eq(other Series) Series {

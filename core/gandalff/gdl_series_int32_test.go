@@ -266,7 +266,7 @@ func Test_SeriesInt32_Append(t *testing.T) {
 	sC.SetNullMask(maskC)
 
 	// Append the series.
-	result := sA.AppendSeries(sB).AppendSeries(sC)
+	result := sA.Append(sB).Append(sC)
 
 	// Check the name.
 	if result.Name() != "testA" {

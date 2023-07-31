@@ -117,21 +117,6 @@ func (s SeriesError) Append(v any) Series {
 	return s
 }
 
-// AppendRaw appends a value or a slice of values to the series.
-func (s SeriesError) AppendRaw(v any) Series {
-	return s
-}
-
-// Append nullable elements to the series.
-func (s SeriesError) AppendNullable(v any) Series {
-	return s
-}
-
-// Append a series to the series.
-func (s SeriesError) AppendSeries(other Series) Series {
-	return s
-}
-
 // All-data accessors.
 
 // Returns the actual data of the series.
@@ -189,6 +174,32 @@ func (s SeriesError) Sort() Series {
 }
 
 func (s SeriesError) SortRev() Series {
+	return s
+}
+
+////////////////////////			ARITHMETIC OPERATIONS
+
+func (s SeriesError) Mul(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Div(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Mod(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Pow(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Add(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Sub(other Series) Series {
 	return s
 }
 

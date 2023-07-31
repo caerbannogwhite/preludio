@@ -241,11 +241,11 @@ func (s SeriesBool) Swap(i, j int) {
 func (s SeriesBool) Append(v any) Series {
 	switch v := v.(type) {
 	case bool, []bool:
-		return s.AppendRaw(v)
+		return s.appendRaw(v)
 	case NullableBool, []NullableBool:
-		return s.AppendNullable(v)
+		return s.appendNullable(v)
 	case SeriesBool:
-		return s.AppendSeries(v)
+		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
@@ -254,7 +254,7 @@ func (s SeriesBool) Append(v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesBool) AppendRaw(v any) Series {
+func (s SeriesBool) appendRaw(v any) Series {
 	switch v := v.(type) {
 	case bool:
 		s.data = append(s.data, v)
@@ -275,7 +275,7 @@ func (s SeriesBool) AppendRaw(v any) Series {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesBool) AppendNullable(v any) Series {
+func (s SeriesBool) appendNullable(v any) Series {
 	if !s.isNullable {
 		return SeriesError{"SeriesBool.AppendNullable: series is not nullable"}
 	}
@@ -311,7 +311,7 @@ func (s SeriesBool) AppendNullable(v any) Series {
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesBool) AppendSeries(other Series) Series {
+func (s SeriesBool) appendSeries(other Series) Series {
 	var ok bool
 	var o SeriesBool
 	if o, ok = other.(SeriesBool); !ok {

@@ -318,11 +318,11 @@ func (s SeriesInt32) Swap(i, j int) {
 func (s SeriesInt32) Append(v any) Series {
 	switch v := v.(type) {
 	case int32, []int32:
-		return s.AppendRaw(v)
+		return s.appendRaw(v)
 	case NullableInt32, []NullableInt32:
-		return s.AppendNullable(v)
+		return s.appendNullable(v)
 	case SeriesInt32:
-		return s.AppendSeries(v)
+		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
@@ -331,7 +331,7 @@ func (s SeriesInt32) Append(v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesInt32) AppendRaw(v any) Series {
+func (s SeriesInt32) appendRaw(v any) Series {
 	switch v := v.(type) {
 	case int32:
 		s.data = append(s.data, v)
@@ -352,7 +352,7 @@ func (s SeriesInt32) AppendRaw(v any) Series {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesInt32) AppendNullable(v any) Series {
+func (s SeriesInt32) appendNullable(v any) Series {
 	if !s.isNullable {
 		return SeriesError{"SeriesInt32.AppendNullable: series is not nullable"}
 	}
@@ -388,7 +388,7 @@ func (s SeriesInt32) AppendNullable(v any) Series {
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesInt32) AppendSeries(other Series) Series {
+func (s SeriesInt32) appendSeries(other Series) Series {
 	var ok bool
 	var o SeriesInt32
 	if o, ok = other.(SeriesInt32); !ok {

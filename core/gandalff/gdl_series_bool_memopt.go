@@ -266,16 +266,12 @@ func (s SeriesBoolMemOpt) Swap(i, j int) {
 // Append appends a value or a slice of values to the series.
 func (s SeriesBoolMemOpt) Append(v any) Series {
 	switch v := v.(type) {
-	case bool:
-		return s.AppendRaw(v)
-	case []bool:
-		return s.AppendRaw(v)
-	case NullableBool:
-		return s.AppendNullable(v)
-	case []NullableBool:
-		return s.AppendNullable(v)
+	case bool, []bool:
+		return s.appendRaw(v)
+	case NullableBool, []NullableBool:
+		return s.appendNullable(v)
 	case SeriesBoolMemOpt:
-		return s.AppendSeries(v)
+		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
@@ -284,7 +280,7 @@ func (s SeriesBoolMemOpt) Append(v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesBoolMemOpt) AppendRaw(v any) Series {
+func (s SeriesBoolMemOpt) appendRaw(v any) Series {
 	var size int
 	if b, ok := v.(bool); ok {
 
@@ -327,7 +323,7 @@ func (s SeriesBoolMemOpt) AppendRaw(v any) Series {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesBoolMemOpt) AppendNullable(v any) Series {
+func (s SeriesBoolMemOpt) appendNullable(v any) Series {
 	if !s.isNullable {
 		return SeriesError{"SeriesBoolMemOpt.AppendNullable: series is not nullable"}
 	}
@@ -374,7 +370,7 @@ func (s SeriesBoolMemOpt) AppendNullable(v any) Series {
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesBoolMemOpt) AppendSeries(other Series) Series {
+func (s SeriesBoolMemOpt) appendSeries(other Series) Series {
 	var ok bool
 	var o SeriesBoolMemOpt
 	if o, ok = other.(SeriesBoolMemOpt); !ok {
@@ -1167,48 +1163,52 @@ func (s SeriesBoolMemOpt) Not() Series {
 
 ////////////////////////			ARITHMETIC OPERATIONS
 
-// func (s SeriesBoolMemOpt) Mul(other Series) Series {
-// 	return s
-// }
+func (s SeriesBoolMemOpt) Mul(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot multiply SeriesBoolMemOpt and %T", other)}
+}
 
-// func (s SeriesBoolMemOpt) Div(other Series) Series {
-// 	return s
-// }
+func (s SeriesBoolMemOpt) Div(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot divide SeriesBoolMemOpt and %T", other)}
+}
 
-// func (s SeriesBoolMemOpt) Mod(other Series) Series {
-// 	return s
-// }
+func (s SeriesBoolMemOpt) Mod(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot modulo SeriesBoolMemOpt and %T", other)}
+}
 
-// func (s SeriesBoolMemOpt) Add(other Series) Series {
-// 	return s
-// }
+func (s SeriesBoolMemOpt) Pow(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot power SeriesBoolMemOpt and %T", other)}
+}
 
-// func (s SeriesBoolMemOpt) Sub(other Series) Series {
-// 	return s
-// }
+func (s SeriesBoolMemOpt) Add(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot add SeriesBoolMemOpt and %T", other)}
+}
+
+func (s SeriesBoolMemOpt) Sub(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot subtract SeriesBoolMemOpt and %T", other)}
+}
 
 ////////////////////////			LOGICAL OPERATIONS
 
 func (s SeriesBoolMemOpt) Eq(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Ne(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Gt(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Ge(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Lt(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Le(other Series) Series {
-	return s
+	return SeriesError{fmt.Sprintf("Cannot compare SeriesBoolMemOpt and %T", other)}
 }
