@@ -21,6 +21,7 @@ const (
 
 type __p_intern__ struct {
 	tag  __p_intern_tag__
+	vm   *ByteEater
 	expr []interface{}
 	name string
 }
@@ -53,7 +54,7 @@ func (vm *ByteEater) newPInternTerm(val interface{}) *__p_intern__ {
 		e[0] = v
 	}
 
-	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, expr: e}
+	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, vm: vm, expr: e}
 }
 
 func (i *__p_intern__) setParamName(name string) {
@@ -310,116 +311,68 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 	}
 }
 
-func (i *__p_intern__) listToBoolVector() ([]bool, error) {
+func (i *__p_intern__) listToSeriesBool() (gandalff.Series, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]bool, len(l))
 		for j, e := range l {
 			v, err := e.getBoolScalar()
 			if err != nil {
-				return []bool{}, fmt.Errorf("expecting list of bools")
+				return gandalff.NewSeriesError("expecting list of bools"), fmt.Errorf("expecting list of bools")
 			}
 			res[j] = v
 		}
-		return res, nil
+		return gandalff.NewSeriesBool("", true, false, res), nil
 	} else {
-		return []bool{}, fmt.Errorf("expecting list of bools")
+		return gandalff.NewSeriesError("expecting list of bools"), fmt.Errorf("expecting list of bools")
 	}
 }
 
-func (l *__p_list__) listToBoolVector() ([]bool, error) {
-	res := make([]bool, len(*l))
-	for j, e := range *l {
-		v, err := e.getBoolScalar()
-		if err != nil {
-			return []bool{}, fmt.Errorf("expecting list of bools")
-		}
-		res[j] = v
-	}
-	return res, nil
-}
-
-func (i *__p_intern__) listToInt64Vector() ([]int64, error) {
+func (i *__p_intern__) listToSeriesInt64() (gandalff.Series, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]int64, len(l))
 		for j, e := range l {
 			v, err := e.getInt64Scalar()
 			if err != nil {
-				return []int64{}, fmt.Errorf("expecting list of integers")
+				return gandalff.NewSeriesError("expecting list of integers"), fmt.Errorf("expecting list of integers")
 			}
 			res[j] = v
 		}
-		return res, nil
+		return gandalff.NewSeriesInt64("", true, false, res), nil
 	} else {
-		return []int64{}, fmt.Errorf("expecting list of integers")
+		return gandalff.NewSeriesError("expecting list of integers"), fmt.Errorf("expecting list of integers")
 	}
 }
 
-func (l *__p_list__) listToInt64Vector() ([]int64, error) {
-	res := make([]int64, len(*l))
-	for j, e := range *l {
-		v, err := e.getInt64Scalar()
-		if err != nil {
-			return []int64{}, fmt.Errorf("expecting list of integers")
-		}
-		res[j] = v
-	}
-	return res, nil
-}
-
-func (i *__p_intern__) listToFloat64Vector() ([]float64, error) {
+func (i *__p_intern__) listToSeriesFloat64() (gandalff.Series, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]float64, len(l))
 		for j, e := range l {
 			v, err := e.getFloat64Scalar()
 			if err != nil {
-				return []float64{}, fmt.Errorf("expecting list of floats")
+				return gandalff.NewSeriesError("expecting list of floats"), fmt.Errorf("expecting list of floats")
 			}
 			res[j] = v
 		}
-		return res, nil
+		return gandalff.NewSeriesFloat64("", true, false, res), nil
 	} else {
-		return []float64{}, fmt.Errorf("expecting list of floats")
+		return gandalff.NewSeriesError("expecting list of floats"), fmt.Errorf("expecting list of floats")
 	}
 }
 
-func (l *__p_list__) listToFloat64Vector() ([]float64, error) {
-	res := make([]float64, len(*l))
-	for j, e := range *l {
-		v, err := e.getFloat64Scalar()
-		if err != nil {
-			return []float64{}, fmt.Errorf("expecting list of floats")
-		}
-		res[j] = v
-	}
-	return res, nil
-}
-
-func (i *__p_intern__) listToStringVector() ([]string, error) {
+func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
 	if l, ok := i.expr[0].(__p_list__); ok {
 		res := make([]string, len(l))
 		for j, e := range l {
 			v, err := e.getStringScalar()
 			if err != nil {
-				return []string{}, fmt.Errorf("expecting list of strings")
+				return gandalff.NewSeriesError("expecting list of strings"), fmt.Errorf("expecting list of strings")
 			}
 			res[j] = v
 		}
-		return res, nil
+		return gandalff.NewSeriesString("", true, res, i.vm.__stringPool), nil
 	} else {
-		return []string{}, fmt.Errorf("expecting list of strings")
+		return gandalff.NewSeriesError("expecting list of strings"), fmt.Errorf("expecting list of strings")
 	}
-}
-
-func (l *__p_list__) listToStringVector() ([]string, error) {
-	res := make([]string, len(*l))
-	for j, e := range *l {
-		v, err := e.getStringScalar()
-		if err != nil {
-			return []string{}, fmt.Errorf("expecting list of strings")
-		}
-		res[j] = v
-	}
-	return res, nil
 }
 
 func (lhs *__p_intern__) appendOperand(op typesys.OPCODE, rhs *__p_intern__) {

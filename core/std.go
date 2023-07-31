@@ -8,7 +8,6 @@ import (
 
 	"gandalff"
 
-	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 )
 
@@ -314,51 +313,39 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 		return
 	}
 
-	s := make([]series.Series, len(list))
-	for i, e := range list {
+	df := gandalff.NewBaseDataFrame()
+
+	var ser gandalff.Series
+	for _, e := range list {
 		if l, ok := e.getValue().(__p_list__); ok {
 
 			switch l[0].getValue().(type) {
 			case []bool:
-				var vals []bool
-				vals, err = e.listToBoolVector()
-				if err != nil {
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-					return
-				}
-				s[i] = series.New(vals, series.Bool, e.name)
+				ser, err = e.listToSeriesBool()
+
 			case []int64:
-				var vals []int64
-				vals, err = e.listToInt64Vector()
-				if err != nil {
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-					return
-				}
-				s[i] = series.New(vals, series.Int, e.name)
+				ser, err = e.listToSeriesInt64()
+
 			case []float64:
-				var vals []float64
-				vals, err = e.listToFloat64Vector()
-				if err != nil {
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-					return
-				}
-				s[i] = series.New(vals, series.Int, e.name)
+				ser, err = e.listToSeriesFloat64()
+
 			case []string:
-				var vals []string
-				vals, err = e.listToStringVector()
-				if err != nil {
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-					return
-				}
-				s[i] = series.New(vals, series.String, e.name)
+				ser, err = e.listToSeriesString()
 			}
+
+			if err != nil {
+				vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+				return
+			}
+			df.AddSeries(ser)
+
 		} else {
 			vm.setPanicMode(fmt.Sprintf("%s: exprecting list for building dataframe, got %T", funcName, l))
 			return
 		}
 	}
 
-	vm.stackPush(vm.newPInternTerm(dataframe.New(s...)))
+	vm.stackPush(vm.newPInternTerm(df))
 	vm.setCurrentDataFrame()
 }
 
