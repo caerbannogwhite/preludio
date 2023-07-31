@@ -241,6 +241,32 @@ var DATA = map[string]SeriesFile{
 				},
 			},
 
+			"Eq": {
+				OpCode: typesys.OP_BINARY_EQ,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesBool",
+						InnerType:  typesys.BoolType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] == %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Ne": {
+				OpCode: typesys.OP_BINARY_NE,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesBool",
+						InnerType:  typesys.BoolType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] != %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
 			"And": {
 				OpCode: typesys.OP_BINARY_AND,
 				ApplyTo: []OperationApplyTo{
