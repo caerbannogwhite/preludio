@@ -1,5 +1,7 @@
 package typesys
 
+import "fmt"
+
 type BOOL []bool
 type INT16 []int16
 type INT32 []int32
@@ -9,6 +11,10 @@ type FLOAT64 []float64
 type STRING []string
 
 type BaseType uint8
+type BaseTypeCard struct {
+	Base BaseType
+	Card int
+}
 
 const (
 	NullType BaseType = iota
@@ -73,6 +79,10 @@ func (bt BaseType) ToGoType() string {
 		return "interface{}"
 	}
 	return "Unknown"
+}
+
+func (btc BaseTypeCard) ToString() string {
+	return fmt.Sprintf("%s[%d]", btc.Base.ToString(), btc.Card)
 }
 
 func GoToPreludioTypeString(t interface{}) string {
