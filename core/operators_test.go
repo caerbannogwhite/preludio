@@ -16,11 +16,11 @@ func Test_Operator_Mul(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -40,7 +40,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * INTEGER
 		b1.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -58,7 +58,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * FLOAT
 		b1.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -76,7 +76,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * STRING
 		b1.appendOperand(typesys.OP_BINARY_MUL, st)
@@ -112,7 +112,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * INTEGER
 		in.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -130,7 +130,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * FLOAT
 		in.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -148,7 +148,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER * STRING
 		in.appendOperand(typesys.OP_BINARY_MUL, st)
@@ -166,7 +166,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -187,7 +187,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * INTEGER
 		fl.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -205,7 +205,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * FLOAT
 		fl.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -223,7 +223,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * STRING
 		fl.appendOperand(typesys.OP_BINARY_MUL, st)
@@ -234,7 +234,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -255,7 +255,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * INTEGER
 		st.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -273,7 +273,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * FLOAT
 		st.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -284,7 +284,7 @@ func Test_Operator_Mul(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * STRING
 		st.appendOperand(typesys.OP_BINARY_MUL, st)
@@ -300,11 +300,11 @@ func Test_Operator_Div(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -324,7 +324,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / INTEGER
 		b1.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -342,7 +342,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / FLOAT
 		b1.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -360,7 +360,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / STRING
 		b1.appendOperand(typesys.OP_BINARY_DIV, st)
@@ -371,7 +371,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -392,7 +392,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / INTEGER
 		in.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -410,7 +410,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / FLOAT
 		in.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -428,7 +428,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER / STRING
 		in.appendOperand(typesys.OP_BINARY_DIV, st)
@@ -439,7 +439,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -460,7 +460,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / INTEGER
 		fl.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -478,7 +478,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / FLOAT
 		fl.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -496,7 +496,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / STRING
 		fl.appendOperand(typesys.OP_BINARY_DIV, st)
@@ -507,7 +507,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -521,7 +521,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / INTEGER
 		st.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -532,7 +532,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / FLOAT
 		st.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -543,7 +543,7 @@ func Test_Operator_Div(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / STRING
 		st.appendOperand(typesys.OP_BINARY_DIV, st)
@@ -559,11 +559,11 @@ func Test_Operator_Add(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -583,7 +583,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + INTEGER
 		b1.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -601,7 +601,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + FLOAT
 		b1.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -619,7 +619,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + STRING
 		b1.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -637,7 +637,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -658,7 +658,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + INTEGER
 		in.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -676,7 +676,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + FLOAT
 		in.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -694,7 +694,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER + STRING
 		in.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -712,7 +712,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -733,7 +733,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + INTEGER
 		fl.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -751,7 +751,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + FLOAT
 		fl.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -769,7 +769,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + STRING
 		fl.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -787,7 +787,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -808,7 +808,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + INTEGER
 		st.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -826,7 +826,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + FLOAT
 		st.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -844,7 +844,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + STRING
 		st.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -867,11 +867,11 @@ func Test_Operator_Sub(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -891,7 +891,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - INTEGER
 		b1.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -909,7 +909,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - FLOAT
 		b1.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -927,7 +927,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - STRING
 		b1.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -938,7 +938,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -959,7 +959,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - INTEGER
 		in.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -977,7 +977,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - FLOAT
 		in.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -995,7 +995,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 
 		// INTEGER - STRING
 		in.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -1006,7 +1006,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -1027,7 +1027,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - INTEGER
 		fl.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -1045,7 +1045,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - FLOAT
 		fl.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -1063,7 +1063,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - STRING
 		fl.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -1074,7 +1074,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -1088,7 +1088,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - INTEGER
 		st.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -1099,7 +1099,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - FLOAT
 		st.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -1110,7 +1110,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - STRING
 		st.appendOperand(typesys.OP_BINARY_SUB, st)

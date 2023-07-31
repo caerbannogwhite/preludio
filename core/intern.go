@@ -25,13 +25,34 @@ type __p_intern__ struct {
 	name string
 }
 
-func newPInternBeginFrame() *__p_intern__ {
+func (vm *ByteEater) newPInternBeginFrame() *__p_intern__ {
 	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_BEGIN_FRAME}
 }
 
-func newPInternTerm(val interface{}) *__p_intern__ {
+func (vm *ByteEater) newPInternTerm(val interface{}) *__p_intern__ {
 	e := make([]interface{}, 1)
-	e[0] = val
+
+	switch v := val.(type) {
+	case bool:
+		e[0] = gandalff.NewSeriesBool("", true, false, []bool{v})
+	case []bool:
+		e[0] = gandalff.NewSeriesBool("", true, false, v)
+	case int64:
+		e[0] = gandalff.NewSeriesInt64("", true, false, []int64{v})
+	case []int64:
+		e[0] = gandalff.NewSeriesInt64("", true, false, v)
+	case float64:
+		e[0] = gandalff.NewSeriesFloat64("", true, false, []float64{v})
+	case []float64:
+		e[0] = gandalff.NewSeriesFloat64("", true, false, v)
+	case string:
+		e[0] = gandalff.NewSeriesString("", true, []string{v}, vm.__stringPool)
+	case []string:
+		e[0] = gandalff.NewSeriesString("", true, v, vm.__stringPool)
+	default:
+		e[0] = v
+	}
+
 	return &__p_intern__{tag: PRELUDIO_INTERNAL_TAG_EXPRESSION, expr: e}
 }
 

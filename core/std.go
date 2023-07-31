@@ -67,7 +67,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		df = df.AddSeries(s)
 	}
 
-	vm.stackPush(newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df))
 }
 
 // Describe a Dataframe
@@ -102,7 +102,7 @@ func PreludioFunc_Describe(funcName string, vm *ByteEater) {
 			}
 
 			vm.printInfo(0, fmt.Sprintln(df.Describe()))
-			vm.stackPush(newPInternTerm(df))
+			vm.stackPush(vm.newPInternTerm(df))
 		} else
 
 		// Describe a subset
@@ -133,8 +133,8 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"delimiter": newPInternTerm([]string{","}),
-		"header":    newPInternTerm([]bool{true}),
+		"delimiter": vm.newPInternTerm([]string{","}),
+		"header":    vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -222,7 +222,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 		return
 	}
 
-	vm.stackPush(newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df))
 	vm.setCurrentDataFrame()
 }
 
@@ -231,8 +231,8 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"delimiter": newPInternTerm([]string{","}),
-		"header":    newPInternTerm([]bool{true}),
+		"delimiter": vm.newPInternTerm([]string{","}),
+		"header":    vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -292,7 +292,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	vm.stackPush(newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df))
 	vm.setCurrentDataFrame()
 }
 
@@ -358,7 +358,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 		}
 	}
 
-	vm.stackPush(newPInternTerm(dataframe.New(s...)))
+	vm.stackPush(vm.newPInternTerm(dataframe.New(s...)))
 	vm.setCurrentDataFrame()
 }
 
@@ -405,7 +405,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 		df = df.Select([]string{string(symbol)}...)
 	}
 
-	vm.stackPush(newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df))
 }
 
 // Sort all the values in the Dataframe
@@ -440,7 +440,7 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 
 	df = df.Take(0, int(num), 1)
 
-	vm.stackPush(newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df))
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -492,7 +492,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 					return
 				}
 			}
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 
 		// DATAFRAME
 		case gandalff.DataFrame:
@@ -565,7 +565,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 					res[i] = 1.0
 				}
 			}
-			vm.stackPush(newPInternTerm(res))
+			vm.stackPush(vm.newPInternTerm(res))
 			return
 
 		case []int:
@@ -573,11 +573,11 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 			for i := range v {
 				res[i] = float64(v[i])
 			}
-			vm.stackPush(newPInternTerm(res))
+			vm.stackPush(vm.newPInternTerm(res))
 			return
 
 		case []float64:
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 			return
 
 		case []string:
@@ -589,7 +589,7 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 					return
 				}
 			}
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 			return
 
 		// LIST
@@ -603,14 +603,14 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 							res[j] = 1.0
 						}
 					}
-					v[i] = *newPInternTerm(res)
+					v[i] = *vm.newPInternTerm(res)
 
 				case []int:
 					res := make([]float64, len(t))
 					for j := range t {
 						res[j] = float64(t[j])
 					}
-					v[i] = *newPInternTerm(res)
+					v[i] = *vm.newPInternTerm(res)
 
 				case []float64:
 
@@ -623,11 +623,11 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 							return
 						}
 					}
-					v[i] = *newPInternTerm(res)
+					v[i] = *vm.newPInternTerm(res)
 
 				}
 			}
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 
 		// DATAFRAME
 		case gandalff.DataFrame:
@@ -654,7 +654,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	named := map[string]*__p_intern__{
 		"old": nil,
 		"new": nil,
-		"n":   newPInternTerm([]int{-1}),
+		"n":   vm.newPInternTerm([]int{-1}),
 	}
 
 	var err error
@@ -708,7 +708,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			for i := range v {
 				v[i] = strings.Replace(v[i], strOld, strNew, int(num))
 			}
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 
 		// LIST
 		case __p_list__:
@@ -722,14 +722,14 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 							return
 						}
 					}
-					v[i] = *newPInternTerm(t)
+					v[i] = *vm.newPInternTerm(t)
 
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
 					return
 				}
 			}
-			vm.stackPush(newPInternTerm(v))
+			vm.stackPush(vm.newPInternTerm(v))
 
 		// DATAFRAME
 		case gandalff.DataFrame:
@@ -753,7 +753,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 		// 	for i := range v {
 		// 		df[v[i]] = strings.Replace(df[v[i]].([]string), strOld, strNew, num)
 		// 	}
-		// 	vm.stackPush(newPInternTerm(df))
+		// 	vm.stackPush(vm.newPInternTerm(df))
 
 		// case __p_list__:
 		// 	for i, e := range v {
@@ -762,14 +762,14 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 		// 			for j := range v {
 		// 				df[t[j]] = strings.Replace(df[t[j]].([]string), strOld, strNew, num)
 		// 			}
-		// 			v[i] = *newPInternTerm(t)
+		// 			v[i] = *vm.newPInternTerm(t)
 
 		// 		default:
 		// 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
 		// 			return
 		// 		}
 		// 	}
-		// 	vm.stackPush(newPInternTerm(v))
+		// 	vm.stackPush(vm.newPInternTerm(v))
 		default:
 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
 		}

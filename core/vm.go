@@ -290,7 +290,7 @@ func (vm *ByteEater) loadResults() {
 	}
 
 	if len(results) > 1 {
-		vm.__currentResult = newPInternTerm(__p_list__(results))
+		vm.__currentResult = vm.newPInternTerm(__p_list__(results))
 	} else if len(results) == 1 {
 		vm.__currentResult = &results[0]
 	}
@@ -352,7 +352,7 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_START_STMT", "", "")
 
 			// Insert BEGIN FRAME
-			vm.stackPush(newPInternBeginFrame())
+			vm.stackPush(vm.newPInternBeginFrame())
 
 		case typesys.OP_END_STMT:
 			vm.printDebug(10, "OP_END_STMT", "", "")
@@ -399,7 +399,7 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
-			vm.stackPush(newPInternBeginFrame())
+			vm.stackPush(vm.newPInternBeginFrame())
 
 		case typesys.OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
@@ -484,7 +484,7 @@ MAIN_LOOP:
 			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
 
-			vm.stackPush(newPInternTerm(__p_list__(listCopy)))
+			vm.stackPush(vm.newPInternTerm(__p_list__(listCopy)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
@@ -532,29 +532,29 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.stackPush(newPInternTerm(gandalff.NewSeriesBool("", true, false, []bool{val})))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.stackPush(newPInternTerm(gandalff.NewSeriesInt64("", true, false, []int64{val})))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
-				vm.stackPush(newPInternTerm(gandalff.NewSeriesFloat64("", true, false, []float64{val})))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.stackPush(newPInternTerm(gandalff.NewSeriesString("", true, []string{termVal}, vm.__stringPool)))
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.stackPush(newPInternTerm(__p_symbol__(termVal)))
+				vm.stackPush(vm.newPInternTerm(__p_symbol__(termVal)))
 
 			default:
 				vm.setPanicMode(fmt.Sprintf("ByteEater: unknown term code %d.", param1))

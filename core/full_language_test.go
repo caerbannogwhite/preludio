@@ -101,10 +101,10 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if !be.__currentResult.isInt64Scalar() {
-			t.Error("Expected int64 scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 0 {
-			t.Error("Expected 0, got", i, err)
+		} else if !be.__currentResult.isFloat64Scalar() {
+			t.Error("Expected float64 scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.3333333333333333 {
+			t.Error("Expected 0.3333333333333333, got", f, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`4682 % 427`)
@@ -112,10 +112,10 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if !be.__currentResult.isInt64Scalar() {
-			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != 412 {
-			t.Error("Expected 412, got", i, err)
+		} else if !be.__currentResult.isFloat64Scalar() {
+			t.Error("Expected float64 scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 2.0 {
+			t.Error("Expected 2.0, got", f, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`3 ** 4`)
@@ -256,10 +256,10 @@ func Test_Expressions(t *testing.T) {
 
 		if be.__currentResult == nil {
 			t.Error("Expected result, got nil")
-		} else if be.__currentResult.isInt64Scalar() == false {
-			t.Error("Expected integer scalar, got", be.__currentResult)
-		} else if i, err := be.__currentResult.getInt64Scalar(); err != nil || i != -61 {
-			t.Error("Expected -61, got", i, err)
+		} else if be.__currentResult.isFloat64Scalar() == false {
+			t.Error("Expected float scalar, got", be.__currentResult)
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != -61.0 {
+			t.Error("Expected -61.0, got", f, err)
 		}
 
 		bytecode, _, _ = bytefeeder.CompileSource(`1e30 / 1.000001 / 1.000002 / 1.000003 / 1.000004 / 1.000005 / 1.000006 / 1.000007 / 1.000008 / 1.000009 / 1.000010 / 1.000011 / 1.000012 / 1.000013 / 1.000014 / 1.000015 / 1.000016 / 1.000017 / 1.000018 / 1.000019 / 1.000020 / 1.000021 / 1.000022 / 1.000023 / 1.000024 / 1.000025 / 1.000026 / 1.000027 / 1.000028 / 1.000029 / 1.000030 / 1.000031 / 1.000032 / 1.000033 / 1.000034 / 1.000035 / 1.000036 / 1.000037 / 1.000038 / 1.000039 / 1.000040 / 1.000041 / 1.000042 / 1.000043 / 1.000044 / 1.000045 / 1.000046 / 1.000047 / 1.000048 / 1.000049 / 1.000050 / 1.000051 / 1.000052 / 1.000053 / 1.000054 / 1.000055 / 1.000056 / 1.000057 / 1.000058 / 1.000059 / 1.000060 / 1.000061 / 1.000062 / 1.000063 / 1.000064 / 1.000065 / 1.000066 / 1.000067 / 1.000068 / 1.000069 / 1.000070 / 1.000071 / 1.000072 / 1.000073 / 1.000074 / 1.000075 / 1.000076 / 1.000077 / 1.000078 / 1.000079 / 1.000080 / 1.000081 / 1.000082 / 1.000083 / 1.000084 / 1.000085 / 1.000086 / 1.000087 / 1.000088 / 1.000089 / 1.000090 / 1.000091 / 1.000092 / 1.000093 / 1.000094 / 1.000095 / 1.000096 / 1.000097 / 1.000098 / 1.000099 / 1.000100`)
