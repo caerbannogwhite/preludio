@@ -57,8 +57,8 @@ Charlie,33,60.0,t,Business,2
 
 The data types not checked are not yet supported, but might be in the future.
 
-- [ ] Bool
-- [x] Bool (memory optimized)
+- [x] Bool
+- [ ] Bool (memory optimized, not fully implemented yet)
 - [ ] Int16
 - [x] Int32
 - [x] Int64
@@ -102,10 +102,10 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] GroupBy
 - [ ] Join
 
-  - [ ] Inner
-  - [ ] Left
-  - [ ] Right
-  - [ ] Outer
+  - [x] Inner
+  - [x] Left
+  - [x] Right
+  - [x] Outer
   - [ ] Inner with nulls
   - [ ] Left with nulls
   - [ ] Right with nulls
@@ -151,6 +151,10 @@ type Series interface {
 	IsNullable() bool
 	// Returns if the series is sorted.
 	IsSorted() SeriesSortOrder
+	// Returns if the series is error.
+	IsError() bool
+	// Returns the error message of the series.
+	GetError() string
 
 	// Nullability operations.
 
@@ -185,13 +189,9 @@ type Series interface {
 	Swap(i, j int)
 
 	// Append elements to the series.
+	// Value can be a single value, slice of values,
+	// a nullable value, a slice of nullable values or a series.
 	Append(v any) Series
-	// AppendRaw appends a value or a slice of values to the series.
-	AppendRaw(v any) Series
-	// Append nullable elements to the series.
-	AppendNullable(v any) Series
-	// Append a series to the series.
-	AppendSeries(other Series) Series
 
 	// All-data accessors.
 
@@ -209,12 +209,9 @@ type Series interface {
 
 	// Series operations.
 
-	// Filters out the elements by the given mask series.
-	Filter(mask SeriesBool) Series
 	// Filters out the elements by the given mask.
-	FilterByMask(mask []bool) Series
-	// Filters out the elements by the given indices.
-	FilterByIndeces(indices []int) Series
+	// Mask can be a bool series, a slice of bools or a slice of ints.
+	Filter(mask any) Series
 
 	// Maps the elements of the series.
 	Map(f GDLMapFunc, stringPool *StringPool) Series
@@ -230,6 +227,14 @@ type Series interface {
 	Sort() Series
 	SortRev() Series
 
+	// Arithmetic operations.
+	Mul(other Series) Series
+	Div(other Series) Series
+	Mod(other Series) Series
+	Pow(other Series) Series
+	Add(other Series) Series
+	Sub(other Series) Series
+
 	// Logical operations.
 	Eq(other Series) Series
 	Ne(other Series) Series
@@ -242,7 +247,6 @@ type Series interface {
 
 ### TODO
 
-- [ ] Implement non memory optimized Bool series.
 - [ ] Implement memory optimized Bool series with uint64.
 - [ ] Using uint64 for null mask.
 - [ ] Implement and test grouped sorting for all types.
