@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	. "gandalff"
-	"os"
 	"strings"
 )
 
@@ -30,7 +29,9 @@ Operations,4,250000
 )
 
 func Example01() {
-	df := NewBaseDataFrame().
+	// f, _ := os.Create("test.csv")
+
+	NewBaseDataFrame().
 		FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
@@ -40,6 +41,10 @@ func Example01() {
 		GroupBy("department").
 		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 		PrettyPrint(20)
+	// ToCSV().
+	// SetDelimiter('\t').
+	// SetWriter(f).
+	// Write()
 
 	// Output:
 	// +------------+------------+------------+------------+------------+
@@ -51,12 +56,6 @@ func Example01() {
 	// |         IT |         25 |         85 |        0.5 |          4 |
 	// |   Business |         27 |         65 |        0.5 |          2 |
 	// +------------+------------+------------+------------+------------+
-
-	f, _ := os.Create("test.csv")
-	df.ToCSV().
-		SetDelimiter('\t').
-		SetWriter(f).
-		Write()
 }
 
 func Example02() {
@@ -155,6 +154,9 @@ func main() {
 	fmt.Println("Example02:")
 	Example02()
 
-	// fmt.Println("Example03:")
-	// Example03()
+	fmt.Println("Example03:")
+	Example03()
+
+	fmt.Println("Example04:")
+	Example04()
 }
