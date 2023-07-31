@@ -18,7 +18,6 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 
 	var err error
 	var df gandalff.DataFrame
-	var series_ []gandalff.Series
 	positional, _, err := vm.GetFunctionParams(funcName, nil, true, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -32,38 +31,31 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	}
 
 	if list, err := positional[1].getList(); err == nil {
-		series_ = make([]gandalff.Series, len(list))
-
-		for i, val := range list {
+		for _, val := range list {
 			switch col := val.getValue().(type) {
 			case []bool:
-				series_[i] = gandalff.NewSeriesBool(val.name, true, false, col)
+				df = df.AddSeries(gandalff.NewSeriesBool(val.name, true, false, col))
 			case []int64:
-				series_[i] = gandalff.NewSeriesInt64(val.name, true, false, col)
+				df = df.AddSeries(gandalff.NewSeriesInt64(val.name, true, false, col))
 			case []float64:
-				series_[i] = gandalff.NewSeriesFloat64(val.name, true, false, col)
+				df = df.AddSeries(gandalff.NewSeriesFloat64(val.name, true, false, col))
 			case []string:
-				series_[i] = gandalff.NewSeriesString(val.name, true, col, vm.__stringPool)
+				df = df.AddSeries(gandalff.NewSeriesString(val.name, true, col, vm.__stringPool))
 			}
 		}
 	} else {
 		val := positional[1].getValue()
-		series_ = make([]gandalff.Series, 1)
 		switch col := val.(type) {
 		case []bool:
-			series_ = append(series_, gandalff.NewSeriesBool(positional[1].name, true, false, col))
+			df = df.AddSeries(gandalff.NewSeriesBool(positional[1].name, true, false, col))
 		case []int64:
-			series_ = append(series_, gandalff.NewSeriesInt64(positional[1].name, true, false, col))
+			df = df.AddSeries(gandalff.NewSeriesInt64(positional[1].name, true, false, col))
 		case []float64:
-			series_ = append(series_, gandalff.NewSeriesFloat64(positional[1].name, true, false, col))
+			df = df.AddSeries(gandalff.NewSeriesFloat64(positional[1].name, true, false, col))
 		case []string:
-			series_ = append(series_, gandalff.NewSeriesString(positional[1].name, true, col, vm.__stringPool))
+			df = df.AddSeries(gandalff.NewSeriesString(positional[1].name, true, col, vm.__stringPool))
 		}
 
-	}
-
-	for _, s := range series_ {
-		df = df.AddSeries(s)
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
