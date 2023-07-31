@@ -5660,8 +5660,6 @@ func (s SeriesInt64) Sub(other Series) Series {
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[i]
-
-							////////////////////////			LOGICAL OPERATIONS
 						}
 						return SeriesFloat64{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {

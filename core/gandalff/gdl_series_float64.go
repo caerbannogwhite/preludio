@@ -5372,8 +5372,6 @@ func (s SeriesFloat64) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-
-						////////////////////////			LOGICAL OPERATIONS
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {

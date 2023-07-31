@@ -1960,8 +1960,6 @@ func (s SeriesString) Add(other Series) Series {
 
 }
 
-////////////////////////			LOGICAL OPERATIONS
-
 func (s SeriesString) Eq(other Series) Series {
 	switch o := other.(type) {
 	case SeriesString:
