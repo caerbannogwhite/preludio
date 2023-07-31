@@ -15,6 +15,8 @@ type Series interface {
 	Name() string
 	// Returns the type of the series.
 	Type() typesys.BaseType
+	// Returns the type and cardinality of the series.
+	TypeCard() typesys.BaseTypeCard
 
 	// Returns if the series is grouped.
 	IsGrouped() bool

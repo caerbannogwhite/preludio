@@ -35,6 +35,11 @@ func (s SeriesFloat64) Type() typesys.BaseType {
 	return typesys.Float64Type
 }
 
+// Returns the type and cardinality of the series.
+func (s SeriesFloat64) TypeCard() typesys.BaseTypeCard {
+	return typesys.BaseTypeCard{typesys.Float64Type, s.Len()}
+}
+
 // Returns if the series is grouped.
 func (s SeriesFloat64) IsGrouped() bool {
 	return s.isGrouped

@@ -62,6 +62,11 @@ func (s SeriesString) Type() typesys.BaseType {
 	return typesys.StringType
 }
 
+// Returns the type and cardinality of the series.
+func (s SeriesString) TypeCard() typesys.BaseTypeCard {
+	return typesys.BaseTypeCard{typesys.StringType, s.Len()}
+}
+
 // Returns if the series is grouped.
 func (s SeriesString) IsGrouped() bool {
 	return s.isGrouped
