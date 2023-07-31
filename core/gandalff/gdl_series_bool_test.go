@@ -1367,3 +1367,141 @@ func Test_SeriesBool_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Error in Bool Add")
 	}
 }
+
+func Test_SeriesBool_Arithmetic_Sub(t *testing.T) {
+	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+
+	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+
+	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+
+	// scalar | bool
+	if !checkEqSlice(bools.Sub(bools).Data().([]int64), []int64{0}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(boolv).Data().([]int64), []int64{0, 1, 0, 1, 0, 1, 0, 0, 1, 1}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(bools_).GetNullMask(), []bool{true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// scalar | int32
+	if !checkEqSlice(bools.Sub(i32s).Data().([]int32), []int32{-1}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i32v).Data().([]int32), []int32{0, -1, -2, -3, -4, -5, -6, -7, -8, -9}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i32s_).GetNullMask(), []bool{true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// scalar | int64
+	if !checkEqSlice(bools.Sub(i64s).Data().([]int64), []int64{-1}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i64v).Data().([]int64), []int64{0, -1, -2, -3, -4, -5, -6, -7, -8, -9}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i64s_).GetNullMask(), []bool{true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// scalar | float64
+	if !checkEqSlice(bools.Sub(f64s).Data().([]float64), []float64{-1}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(f64v).Data().([]float64), []float64{0, -1, -2, -3, -4, -5, -6, -7, -8, -9}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(f64s_).GetNullMask(), []bool{true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(bools.Sub(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// vector | bool
+	if !checkEqSlice(boolv.Sub(bools).Data().([]int64), []int64{0, -1, 0, -1, 0, -1, 0, 0, -1, -1}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(boolv).Data().([]int64), []int64{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// vector | int32
+	if !checkEqSlice(boolv.Sub(i32s).Data().([]int32), []int32{-1, -2, -1, -2, -1, -2, -1, -1, -2, -2}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i32v).Data().([]int32), []int32{0, -2, -2, -4, -4, -6, -6, -7, -9, -10}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// vector | int64
+	if !checkEqSlice(boolv.Sub(i64s).Data().([]int64), []int64{-1, -2, -1, -2, -1, -2, -1, -1, -2, -2}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i64v).Data().([]int64), []int64{0, -2, -2, -4, -4, -6, -6, -7, -9, -10}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+
+	// vector | float64
+	if !checkEqSlice(boolv.Sub(f64s).Data().([]float64), []float64{-1, -2, -1, -2, -1, -2, -1, -1, -2, -2}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(f64v).Data().([]float64), []float64{0, -2, -2, -4, -4, -6, -6, -7, -9, -10}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+	if !checkEqSlice(boolv.Sub(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Sub") {
+		t.Errorf("Error in Bool Sub")
+	}
+}
