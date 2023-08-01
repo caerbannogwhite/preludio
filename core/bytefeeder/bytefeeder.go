@@ -347,6 +347,12 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 			case "~":
 				bf.AppendInstruction(typesys.OP_BINARY_MODEL, 0, 0)
 
+			case "and":
+				bf.AppendInstruction(typesys.OP_BINARY_AND, 0, 0)
+
+			case "or":
+				bf.AppendInstruction(typesys.OP_BINARY_OR, 0, 0)
+
 			}
 		}
 	}
