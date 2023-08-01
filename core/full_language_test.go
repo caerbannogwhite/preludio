@@ -71,13 +71,13 @@ func Test_Expressions(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(`3 ** 4`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(81)); err != nil {
+	if err = currentResultChecker(be, int64(81)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`2 ** (2 + 1 * 2)`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(81)); err != nil {
+	if err = currentResultChecker(be, int64(16)); err != nil {
 		t.Error(err)
 	}
 
