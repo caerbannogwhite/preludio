@@ -825,7 +825,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_DEBUG, Level: level, Message: msg})
 
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -834,7 +834,7 @@ func (vm *ByteEater) printInfo(level uint8, msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_INFO, Level: level, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -843,7 +843,7 @@ func (vm *ByteEater) printWarning(msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_WARNING, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -852,6 +852,6 @@ func (vm *ByteEater) printError(msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_ERROR, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }

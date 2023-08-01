@@ -156,8 +156,8 @@ func solveExpr(vm *ByteEater, i *__p_intern__) error {
 			if _, ok := result.(gandalff.SeriesError); ok {
 				return fmt.Errorf("operator %s not supported between %s and %s",
 					operatorToString(op),
-					t1.(gandalff.Series).Type().ToString(),
-					t2.(gandalff.Series).Type().ToString())
+					t1.(gandalff.Series).TypeCard().ToString(),
+					t2.(gandalff.Series).TypeCard().ToString())
 			}
 		}
 

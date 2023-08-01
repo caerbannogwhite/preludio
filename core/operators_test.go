@@ -82,15 +82,8 @@ func Test_Operator_Mul(t *testing.T) {
 		b1.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, b1)
 
-		if err != nil {
-			t.Error(err)
-		} else if !b1.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := b1.getStringVector()
-			if v[0] != "a" || v[1] != "" || v[2] != "c" || v[3] != "" {
-				t.Error("Expected [\"a\", \"\", \"c\", \"\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between Bool[4] and String[4]" {
+			t.Error("Expected error")
 		}
 	}
 
@@ -144,24 +137,6 @@ func Test_Operator_Mul(t *testing.T) {
 			v, _ := in.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 12.0 || v[2] != 21.0 || v[3] != 32.0 {
 				t.Error("Expected [5.0, 12.0, 21.0, 32.0] got", v)
-			}
-		}
-
-		// reset in
-		in = be.newPInternTerm([]int64{1, 2, 3, 4})
-
-		// INTEGER * STRING
-		in.appendOperand(typesys.OP_BINARY_MUL, st)
-		err = solveExpr(be, in)
-
-		if err != nil {
-			t.Error(err)
-		} else if !in.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := in.getStringVector()
-			if v[0] != "a" || v[1] != "bb" || v[2] != "ccc" || v[3] != "dddd" {
-				t.Error("Expected [\"a\", \"bb\", \"ccc\", \"dddd\"]")
 			}
 		}
 
@@ -224,17 +199,6 @@ func Test_Operator_Mul(t *testing.T) {
 
 		// reset fl
 		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-
-		// FLOAT * STRING
-		fl.appendOperand(typesys.OP_BINARY_MUL, st)
-		err = solveExpr(be, fl)
-
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for Float64 and String" {
-			t.Error(err)
-		}
-
-		// reset fl
-		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -243,15 +207,8 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, st)
 
-		if err != nil {
-			t.Error(err)
-		} else if !st.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := st.getStringVector()
-			if v[0] != "" || v[1] != "" || v[2] != "c" || v[3] != "d" {
-				t.Error("Expected [\"\", \"\", \"c\", \"d\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between String[4] and Bool[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
@@ -261,15 +218,8 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, st)
 
-		if err != nil {
-			t.Error(err)
-		} else if !st.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := st.getStringVector()
-			if v[0] != "a" || v[1] != "bb" || v[2] != "ccc" || v[3] != "dddd" {
-				t.Error("Expected [\"a\", \"bb\", \"ccc\", \"dddd\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between String[4] and Int64[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
@@ -279,8 +229,8 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and Float64" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator * not supported between String[4] and Float64[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
@@ -290,8 +240,8 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and String" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator * not supported between String[4] and String[4]" {
+			t.Error("Expected error")
 		}
 	}
 }
@@ -366,8 +316,8 @@ func Test_Operator_Div(t *testing.T) {
 		b1.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, b1)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Bool and String" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator / not supported between Bool[4] and String[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset b1
@@ -434,7 +384,7 @@ func Test_Operator_Div(t *testing.T) {
 		in.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, in)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Int32 and String" {
+		if err == nil || err.Error() != "operator / not supported between Int64[4] and String[4]" {
 			t.Error(err)
 		}
 
@@ -502,7 +452,7 @@ func Test_Operator_Div(t *testing.T) {
 		fl.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, fl)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Float64 and String" {
+		if err == nil || err.Error() != "operator / not supported between Float64[4] and String[4]" {
 			t.Error(err)
 		}
 
@@ -516,7 +466,7 @@ func Test_Operator_Div(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_DIV, b1)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Bool" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Bool[4]" {
 			t.Error(err)
 		}
 
@@ -527,7 +477,7 @@ func Test_Operator_Div(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Int32" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Int64[4]" {
 			t.Error(err)
 		}
 
@@ -538,7 +488,7 @@ func Test_Operator_Div(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Float64" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Float64[4]" {
 			t.Error(err)
 		}
 
@@ -549,7 +499,7 @@ func Test_Operator_Div(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and String" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and String[4]" {
 			t.Error(err)
 		}
 	}
@@ -781,8 +731,8 @@ func Test_Operator_Add(t *testing.T) {
 			t.Error("Expected string vector type")
 		} else {
 			v, _ := fl.getStringVector()
-			if v[0] != "5.000000a" || v[1] != "6.000000b" || v[2] != "7.000000c" || v[3] != "8.000000d" {
-				t.Error("Expected [5.000000a, 6.000000b, 7.000000c, 8.000000d] got", v)
+			if v[0] != "5a" || v[1] != "6b" || v[2] != "7c" || v[3] != "8d" {
+				t.Error("Expected [5a, 6b, 7c, 8d] got", v)
 			}
 		}
 
@@ -838,8 +788,8 @@ func Test_Operator_Add(t *testing.T) {
 			t.Error("Expected string vector type")
 		} else {
 			v, _ := st.getStringVector()
-			if v[0] != "a5.000000" || v[1] != "b6.000000" || v[2] != "c7.000000" || v[3] != "d8.000000" {
-				t.Error("Expected [a5.000000, b6.000000, c7.000000, d8.000000] got", v)
+			if v[0] != "a5" || v[1] != "b6" || v[2] != "c7" || v[3] != "d8" {
+				t.Error("Expected [a5, b6, c7, d8] got", v)
 			}
 		}
 
@@ -1083,7 +1033,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_SUB, b1)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Bool" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Bool[4]" {
 			t.Error("Expected error")
 		}
 
@@ -1094,7 +1044,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Int32" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Int64[4]" {
 			t.Error("Expected error")
 		}
 
@@ -1105,7 +1055,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Float64" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Float64[4]" {
 			t.Error("Expected error")
 		}
 
@@ -1116,7 +1066,7 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and String" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and String[4]" {
 			t.Error("Expected error")
 		}
 	}
