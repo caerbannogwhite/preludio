@@ -88,7 +88,6 @@ func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, da
 
 func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) ([]typesys.Columnar, error) {
 	columns := make([]typesys.Columnar, (*df).NCols())
-
 	for i, name := range (*df).Names() {
 		col := (*df).Series(name)
 		switch ser := col.(type) {
