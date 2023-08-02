@@ -5,8 +5,6 @@ import (
 	"typesys"
 
 	"gandalff"
-
-	"github.com/go-gota/gota/dataframe"
 )
 
 type __p_intern_tag__ uint8
@@ -71,15 +69,15 @@ func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, output
 	switch i.tag {
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
 		switch v := i.expr[0].(type) {
-		case []bool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v))
-		case []int:
-			*res = append(*res, NewColumnarInt(i.name, fullOutput, outputSnippetLength, v))
-		case []float64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v))
-		case []string:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v))
-		case dataframe.DataFrame:
+		case gandalff.SeriesBool:
+			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
+		case gandalff.SeriesInt64:
+			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
+		case gandalff.SeriesFloat64:
+			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
+		case gandalff.SeriesString:
+			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
+		case gandalff.DataFrame:
 			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
 			if err != nil {
 				return err
@@ -89,15 +87,15 @@ func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, output
 
 	case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
 		switch v := i.expr[0].(type) {
-		case []bool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v))
-		case []int:
-			*res = append(*res, NewColumnarInt(i.name, fullOutput, outputSnippetLength, v))
-		case []float64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v))
-		case []string:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v))
-		case dataframe.DataFrame:
+		case gandalff.SeriesBool:
+			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
+		case gandalff.SeriesInt64:
+			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
+		case gandalff.SeriesFloat64:
+			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
+		case gandalff.SeriesString:
+			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
+		case gandalff.DataFrame:
 			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
 			if err != nil {
 				return err
@@ -107,20 +105,19 @@ func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, output
 
 	case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 		switch v := i.expr[0].(type) {
-		case []bool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v))
-		case []int:
-			*res = append(*res, NewColumnarInt(i.name, fullOutput, outputSnippetLength, v))
-		case []float64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v))
-		case []string:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v))
-		case dataframe.DataFrame:
+		case gandalff.SeriesBool:
+			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
+		case gandalff.SeriesInt64:
+			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
+		case gandalff.SeriesFloat64:
+			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
+		case gandalff.SeriesString:
+			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
+		case gandalff.DataFrame:
 			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
 			if err != nil {
 				return err
 			}
-
 			*res = append(*res, df...)
 		}
 	}

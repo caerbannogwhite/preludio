@@ -7,8 +7,6 @@ import (
 	"strings"
 
 	"gandalff"
-
-	"github.com/go-gota/gota/series"
 )
 
 type PreludioFunction func(funcName string, vm *ByteEater)
@@ -310,17 +308,13 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 	var ser gandalff.Series
 	for _, e := range list {
 		if l, ok := e.getValue().(__p_list__); ok {
-
 			switch l[0].getValue().(type) {
 			case []bool:
 				ser, err = e.listToSeriesBool()
-
 			case []int64:
 				ser, err = e.listToSeriesInt64()
-
 			case []float64:
 				ser, err = e.listToSeriesFloat64()
-
 			case []string:
 				ser, err = e.listToSeriesString()
 			}
@@ -418,7 +412,6 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 	}
 
 	df = df.Take(0, int(num), 1)
-
 	vm.stackPush(vm.newPInternTerm(df))
 }
 
@@ -437,7 +430,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	}
 
 	// POSITIONAL PARAMETERS
-	series_ := make(map[string]series.Series)
+	series_ := make(map[string]gandalff.Series)
 	switch len(positional) {
 
 	// 1 PARAM
@@ -446,26 +439,26 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 
 		// BASE TYPES
 		case []bool:
-			series_[positional[0].name] = series.New(v, series.Bool, positional[0].name)
-		case []int:
-			series_[positional[0].name] = series.New(v, series.Int, positional[0].name)
+			series_[positional[0].name] = gandalff.NewSeriesBool(positional[0].name, true, false, v)
+		case []int64:
+			series_[positional[0].name] = gandalff.NewSeriesInt64(positional[0].name, true, false, v)
 		case []float64:
-			series_[positional[0].name] = series.New(v, series.Float, positional[0].name)
+			series_[positional[0].name] = gandalff.NewSeriesFloat64(positional[0].name, true, false, v)
 		case []string:
-			series_[positional[0].name] = series.New(v, series.String, positional[0].name)
+			series_[positional[0].name] = gandalff.NewSeriesString(positional[0].name, true, v, vm.__stringPool)
 
 		// LIST
 		case __p_list__:
 			for _, e := range v {
 				switch t := e.getValue().(type) {
 				case []bool:
-					series_[e.name] = series.New(t, series.Bool, e.name)
-				case []int:
-					series_[e.name] = series.New(t, series.Int, e.name)
+					series_[e.name] = gandalff.NewSeriesBool(e.name, true, false, t)
+				case []int64:
+					series_[e.name] = gandalff.NewSeriesInt64(e.name, true, false, t)
 				case []float64:
-					series_[e.name] = series.New(t, series.Float, e.name)
+					series_[e.name] = gandalff.NewSeriesFloat64(e.name, true, false, t)
 				case []string:
-					series_[e.name] = series.New(t, series.String, e.name)
+					series_[e.name] = gandalff.NewSeriesString(e.name, true, t, vm.__stringPool)
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
 					return
@@ -493,7 +486,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 		names = append(names, name)
 	}
 
-	vals := make([]series.Series, len(series_))
+	vals := make([]gandalff.Series, len(series_))
 	i := 0
 	for _, s := range series_ {
 		vals[i] = s
