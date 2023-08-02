@@ -779,19 +779,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			ser := vm.__currentDataFrame.Series(string(symbol))
-			switch ser.Type() {
-			case typesys.BoolType:
-				val, _ := ser.Data().([]bool)
-				return val
-			case typesys.Int64Type:
-				val, _ := ser.Data().([]int64)
-				return val
-			case typesys.Float64Type:
-				return ser.Data().([]float64)
-			case typesys.StringType:
-				return ser.Data().([]string)
-			}
+			return vm.__currentDataFrame.Series(string(symbol))
 		}
 	}
 

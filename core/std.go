@@ -31,29 +31,32 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	if list, err := positional[1].getList(); err == nil {
 		for _, val := range list {
 			switch col := val.getValue().(type) {
-			case []bool:
-				df = df.AddSeries(gandalff.NewSeriesBool(val.name, true, false, col))
-			case []int64:
-				df = df.AddSeries(gandalff.NewSeriesInt64(val.name, true, false, col))
-			case []float64:
-				df = df.AddSeries(gandalff.NewSeriesFloat64(val.name, true, false, col))
-			case []string:
-				df = df.AddSeries(gandalff.NewSeriesString(val.name, true, col, vm.__stringPool))
+			case gandalff.SeriesBool:
+				df = df.AddSeries(col.SetName(val.name))
+			case gandalff.SeriesInt64:
+				df = df.AddSeries(col.SetName(val.name))
+			case gandalff.SeriesFloat64:
+				df = df.AddSeries(col.SetName(val.name))
+			case gandalff.SeriesString:
+				df = df.AddSeries(col.SetName(val.name))
+			default:
+				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %T", funcName, val))
 			}
 		}
 	} else {
 		val := positional[1].getValue()
 		switch col := val.(type) {
-		case []bool:
-			df = df.AddSeries(gandalff.NewSeriesBool(positional[1].name, true, false, col))
-		case []int64:
-			df = df.AddSeries(gandalff.NewSeriesInt64(positional[1].name, true, false, col))
-		case []float64:
-			df = df.AddSeries(gandalff.NewSeriesFloat64(positional[1].name, true, false, col))
-		case []string:
-			df = df.AddSeries(gandalff.NewSeriesString(positional[1].name, true, col, vm.__stringPool))
+		case gandalff.SeriesBool:
+			df = df.AddSeries(col.SetName(positional[1].name))
+		case gandalff.SeriesInt64:
+			df = df.AddSeries(col.SetName(positional[1].name))
+		case gandalff.SeriesFloat64:
+			df = df.AddSeries(col.SetName(positional[1].name))
+		case gandalff.SeriesString:
+			df = df.AddSeries(col.SetName(positional[1].name))
+		default:
+			vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, val))
 		}
-
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
