@@ -57,6 +57,12 @@ func (s SeriesString) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesString) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesString) Type() typesys.BaseType {
 	return typesys.StringType

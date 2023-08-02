@@ -30,6 +30,12 @@ func (s SeriesFloat64) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesFloat64) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesFloat64) Type() typesys.BaseType {
 	return typesys.Float64Type

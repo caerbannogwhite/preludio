@@ -30,6 +30,12 @@ func (s SeriesBool) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesBool) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesBool) Type() typesys.BaseType {
 	return typesys.BoolType

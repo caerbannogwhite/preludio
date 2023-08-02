@@ -13,6 +13,9 @@ type Series interface {
 	Len() int
 	// Returns the name of the series.
 	Name() string
+	// Sets the name of the series.
+	SetName(name string) Series
+
 	// Returns the type of the series.
 	Type() typesys.BaseType
 	// Returns the type and cardinality of the series.

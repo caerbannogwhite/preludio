@@ -40,6 +40,12 @@ func (s SeriesBoolMemOpt) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesBoolMemOpt) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesBoolMemOpt) Type() typesys.BaseType {
 	return typesys.BoolType

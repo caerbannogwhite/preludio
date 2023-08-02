@@ -46,6 +46,11 @@ func (s SeriesError) Name() string {
 	return ""
 }
 
+// Sets the name of the series.
+func (s SeriesError) SetName(name string) Series {
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesError) Type() typesys.BaseType {
 	return typesys.ErrorType

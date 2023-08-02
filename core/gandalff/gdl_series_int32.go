@@ -31,6 +31,12 @@ func (s SeriesInt32) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesInt32) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesInt32) Type() typesys.BaseType {
 	return typesys.Int32Type
