@@ -14,14 +14,14 @@ This is a simple example of what you can already do with Preludio.
 It reads a CSV file, derives two new columns, selects some columns and writes the result to a new CSV file.
 
 ```
-readCSV "tests\\Cars.csv" delimiter: ";" header:true
+readCSV "test_files\\Cars.csv" delimiter: ";" header:true
 derive [
   cylTimes2 = Cylinders * 2,
   Car_Origin = Car + " - " + Origin
 ]
 take 5
 select [Car_Origin, MPG, cylTimes2]
-writeCSV "tests\\Cars1.csv"
+writeCSV "test_files\\Cars1.csv"
 ```
 
 ![](media/repl_example.gif)
@@ -41,13 +41,14 @@ go run .
 ```
 
 ### Future Features
-- [ ] Add support for more data types
-- [ ] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
+- [x] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
 - [ ] Add more transformations functions (group by, etc.)
 - [ ] Add statistical functions
 - [ ] Add support for Excel files
 - [ ] Add support for XPT files
 - [ ] Add support for SAS7BDAT files
+- [ ] Add support for SPSS files
+- [ ] Add date/time data types
 - [ ] Database connections (SQL, MongoDB, etc.)
 - [ ] VS Code extension
 
@@ -72,4 +73,5 @@ make.ps1
 ```
 
 ### Log
+ - **2 / 08 / 2023** Prelutio is now using the Gandalff library for managing data.
  - **21 / 03 / 2023** First publishing of the repository. Many things are still not working.
