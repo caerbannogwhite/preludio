@@ -421,6 +421,14 @@ func (s SeriesString) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesString) Strings() []string {
+	data := make([]string, len(s.data))
+	for i, v := range s.data {
+		data[i] = *v
+	}
+	return data
+}
+
 func (s SeriesString) Data() any {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {

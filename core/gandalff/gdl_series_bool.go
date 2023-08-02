@@ -376,6 +376,10 @@ func (s SeriesBool) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesBool) Bools() []bool {
+	return s.data
+}
+
 func (s SeriesBool) Data() any {
 	return s.data
 }

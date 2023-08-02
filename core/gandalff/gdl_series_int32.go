@@ -453,6 +453,10 @@ func (s SeriesInt32) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesInt32) Int32s() []int32 {
+	return s.data
+}
+
 func (s SeriesInt32) Data() any {
 	return s.data
 }

@@ -462,6 +462,10 @@ func (s SeriesInt64) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesInt64) Int64s() []int64 {
+	return s.data
+}
+
 func (s SeriesInt64) Data() any {
 	return s.data
 }

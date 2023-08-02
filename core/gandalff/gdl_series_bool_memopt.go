@@ -482,6 +482,16 @@ func (s SeriesBoolMemOpt) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesBoolMemOpt) Bools() []bool {
+	data := make([]bool, s.size)
+	for i, v := range s.data {
+		for j := 0; j < 8 && i*8+j < s.size; j++ {
+			data[i*8+j] = v&(1<<uint(j)) != 0
+		}
+	}
+	return data
+}
+
 func (s SeriesBoolMemOpt) Data() any {
 	data := make([]bool, s.size)
 	for i, v := range s.data {
