@@ -395,7 +395,6 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 
 	var err error
 	var df gandalff.DataFrame
-	var num int64
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -408,13 +407,50 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 		return
 	}
 
-	num, err = positional[1].getInt64Scalar()
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
+	switch len(positional) {
+	case 2:
+		a, err := positional[1].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		df = df.Take(int(a))
+
+	case 3:
+		a, err := positional[1].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		b, err := positional[2].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		df = df.Take(int(a), int(b))
+
+	case 4:
+		a, err := positional[1].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		b, err := positional[2].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		c, err := positional[3].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+		df = df.Take(int(a), int(b), int(c))
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 2, 3 or 4 parameters, got %d", funcName, len(positional)))
 	}
 
-	df = df.Take(0, int(num), 1)
 	vm.stackPush(vm.newPInternTerm(df))
 }
 
