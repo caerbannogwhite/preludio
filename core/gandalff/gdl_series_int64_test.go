@@ -202,7 +202,7 @@ func Test_SeriesInt64_Take(t *testing.T) {
 	}
 
 	// Take the first 5 values in steps of 2.
-	result = s.Take(0, 5, 2)
+	result = s.Take(0, 6, 2)
 
 	// Check the length.
 	if result.Len() != 3 {
@@ -224,7 +224,7 @@ func Test_SeriesInt64_Take(t *testing.T) {
 	}
 
 	// Take the last 5 values in steps of 2.
-	result = s.Take(5, 10, 2)
+	result = s.Take(5, 11, 2)
 
 	// Check the length.
 	if result.Len() != 3 {
