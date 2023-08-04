@@ -932,14 +932,20 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	return joined
 }
 
-func (df BaseDataFrame) Take(start, end, step int) DataFrame {
+func (df BaseDataFrame) Take(params ...int) DataFrame {
 	if df.err != nil {
+		return df
+	}
+
+	indeces, err := seriesTakePreprocess(df.NRows(), params...)
+	if err != nil {
+		df.err = err
 		return df
 	}
 
 	taken := NewBaseDataFrame()
 	for _, series := range df.series {
-		taken = taken.AddSeries(series.Take(start, end, step))
+		taken = taken.AddSeries(series.filterIntSlice(indeces))
 	}
 
 	return taken

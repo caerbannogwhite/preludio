@@ -88,6 +88,7 @@ type Series interface {
 	// Filters out the elements by the given mask.
 	// Mask can be a bool series, a slice of bools or a slice of ints.
 	Filter(mask any) Series
+	filterIntSlice(mask []int) Series
 
 	// Maps the elements of the series.
 	Map(f GDLMapFunc, stringPool *StringPool) Series

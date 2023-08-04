@@ -162,6 +162,10 @@ func (s SeriesError) Filter(mask any) Series {
 	return s
 }
 
+func (s SeriesError) filterIntSlice(mask []int) Series {
+	return s
+}
+
 func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	return s
 }

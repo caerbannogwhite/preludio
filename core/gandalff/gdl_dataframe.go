@@ -70,7 +70,7 @@ type DataFrame interface {
 
 	Join(how DataFrameJoinType, other DataFrame, on ...string) DataFrame
 
-	Take(start, end, step int) DataFrame
+	Take(params ...int) DataFrame
 
 	Agg(...aggregator) DataFrame
 
