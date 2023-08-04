@@ -237,58 +237,12 @@ func (s SeriesInt64) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesInt64) Take(start, end, step int) Series {
-	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
-		return NewSeriesInt64(s.name, s.isNullable, false, []int64{})
-	} else
-
-	// reverse
-	if step < 0 {
-		return s
-	} else
-
-	// normal
-	{
-		size := end - start
-		if size%step != 0 {
-			size = size/step + 1
-		} else {
-			size = size / step
-		}
-
-		if s.isNullable {
-			data := make([]int64, size)
-			nullMask := __binVecInit(size)
-
-			for i, j := start, 0; i < end; i, j = i+step, j+1 {
-				data[j] = s.data[i]
-				if s.IsNull(i) {
-					nullMask[j>>3] |= 1 << uint(j%8)
-				}
-			}
-			return SeriesInt64{
-				isGrouped:  false,
-				isNullable: true,
-				sorted:     SORTED_NONE,
-				name:       s.name,
-				data:       data,
-				nullMask:   nullMask,
-			}
-		} else {
-			data := make([]int64, size)
-			for i, j := start, 0; i < end; i, j = i+step, j+1 {
-				data[j] = s.data[i]
-			}
-			return SeriesInt64{
-				isGrouped:  false,
-				isNullable: false,
-				sorted:     SORTED_NONE,
-				name:       s.name,
-				data:       data,
-				nullMask:   nil,
-			}
-		}
+func (s SeriesInt64) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	if err != nil {
+		return SeriesError{err.Error()}
 	}
+	return s.filterIntSlice(indeces)
 }
 
 func (s SeriesInt64) Less(i, j int) bool {
@@ -725,9 +679,7 @@ func (s SeriesInt64) filterIntSlice(indexes []int) Series {
 	data = make([]int64, size)
 
 	if s.isNullable {
-
 		nullMask = __binVecInit(size)
-
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
 			if srcIdx%8 > dstIdx%8 {

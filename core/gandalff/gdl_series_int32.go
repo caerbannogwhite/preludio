@@ -228,58 +228,12 @@ func (s SeriesInt32) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesInt32) Take(start, end, step int) Series {
-	if start < 0 || start >= s.Len() || end < 0 || end > s.Len() || step == 0 {
-		return NewSeriesInt32(s.name, s.isNullable, false, []int32{})
-	} else
-
-	// reverse
-	if step < 0 {
-		return s
-	} else
-
-	// normal
-	{
-		size := end - start
-		if size%step != 0 {
-			size = size/step + 1
-		} else {
-			size = size / step
-		}
-
-		if s.isNullable {
-			data := make([]int32, size)
-			nullMask := __binVecInit(size)
-
-			for i, j := start, 0; i < end; i, j = i+step, j+1 {
-				data[j] = s.data[i]
-				if s.IsNull(i) {
-					nullMask[j>>3] |= 1 << uint(j%8)
-				}
-			}
-			return SeriesInt32{
-				isGrouped:  false,
-				isNullable: true,
-				sorted:     SORTED_NONE,
-				name:       s.name,
-				data:       data,
-				nullMask:   nullMask,
-			}
-		} else {
-			data := make([]int32, size)
-			for i, j := start, 0; i < end; i, j = i+step, j+1 {
-				data[j] = s.data[i]
-			}
-			return SeriesInt32{
-				isGrouped:  false,
-				isNullable: false,
-				sorted:     SORTED_NONE,
-				name:       s.name,
-				data:       data,
-				nullMask:   nil,
-			}
-		}
+func (s SeriesInt32) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	if err != nil {
+		return SeriesError{err.Error()}
 	}
+	return s.filterIntSlice(indeces)
 }
 
 func (s SeriesInt32) Less(i, j int) bool {

@@ -111,7 +111,7 @@ func (s SeriesError) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesError) Take(start, end, step int) Series {
+func (s SeriesError) Take(params ...int) Series {
 	return s
 }
 

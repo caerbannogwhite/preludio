@@ -215,8 +215,12 @@ func (s SeriesBool) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesBool) Take(start, end, step int) Series {
-	return s
+func (s SeriesBool) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	if err != nil {
+		return SeriesError{err.Error()}
+	}
+	return s.filterIntSlice(indeces)
 }
 
 func (s SeriesBool) Less(i, j int) bool {

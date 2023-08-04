@@ -58,7 +58,7 @@ type Series interface {
 	// Set the element at index i.
 	Set(i int, v any) Series
 	// Take the elements according to the given interval.
-	Take(start, end, step int) Series
+	Take(params ...int) Series
 
 	// Sort Interface.
 	Less(i, j int) bool
