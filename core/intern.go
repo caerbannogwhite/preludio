@@ -309,66 +309,98 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 }
 
 func (i *__p_intern__) listToSeriesBool() (gandalff.Series, error) {
-	if l, ok := i.expr[0].(__p_list__); ok {
+	switch l := i.expr[0].(type) {
+	case __p_list__:
 		res := make([]bool, len(l))
 		for j, e := range l {
-			v, err := e.getBoolScalar()
-			if err != nil {
-				return gandalff.NewSeriesError("expecting list of bools"), fmt.Errorf("expecting list of bools")
+			switch v := e.getValue().(type) {
+			case bool:
+				res[j] = v
+			default:
+				return nil, fmt.Errorf("expecting list of bools, got %T", e.getValue())
 			}
-			res[j] = v
 		}
 		return gandalff.NewSeriesBool("", true, false, res), nil
-	} else {
-		return gandalff.NewSeriesError("expecting list of bools"), fmt.Errorf("expecting list of bools")
+
+	default:
+		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
 	}
 }
 
 func (i *__p_intern__) listToSeriesInt64() (gandalff.Series, error) {
-	if l, ok := i.expr[0].(__p_list__); ok {
+	switch l := i.expr[0].(type) {
+	case __p_list__:
 		res := make([]int64, len(l))
 		for j, e := range l {
-			v, err := e.getInt64Scalar()
-			if err != nil {
-				return gandalff.NewSeriesError("expecting list of integers"), fmt.Errorf("expecting list of integers")
+			switch v := e.getValue().(type) {
+			case int64:
+				res[j] = v
+			default:
+				return nil, fmt.Errorf("expecting list of ints, got %T", e.getValue())
 			}
-			res[j] = v
 		}
 		return gandalff.NewSeriesInt64("", true, false, res), nil
-	} else {
-		return gandalff.NewSeriesError("expecting list of integers"), fmt.Errorf("expecting list of integers")
+
+	default:
+		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
 	}
 }
 
 func (i *__p_intern__) listToSeriesFloat64() (gandalff.Series, error) {
-	if l, ok := i.expr[0].(__p_list__); ok {
+	switch l := i.expr[0].(type) {
+	case __p_list__:
 		res := make([]float64, len(l))
 		for j, e := range l {
-			v, err := e.getFloat64Scalar()
-			if err != nil {
-				return gandalff.NewSeriesError("expecting list of floats"), fmt.Errorf("expecting list of floats")
+			switch v := e.getValue().(type) {
+			case float64:
+				res[j] = v
+			default:
+				return nil, fmt.Errorf("expecting list of floats, got %T", e.getValue())
 			}
-			res[j] = v
 		}
 		return gandalff.NewSeriesFloat64("", true, false, res), nil
-	} else {
-		return gandalff.NewSeriesError("expecting list of floats"), fmt.Errorf("expecting list of floats")
+
+	default:
+		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
+	}
+}
+
+func (i *__p_intern__) listToStringSlice() ([]string, error) {
+	switch l := i.expr[0].(type) {
+	case __p_list__:
+		res := make([]string, len(l))
+		for j, e := range l {
+			switch v := e.getValue().(type) {
+			case string:
+				res[j] = v
+			case __p_symbol__:
+				res[j] = string(v)
+			default:
+				return nil, fmt.Errorf("expecting list of strings or symbols, got %T", e.getValue())
+			}
+		}
+		return res, nil
+
+	default:
+		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
 	}
 }
 
 func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
-	if l, ok := i.expr[0].(__p_list__); ok {
+	switch l := i.expr[0].(type) {
+	case __p_list__:
 		res := make([]string, len(l))
 		for j, e := range l {
 			v, err := e.getStringScalar()
 			if err != nil {
-				return gandalff.NewSeriesError("expecting list of strings"), fmt.Errorf("expecting list of strings")
+				return nil, fmt.Errorf("expecting list of strings")
 			}
 			res[j] = v
 		}
 		return gandalff.NewSeriesString("", true, res, i.vm.__stringPool), nil
-	} else {
-		return gandalff.NewSeriesError("expecting list of strings"), fmt.Errorf("expecting list of strings")
+
+	default:
+		return nil, fmt.Errorf("expecting list of strings")
 	}
 }
 

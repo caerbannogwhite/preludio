@@ -344,8 +344,6 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 
 	var err error
 	var df gandalff.DataFrame
-	var symbol __p_symbol__
-	var list __p_list__
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -359,29 +357,21 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	}
 
 	// The first value can be both a symbol or a list of symbols
-	symbol, err = positional[1].getSymbol()
-	if err != nil {
-		list, err = positional[1].getList()
+	switch v := positional[1].getValue().(type) {
+	case __p_symbol__:
+		vm.stackPush(vm.newPInternTerm(df.Select(string(v))))
+
+	case __p_list__:
+		list, err := positional[1].listToStringSlice()
 		if err != nil {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
+		vm.stackPush(vm.newPInternTerm(df.Select(list...)))
 
-		names := make([]string, len(list))
-		for i, v := range list {
-			symbol, err = v.getSymbol()
-			if err != nil {
-				vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-				return
-			}
-			names[i] = string(symbol)
-		}
-		df = df.Select(names...)
-	} else {
-		df = df.Select([]string{string(symbol)}...)
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
 	}
-
-	vm.stackPush(vm.newPInternTerm(df))
 }
 
 // Sort all the values in the Dataframe
