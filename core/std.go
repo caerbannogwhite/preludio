@@ -28,8 +28,11 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		return
 	}
 
-	if list, err := positional[1].getList(); err == nil {
-		for _, val := range list {
+	switch v := positional[1].getValue().(type) {
+
+	// Derive: paramenter is list, multiple columns
+	case __p_list__:
+		for _, val := range v {
 			switch col := val.getValue().(type) {
 			case gandalff.SeriesBool:
 				df = df.AddSeries(col.SetName(val.name))
@@ -43,20 +46,19 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %T", funcName, val))
 			}
 		}
-	} else {
-		val := positional[1].getValue()
-		switch col := val.(type) {
-		case gandalff.SeriesBool:
-			df = df.AddSeries(col.SetName(positional[1].name))
-		case gandalff.SeriesInt64:
-			df = df.AddSeries(col.SetName(positional[1].name))
-		case gandalff.SeriesFloat64:
-			df = df.AddSeries(col.SetName(positional[1].name))
-		case gandalff.SeriesString:
-			df = df.AddSeries(col.SetName(positional[1].name))
-		default:
-			vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, val))
-		}
+
+	// Derive: single column
+	case gandalff.SeriesBool:
+		df = df.AddSeries(v.SetName(positional[1].name))
+	case gandalff.SeriesInt64:
+		df = df.AddSeries(v.SetName(positional[1].name))
+	case gandalff.SeriesFloat64:
+		df = df.AddSeries(v.SetName(positional[1].name))
+	case gandalff.SeriesString:
+		df = df.AddSeries(v.SetName(positional[1].name))
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, v))
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
@@ -195,6 +197,37 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 
 	if res.IsErrored() {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.GetError()))
+		return
+	}
+}
+
+// Filter rows of a Dataframe
+func PreludioFunc_Filter(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	named := map[string]*__p_intern__{}
+
+	var err error
+	var df gandalff.DataFrame
+
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df, err = positional[0].getDataframe()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	switch v := positional[1].getValue().(type) {
+	case gandalff.SeriesBool:
+		vm.stackPush(vm.newPInternTerm(df.Filter(v)))
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "invalid filter type"))
 		return
 	}
 }

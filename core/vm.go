@@ -420,6 +420,8 @@ MAIN_LOOP:
 				PreludioFunc_Derive("derive", vm)
 			case "describe":
 				PreludioFunc_Describe("describe", vm)
+			case "filter":
+				PreludioFunc_Filter("filter", vm)
 			case "from":
 				PreludioFunc_From("from", vm)
 			case "writeCSV":
