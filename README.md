@@ -15,10 +15,12 @@ It reads a CSV file, derives two new columns, selects some columns and writes th
 
 ```
 readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+strReplace HorsePower old:"," new:"."
 derive [
   Stat = Cylinders * Weight / 2,
   CarOrigin = Car + " - " + Origin
 ]
+filter Cylinders > 6 and Origin == "Europe"
 take 0 10 2
 select [CarOrigin, MPG, Stat]
 writeCSV "test_files\\Cars1.csv" delimiter: "\t"
@@ -77,5 +79,5 @@ make.ps1
 ```
 
 ### Log
- - **2 / 08 / 2023** Prelutio is now using the Gandalff library for managing data.
+ - **2 / 08 / 2023** Preludio is now using the Gandalff library for managing data.
  - **21 / 03 / 2023** First publishing of the repository. Many things are still not working.
