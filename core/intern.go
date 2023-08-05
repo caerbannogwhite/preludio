@@ -304,7 +304,7 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 	case __p_list__:
 		return v, nil
 	default:
-		return __p_list__{}, fmt.Errorf("expecting list, got %T", v)
+		return nil, fmt.Errorf("expecting list, got %T", v)
 	}
 }
 

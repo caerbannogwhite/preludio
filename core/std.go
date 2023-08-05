@@ -171,8 +171,14 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
+	// delimiter has to be a single character
+	del := rune(delimiter[0])
 	if len(delimiter) > 1 {
-		vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
+		if delimiter == "\\t" {
+			del = '\t'
+		} else {
+			vm.printWarning("delimiter length greater than 1, ignoring remaining characters")
+		}
 	}
 
 	header, err = named["header"].getBoolScalar()
@@ -182,7 +188,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	}
 
 	res := df.ToCSV().
-		SetDelimiter(rune(delimiter[0])).
+		SetDelimiter(del).
 		SetHeader(header).
 		SetWriter(outputFile).
 		Write()
