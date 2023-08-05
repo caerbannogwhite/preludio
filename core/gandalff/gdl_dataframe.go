@@ -50,6 +50,9 @@ type DataFrame interface {
 	// AddSeriesFromString adds a series of strings to the dataframe.
 	AddSeriesFromString(name string, isNullable bool, data []string) DataFrame
 
+	// Replace the series with the given name.
+	Replace(name string, s Series) DataFrame
+
 	// Returns the series with the given name.
 	Series(name string) Series
 
