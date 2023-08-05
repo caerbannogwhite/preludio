@@ -16,20 +16,25 @@ It reads a CSV file, derives two new columns, selects some columns and writes th
 ```
 readCSV "test_files\\Cars.csv" delimiter: ";" header:true
 derive [
-  cylTimes2 = Cylinders * 2,
-  Car_Origin = Car + " - " + Origin
+  Stat = Cylinders * Weight / 2,
+  CarOrigin = Car + " - " + Origin
 ]
-take 5
-select [Car_Origin, MPG, cylTimes2]
-writeCSV "test_files\\Cars1.csv"
+take 0 10 2
+select [CarOrigin, MPG, Stat]
+writeCSV "test_files\\Cars1.csv" delimiter: "\t"
 ```
 
 ![](media/repl_example.gif)
 
 ### Features
+-  [x] Arithmetic and logical operators
 -  [x] Read and write CSV files
 -  [x] Derive new columns
 -  [x] Select columns
+-  [ ] Filter rows
+-  [ ] Sort rows
+-  [ ] Group by and aggregate
+-  [ ] Join tables
 
 ### Installation
 To run it, you need to have [Go](https://golang.org/doc/install) installed.
@@ -42,7 +47,6 @@ go run .
 
 ### Future Features
 - [x] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
-- [ ] Add more transformations functions (group by, etc.)
 - [ ] Add statistical functions
 - [ ] Add support for Excel files
 - [ ] Add support for XPT files
