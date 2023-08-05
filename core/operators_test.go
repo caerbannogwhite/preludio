@@ -16,11 +16,11 @@ func Test_Operator_Mul(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int64{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -30,17 +30,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 1 || v[3] != 0 {
 				t.Error("Expected [0, 0, 1, 0], got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * INTEGER
 		b1.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -48,17 +48,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 3 || v[3] != 0 {
 				t.Error("Expected [1, 0, 3, 0] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * FLOAT
 		b1.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -66,31 +66,24 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 0.0 || v[2] != 7.0 || v[3] != 0.0 {
 				t.Error("Expected [5.0, 0.0, 7.0, 0.0] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL * STRING
 		b1.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, b1)
 
-		if err != nil {
-			t.Error(err)
-		} else if !b1.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := b1.getStringVector()
-			if v[0] != "a" || v[1] != "" || v[2] != "c" || v[3] != "" {
-				t.Error("Expected [\"a\", \"\", \"c\", \"\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between Bool[4] and String[4]" {
+			t.Error("Expected error")
 		}
 	}
 
@@ -102,17 +95,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 3 || v[3] != 4 {
 				t.Error("Expected [0, 0, 3, 4] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER * INTEGER
 		in.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -120,17 +113,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 1 || v[1] != 4 || v[2] != 9 || v[3] != 16 {
 				t.Error("Expected [1, 4, 9, 16] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER * FLOAT
 		in.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -138,35 +131,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 12.0 || v[2] != 21.0 || v[3] != 32.0 {
 				t.Error("Expected [5.0, 12.0, 21.0, 32.0] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
-
-		// INTEGER * STRING
-		in.appendOperand(typesys.OP_BINARY_MUL, st)
-		err = solveExpr(be, in)
-
-		if err != nil {
-			t.Error(err)
-		} else if !in.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := in.getStringVector()
-			if v[0] != "a" || v[1] != "bb" || v[2] != "ccc" || v[3] != "dddd" {
-				t.Error("Expected [\"a\", \"bb\", \"ccc\", \"dddd\"]")
-			}
-		}
-
-		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -177,17 +152,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 0.0 || v[1] != 0.0 || v[2] != 7.0 || v[3] != 8.0 {
 				t.Error("Expected [0.0, 0.0, 7.0, 8.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * INTEGER
 		fl.appendOperand(typesys.OP_BINARY_MUL, in)
@@ -195,17 +170,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 12.0 || v[2] != 21.0 || v[3] != 32.0 {
 				t.Error("Expected [0.0, 0.0, 21.0, 0.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT * FLOAT
 		fl.appendOperand(typesys.OP_BINARY_MUL, fl)
@@ -213,28 +188,17 @@ func Test_Operator_Mul(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 25.0 || v[1] != 36.0 || v[2] != 49.0 || v[3] != 64.0 {
 				t.Error("Expected [25.0, 36.0, 49.0, 64.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-
-		// FLOAT * STRING
-		fl.appendOperand(typesys.OP_BINARY_MUL, st)
-		err = solveExpr(be, fl)
-
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for Float64 and String" {
-			t.Error(err)
-		}
-
-		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -243,55 +207,41 @@ func Test_Operator_Mul(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_MUL, b2)
 		err = solveExpr(be, st)
 
-		if err != nil {
-			t.Error(err)
-		} else if !st.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := st.getStringVector()
-			if v[0] != "" || v[1] != "" || v[2] != "c" || v[3] != "d" {
-				t.Error("Expected [\"\", \"\", \"c\", \"d\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between String[4] and Bool[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * INTEGER
 		st.appendOperand(typesys.OP_BINARY_MUL, in)
 		err = solveExpr(be, st)
 
-		if err != nil {
-			t.Error(err)
-		} else if !st.isStringVector() {
-			t.Error("Expected string vector type")
-		} else {
-			v, _ := st.getStringVector()
-			if v[0] != "a" || v[1] != "bb" || v[2] != "ccc" || v[3] != "dddd" {
-				t.Error("Expected [\"a\", \"bb\", \"ccc\", \"dddd\"] got", v)
-			}
+		if err == nil || err.Error() != "operator * not supported between String[4] and Int64[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * FLOAT
 		st.appendOperand(typesys.OP_BINARY_MUL, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and Float64" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator * not supported between String[4] and Float64[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING * STRING
 		st.appendOperand(typesys.OP_BINARY_MUL, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"*\" operator not implemented for String and String" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator * not supported between String[4] and String[4]" {
+			t.Error("Expected error")
 		}
 	}
 }
@@ -300,11 +250,11 @@ func Test_Operator_Div(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int64{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -314,17 +264,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if !math.IsInf(v[0], 1) || !math.IsNaN(v[1]) || v[2] != 1.0 || v[3] != 0.0 {
 				t.Error("Expected [+Inf, NaN, 1.0, 0.0]")
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / INTEGER
 		b1.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -332,17 +282,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 1.0 || v[1] != 0.0 || v[2] != 0.3333333333333333 || v[3] != 0.0 {
 				t.Error("Expected [1.0, 0.0, 0.3333333333333333, 0.0]")
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / FLOAT
 		b1.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -350,28 +300,28 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 0.2 || v[1] != 0.0 || v[2] != 0.14285714285714285 || v[3] != 0.0 {
 				t.Error("Expected [0.2, 0.0, 0.14285714285714285, 0.0]")
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL / STRING
 		b1.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, b1)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Bool and String" {
-			t.Error(err)
+		if err == nil || err.Error() != "operator / not supported between Bool[4] and String[4]" {
+			t.Error("Expected error")
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -382,17 +332,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 1.0 || !math.IsInf(v[1], 1) || v[2] != 3.0 || !math.IsInf(v[3], 1) {
 				t.Error("Expected [1.0, +Inf, 3.0, +Inf]")
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER / INTEGER
 		in.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -400,17 +350,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 1.0 || v[1] != 1.0 || v[2] != 1.0 || v[3] != 1.0 {
 				t.Error("Expected [1.0, 1.0, 1.0, 1.0]")
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER / FLOAT
 		in.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -418,28 +368,28 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 0.2 || v[1] != 0.3333333333333333 || v[2] != 0.42857142857142855 || v[3] != 0.5 {
 				t.Error("Expected [0.2, 0.3333333333333333, 0.42857142857142855, 0.5]")
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER / STRING
 		in.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, in)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Int32 and String" {
+		if err == nil || err.Error() != "operator / not supported between Int64[4] and String[4]" {
 			t.Error(err)
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -450,17 +400,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || !math.IsInf(v[1], 1) || v[2] != 7.0 || !math.IsInf(v[3], 1) {
 				t.Error("Expected [5.0, +Inf, 7.0, +Inf]")
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / INTEGER
 		fl.appendOperand(typesys.OP_BINARY_DIV, in)
@@ -468,17 +418,17 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 5.0 || v[1] != 3.0 || v[2] != 2.3333333333333335 || v[3] != 2.0 {
 				t.Error("Expected [5.0, 3.0, 2.3333333333333335, 2.0]")
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / FLOAT
 		fl.appendOperand(typesys.OP_BINARY_DIV, fl)
@@ -486,28 +436,28 @@ func Test_Operator_Div(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 1 || v[1] != 1 || v[2] != 1 || v[3] != 1 {
 				t.Error("Expected [1, 1, 1, 1]")
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT / STRING
 		fl.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, fl)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for Float64 and String" {
+		if err == nil || err.Error() != "operator / not supported between Float64[4] and String[4]" {
 			t.Error(err)
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -516,40 +466,40 @@ func Test_Operator_Div(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_DIV, b1)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Bool" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Bool[4]" {
 			t.Error(err)
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / INTEGER
 		st.appendOperand(typesys.OP_BINARY_DIV, in)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Int32" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Int64[4]" {
 			t.Error(err)
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / FLOAT
 		st.appendOperand(typesys.OP_BINARY_DIV, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and Float64" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and Float64[4]" {
 			t.Error(err)
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING / STRING
 		st.appendOperand(typesys.OP_BINARY_DIV, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"/\" operator not implemented for String and String" {
+		if err == nil || err.Error() != "operator / not supported between String[4] and String[4]" {
 			t.Error(err)
 		}
 	}
@@ -559,11 +509,11 @@ func Test_Operator_Add(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int64{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -573,17 +523,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 2 || v[3] != 1 {
 				t.Error("Expected [1, 0, 2, 1] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + INTEGER
 		b1.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -591,17 +541,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 2 || v[1] != 2 || v[2] != 4 || v[3] != 4 {
 				t.Error("Expected [2, 2, 4, 4] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + FLOAT
 		b1.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -609,17 +559,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 6.0 || v[2] != 8.0 || v[3] != 8.0 {
 				t.Error("Expected [6.0, 6.0, 8.0, 8.0] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL + STRING
 		b1.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -637,7 +587,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -648,17 +598,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 2 || v[1] != 2 || v[2] != 4 || v[3] != 4 {
 				t.Error("Expected [2, 2, 4, 4] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER + INTEGER
 		in.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -666,17 +616,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected int vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 2 || v[1] != 4 || v[2] != 6 || v[3] != 8 {
 				t.Error("Expected [2, 4, 6, 8] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER + FLOAT
 		in.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -684,17 +634,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 8.0 || v[2] != 10.0 || v[3] != 12.0 {
 				t.Error("Expected [6.0, 8.0, 10.0, 12.0] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER + STRING
 		in.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -712,7 +662,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -723,17 +673,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 6.0 || v[2] != 8.0 || v[3] != 8.0 {
 				t.Error("Expected [6.0, 6.0, 8.0, 8.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + INTEGER
 		fl.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -741,17 +691,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 6.0 || v[1] != 8.0 || v[2] != 10.0 || v[3] != 12.0 {
 				t.Error("Expected [6.0, 8.0, 10.0, 12.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + FLOAT
 		fl.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -759,17 +709,17 @@ func Test_Operator_Add(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 10.0 || v[1] != 12.0 || v[2] != 14.0 || v[3] != 16.0 {
 				t.Error("Expected [10.0, 12.0, 14.0, 16.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT + STRING
 		fl.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -781,13 +731,13 @@ func Test_Operator_Add(t *testing.T) {
 			t.Error("Expected string vector type")
 		} else {
 			v, _ := fl.getStringVector()
-			if v[0] != "5.000000a" || v[1] != "6.000000b" || v[2] != "7.000000c" || v[3] != "8.000000d" {
-				t.Error("Expected [5.000000a, 6.000000b, 7.000000c, 8.000000d] got", v)
+			if v[0] != "5a" || v[1] != "6b" || v[2] != "7c" || v[3] != "8d" {
+				t.Error("Expected [5a, 6b, 7c, 8d] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -808,7 +758,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + INTEGER
 		st.appendOperand(typesys.OP_BINARY_ADD, in)
@@ -826,7 +776,7 @@ func Test_Operator_Add(t *testing.T) {
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + FLOAT
 		st.appendOperand(typesys.OP_BINARY_ADD, fl)
@@ -838,13 +788,13 @@ func Test_Operator_Add(t *testing.T) {
 			t.Error("Expected string vector type")
 		} else {
 			v, _ := st.getStringVector()
-			if v[0] != "a5.000000" || v[1] != "b6.000000" || v[2] != "c7.000000" || v[3] != "d8.000000" {
-				t.Error("Expected [a5.000000, b6.000000, c7.000000, d8.000000] got", v)
+			if v[0] != "a5" || v[1] != "b6" || v[2] != "c7" || v[3] != "d8" {
+				t.Error("Expected [a5, b6, c7, d8] got", v)
 			}
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING + STRING
 		st.appendOperand(typesys.OP_BINARY_ADD, st)
@@ -867,11 +817,11 @@ func Test_Operator_Sub(t *testing.T) {
 
 	var err error
 
-	b1 := newPInternTerm([]bool{true, false, true, false})
-	b2 := newPInternTerm([]bool{false, false, true, true})
-	in := newPInternTerm([]int{1, 2, 3, 4})
-	fl := newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
-	st := newPInternTerm([]string{"a", "b", "c", "d"})
+	b1 := be.newPInternTerm([]bool{true, false, true, false})
+	b2 := be.newPInternTerm([]bool{false, false, true, true})
+	in := be.newPInternTerm([]int64{1, 2, 3, 4})
+	fl := be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+	st := be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 	// BOOL
 	{
@@ -881,17 +831,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 1 || v[1] != 0 || v[2] != 0 || v[3] != -1 {
 				t.Error("Expected [1, 0, 0, -1] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - INTEGER
 		b1.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -899,17 +849,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isIntegerVector() {
+		} else if !b1.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := b1.getIntegerVector()
+			v, _ := b1.getInt64Vector()
 			if v[0] != 0 || v[1] != -2 || v[2] != -2 || v[3] != -4 {
 				t.Error("Expected [0, -2, -2, -4] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - FLOAT
 		b1.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -917,17 +867,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !b1.isFloatVector() {
+		} else if !b1.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := b1.getFloatVector()
+			v, _ := b1.getFloat64Vector()
 			if v[0] != -4.0 || v[1] != -6.0 || v[2] != -6.0 || v[3] != -8.0 {
 				t.Error("Expected [-4.0, -6.0, -6.0, -8.0] got", v)
 			}
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 
 		// BOOL - STRING
 		b1.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -938,7 +888,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset b1
-		b1 = newPInternTerm([]bool{true, false, true, false})
+		b1 = be.newPInternTerm([]bool{true, false, true, false})
 	}
 
 	// INTEGER
@@ -949,17 +899,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 2 || v[2] != 2 || v[3] != 4 {
 				t.Error("Expected [0, 2, 2, 4] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER - INTEGER
 		in.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -967,17 +917,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isIntegerVector() {
+		} else if !in.isInt64Vector() {
 			t.Error("Expected integer vector type")
 		} else {
-			v, _ := in.getIntegerVector()
+			v, _ := in.getInt64Vector()
 			if v[0] != 0 || v[1] != 0 || v[2] != 0 || v[3] != 0 {
 				t.Error("Expected [0, 0, 0, 0] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER - FLOAT
 		in.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -985,17 +935,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !in.isFloatVector() {
+		} else if !in.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := in.getFloatVector()
+			v, _ := in.getFloat64Vector()
 			if v[0] != -4.0 || v[1] != -4.0 || v[2] != -4.0 || v[3] != -4.0 {
 				t.Error("Expected [-4.0, -4.0, -4.0, -4.0] got", v)
 			}
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 
 		// INTEGER - STRING
 		in.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -1006,7 +956,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset in
-		in = newPInternTerm([]int{1, 2, 3, 4})
+		in = be.newPInternTerm([]int64{1, 2, 3, 4})
 	}
 
 	// FLOAT
@@ -1017,17 +967,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 4.0 || v[1] != 6.0 || v[2] != 6.0 || v[3] != 8.0 {
 				t.Error("Expected [4.0, 6.0, 6.0, 8.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - INTEGER
 		fl.appendOperand(typesys.OP_BINARY_SUB, in)
@@ -1035,17 +985,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 4.0 || v[1] != 4.0 || v[2] != 4.0 || v[3] != 4.0 {
 				t.Error("Expected [4.0, 4.0, 4.0, 4.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - FLOAT
 		fl.appendOperand(typesys.OP_BINARY_SUB, fl)
@@ -1053,17 +1003,17 @@ func Test_Operator_Sub(t *testing.T) {
 
 		if err != nil {
 			t.Error(err)
-		} else if !fl.isFloatVector() {
+		} else if !fl.isFloat64Vector() {
 			t.Error("Expected float vector type")
 		} else {
-			v, _ := fl.getFloatVector()
+			v, _ := fl.getFloat64Vector()
 			if v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0 || v[3] != 0.0 {
 				t.Error("Expected [0.0, 0.0, 0.0, 0.0] got", v)
 			}
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 
 		// FLOAT - STRING
 		fl.appendOperand(typesys.OP_BINARY_SUB, st)
@@ -1074,7 +1024,7 @@ func Test_Operator_Sub(t *testing.T) {
 		}
 
 		// reset fl
-		fl = newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
+		fl = be.newPInternTerm([]float64{5.0, 6.0, 7.0, 8.0})
 	}
 
 	// STRING
@@ -1083,40 +1033,40 @@ func Test_Operator_Sub(t *testing.T) {
 		st.appendOperand(typesys.OP_BINARY_SUB, b1)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Bool" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Bool[4]" {
 			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - INTEGER
 		st.appendOperand(typesys.OP_BINARY_SUB, in)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Int32" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Int64[4]" {
 			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - FLOAT
 		st.appendOperand(typesys.OP_BINARY_SUB, fl)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and Float64" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and Float64[4]" {
 			t.Error("Expected error")
 		}
 
 		// reset st
-		st = newPInternTerm([]string{"a", "b", "c", "d"})
+		st = be.newPInternTerm([]string{"a", "b", "c", "d"})
 
 		// STRING - STRING
 		st.appendOperand(typesys.OP_BINARY_SUB, st)
 		err = solveExpr(be, st)
 
-		if err == nil || err.Error() != "binary \"-\" operator not implemented for String and String" {
+		if err == nil || err.Error() != "operator - not supported between String[4] and String[4]" {
 			t.Error("Expected error")
 		}
 	}

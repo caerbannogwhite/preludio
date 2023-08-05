@@ -44,6 +44,14 @@ const NULL_STRING = "NA"
 const BOOL_TRUE_STRING = "true"
 const BOOL_FALSE_STRING = "false"
 
+func boolToString(b bool) string {
+	if b {
+		return BOOL_TRUE_STRING
+	} else {
+		return BOOL_FALSE_STRING
+	}
+}
+
 func intToString(i int64) string {
 	return strconv.FormatInt(i, 10)
 }

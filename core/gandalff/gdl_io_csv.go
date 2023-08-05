@@ -316,7 +316,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewSeriesBool(name, isNullable, values[i].([]bool))
+			series[i] = NewSeriesBool(name, isNullable, false, values[i].([]bool))
 		case typesys.Int32Type:
 			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32))
 		case typesys.Int64Type:
@@ -334,4 +334,96 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	return series, nil
+}
+
+type CsvWriter struct {
+	delimiter rune
+	header    bool
+	path      string
+	writer    io.Writer
+	dataframe DataFrame
+}
+
+func NewCsvWriter() *CsvWriter {
+	return &CsvWriter{
+		delimiter: CSV_READER_DEFAULT_DELIMITER,
+		header:    CSV_READER_DEFAULT_HEADER,
+		path:      "",
+		writer:    nil,
+		dataframe: nil,
+	}
+}
+
+func (w *CsvWriter) SetDelimiter(delimiter rune) *CsvWriter {
+	w.delimiter = delimiter
+	return w
+}
+
+func (w *CsvWriter) SetHeader(header bool) *CsvWriter {
+	w.header = header
+	return w
+}
+
+func (w *CsvWriter) SetPath(path string) *CsvWriter {
+	w.path = path
+	return w
+}
+
+func (w *CsvWriter) SetWriter(writer io.Writer) *CsvWriter {
+	w.writer = writer
+	return w
+}
+
+func (w *CsvWriter) SetDataFrame(dataframe DataFrame) *CsvWriter {
+	w.dataframe = dataframe
+	return w
+}
+
+func (w *CsvWriter) Write() DataFrame {
+	err := writeCSV(w.dataframe, w.writer, w.delimiter, w.header)
+	if err != nil {
+		w.dataframe = BaseDataFrame{err: err}
+	}
+
+	return w.dataframe
+}
+
+func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool) error {
+	series := make([]Series, df.NCols())
+	for i := 0; i < df.NCols(); i++ {
+		series[i] = df.SeriesAt(i)
+	}
+
+	if writer == nil {
+		return fmt.Errorf("writeCSV: no writer specified")
+	}
+
+	if header {
+		for i, s := range series {
+			if i > 0 {
+				fmt.Fprintf(writer, "%c", delimiter)
+			}
+			fmt.Fprintf(writer, "%s", s.Name())
+		}
+
+		fmt.Fprintf(writer, "\n")
+	}
+
+	for i := 0; i < df.NRows(); i++ {
+		for j, s := range series {
+			if j > 0 {
+				fmt.Fprintf(writer, "%c", delimiter)
+			}
+
+			if s.IsNull(i) {
+				fmt.Fprintf(writer, "%s", NULL_STRING)
+			} else {
+				fmt.Fprintf(writer, "%s", s.GetString(i))
+			}
+		}
+
+		fmt.Fprintf(writer, "\n")
+	}
+
+	return nil
 }

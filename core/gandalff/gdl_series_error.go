@@ -7,10 +7,6 @@ type SeriesError struct {
 	msg string
 }
 
-func (s SeriesError) Error() string {
-	return s.msg
-}
-
 // Returns the length of the series.
 func (s SeriesError) Len() int {
 	return 0
@@ -30,6 +26,16 @@ func (s SeriesError) IsSorted() SeriesSortOrder {
 	return SORTED_NONE
 }
 
+// Returns if the series is error.
+func (s SeriesError) IsError() bool {
+	return true
+}
+
+// Returns the error message of the series.
+func (s SeriesError) GetError() string {
+	return s.msg
+}
+
 // Makes the series nullable.
 func (s SeriesError) MakeNullable() Series {
 	return s
@@ -40,9 +46,19 @@ func (s SeriesError) Name() string {
 	return ""
 }
 
+// Sets the name of the series.
+func (s SeriesError) SetName(name string) Series {
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesError) Type() typesys.BaseType {
 	return typesys.ErrorType
+}
+
+// Returns the type and cardinality of the series.
+func (s SeriesError) TypeCard() typesys.BaseTypeCard {
+	return typesys.BaseTypeCard{typesys.ErrorType, s.Len()}
 }
 
 // Returns if the series has null values.
@@ -95,7 +111,7 @@ func (s SeriesError) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesError) Take(start, end, step int) Series {
+func (s SeriesError) Take(params ...int) Series {
 	return s
 }
 
@@ -108,21 +124,6 @@ func (s SeriesError) Swap(i, j int) {}
 
 // Append elements to the series.
 func (s SeriesError) Append(v any) Series {
-	return s
-}
-
-// AppendRaw appends a value or a slice of values to the series.
-func (s SeriesError) AppendRaw(v any) Series {
-	return s
-}
-
-// Append nullable elements to the series.
-func (s SeriesError) AppendNullable(v any) Series {
-	return s
-}
-
-// Append a series to the series.
-func (s SeriesError) AppendSeries(other Series) Series {
 	return s
 }
 
@@ -155,18 +156,13 @@ func (s SeriesError) Copy() Series {
 
 // Series operations.
 
-// Filters out the elements by the given mask series.
-func (s SeriesError) Filter(mask SeriesBool) Series {
+// Filters out the elements by the given mask.
+// Mask can be a bool series, a slice of bools or a slice of ints.
+func (s SeriesError) Filter(mask any) Series {
 	return s
 }
 
-// FilterByMask returns a new series with elements filtered by the mask.
-func (s SeriesError) FilterByMask(mask []bool) Series {
-	return s
-}
-
-// FilterByIndeces returns a new series with elements filtered by the indeces.
-func (s SeriesError) FilterByIndeces(indeces []int) Series {
+func (s SeriesError) filterIntSlice(mask []int) Series {
 	return s
 }
 
@@ -192,6 +188,32 @@ func (s SeriesError) Sort() Series {
 }
 
 func (s SeriesError) SortRev() Series {
+	return s
+}
+
+////////////////////////			ARITHMETIC OPERATIONS
+
+func (s SeriesError) Mul(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Div(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Mod(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Pow(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Add(other Series) Series {
+	return s
+}
+
+func (s SeriesError) Sub(other Series) Series {
 	return s
 }
 

@@ -10,8 +10,7 @@ import (
 	"strings"
 	"typesys"
 
-	"github.com/go-gota/gota/dataframe"
-	"github.com/go-gota/gota/series"
+	"gandalff"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -36,7 +35,8 @@ type ByteEater struct {
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                typesys.PreludioOutput
-	__currentDataFrame      *dataframe.DataFrame
+	__stringPool            *gandalff.StringPool
+	__currentDataFrame      gandalff.DataFrame
 	__currentResult         *__p_intern__
 }
 
@@ -111,6 +111,8 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
+
+	vm.__stringPool = gandalff.NewStringPool()
 
 	return vm
 }
@@ -288,7 +290,7 @@ func (vm *ByteEater) loadResults() {
 	}
 
 	if len(results) > 1 {
-		vm.__currentResult = newPInternTerm(__p_list__(results))
+		vm.__currentResult = vm.newPInternTerm(__p_list__(results))
 	} else if len(results) == 1 {
 		vm.__currentResult = &results[0]
 	}
@@ -350,7 +352,7 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_START_STMT", "", "")
 
 			// Insert BEGIN FRAME
-			vm.stackPush(newPInternBeginFrame())
+			vm.stackPush(vm.newPInternBeginFrame())
 
 		case typesys.OP_END_STMT:
 			vm.printDebug(10, "OP_END_STMT", "", "")
@@ -397,7 +399,7 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
-			vm.stackPush(newPInternBeginFrame())
+			vm.stackPush(vm.newPInternBeginFrame())
 
 		case typesys.OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
@@ -421,9 +423,9 @@ MAIN_LOOP:
 			case "from":
 				PreludioFunc_From("from", vm)
 			case "writeCSV":
-				PreludioFunc_WriteCsv("writeCSV", vm)
+				PreludioFunc_WriteCSV("writeCSV", vm)
 			case "readCSV":
-				PreludioFunc_ReadCsv("readCSV", vm)
+				PreludioFunc_ReadCSV("readCSV", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
@@ -482,7 +484,7 @@ MAIN_LOOP:
 			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
 
-			vm.stackPush(newPInternTerm(__p_list__(listCopy)))
+			vm.stackPush(vm.newPInternTerm(__p_list__(listCopy)))
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
@@ -530,29 +532,29 @@ MAIN_LOOP:
 					val = false
 					termVal = "false"
 				}
-				vm.stackPush(newPInternTerm([]bool{val}))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
-				vm.stackPush(newPInternTerm([]int{int(val)}))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
-				vm.stackPush(newPInternTerm([]float64{val}))
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.stackPush(newPInternTerm([]string{termVal}))
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
-				vm.stackPush(newPInternTerm(__p_symbol__(termVal)))
+				vm.stackPush(vm.newPInternTerm(__p_symbol__(termVal)))
 
 			default:
 				vm.setPanicMode(fmt.Sprintf("ByteEater: unknown term code %d.", param1))
@@ -777,19 +779,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			ser := vm.__currentDataFrame.Col(string(symbol))
-			switch ser.Type() {
-			case series.Bool:
-				val, _ := ser.Bool()
-				return val
-			case series.Int:
-				val, _ := ser.Int()
-				return val
-			case series.Float:
-				return ser.Float()
-			case series.String:
-				return ser.Records()
-			}
+			return vm.__currentDataFrame.Series(string(symbol))
 		}
 	}
 
@@ -810,7 +800,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 // the current DataFrame
 func (vm *ByteEater) setCurrentDataFrame() {
 	df, _ := vm.stackLast().getDataframe()
-	vm.__currentDataFrame = &df
+	vm.__currentDataFrame = df
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	for _, name := range df.Names() {
@@ -823,7 +813,7 @@ func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_DEBUG, Level: level, Message: msg})
 
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -832,7 +822,7 @@ func (vm *ByteEater) printInfo(level uint8, msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_INFO, Level: level, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -841,7 +831,7 @@ func (vm *ByteEater) printWarning(msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_WARNING, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }
 
@@ -850,6 +840,6 @@ func (vm *ByteEater) printError(msg string) {
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_ERROR, Message: msg})
 
 	if vm.__param_printToStdout {
-		fmt.Print(msg)
+		fmt.Println(msg)
 	}
 }

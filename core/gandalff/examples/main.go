@@ -29,6 +29,8 @@ Operations,4,250000
 )
 
 func Example01() {
+	// f, _ := os.Create("test.csv")
+
 	NewBaseDataFrame().
 		FromCSV().
 		SetReader(strings.NewReader(data1)).
@@ -39,6 +41,10 @@ func Example01() {
 		GroupBy("department").
 		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 		PrettyPrint(20)
+	// ToCSV().
+	// SetDelimiter('\t').
+	// SetWriter(f).
+	// Write()
 
 	// Output:
 	// +------------+------------+------------+------------+------------+
@@ -148,6 +154,9 @@ func main() {
 	fmt.Println("Example02:")
 	Example02()
 
-	// fmt.Println("Example03:")
-	// Example03()
+	fmt.Println("Example03:")
+	Example03()
+
+	fmt.Println("Example04:")
+	Example04()
 }

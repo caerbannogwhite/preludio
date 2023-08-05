@@ -11,10 +11,10 @@ func Test_Series(t *testing.T) {
 
 	r := s.Append(true).
 		Append([]NullableBool{{true, true}, {true, false}}).
-		FilterByMask([]bool{true, false, true, false, true, false, true, false, true, false, true, true, false})
+		Filter([]bool{true, false, true, false, true, false, true, false, true, false, true, true, false})
 
 	if e, ok := r.(SeriesError); ok {
-		t.Errorf("Expected a series, got an error: %s", e.Error())
+		t.Errorf("Expected a series, got an error: %s", e.GetError())
 	}
 
 	if r.Len() != 7 {

@@ -1,17 +1,15 @@
 package preludiocore
 
 import (
+	"gandalff"
 	"strconv"
 	"typesys"
-
-	"github.com/go-gota/gota/dataframe"
-	"github.com/go-gota/gota/series"
 )
 
 func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data []bool) typesys.Columnar {
 	col := typesys.Columnar{}
 	col.Name = name
-	col.Type = "bool"
+	col.Type = typesys.BoolType.ToString()
 	col.ActualLength = len(data)
 	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
@@ -28,10 +26,10 @@ func NewColumnarBool(name string, fullOutput bool, outputSnippetLength int, data
 	return col
 }
 
-func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data []int) typesys.Columnar {
+func NewColumnarInt64(name string, fullOutput bool, outputSnippetLength int, data []int64) typesys.Columnar {
 	col := typesys.Columnar{}
 	col.Name = name
-	col.Type = "int"
+	col.Type = typesys.Int64Type.ToString()
 	col.ActualLength = len(data)
 	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
@@ -43,7 +41,7 @@ func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data 
 			col.Data[i] = "..."
 			break
 		}
-		col.Data[i] = strconv.Itoa(v)
+		col.Data[i] = strconv.FormatInt(v, 10)
 	}
 	return col
 }
@@ -51,7 +49,7 @@ func NewColumnarInt(name string, fullOutput bool, outputSnippetLength int, data 
 func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, data []float64) typesys.Columnar {
 	col := typesys.Columnar{}
 	col.Name = name
-	col.Type = "float"
+	col.Type = typesys.Float64Type.ToString()
 	col.ActualLength = len(data)
 	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
@@ -71,7 +69,7 @@ func NewColumnarFloat(name string, fullOutput bool, outputSnippetLength int, dat
 func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, data []string) typesys.Columnar {
 	col := typesys.Columnar{}
 	col.Name = name
-	col.Type = "string"
+	col.Type = typesys.StringType.ToString()
 	col.ActualLength = len(data)
 	if !fullOutput && len(data) > outputSnippetLength {
 		col.Data = make([]string, outputSnippetLength)
@@ -88,27 +86,19 @@ func NewColumnarString(name string, fullOutput bool, outputSnippetLength int, da
 	return col
 }
 
-func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) ([]typesys.Columnar, error) {
-	columns := make([]typesys.Columnar, df.Ncol())
-	for i, name := range df.Names() {
-		col := df.Col(name)
-		switch col.Type() {
-		case series.Bool:
-			val, err := col.Bool()
-			if err != nil {
-				return nil, err
-			}
-			columns[i] = NewColumnarBool(col.Name, fullOutput, outputSnippetLength, val)
-		case series.Int:
-			val, err := col.Int()
-			if err != nil {
-				return nil, err
-			}
-			columns[i] = NewColumnarInt(col.Name, fullOutput, outputSnippetLength, val)
-		case series.Float:
-			columns[i] = NewColumnarFloat(col.Name, fullOutput, outputSnippetLength, col.Float())
-		case series.String:
-			columns[i] = NewColumnarString(col.Name, fullOutput, outputSnippetLength, col.Records())
+func DataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) ([]typesys.Columnar, error) {
+	columns := make([]typesys.Columnar, (*df).NCols())
+	for i, name := range (*df).Names() {
+		col := (*df).Series(name)
+		switch ser := col.(type) {
+		case gandalff.SeriesBool:
+			columns[i] = NewColumnarBool(ser.Name(), fullOutput, outputSnippetLength, ser.Bools())
+		case gandalff.SeriesInt64:
+			columns[i] = NewColumnarInt64(ser.Name(), fullOutput, outputSnippetLength, ser.Int64s())
+		case gandalff.SeriesFloat64:
+			columns[i] = NewColumnarFloat(ser.Name(), fullOutput, outputSnippetLength, ser.Float64s())
+		case gandalff.SeriesString:
+			columns[i] = NewColumnarString(ser.Name(), fullOutput, outputSnippetLength, ser.Strings())
 		}
 	}
 	return columns, nil

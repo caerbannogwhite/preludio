@@ -87,7 +87,9 @@ func __gdl_sum__(s Series) float64 {
 	case SeriesBool:
 		data := *series.getDataPtr()
 		for i := 0; i < series.Len(); i++ {
-			sum += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
+			if data[i] {
+				sum += 1.0
+			}
 		}
 		return sum
 
@@ -118,7 +120,9 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		data := *series.getDataPtr()
 		for gi, group := range groups {
 			for _, i := range group {
-				sum[gi] += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
+				if data[i] {
+					sum[gi] += 1.0
+				}
 			}
 		}
 		return sum
@@ -546,7 +550,9 @@ func __gdl_mean__(s Series) float64 {
 		sum := 0.0
 		data := *series.getDataPtr()
 		for i := 0; i < series.Len(); i++ {
-			sum += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
+			if data[i] {
+				sum += 1.0
+			}
 		}
 		return sum / float64(series.Len())
 
@@ -576,7 +582,9 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		data := *series.getDataPtr()
 		for gi, group := range groups {
 			for _, i := range group {
-				sum[gi] += float64(data[i>>3] & (1 << uint(i%8)) >> uint(i%8))
+				if data[i] {
+					sum[gi] += 1.0
+				}
 			}
 			sum[gi] /= float64(len(group))
 		}

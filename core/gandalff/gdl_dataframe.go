@@ -40,13 +40,13 @@ type DataFrame interface {
 	// AddSeries adds a generic series to the dataframe.
 	AddSeries(series Series) DataFrame
 	// AddSeriesFromBool adds a series of bools to the dataframe.
-	AddSeriesFromBool(name string, isNullable bool, data []bool) DataFrame
+	AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame
 	// AddSeriesFromInt32 adds a series of ints to the dataframe.
-	AddSeriesFromInt32(name string, isNullable bool, makeCopy bool, data []int32) DataFrame
+	AddSeriesFromInt32(name string, isNullable, makeCopy bool, data []int32) DataFrame
 	// AddSeriesFromInt64 adds a series of ints to the dataframe.
-	AddSeriesFromInt64(name string, isNullable bool, makeCopy bool, data []int64) DataFrame
+	AddSeriesFromInt64(name string, isNullable, makeCopy bool, data []int64) DataFrame
 	// AddSeriesFromFloat adds a series of floats to the dataframe.
-	AddSeriesFromFloat64(name string, isNullable bool, makeCopy bool, data []float64) DataFrame
+	AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame
 	// AddSeriesFromString adds a series of strings to the dataframe.
 	AddSeriesFromString(name string, isNullable bool, data []string) DataFrame
 
@@ -70,13 +70,18 @@ type DataFrame interface {
 
 	Join(how DataFrameJoinType, other DataFrame, on ...string) DataFrame
 
-	Take(start, end, step int) DataFrame
+	Take(params ...int) DataFrame
 
 	Agg(...aggregator) DataFrame
 
-	PrettyPrint(nrows int)
+	// IO
+
+	Describe() string
+	Records(header bool) [][]string
+	PrettyPrint(nrows int) DataFrame
 
 	FromCSV() *CsvReader
+	ToCSV() *CsvWriter
 }
 
 ////////////////////////			AGGREGATORS

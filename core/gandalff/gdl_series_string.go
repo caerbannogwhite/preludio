@@ -57,9 +57,20 @@ func (s SeriesString) Name() string {
 	return s.name
 }
 
+// Sets the name of the series.
+func (s SeriesString) SetName(name string) Series {
+	s.name = name
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesString) Type() typesys.BaseType {
 	return typesys.StringType
+}
+
+// Returns the type and cardinality of the series.
+func (s SeriesString) TypeCard() typesys.BaseTypeCard {
+	return typesys.BaseTypeCard{typesys.StringType, s.Len()}
 }
 
 // Returns if the series is grouped.
@@ -75,6 +86,16 @@ func (s SeriesString) IsNullable() bool {
 // Returns if the series is sorted.
 func (s SeriesString) IsSorted() SeriesSortOrder {
 	return s.sorted
+}
+
+// Returns if the series is error.
+func (s SeriesString) IsError() bool {
+	return false
+}
+
+// Returns the error message of the series.
+func (s SeriesString) GetError() string {
+	return ""
 }
 
 // Returns if the series has null values.
@@ -225,8 +246,12 @@ func (s SeriesString) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesString) Take(start, end, step int) Series {
-	return s
+func (s SeriesString) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	if err != nil {
+		return SeriesError{err.Error()}
+	}
+	return s.filterIntSlice(indeces)
 }
 
 func (s SeriesString) Less(i, j int) bool {
@@ -260,16 +285,12 @@ func (s SeriesString) Swap(i, j int) {
 // Append appends a value or a slice of values to the series.
 func (s SeriesString) Append(v any) Series {
 	switch v := v.(type) {
-	case string:
-		return s.AppendRaw(v)
-	case []string:
-		return s.AppendRaw(v)
-	case NullableString:
-		return s.AppendNullable(v)
-	case []NullableString:
-		return s.AppendNullable(v)
+	case string, []string:
+		return s.appendRaw(v)
+	case NullableString, []NullableString:
+		return s.appendNullable(v)
 	case SeriesString:
-		return s.AppendSeries(v)
+		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
@@ -278,7 +299,7 @@ func (s SeriesString) Append(v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesString) AppendRaw(v any) Series {
+func (s SeriesString) appendRaw(v any) Series {
 	if s.isNullable {
 		if str, ok := v.(string); ok {
 			s.data = append(s.data, s.pool.Put(str))
@@ -310,30 +331,35 @@ func (s SeriesString) AppendRaw(v any) Series {
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesString) AppendNullable(v any) Series {
+func (s SeriesString) appendNullable(v any) Series {
 	if !s.isNullable {
 		return SeriesError{"SeriesString.AppendNullable: series is not nullable"}
 	}
 
-	if str, ok := v.(NullableString); ok {
-		s.data = append(s.data, s.pool.Put(str.Value))
+	switch v := v.(type) {
+	case NullableString:
+		s.data = append(s.data, s.pool.Put(v.Value))
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
-		if !str.Valid {
+		if !v.Valid {
 			s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 		}
-	} else if strv, ok := v.([]NullableString); ok {
-		if len(s.data) > len(s.nullMask)<<8 {
+
+	case []NullableString:
+		ssize := len(s.data)
+		s.data = append(s.data, make([]*string, len(v))...)
+		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
-		for _, str := range strv {
-			s.data = append(s.data, s.pool.Put(str.Value))
-			if !str.Valid {
+		for i, b := range v {
+			s.data[ssize+i] = s.pool.Put(b.Value)
+			if !b.Valid {
 				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 			}
 		}
-	} else {
+
+	default:
 		return SeriesError{fmt.Sprintf("SeriesString.AppendNullable: invalid type %T", v)}
 	}
 
@@ -341,7 +367,7 @@ func (s SeriesString) AppendNullable(v any) Series {
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesString) AppendSeries(other Series) Series {
+func (s SeriesString) appendSeries(other Series) Series {
 	var ok bool
 	var o SeriesString
 	if o, ok = other.(SeriesString); !ok {
@@ -405,6 +431,14 @@ func (s SeriesString) AppendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+func (s SeriesString) Strings() []string {
+	data := make([]string, len(s.data))
+	for i, v := range s.data {
+		data[i] = *v
+	}
+	return data
+}
+
 func (s SeriesString) Data() any {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
@@ -443,7 +477,7 @@ func (s SeriesString) DataAsString() []string {
 func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 	switch t {
 	case typesys.BoolType:
-		data := __binVecInit(len(s.data))
+		data := make([]bool, len(s.data))
 		nullMask := __binVecInit(len(s.data))
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
@@ -456,9 +490,8 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 					b, err := typeGuesser.atoBool(*v)
 					if err != nil {
 						nullMask[i>>3] |= (1 << uint(i%8))
-					} else if b {
-						data[i>>3] |= (1 << uint(i%8))
 					}
+					data[i] = b
 				}
 			}
 		} else {
@@ -466,9 +499,8 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 				b, err := typeGuesser.atoBool(*v)
 				if err != nil {
 					nullMask[i>>3] |= (1 << uint(i%8))
-				} else if b {
-					data[i>>3] |= (1 << uint(i%8))
 				}
+				data[i] = b
 			}
 		}
 
@@ -476,7 +508,6 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			size:       len(s.data),
 			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
@@ -618,8 +649,28 @@ func (s SeriesString) getDataPtr() *[]*string {
 
 ////////////////////////			SERIES OPERATIONS
 
-// Filters out the elements by the given mask series.
-func (s SeriesString) Filter(mask SeriesBool) Series {
+// Filters out the elements by the given mask.
+// Mask can be a bool series, a slice of bools or a slice of ints.
+func (s SeriesString) Filter(mask any) Series {
+	switch mask := mask.(type) {
+	case SeriesBool:
+		return s.filterBool(mask)
+	case SeriesBoolMemOpt:
+		return s.filterBoolMemOpt(mask)
+	case []bool:
+		return s.filterBoolSlice(mask)
+	case []int:
+		return s.filterIntSlice(mask)
+	default:
+		return SeriesError{fmt.Sprintf("SeriesString.Filter: invalid type %T", mask)}
+	}
+}
+
+func (s SeriesString) filterBool(mask SeriesBool) Series {
+	return s.filterBoolSlice(mask.data)
+}
+
+func (s SeriesString) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	if mask.size != s.Len() {
 		return SeriesError{fmt.Sprintf("SeriesString.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
 	}
@@ -675,8 +726,7 @@ func (s SeriesString) Filter(mask SeriesBool) Series {
 	return s
 }
 
-// FilterByMask returns a new series with elements filtered by the mask.
-func (s SeriesString) FilterByMask(mask []bool) Series {
+func (s SeriesString) filterBoolSlice(mask []bool) Series {
 	if len(mask) != len(s.data) {
 		return SeriesError{fmt.Sprintf("SeriesString.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
@@ -785,7 +835,7 @@ func (s SeriesString) FilterByMask(mask []bool) Series {
 	return s
 }
 
-func (s SeriesString) FilterByIndeces(indeces []int) Series {
+func (s SeriesString) filterIntSlice(indeces []int) Series {
 	var data []*string
 	var nullMask []uint8
 
@@ -824,15 +874,11 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	v := f(*(s.data[0]))
 	switch v.(type) {
 	case bool:
-
-		data := __binVecInit(len(s.data))
-
+		data := make([]bool, len(s.data))
 		chunkLen := len(s.data) / THREADS_NUMBER
 		if chunkLen < MINIMUM_PARALLEL_SIZE_2 {
 			for i := 0; i < len(s.data); i++ {
-				if f((*s.data[i])).(bool) {
-					data[i>>3] |= (1 << uint(i%8))
-				}
+				data[i] = f(*(s.data[i])).(bool)
 			}
 		} else {
 			var wg sync.WaitGroup
@@ -847,9 +893,7 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 				go func() {
 					for i := start; i < end; i++ {
-						if f((*s.data[i])).(bool) {
-							data[i>>3] |= (1 << uint(i%8))
-						}
+						data[i] = f(*(s.data[i])).(bool)
 					}
 					wg.Done()
 				}()
@@ -862,7 +906,6 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			size:       len(s.data),
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -1122,8 +1165,186 @@ func (s SeriesString) SortRev() Series {
 
 ////////////////////////			ARITHMETIC OPERATIONS
 
+func (s SeriesString) Mul(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot multiply SeriesString and %T", other)}
+}
+
+func (s SeriesString) Div(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot divide SeriesString and %T", other)}
+}
+
+func (s SeriesString) Mod(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot modulo SeriesString and %T", other)}
+}
+
+func (s SeriesString) Pow(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot power SeriesString and %T", other)}
+}
+
 func (s SeriesString) Add(other Series) Series {
 	switch o := other.(type) {
+	case SeriesBool:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
+						result[0] = s.pool.Put(*s.data[0] + boolToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, s.nullMask)
+						result[0] = s.pool.Put(*s.data[0] + boolToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, o.nullMask)
+						result[0] = s.pool.Put(*s.data[0] + boolToString(o.data[0]))
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						result[0] = s.pool.Put(*s.data[0] + boolToString(o.data[0]))
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, s.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, o.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(o.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[0] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				}
+			}
+		} else {
+			if o.Len() == 1 {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, s.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, o.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[0]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[0]))
+						}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				}
+			} else {
+				if s.isNullable {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, s.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				} else {
+					if o.isNullable {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(resultSize)
+						copy(resultNullMask, o.nullMask)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: true, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					} else {
+						resultSize := len(s.data)
+						result := make([]*string, resultSize)
+						resultNullMask := __binVecInit(0)
+						for i := 0; i < resultSize; i++ {
+							result[i] = s.pool.Put(*s.data[i] + boolToString(o.data[i]))
+						}
+						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
+					}
+				}
+			}
+		}
 	case SeriesInt32:
 		if s.Len() == 1 {
 			if o.Len() == 1 {
@@ -1772,15 +1993,16 @@ func (s SeriesString) Add(other Series) Series {
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
-////////////////////////			LOGICAL OPERATIONS
+func (s SeriesString) Sub(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot subtract SeriesString and %T", other)}
+}
 
-// The body of this function has been generated by the code generator at
-// https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff/gen
 func (s SeriesString) Eq(other Series) Series {
 	switch o := other.(type) {
 	case SeriesString:
@@ -1793,14 +2015,14 @@ func (s SeriesString) Eq(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] == *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] == *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1809,13 +2031,13 @@ func (s SeriesString) Eq(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] == *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] == *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -1828,7 +2050,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -1837,7 +2059,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1848,7 +2070,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -1856,7 +2078,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] == *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -1871,7 +2093,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -1880,7 +2102,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1891,7 +2113,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -1899,7 +2121,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -1912,7 +2134,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -1921,7 +2143,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1932,7 +2154,7 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -1940,13 +2162,14 @@ func (s SeriesString) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] == *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -1962,14 +2185,14 @@ func (s SeriesString) Ne(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] != *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] != *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -1978,13 +2201,13 @@ func (s SeriesString) Ne(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] != *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] != *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -1997,7 +2220,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2006,7 +2229,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2017,7 +2240,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2025,7 +2248,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] != *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -2040,7 +2263,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2049,7 +2272,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2060,7 +2283,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2068,7 +2291,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2081,7 +2304,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2090,7 +2313,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2101,7 +2324,7 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2109,13 +2332,14 @@ func (s SeriesString) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] != *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2131,14 +2355,14 @@ func (s SeriesString) Gt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] > *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] > *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2147,13 +2371,13 @@ func (s SeriesString) Gt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] > *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] > *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2166,7 +2390,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2175,7 +2399,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2186,7 +2410,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2194,7 +2418,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] > *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -2209,7 +2433,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2218,7 +2442,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2229,7 +2453,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2237,7 +2461,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2250,7 +2474,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2259,7 +2483,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2270,7 +2494,7 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2278,13 +2502,14 @@ func (s SeriesString) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] > *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2300,14 +2525,14 @@ func (s SeriesString) Ge(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] >= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] >= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2316,13 +2541,13 @@ func (s SeriesString) Ge(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] >= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] >= *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2335,7 +2560,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2344,7 +2569,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2355,7 +2580,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2363,7 +2588,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -2378,7 +2603,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2387,7 +2612,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2398,7 +2623,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2406,7 +2631,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2419,7 +2644,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2428,7 +2653,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2439,7 +2664,7 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2447,13 +2672,14 @@ func (s SeriesString) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] >= *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2469,14 +2695,14 @@ func (s SeriesString) Lt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] < *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] < *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2485,13 +2711,13 @@ func (s SeriesString) Lt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] < *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] < *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2504,7 +2730,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2513,7 +2739,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2524,7 +2750,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2532,7 +2758,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] < *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -2547,7 +2773,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2556,7 +2782,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2567,7 +2793,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2575,7 +2801,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2588,7 +2814,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2597,7 +2823,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2608,7 +2834,7 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2616,13 +2842,14 @@ func (s SeriesString) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] < *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
 
@@ -2638,14 +2865,14 @@ func (s SeriesString) Le(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = *s.data[0] <= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, s.nullMask)
 						result[0] = *s.data[0] <= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2654,13 +2881,13 @@ func (s SeriesString) Le(other Series) Series {
 						resultNullMask := __binVecInit(resultSize)
 						copy(resultNullMask, o.nullMask)
 						result[0] = *s.data[0] <= *o.data[0]
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0)
 						result[0] = *s.data[0] <= *o.data[0]
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2673,7 +2900,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2682,7 +2909,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2693,7 +2920,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
@@ -2701,7 +2928,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[0] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
@@ -2716,7 +2943,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2725,7 +2952,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2736,7 +2963,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[0]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2744,7 +2971,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[0]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			} else {
@@ -2757,7 +2984,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2766,7 +2993,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				} else {
 					if o.isNullable {
@@ -2777,7 +3004,7 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: true, name: s.name, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
@@ -2785,12 +3012,13 @@ func (s SeriesString) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = *s.data[i] <= *o.data[i]
 						}
-						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: boolVecToBinVec(result), size: resultSize}
+						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
 			}
 		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
-	return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), other.Type().ToString())}
 
 }
