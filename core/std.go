@@ -3,7 +3,6 @@ package preludiocore
 import (
 	"fmt"
 	"os"
-	"strings"
 	"typesys"
 
 	"gandalff"
@@ -723,35 +722,15 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 
 		// BASE TYPES
 		case []string:
-			for i := range v {
-				v[i] = strings.Replace(v[i], strOld, strNew, int(num))
-			}
-			vm.stackPush(vm.newPInternTerm(v))
+			fmt.Println("TODO: StrReplace: []string")
 
 		// LIST
 		case __p_list__:
-			for i, e := range v {
-				switch t := e.getValue().(type) {
-				case []string:
-					for j := range v {
-						t[j] = strings.Replace(t[j], strOld, strNew, int(num))
-						if err != nil {
-							vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-							return
-						}
-					}
-					v[i] = *vm.newPInternTerm(t)
-
-				default:
-					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
-					return
-				}
-			}
-			vm.stackPush(vm.newPInternTerm(v))
+			fmt.Println("TODO: StrReplace: list")
 
 		// DATAFRAME
 		case gandalff.DataFrame:
-			// TODO
+			fmt.Println("TODO: StrReplace: dataframe")
 
 		default:
 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
@@ -776,10 +755,23 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			return
 
 		case __p_list__:
-			fmt.Println("TODO: strReplace list of series")
+			for _, e := range v {
+				switch t := e.getValue().(type) {
+				case gandalff.SeriesString:
+					df = df.Replace(t.Name(), t.Replace(strOld, strNew, int(num)))
+				case gandalff.SeriesError:
+					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, t.GetError()))
+					return
+				default:
+					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
+					return
+				}
+			}
+			vm.stackPush(vm.newPInternTerm(df))
 
 		default:
 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
+			return
 		}
 
 	default:
