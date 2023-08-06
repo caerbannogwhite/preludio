@@ -15,9 +15,10 @@ It reads a CSV file, derives two new columns, selects some columns and writes th
 
 ```
 readCSV "test_files\\Cars.csv" delimiter: ";" header:true
-strReplace HorsePower old:"," new:"."
+strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+asFloat [MPG, Displacement, Horsepower, Acceleration]
 derive [
-  Stat = Cylinders * Weight / 2,
+  Stat = (MPG * Cylinders * Displacement) / Horsepower * Acceleration,
   CarOrigin = Car + " - " + Origin
 ]
 filter Cylinders > 6 and Origin == "Europe"
