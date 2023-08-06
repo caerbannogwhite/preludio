@@ -445,13 +445,13 @@ MAIN_LOOP:
 
 			// Coerce functions
 			case "asBool":
-				PreludioFunc_AsBool("asBool", vm)
+				preludioAsType("asBool", vm, typesys.BoolType)
 			case "asInteger":
-				PreludioFunc_AsInteger("asInteger", vm)
+				preludioAsType("asInteger", vm, typesys.Int64Type)
 			case "asFloat":
-				PreludioFunc_AsFloat("asFloat", vm)
+				preludioAsType("asFloat", vm, typesys.Float64Type)
 			case "asString":
-				PreludioFunc_AsString("asString", vm)
+				preludioAsType("asString", vm, typesys.StringType)
 
 			// String functions
 			case "strReplace":

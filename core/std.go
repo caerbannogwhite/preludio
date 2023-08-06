@@ -593,9 +593,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	vm.__currentDataFrame = df
 }
 
-///////////////////////////////////////////////////////////////////////////////
-///////						COERCION FUNCTIONS
-
+// Coerce series to a given type
 func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
@@ -651,26 +649,6 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 		vm.setPanicMode(fmt.Sprintf("%s: expecting 1 or 2 parameters, got %d", funcName, len(positional)))
 		return
 	}
-}
-
-// Coerce variables to bool
-func PreludioFunc_AsBool(funcName string, vm *ByteEater) {
-	preludioAsType(funcName, vm, typesys.BoolType)
-}
-
-// Coerce variables to integer
-func PreludioFunc_AsInteger(funcName string, vm *ByteEater) {
-	preludioAsType(funcName, vm, typesys.Int64Type)
-}
-
-// Coerce variables to float
-func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
-	preludioAsType(funcName, vm, typesys.Float64Type)
-}
-
-// Coerce variables to string
-func PreludioFunc_AsString(funcName string, vm *ByteEater) {
-	preludioAsType(funcName, vm, typesys.StringType)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
