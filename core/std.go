@@ -352,7 +352,8 @@ func PreludioFunc_Names(funcName string, vm *ByteEater) {
 	for _, name := range df.Names() {
 		fmt.Print(name, ", ")
 	}
-	fmt.Println("\n")
+	fmt.Println()
+	fmt.Println()
 
 	vm.stackPush(vm.newPInternTerm(df))
 }
