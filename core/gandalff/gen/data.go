@@ -26,7 +26,7 @@ type SeriesFile struct {
 }
 
 var DATA = map[string]SeriesFile{
-	"gdl_series_bool.go": {
+	"gdl_series_bool_ops.go": {
 		SeriesType: "SeriesBool",
 		InnerType:  typesys.BoolType,
 		Operations: map[string]Operation{
@@ -295,7 +295,7 @@ var DATA = map[string]SeriesFile{
 		},
 	},
 
-	"gdl_series_int32.go": {
+	"gdl_series_int32_ops.go": {
 		SeriesType: "SeriesInt32",
 		InnerType:  typesys.Int32Type,
 		Operations: map[string]Operation{
@@ -674,7 +674,7 @@ var DATA = map[string]SeriesFile{
 		},
 	},
 
-	"gdl_series_int64.go": {
+	"gdl_series_int64_ops.go": {
 		SeriesType: "SeriesInt64",
 		InnerType:  typesys.Int64Type,
 		Operations: map[string]Operation{
@@ -1053,7 +1053,7 @@ var DATA = map[string]SeriesFile{
 		},
 	},
 
-	"gdl_series_float64.go": {
+	"gdl_series_float64_ops.go": {
 		SeriesType: "SeriesFloat64",
 		InnerType:  typesys.Float64Type,
 		Operations: map[string]Operation{
@@ -1432,7 +1432,7 @@ var DATA = map[string]SeriesFile{
 		},
 	},
 
-	"gdl_series_string.go": {
+	"gdl_series_string_ops.go": {
 		SeriesType: "SeriesString",
 		InnerType:  typesys.StringType,
 		Operations: map[string]Operation{
