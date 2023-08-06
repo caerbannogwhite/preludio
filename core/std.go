@@ -587,34 +587,31 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 		switch v := positional[0].getValue().(type) {
 		case gandalff.DataFrame:
 
-			var cols []string
+			var series []gandalff.Series
 			switch t := positional[1].getValue().(type) {
-			case string:
-				cols = []string{t}
-			case __p_symbol__:
-				cols = []string{string(t)}
-			case __p_list__:
-				cols, err = positional[1].listToStringSlice()
-				if err != nil {
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-					return
-				}
+			case gandalff.Series:
+				series = []gandalff.Series{t}
 			default:
-				vm.setPanicMode(fmt.Sprintf("%s: expecting string or list of strings, got %T", funcName, t))
+				vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, t))
+				return
 			}
 
-			for _, col := range cols {
-				v = v.Replace(col, v.Series(col).Cast(coerceType, vm.__stringPool))
+			for _, s := range series {
+				v = v.Replace(s.Name(), s.Cast(coerceType, vm.__stringPool))
 			}
+
+			vm.stackPush(vm.newPInternTerm(v))
 
 		case __p_list__:
 
 		default:
 			vm.setPanicMode(fmt.Sprintf("%s: expecting dataframe or list, got %T", funcName, v))
+			return
 		}
 
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting 1 or 2 parameters, got %d", funcName, len(positional)))
+		return
 	}
 }
 
