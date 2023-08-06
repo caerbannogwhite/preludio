@@ -428,6 +428,8 @@ MAIN_LOOP:
 				PreludioFunc_WriteCSV("writeCSV", vm)
 			case "readCSV":
 				PreludioFunc_ReadCSV("readCSV", vm)
+			case "names":
+				PreludioFunc_Names("names", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":

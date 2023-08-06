@@ -327,6 +327,34 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.setCurrentDataFrame()
 }
 
+// Get the names of the columns of a Dataframe
+func PreludioFunc_Names(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var df gandalff.DataFrame
+	var err error
+
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df, err = positional[0].getDataframe()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	fmt.Print("\t")
+	for _, name := range df.Names() {
+		fmt.Print(name, ", ")
+	}
+	fmt.Println("\n")
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
 // Create a new Dataframe
 func PreludioFunc_New(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
