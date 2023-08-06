@@ -43,6 +43,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 				df = df.AddSeries(col.SetName(val.name))
 			default:
 				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %T", funcName, val))
+				return
 			}
 		}
 
@@ -58,9 +59,11 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, v))
+		return
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
 }
 
 // Describe a Dataframe
@@ -426,6 +429,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	switch v := positional[1].getValue().(type) {
 	case __p_symbol__:
 		vm.stackPush(vm.newPInternTerm(df.Select(string(v))))
+		vm.setCurrentDataFrame()
 
 	case __p_list__:
 		list, err := positional[1].listToStringSlice()
@@ -434,9 +438,11 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 			return
 		}
 		vm.stackPush(vm.newPInternTerm(df.Select(list...)))
+		vm.setCurrentDataFrame()
 
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		return
 	}
 }
 
