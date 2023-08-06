@@ -618,6 +618,17 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 			switch t := positional[1].getValue().(type) {
 			case gandalff.Series:
 				series = []gandalff.Series{t}
+			case __p_list__:
+				series = make([]gandalff.Series, len(t))
+				for i, e := range t {
+					switch s := e.getValue().(type) {
+					case gandalff.Series:
+						series[i] = s
+					default:
+						vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, s))
+						return
+					}
+				}
 			default:
 				vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, t))
 				return
