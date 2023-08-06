@@ -1162,3 +1162,65 @@ func (s SeriesString) SortRev() Series {
 }
 
 ////////////////////////			SORTING OPERATIONS
+
+////////////////////////			STRING OPERATIONS
+
+func (s SeriesString) ToUpper() Series {
+	if s.isGrouped {
+		return SeriesError{"SeriesString.ToUpper() not supported on grouped Series"}
+	}
+
+	for i := 0; i < len(s.data); i++ {
+		s.data[i] = s.pool.Put(strings.ToUpper(*s.data[i]))
+	}
+
+	return s
+}
+
+func (s SeriesString) ToLower() Series {
+	if s.isGrouped {
+		return SeriesError{"SeriesString.ToLower() not supported on grouped Series"}
+	}
+
+	for i := 0; i < len(s.data); i++ {
+		s.data[i] = s.pool.Put(strings.ToLower(*s.data[i]))
+	}
+
+	return s
+}
+
+func (s SeriesString) TrimSpace() Series {
+	if s.isGrouped {
+		return SeriesError{"SeriesString.TrimSpace() not supported on grouped Series"}
+	}
+
+	for i := 0; i < len(s.data); i++ {
+		s.data[i] = s.pool.Put(strings.TrimSpace(*s.data[i]))
+	}
+
+	return s
+}
+
+func (s SeriesString) Trim(cutset string) Series {
+	if s.isGrouped {
+		return SeriesError{"SeriesString.Trim() not supported on grouped Series"}
+	}
+
+	for i := 0; i < len(s.data); i++ {
+		s.data[i] = s.pool.Put(strings.Trim(*s.data[i], cutset))
+	}
+
+	return s
+}
+
+func (s SeriesString) Replace(old, new string, n int) Series {
+	if s.isGrouped {
+		return SeriesError{"SeriesString.Replace() not supported on grouped Series"}
+	}
+
+	for i := 0; i < len(s.data); i++ {
+		s.data[i] = s.pool.Put(strings.Replace(*s.data[i], old, new, n))
+	}
+
+	return s
+}
