@@ -91,5 +91,8 @@ make.ps1
 ```
 
 ### Log
- - **2 / 08 / 2023** Preludio is now using the Gandalff library for managing data.
+ - **02 / 08 / 2023** Preludio is now using the Gandalff library for managing data.
  - **21 / 03 / 2023** First publishing of the repository. Many things are still not working.
+ - **18 / 03 / 2023** Gandalff library: fist commit.
+ - **20 / 08 / 2022** Preludio: fist commit.
+ 
