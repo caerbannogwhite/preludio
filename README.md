@@ -14,17 +14,28 @@ This is a simple example of what you can already do with Preludio.
 It reads a CSV file, derives two new columns, selects some columns and writes the result to a new CSV file.
 
 ```
-readCSV "test_files\\Cars.csv" delimiter: ";" header:true
-strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-asFloat [MPG, Displacement, Horsepower, Acceleration]
-derive [
-  Stat = (MPG * Cylinders * Displacement) / Horsepower * Acceleration,
-  CarOrigin = Car + " - " + Origin
-]
-filter Cylinders > 6 and Origin == "Europe"
-take 0 10 2
-select [CarOrigin, MPG, Stat]
-writeCSV "test_files\\Cars1.csv" delimiter: "\t"
+let clean = (
+  readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+  strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+  asFloat [MPG, Displacement, Horsepower, Acceleration]
+)
+
+let europe5Cylinders = (
+  from clean
+  filter Cylinders == 5 and Origin == "Europe"
+)
+
+(
+  from clean
+  derive [
+    Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
+    CarOrigin = Car + " - " + Origin
+  ]
+  filter Stat > 1.3
+  select [Car, Origin, Stat]
+  writeCSV "test_files\\Cars1.csv" delimiter: "\t"
+)
+
 ```
 
 ![](media/repl_example.gif)
@@ -34,7 +45,7 @@ writeCSV "test_files\\Cars1.csv" delimiter: "\t"
 -  [x] Read and write CSV files
 -  [x] Derive new columns
 -  [x] Select columns
--  [ ] Filter rows
+-  [x] Filter rows
 -  [ ] Sort rows
 -  [ ] Group by and aggregate
 -  [ ] Join tables
