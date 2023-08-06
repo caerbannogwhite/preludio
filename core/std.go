@@ -3,8 +3,8 @@ package preludiocore
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
+	"typesys"
 
 	"gandalff"
 )
@@ -227,7 +227,7 @@ func PreludioFunc_Filter(funcName string, vm *ByteEater) {
 		vm.stackPush(vm.newPInternTerm(df.Filter(v)))
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "invalid filter type"))
+		vm.setPanicMode(fmt.Sprintf("%s: invalid type %T", funcName, v))
 		return
 	}
 }
@@ -569,18 +569,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////						COERCION FUNCTIONS
 
-// Coerce variables to bool
-func PreludioFunc_AsBool(funcName string, vm *ByteEater) {
-	vm.printDebug(5, "STARTING", funcName, "")
-}
-
-// Coerce variables to integer
-func PreludioFunc_AsInteger(funcName string, vm *ByteEater) {
-	vm.printDebug(5, "STARTING", funcName, "")
-}
-
-// Coerce variables to float
-func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
+func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error
@@ -592,97 +581,61 @@ func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
 
 	// POSITIONAL PARAMETERS
 	switch len(positional) {
-
-	// 1 PARAM
 	case 1:
+
+	case 2:
 		switch v := positional[0].getValue().(type) {
+		case gandalff.DataFrame:
 
-		// BASE TYPES
-		case []bool:
-			res := make([]float64, len(v))
-			for i := range v {
-				if v[i] {
-					res[i] = 1.0
-				}
-			}
-			vm.stackPush(vm.newPInternTerm(res))
-			return
-
-		case []int:
-			res := make([]float64, len(v))
-			for i := range v {
-				res[i] = float64(v[i])
-			}
-			vm.stackPush(vm.newPInternTerm(res))
-			return
-
-		case []float64:
-			vm.stackPush(vm.newPInternTerm(v))
-			return
-
-		case []string:
-			res := make([]float64, len(v))
-			for i := range v {
-				res[i], err = strconv.ParseFloat(v[i], 64)
+			var cols []string
+			switch t := positional[1].getValue().(type) {
+			case string:
+				cols = []string{t}
+			case __p_symbol__:
+				cols = []string{string(t)}
+			case __p_list__:
+				cols, err = positional[1].listToStringSlice()
 				if err != nil {
 					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 					return
 				}
+			default:
+				vm.setPanicMode(fmt.Sprintf("%s: expecting string or list of strings, got %T", funcName, t))
 			}
-			vm.stackPush(vm.newPInternTerm(v))
-			return
 
-		// LIST
+			for _, col := range cols {
+				v = v.Replace(col, v.Series(col).Cast(coerceType, vm.__stringPool))
+			}
+
 		case __p_list__:
-			for i, e := range v {
-				switch t := e.getValue().(type) {
-				case []bool:
-					res := make([]float64, len(t))
-					for j := range t {
-						if t[j] {
-							res[j] = 1.0
-						}
-					}
-					v[i] = *vm.newPInternTerm(res)
 
-				case []int:
-					res := make([]float64, len(t))
-					for j := range t {
-						res[j] = float64(t[j])
-					}
-					v[i] = *vm.newPInternTerm(res)
-
-				case []float64:
-
-				case []string:
-					res := make([]float64, len(t))
-					for j := range v {
-						res[j], err = strconv.ParseFloat(t[j], 64)
-						if err != nil {
-							vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-							return
-						}
-					}
-					v[i] = *vm.newPInternTerm(res)
-
-				}
-			}
-			vm.stackPush(vm.newPInternTerm(v))
-
-		// DATAFRAME
-		case gandalff.DataFrame:
-			// TODO
+		default:
+			vm.setPanicMode(fmt.Sprintf("%s: expecting dataframe or list, got %T", funcName, v))
 		}
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting one positional parameter, received %d.", funcName, len(positional)))
-		return
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 1 or 2 parameters, got %d", funcName, len(positional)))
 	}
+}
+
+// Coerce variables to bool
+func PreludioFunc_AsBool(funcName string, vm *ByteEater) {
+	preludioAsType(funcName, vm, typesys.BoolType)
+}
+
+// Coerce variables to integer
+func PreludioFunc_AsInteger(funcName string, vm *ByteEater) {
+	preludioAsType(funcName, vm, typesys.Int64Type)
+}
+
+// Coerce variables to float
+func PreludioFunc_AsFloat(funcName string, vm *ByteEater) {
+	preludioAsType(funcName, vm, typesys.Float64Type)
 }
 
 // Coerce variables to string
 func PreludioFunc_AsString(funcName string, vm *ByteEater) {
-	vm.printDebug(5, "STARTING", funcName, "")
+	preludioAsType(funcName, vm, typesys.StringType)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -694,7 +647,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 	named := map[string]*__p_intern__{
 		"old": nil,
 		"new": nil,
-		"n":   vm.newPInternTerm([]int{-1}),
+		"n":   vm.newPInternTerm([]int64{-1}),
 	}
 
 	var err error
@@ -782,34 +735,24 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 
 	// 2 PARAMS: dataframe, column name
 	case 2:
-		// df, err := positional[0].getDataframe()
-		// if err != nil {
-		// 	vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		// 	return
-		// }
+		df, err := positional[0].getDataframe()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
 
 		switch v := positional[1].getValue().(type) {
-		// case []string:
-		// 	for i := range v {
-		// 		df[v[i]] = strings.Replace(df[v[i]].([]string), strOld, strNew, num)
-		// 	}
-		// 	vm.stackPush(vm.newPInternTerm(df))
+		case gandalff.SeriesString:
+			df = df.Replace(v.Name(), v.Replace(strOld, strNew, int(num)))
+			vm.stackPush(vm.newPInternTerm(df))
 
-		// case __p_list__:
-		// 	for i, e := range v {
-		// 		switch t := e.getValue().(type) {
-		// 		case []string:
-		// 			for j := range v {
-		// 				df[t[j]] = strings.Replace(df[t[j]].([]string), strOld, strNew, num)
-		// 			}
-		// 			v[i] = *vm.newPInternTerm(t)
+		case gandalff.SeriesError:
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, v.GetError()))
+			return
 
-		// 		default:
-		// 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
-		// 			return
-		// 		}
-		// 	}
-		// 	vm.stackPush(vm.newPInternTerm(v))
+		case __p_list__:
+			fmt.Println("TODO: strReplace list of series")
+
 		default:
 			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
 		}
