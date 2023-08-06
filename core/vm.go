@@ -420,12 +420,16 @@ MAIN_LOOP:
 				PreludioFunc_Derive("derive", vm)
 			case "describe":
 				PreludioFunc_Describe("describe", vm)
+			case "filter":
+				PreludioFunc_Filter("filter", vm)
 			case "from":
 				PreludioFunc_From("from", vm)
 			case "writeCSV":
 				PreludioFunc_WriteCSV("writeCSV", vm)
 			case "readCSV":
 				PreludioFunc_ReadCSV("readCSV", vm)
+			case "names":
+				PreludioFunc_Names("names", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
@@ -441,13 +445,13 @@ MAIN_LOOP:
 
 			// Coerce functions
 			case "asBool":
-				PreludioFunc_AsBool("asBool", vm)
+				preludioAsType("asBool", vm, typesys.BoolType)
 			case "asInteger":
-				PreludioFunc_AsInteger("asInteger", vm)
+				preludioAsType("asInteger", vm, typesys.Int64Type)
 			case "asFloat":
-				PreludioFunc_AsFloat("asFloat", vm)
+				preludioAsType("asFloat", vm, typesys.Float64Type)
 			case "asString":
-				PreludioFunc_AsString("asString", vm)
+				preludioAsType("asString", vm, typesys.StringType)
 
 			// String functions
 			case "strReplace":

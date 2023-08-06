@@ -207,6 +207,31 @@ func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data [
 	return df.AddSeries(NewSeriesString(name, isNullable, data, df.pool))
 }
 
+func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.Replace: cannot replace series in a grouped dataframe")
+		return df
+	}
+
+	index := df.GetSeriesIndex(name)
+	if index == -1 {
+		df.err = fmt.Errorf("BaseDataFrame.Replace: series \"%s\" not found", name)
+		return df
+	}
+
+	if s.Len() != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.Replace: series length (%d) does not match dataframe length (%d)", s.Len(), df.NRows())
+		return df
+	}
+
+	df.series[index] = s.SetName(name)
+	return df
+}
+
 // Returns the series with the given name.
 func (df BaseDataFrame) Series(name string) Series {
 	for _, series := range df.series {
