@@ -814,9 +814,10 @@ func (s SeriesInt64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesInt64Partition struct {
 	isDense             bool
+	hasNulls            bool
 	seriesSize          int
 	partition           map[int64][]int
-	nullKey             NullableInt64
+	nullKey             int64
 	partitionDenseMin   int64
 	partitionDense      [][]int
 	partitionDenseNulls []int
@@ -848,9 +849,9 @@ func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
 			gp.indexToGroup[idx] = int64(len(gp.partitionDense))
 		}
 	} else {
-		if gp.nullKey.Valid {
-			nulls := gp.partition[gp.nullKey.Value]
-			delete(gp.partition, gp.nullKey.Value)
+		if gp.hasNulls {
+			nulls := gp.partition[gp.nullKey]
+			delete(gp.partition, gp.nullKey)
 
 			for i, part := range gp.partition {
 				for _, idx := range part {
@@ -975,10 +976,16 @@ func (gp SeriesInt64Partition) debugPrint() {
 }
 
 func (s SeriesInt64) Group() Series {
+	var useDenseMap, hasNulls bool
+	var min, max int64
 	var partition SeriesInt64Partition
+
+	// If the number of elements is small,
+	// look for the minimum and maximum values
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
-		max := s.data[0]
-		min := s.data[0]
+		useDenseMap = true
+		max = s.data[0]
+		min = s.data[0]
 		for _, v := range s.data {
 			if v > max {
 				max = v
@@ -987,7 +994,16 @@ func (s SeriesInt64) Group() Series {
 				min = v
 			}
 		}
+	}
 
+	// If the difference between the maximum and minimum values is acceptable,
+	// then we can use a dense map, otherwise we use a sparse map
+	if useDenseMap && (max-min >= MINIMUM_PARALLEL_SIZE_1) {
+		useDenseMap = false
+	}
+
+	// DENSE MAP
+	if useDenseMap {
 		var nulls []int
 		map_ := make([][]int, max-min+1)
 		for i := 0; i < len(map_); i++ {
@@ -995,6 +1011,7 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		if s.HasNull() {
+			hasNulls = true
 			nulls = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
 			for i, v := range s.data {
 				if s.IsNull(i) {
@@ -1010,14 +1027,18 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		partition = SeriesInt64Partition{
+			hasNulls:            hasNulls,
 			isDense:             true,
 			seriesSize:          s.Len(),
 			partitionDenseMin:   min,
 			partitionDense:      map_,
 			partitionDenseNulls: nulls,
 		}
-	} else {
-		var nullKey NullableInt64
+	} else
+
+	// SPARSE MAP
+	{
+		var nullKey int64
 
 		// Initialize the maps
 		allMaps := make([]map[int64][]int, THREADS_NUMBER)
@@ -1026,6 +1047,7 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		if s.HasNull() {
+			hasNulls = true
 			allNulls := make([][]int, THREADS_NUMBER)
 
 			// Define the worker callback
@@ -1042,7 +1064,7 @@ func (s SeriesInt64) Group() Series {
 
 			__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, allNulls, worker)
 
-			nullKey = NullableInt64{Valid: true, Value: __series_get_nullkey(allMaps[0], HASH_NULL_KEY)}
+			nullKey = __series_get_nullkey(allMaps[0], HASH_NULL_KEY)
 		} else {
 			// Define the worker callback
 			worker := func(threadNum, start, end int) {
@@ -1076,6 +1098,7 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		partition = SeriesInt64Partition{
+			hasNulls:   hasNulls,
 			isDense:    false,
 			seriesSize: s.Len(),
 			partition:  allMaps[0],
