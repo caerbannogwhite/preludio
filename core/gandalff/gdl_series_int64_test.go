@@ -830,14 +830,19 @@ func Test_SeriesInt64_GroupedSort(t *testing.T) {
 
 func Test_SeriesInt64_Group(t *testing.T) {
 
-	data := []int64{1, 2, 2, 3, 3, 3, 4, 4, 4, 4}
-	mask := []bool{false, false, false, false, false, true, false, true, false, true}
+	part := []int64{1, 2, 2, 3, 3, 3, 4, 4, 4, 4}
+	partMask := []bool{false, false, false, false, false, true, false, true, false, true}
+	data := []int64{1, 2, 3, 4, 4, 5, 5, 6, 6, 7}
+	dataMask := []bool{false, false, false, false, false, false, true, false, true, false}
 
-	s := NewSeriesInt64("part", true, true, data).
-		SetNullMask(mask).
-		Group()
+	p := NewSeriesInt64("part", true, true, part).
+		SetNullMask(partMask)
 
-	s.GetPartition().debugPrint()
+	s := NewSeriesInt64("test", true, true, data).
+		SetNullMask(dataMask).
+		SubGroup(p.Group().GetPartition())
+
+	debugPrintPartition(s.GetPartition(), p, s)
 
 }
 

@@ -918,16 +918,26 @@ func (gp SeriesInt64Partition) endSorting() SeriesInt64Partition {
 	return gp
 }
 
-func (gp SeriesInt64Partition) GetMap() map[int64][]int {
+func (gp *SeriesInt64Partition) GetMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
 			map_[int64(i)+gp.partitionDenseMin] = part
 		}
+
+		if gp.hasNulls {
+			gp.nullKey = __series_get_nullkey(map_, HASH_NULL_KEY)
+			map_[gp.nullKey] = gp.partitionDenseNulls
+		}
+
 		return map_
 	}
 
 	return gp.partition
+}
+
+func (gp SeriesInt64Partition) GetNullKey() int64 {
+	return gp.nullKey
 }
 
 func (gp SeriesInt64Partition) GetValueIndices(val any) []int {
@@ -971,10 +981,13 @@ func (gp SeriesInt64Partition) debugPrint() {
 	fmt.Println("SeriesInt64Partition")
 	map_ := gp.GetMap()
 	for k, v := range map_ {
-		fmt.Printf("%4d: %v\n", k, v)
+		if k == gp.GetNullKey() {
+			continue
+		}
+		fmt.Printf("%20d: %v\n", k, v)
 	}
 	if gp.hasNulls {
-		fmt.Printf("%4s: %v\n", "Null", map_[gp.nullKey])
+		fmt.Printf("%20s: %v\n", "Null", map_[gp.GetNullKey()])
 	}
 }
 
