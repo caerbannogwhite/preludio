@@ -428,8 +428,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 	// The last partition tells us how many groups there are
 	// and how many rows are in each group
-	indeces := make([][]int, 0, df.partitions[len(df.partitions)-1].partition.GetSize())
-	for _, group := range df.partitions[len(df.partitions)-1].partition.GetMap() {
+	indeces := make([][]int, 0, df.partitions[len(df.partitions)-1].partition.getSize())
+	for _, group := range df.partitions[len(df.partitions)-1].partition.getMap() {
 		indeces = append(indeces, group)
 	}
 
@@ -650,8 +650,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	pB := otherGrouped.getPartitions()
 
 	// Get the maps, keys and sort them
-	mapA := pA[len(pA)-1].GetMap()
-	mapB := pB[len(pB)-1].GetMap()
+	mapA := pA[len(pA)-1].getMap()
+	mapB := pB[len(pB)-1].getMap()
 
 	keysA := make([]int64, 0, len(mapA))
 	keysB := make([]int64, 0, len(mapB))

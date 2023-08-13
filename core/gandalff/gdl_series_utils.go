@@ -67,7 +67,7 @@ func seriesTakePreprocess(size int, params ...int) ([]int, error) {
 }
 
 func debugPrintPartition(p SeriesPartition, series ...Series) {
-	map_ := p.GetMap()
+	map_ := p.getMap()
 
 	header := ""
 	separators := ""

@@ -824,7 +824,7 @@ type SeriesInt64Partition struct {
 	indexToGroup        []int64
 }
 
-func (gp SeriesInt64Partition) GetSize() int {
+func (gp SeriesInt64Partition) getSize() int {
 	if gp.isDense {
 		nulls := 0
 		if len(gp.partitionDenseNulls) > 0 {
@@ -918,7 +918,7 @@ func (gp SeriesInt64Partition) endSorting() SeriesInt64Partition {
 	return gp
 }
 
-func (gp *SeriesInt64Partition) GetMap() map[int64][]int {
+func (gp *SeriesInt64Partition) getMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
@@ -936,11 +936,11 @@ func (gp *SeriesInt64Partition) GetMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp SeriesInt64Partition) GetNullKey() int64 {
+func (gp *SeriesInt64Partition) getNullKey() int64 {
 	return gp.nullKey
 }
 
-func (gp SeriesInt64Partition) GetValueIndices(val any) []int {
+func (gp *SeriesInt64Partition) getValueIndices(val any) []int {
 	if val == nil {
 		if gp.isDense {
 			return gp.partitionDenseNulls
@@ -958,7 +958,7 @@ func (gp SeriesInt64Partition) GetValueIndices(val any) []int {
 	return make([]int, 0)
 }
 
-func (gp SeriesInt64Partition) GetKeys() any {
+func (gp *SeriesInt64Partition) getKeys() any {
 	var keys []int64
 	if gp.isDense {
 		keys = make([]int64, 0, len(gp.partitionDense))
@@ -975,20 +975,6 @@ func (gp SeriesInt64Partition) GetKeys() any {
 	}
 
 	return keys
-}
-
-func (gp SeriesInt64Partition) debugPrint() {
-	fmt.Println("SeriesInt64Partition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		if k == gp.GetNullKey() {
-			continue
-		}
-		fmt.Printf("%20d: %v\n", k, v)
-	}
-	if gp.hasNulls {
-		fmt.Printf("%20s: %v\n", "Null", map_[gp.GetNullKey()])
-	}
 }
 
 func (s SeriesInt64) Group() Series {
@@ -1130,7 +1116,7 @@ func (s SeriesInt64) Group() Series {
 
 func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesInt64Partition
-	otherIndeces := partition.GetMap()
+	otherIndeces := partition.getMap()
 
 	// collect all keys
 	keys := make([]int64, len(otherIndeces))

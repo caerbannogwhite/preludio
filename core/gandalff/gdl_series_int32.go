@@ -807,6 +807,7 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
+	nullKey             int64
 	isDense             bool
 	seriesSize          int
 	partition           map[int64][]int
@@ -816,7 +817,7 @@ type SeriesInt32Partition struct {
 	indexToGroup        []int
 }
 
-func (gp SeriesInt32Partition) GetSize() int {
+func (gp SeriesInt32Partition) getSize() int {
 	if gp.isDense {
 		nulls := 0
 		if len(gp.partitionDenseNulls) > 0 {
@@ -886,7 +887,7 @@ func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
 	return gp
 }
 
-func (gp SeriesInt32Partition) GetMap() map[int64][]int {
+func (gp SeriesInt32Partition) getMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
@@ -898,7 +899,11 @@ func (gp SeriesInt32Partition) GetMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp SeriesInt32Partition) GetValueIndices(val any) []int {
+func (gp SeriesInt32Partition) getNullKey() int64 {
+	return gp.nullKey
+}
+
+func (gp SeriesInt32Partition) getValueIndices(val any) []int {
 	if val == nil {
 		if gp.isDense {
 			return gp.partitionDenseNulls
@@ -916,7 +921,7 @@ func (gp SeriesInt32Partition) GetValueIndices(val any) []int {
 	return make([]int, 0)
 }
 
-func (gp SeriesInt32Partition) GetKeys() any {
+func (gp SeriesInt32Partition) getKeys() any {
 	var keys []int
 	if gp.isDense {
 		keys = make([]int, 0, len(gp.partitionDense))
@@ -935,14 +940,6 @@ func (gp SeriesInt32Partition) GetKeys() any {
 	}
 
 	return keys
-}
-
-func (gp SeriesInt32Partition) debugPrint() {
-	fmt.Println("SeriesInt32Partition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		fmt.Printf("%4d: %v\n", k, v)
-	}
 }
 
 func (s SeriesInt32) Group() Series {
@@ -1027,7 +1024,7 @@ func (s SeriesInt32) Group() Series {
 
 func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesInt32Partition
-	otherIndeces := partition.GetMap()
+	otherIndeces := partition.getMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 

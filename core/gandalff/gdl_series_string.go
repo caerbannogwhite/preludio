@@ -980,20 +980,25 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesStringPartition struct {
 	seriesSize   int
+	nullKey      int64
 	partition    map[int64][]int
 	indexToGroup []int
 	pool         *StringPool
 }
 
-func (gp SeriesStringPartition) GetSize() int {
+func (gp *SeriesStringPartition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp SeriesStringPartition) GetMap() map[int64][]int {
+func (gp *SeriesStringPartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp SeriesStringPartition) GetValueIndices(val any) []int {
+func (gp *SeriesStringPartition) getNullKey() int64 {
+	return gp.nullKey
+}
+
+func (gp *SeriesStringPartition) getValueIndices(val any) []int {
 	if val == nil {
 		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
 			return nulls
@@ -1011,7 +1016,7 @@ func (gp SeriesStringPartition) GetValueIndices(val any) []int {
 	return make([]int, 0)
 }
 
-func (gp SeriesStringPartition) GetKeys() any {
+func (gp SeriesStringPartition) getKeys() any {
 	keys := make([]string, 0, len(gp.partition))
 	for k := range gp.partition {
 		if k != HASH_NULL_KEY {
@@ -1019,15 +1024,6 @@ func (gp SeriesStringPartition) GetKeys() any {
 		}
 	}
 	return keys
-}
-
-func (gp SeriesStringPartition) debugPrint() {
-	fmt.Println("SeriesStringPartition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		ptr := (*string)(unsafe.Pointer(uintptr(k)))
-		fmt.Printf("%10s: %v\n", *ptr, v)
-	}
 }
 
 func (s SeriesString) Group() Series {
@@ -1082,7 +1078,7 @@ func (s SeriesString) Group() Series {
 
 func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesStringPartition
-	otherIndeces := partition.GetMap()
+	otherIndeces := partition.getMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
 

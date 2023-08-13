@@ -753,13 +753,14 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesFloat64Partition struct {
+	nullKey      int64
 	series       *SeriesFloat64
 	seriesSize   int
 	partition    map[int64][]int
 	indexToGroup []int
 }
 
-func (gp SeriesFloat64Partition) GetSize() int {
+func (gp *SeriesFloat64Partition) getSize() int {
 	return len(gp.partition)
 }
 
@@ -794,11 +795,15 @@ func (gp SeriesFloat64Partition) endSorting() SeriesFloat64Partition {
 	return gp
 }
 
-func (gp SeriesFloat64Partition) GetMap() map[int64][]int {
+func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp SeriesFloat64Partition) GetValueIndices(val any) []int {
+func (gp *SeriesFloat64Partition) getNullKey() int64 {
+	return gp.nullKey
+}
+
+func (gp *SeriesFloat64Partition) getValueIndices(val any) []int {
 	if val == nil {
 		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
 			return nulls
@@ -812,7 +817,7 @@ func (gp SeriesFloat64Partition) GetValueIndices(val any) []int {
 	return make([]int, 0)
 }
 
-func (gp SeriesFloat64Partition) GetKeys() any {
+func (gp *SeriesFloat64Partition) getKeys() any {
 	keys := make([]float64, 0, len(gp.partition))
 	for k := range gp.partition {
 		if k != HASH_NULL_KEY {
@@ -820,15 +825,6 @@ func (gp SeriesFloat64Partition) GetKeys() any {
 		}
 	}
 	return keys
-}
-
-func (gp SeriesFloat64Partition) debugPrint() {
-	fmt.Println("SeriesFloat64Partition")
-	data := gp.series.Data().([]float64)
-	for k, v := range gp.partition {
-		// f := *(*float64)(unsafe.Pointer(&k))
-		fmt.Printf("%v - %10.4f: %v\n", k, data[v[0]], v)
-	}
 }
 
 func (s SeriesFloat64) Group() Series {
@@ -878,7 +874,7 @@ func (s SeriesFloat64) Group() Series {
 
 func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesFloat64Partition
-	otherIndeces := partition.GetMap()
+	otherIndeces := partition.getMap()
 
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
 

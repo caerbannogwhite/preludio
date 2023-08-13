@@ -964,44 +964,41 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolMemOptPartition struct {
+	nullKey   int64
 	series    *SeriesBoolMemOpt
 	partition map[int64][]int
 	nulls     []int
 }
 
-func (p SeriesBoolMemOptPartition) GetSize() int {
-	return len(p.partition)
+func (gp *SeriesBoolMemOptPartition) getSize() int {
+	return len(gp.partition)
 }
 
-func (p SeriesBoolMemOptPartition) GetMap() map[int64][]int {
-	return p.partition
+func (gp *SeriesBoolMemOptPartition) getMap() map[int64][]int {
+	return gp.partition
 }
 
-func (p SeriesBoolMemOptPartition) GetValueIndices(val any) []int {
+func (gp *SeriesBoolMemOptPartition) getNullKey() int64 {
+	return gp.nullKey
+}
+
+func (gp *SeriesBoolMemOptPartition) getValueIndices(val any) []int {
 	if val == nil {
-		return p.nulls
+		return gp.nulls
 	} else if v, ok := val.(bool); ok {
 		if v {
-			return p.partition[1]
+			return gp.partition[1]
 		} else {
-			return p.partition[0]
+			return gp.partition[0]
 		}
 	}
 
 	return make([]int, 0)
 }
 
-func (gp SeriesBoolMemOptPartition) GetKeys() any {
+func (gp *SeriesBoolMemOptPartition) getKeys() any {
 	keys := make([]bool, 0, 2)
 	return keys
-}
-
-func (gp SeriesBoolMemOptPartition) debugPrint() {
-	fmt.Println("SeriesBoolMemOptPartition")
-	data := gp.series.Data().([]bool)
-	for k, v := range gp.partition {
-		fmt.Printf("%10v - %5v: %v\n", k, data[v[0]], v)
-	}
 }
 
 func (s SeriesBoolMemOpt) Group() Series {
@@ -1028,7 +1025,7 @@ func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
 	newMap := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 	var newHash int64
-	for h, indexes := range partition.GetMap() {
+	for h, indexes := range partition.getMap() {
 		for _, index := range indexes {
 			newHash = int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 			newMap[newHash] = append(newMap[newHash], index)
