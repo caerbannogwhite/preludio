@@ -867,7 +867,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 		0: {0, 1, 2, 3, 4},
 		1: {5, 6, 7, 8, 9},
 	}
-	if !checkEqPartitionMap(p1, partMap, nil, "Int64 Group") {
+	if !checkEqPartitionMap(p1, partMap, nil, "Int32 Group") {
 		t.Errorf("Expected partition map of %v, got %v", partMap, p1)
 	}
 
@@ -889,7 +889,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 		4: {6},
 		5: {8},
 	}
-	if !checkEqPartitionMap(p2, partMap, nil, "Int64 Group") {
+	if !checkEqPartitionMap(p2, partMap, nil, "Int32 Group") {
 		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
 	}
 
@@ -913,7 +913,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 		6: {6},
 		7: {8},
 	}
-	if !checkEqPartitionMap(p3, partMap, nil, "Int64 Group") {
+	if !checkEqPartitionMap(p3, partMap, nil, "Int32 Group") {
 		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
 	}
 

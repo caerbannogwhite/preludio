@@ -1053,9 +1053,8 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 		return s
 	}
 
-	otherIndeces := partition.getMap()
-
 	// collect all keys
+	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
 	i := 0
 	for k := range otherIndeces {
