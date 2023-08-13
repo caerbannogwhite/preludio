@@ -899,7 +899,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 		7: {8},
 	}
 	if !checkEqPartitionMap(p3, partMap, nil, "Int64 Group") {
-		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+		t.Errorf("Expected partition map of %v, got %v", partMap, p3)
 	}
 
 	// debugPrintPartition(s1.GetPartition(), s1)

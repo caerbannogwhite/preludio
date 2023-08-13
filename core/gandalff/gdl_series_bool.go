@@ -764,9 +764,8 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
-	series    *SeriesBool
-	partition map[int64][]int
-	nulls     []int
+	seriesSize int
+	partition  map[int64][]int
 }
 
 func (gp *SeriesBoolPartition) getSize() int {
@@ -778,56 +777,98 @@ func (gp *SeriesBoolPartition) getMap() map[int64][]int {
 }
 
 func (s SeriesBool) Group() Series {
-	map_ := make(map[int64][]int)
-	for index := 0; index < len(s.data); index++ {
-		if s.data[index] {
-			map_[1] = append(map_[1], index)
-		} else {
-			map_[0] = append(map_[0], index)
+
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
+		for i := start; i < end; i++ {
+			if s.data[i] {
+				map_[1] = append(map_[1], i)
+			} else {
+				map_[0] = append(map_[0], i)
+			}
 		}
 	}
 
-	return SeriesBool{
-		isGrouped:  true,
-		isNullable: s.isNullable,
-		sorted:     s.sorted,
-		name:       s.name,
-		data:       s.data,
-		nullMask:   s.nullMask,
-		partition: &SeriesBoolPartition{
-			series:    &s,
-			partition: map_,
-			nulls:     nil,
-		}}
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+		for i := start; i < end; i++ {
+			if s.IsNull(i) {
+				(*nulls) = append((*nulls), i)
+			} else if s.data[i] {
+				map_[1] = append(map_[1], i)
+			} else {
+				map_[0] = append(map_[0], i)
+			}
+
+		}
+	}
+
+	partition := SeriesBoolPartition{
+		seriesSize: s.Len(),
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, s.Len(), s.HasNull(),
+			worker, workerNulls),
+	}
+
+	s.isGrouped = true
+	s.partition = &partition
+
+	return s
 }
 
 func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
-	newMap := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
+	// collect all keys
+	otherIndeces := partition.getMap()
+	keys := make([]int64, len(otherIndeces))
+	i := 0
+	for k := range otherIndeces {
+		keys[i] = k
+		i++
+	}
 
-	var newHash int64
-	for h, indexes := range partition.getMap() {
-		for _, index := range indexes {
-			if s.data[index] {
-				newHash = 1 + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-			} else {
-				newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
+		var newHash int64
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				if s.data[index] {
+					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
+				} else {
+					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				}
+				map_[newHash] = append(map_[newHash], index)
 			}
-			newMap[newHash] = append(newMap[newHash], index)
 		}
 	}
 
-	return SeriesBool{
-		isGrouped:  true,
-		isNullable: s.isNullable,
-		sorted:     s.sorted,
-		name:       s.name,
-		data:       s.data,
-		nullMask:   s.nullMask,
-		partition: &SeriesBoolPartition{
-			series:    &s,
-			partition: newMap,
-			nulls:     nil,
-		}}
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+		var newHash int64
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				if s.IsNull(index) {
+					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				} else if s.data[index] {
+					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
+				} else {
+					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				}
+				map_[newHash] = append(map_[newHash], index)
+			}
+		}
+	}
+
+	newPartition := SeriesBoolPartition{
+		seriesSize: s.Len(),
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
+			worker, workerNulls),
+	}
+
+	s.isGrouped = true
+	s.partition = &newPartition
+
+	return s
 }
 
 func (s SeriesBool) GetPartition() SeriesPartition {
