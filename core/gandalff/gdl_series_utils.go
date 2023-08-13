@@ -72,24 +72,24 @@ func debugPrintPartition(p SeriesPartition, series ...Series) {
 	header := ""
 	separators := ""
 	for _, s := range series {
-		header += fmt.Sprintf("| %-6s", s.Name())
-		separators += "|-------"
+		header += fmt.Sprintf("| %-10s ", s.Name())
+		separators += "|------------"
 	}
 
 	fmt.Println()
-	fmt.Printf("    | %-20s %s | %-10s |\n", "Key", header, "Indeces")
-	fmt.Printf("    |%s%s-|%s|\n", "----------------------", separators, "------------")
+	fmt.Printf("    | %-20s %s | %-20s |\n", "Key", header, "Indeces")
+	fmt.Printf("    |%s%s-|%s|\n", "----------------------", separators, "----------------------")
 	for k, v := range map_ {
 		vals := ""
 		for _, s := range series {
-			vals += fmt.Sprintf("| %-6s", s.GetString(v[0]))
+			vals += fmt.Sprintf("| %-10s ", s.GetString(v[0]))
 		}
 
 		indeces := ""
 		for _, i := range v {
 			indeces += fmt.Sprintf("%d ", i)
 		}
-		fmt.Printf("    | %-20d %s | %-10s |\n", k, vals, indeces)
+		fmt.Printf("    | %-20d %s | %-20s |\n", k, vals, indeces)
 	}
 	fmt.Println()
 }
