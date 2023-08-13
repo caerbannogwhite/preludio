@@ -798,30 +798,6 @@ func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp *SeriesFloat64Partition) getValueIndices(val any) []int {
-	if val == nil {
-		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
-			return nulls
-		}
-	} else if v, ok := val.(float64); ok {
-		if part, ok := gp.partition[int64(v)]; ok {
-			return part
-		}
-	}
-
-	return make([]int, 0)
-}
-
-func (gp *SeriesFloat64Partition) getKeys() any {
-	keys := make([]float64, 0, len(gp.partition))
-	for k := range gp.partition {
-		if k != HASH_NULL_KEY {
-			keys = append(keys, *(*float64)(unsafe.Pointer(&k)))
-		}
-	}
-	return keys
-}
-
 func (s SeriesFloat64) Group() Series {
 
 	var partition SeriesFloat64Partition

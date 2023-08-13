@@ -979,10 +979,9 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesStringPartition struct {
-	seriesSize   int
-	partition    map[int64][]int
-	indexToGroup []int
-	pool         *StringPool
+	seriesSize int
+	partition  map[int64][]int
+	pool       *StringPool
 }
 
 func (gp *SeriesStringPartition) getSize() int {
@@ -991,34 +990,6 @@ func (gp *SeriesStringPartition) getSize() int {
 
 func (gp *SeriesStringPartition) getMap() map[int64][]int {
 	return gp.partition
-}
-
-func (gp *SeriesStringPartition) getValueIndices(val any) []int {
-	if val == nil {
-		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
-			return nulls
-		}
-	} else {
-		if v, ok := val.(string); ok {
-			if addr := gp.pool.Put(v); addr == nil {
-				if vals, ok := gp.partition[(*(*int64)(unsafe.Pointer(unsafe.Pointer(addr))))]; ok {
-					return vals
-				}
-			}
-		}
-	}
-
-	return make([]int, 0)
-}
-
-func (gp SeriesStringPartition) getKeys() any {
-	keys := make([]string, 0, len(gp.partition))
-	for k := range gp.partition {
-		if k != HASH_NULL_KEY {
-			keys = append(keys, *(*string)(unsafe.Pointer(&k)))
-		}
-	}
-	return keys
 }
 
 func (s SeriesString) Group() Series {

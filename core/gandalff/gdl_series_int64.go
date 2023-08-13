@@ -934,43 +934,6 @@ func (gp *SeriesInt64Partition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp *SeriesInt64Partition) getValueIndices(val any) []int {
-	if val == nil {
-		if gp.isDense {
-			return gp.partitionDenseNulls
-		} else if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
-			return nulls
-		}
-	} else if v, ok := val.(int32); ok {
-		if gp.isDense {
-			return gp.partitionDense[v]
-		} else if part, ok := gp.partition[int64(v)]; ok {
-			return part
-		}
-	}
-
-	return make([]int, 0)
-}
-
-func (gp *SeriesInt64Partition) getKeys() any {
-	var keys []int64
-	if gp.isDense {
-		keys = make([]int64, 0, len(gp.partitionDense))
-		for k, indeces := range gp.partitionDense {
-			if len(indeces) > 0 {
-				keys = append(keys, int64(k))
-			}
-		}
-	} else {
-		keys = make([]int64, 0, len(gp.partition))
-		for k := range gp.partition {
-			keys = append(keys, k)
-		}
-	}
-
-	return keys
-}
-
 func (s SeriesInt64) Group() Series {
 	var useDenseMap bool
 	var min, max int64
@@ -1110,7 +1073,6 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 		return s
 	}
 
-	var newPartition SeriesInt64Partition
 	otherIndeces := partition.getMap()
 
 	// collect all keys
@@ -1128,8 +1090,6 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 	}
 
 	if s.HasNull() {
-		allNulls := make([][]int, THREADS_NUMBER)
-
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {
 			var newHash int64
@@ -1146,7 +1106,7 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, allNulls, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 	} else {
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {
@@ -1163,7 +1123,7 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
 	}
 
-	newPartition = SeriesInt64Partition{
+	newPartition := SeriesInt64Partition{
 		seriesSize: s.Len(),
 		partition:  allMaps[0],
 	}

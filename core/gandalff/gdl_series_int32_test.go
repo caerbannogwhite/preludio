@@ -843,46 +843,84 @@ func Test_SeriesInt32_GroupedSort(t *testing.T) {
 	// }
 }
 
-// func Test_SeriesInt32_Multiplication(t *testing.T) {
+func Test_SeriesInt32_Group(t *testing.T) {
+	var partMap map[int64][]int
 
-// 	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	data1 := []int32{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	data1Mask := []bool{false, false, false, false, false, true, true, true, true, true}
+	data2 := []int32{1, 1, 2, 2, 1, 1, 2, 2, 1, 1}
+	data2Mask := []bool{false, true, false, true, false, true, false, true, false, true}
+	data3 := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
 
-// 	// s * 2
-// 	res := NewSeriesInt32("test", true, true, &data).Mul(NewSeriesInt32("test", true, true, &[]int{2}))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
+	// Test 1
+	s1 := NewSeriesInt32("s1", true, true, data1).
+		SetNullMask(data1Mask).
+		Group()
 
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
+	p1 := s1.GetPartition().getMap()
+	if len(p1) != 2 {
+		t.Errorf("Expected 2 groups, got %d", len(p1))
+	}
 
-// 	// Check the data.
-// 	for i, v := range res.Data().([]int) {
-// 		if v != data[i]*2 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
-// 		}
-// 	}
+	partMap = map[int64][]int{
+		0: {0, 1, 2, 3, 4},
+		1: {5, 6, 7, 8, 9},
+	}
+	if !checkEqPartitionMap(p1, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p1)
+	}
 
-// 	// 2 * s
-// 	res = NewSeriesInt32("test", true, true, &[]int{2}).Mul(NewSeriesInt32("test", true, true, &data))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
+	// Test 2
+	s2 := NewSeriesInt32("s2", true, true, data2).
+		SetNullMask(data2Mask).
+		SubGroup(s1.GetPartition())
 
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
+	p2 := s2.GetPartition().getMap()
+	if len(p2) != 6 {
+		t.Errorf("Expected 6 groups, got %d", len(p2))
+	}
 
-// 	// Check the data.
-// 	for i, v := range res.Data().([]int) {
-// 		if v != data[i]*2 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
-// 		}
-// 	}
-// }
+	partMap = map[int64][]int{
+		0: {0, 4},
+		1: {1, 3},
+		2: {2},
+		3: {5, 7, 9},
+		4: {6},
+		5: {8},
+	}
+	if !checkEqPartitionMap(p2, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// Test 3
+	s3 := NewSeriesInt32("test", true, true, data3).
+		SetNullMask(data3Mask).
+		SubGroup(s2.GetPartition())
+
+	p3 := s3.GetPartition().getMap()
+	if len(p3) != 8 {
+		t.Errorf("Expected 8 groups, got %d", len(p3))
+	}
+
+	partMap = map[int64][]int{
+		0: {0},
+		1: {1},
+		2: {2},
+		3: {3},
+		4: {4},
+		5: {5, 7, 9},
+		6: {6},
+		7: {8},
+	}
+	if !checkEqPartitionMap(p3, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// debugPrintPartition(s1.GetPartition(), s1)
+	// debugPrintPartition(s2.GetPartition(), s1, s2)
+	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+}
 
 func Test_SeriesInt32_Arithmetic_Mul(t *testing.T) {
 	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)

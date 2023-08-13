@@ -777,25 +777,6 @@ func (gp *SeriesBoolPartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp *SeriesBoolPartition) getValueIndices(val any) []int {
-	if val == nil {
-		return gp.nulls
-	} else if v, ok := val.(bool); ok {
-		if v {
-			return gp.partition[1]
-		} else {
-			return gp.partition[0]
-		}
-	}
-
-	return make([]int, 0)
-}
-
-func (gp *SeriesBoolPartition) getKeys() any {
-	keys := make([]bool, 0, 2)
-	return keys
-}
-
 func (s SeriesBool) Group() Series {
 	map_ := make(map[int64][]int)
 	for index := 0; index < len(s.data); index++ {
