@@ -1004,11 +1004,11 @@ func (s SeriesString) Group() Series {
 	}
 
 	// Define the worker callback for nulls
-	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
 		var ptr unsafe.Pointer
 		for i := start; i < end; i++ {
 			if s.IsNull(i) {
-				nulls = append(nulls, i)
+				(*nulls) = append((*nulls), i)
 			} else {
 				ptr = unsafe.Pointer(s.data[i])
 				map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
@@ -1031,10 +1031,8 @@ func (s SeriesString) Group() Series {
 }
 
 func (s SeriesString) SubGroup(partition SeriesPartition) Series {
-	var newPartition SeriesStringPartition
-	otherIndeces := partition.getMap()
-
 	// collect all keys
+	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
 	i := 0
 	for k := range otherIndeces {
@@ -1056,7 +1054,7 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	}
 
 	// Define the worker callback for nulls
-	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
 		var newHash int64
 		var ptr unsafe.Pointer
 		for _, h := range keys[start:end] { // keys is defined outside the function
@@ -1072,7 +1070,7 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 		}
 	}
 
-	newPartition = SeriesStringPartition{
+	newPartition := SeriesStringPartition{
 		seriesSize: s.Len(),
 		pool:       s.pool,
 		partition: __series_groupby(

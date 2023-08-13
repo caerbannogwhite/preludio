@@ -1017,10 +1017,10 @@ func (s SeriesInt32) Group() Series {
 		}
 
 		// Define the worker callback for nulls
-		workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+		workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
 			for i := start; i < end; i++ {
 				if s.IsNull(i) {
-					nulls = append(nulls, i)
+					(*nulls) = append((*nulls), i)
 				} else {
 					map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
 				}
@@ -1068,7 +1068,7 @@ func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 	}
 
 	// Define the worker callback for nulls
-	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function

@@ -8,7 +8,7 @@ import (
 func __series_groupby(
 	threadNum, minParallelSize, dataLen int, hasNulls bool,
 	worker func(threadNum, start, end int, map_ map[int64][]int),
-	workerNulls func(threadNum, start, end int, map_ map[int64][]int, nulls []int),
+	workerNulls func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int),
 ) map[int64][]int {
 
 	// If the data is too small, just run the worker function
@@ -16,7 +16,7 @@ func __series_groupby(
 		map_ := make(map[int64][]int)
 		if hasNulls {
 			nulls := make([]int, 0)
-			workerNulls(0, 0, dataLen, map_, nulls)
+			workerNulls(0, 0, dataLen, map_, &nulls)
 
 			// Add the nulls to the map
 			if len(nulls) > 0 {
@@ -84,7 +84,7 @@ func __series_groupby(
 				end = dataLen
 			}
 
-			workerNulls(idx, start, end, maps[idx], nulls[idx])
+			workerNulls(idx, start, end, maps[idx], &nulls[idx])
 
 			// Notify the wait groups at the first level
 			wg[0][idx/2].Done()
