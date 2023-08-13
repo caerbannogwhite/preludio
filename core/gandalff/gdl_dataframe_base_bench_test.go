@@ -11,6 +11,10 @@ var G1_1e4_1e2_0_0_df *DataFrame
 var G1_1e5_1e2_0_0_df *DataFrame
 var G1_1e6_1e2_0_0_df *DataFrame
 var G1_1e7_1e2_0_0_df *DataFrame
+var G1_1e4_1e2_10_0_df *DataFrame
+var G1_1e5_1e2_10_0_df *DataFrame
+var G1_1e6_1e2_10_0_df *DataFrame
+var G1_1e7_1e2_10_0_df *DataFrame
 
 func read_G1_1e4_1e2_0_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e4_1e2_0_0.csv"), os.O_RDONLY, 0666)
@@ -80,11 +84,83 @@ func read_G1_1e7_1e2_0_0() {
 	}
 }
 
+func read_G1_1e4_1e2_10_0() {
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e4_1e2_10_0.csv"), os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e4_1e2_10_0_df = &df
+	} else {
+		G1_1e4_1e2_10_0_df = nil
+	}
+}
+
+func read_G1_1e5_1e2_10_0() {
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e5_1e2_10_0.csv"), os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e5_1e2_10_0_df = &df
+	} else {
+		G1_1e5_1e2_10_0_df = nil
+	}
+}
+
+func read_G1_1e6_1e2_10_0() {
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e6_1e2_10_0.csv"), os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e6_1e2_10_0_df = &df
+	} else {
+		G1_1e6_1e2_10_0_df = nil
+	}
+}
+
+func read_G1_1e7_1e2_10_0() {
+	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e7_1e2_10_0.csv"), os.O_RDONLY, 0666)
+	if err == nil {
+		df := NewBaseDataFrame().
+			FromCSV().
+			SetDelimiter(',').
+			SetReader(f).
+			Read()
+
+		f.Close()
+
+		G1_1e7_1e2_10_0_df = &df
+	} else {
+		G1_1e7_1e2_10_0_df = nil
+	}
+}
+
 func init() {
 	read_G1_1e4_1e2_0_0()
 	read_G1_1e5_1e2_0_0()
 	read_G1_1e6_1e2_0_0()
 	read_G1_1e7_1e2_0_0()
+	read_G1_1e4_1e2_10_0()
+	read_G1_1e5_1e2_10_0()
+	read_G1_1e6_1e2_10_0()
+	read_G1_1e7_1e2_10_0()
 }
 
 func Benchmark_Filter_Q1_1e5(b *testing.B) {
@@ -360,6 +436,98 @@ func Test_GroupBy_Q1_1e7(t *testing.T) {
 	check := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
 	if check != 29998789 {
 		t.Errorf("Expected 29998789, got %f", check)
+	}
+}
+
+func Test_GroupBy_Q1_1e4_10PercNAs(t *testing.T) {
+	if G1_1e4_1e2_10_0_df == nil {
+		t.Skip("G1_1e4_1e2_10_0 dataframe not loaded")
+	}
+
+	df := (*G1_1e4_1e2_10_0_df).
+		GroupBy("id1").
+		Agg(Sum("v1"))
+
+	if df.NRows() != 91 {
+		t.Errorf("Expected 91 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 2 {
+		t.Errorf("Expected 2 columns, got %d", df.NCols())
+	}
+
+	check := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if check != 27044 {
+		t.Errorf("Expected 27044, got %f", check)
+	}
+}
+
+func Test_GroupBy_Q1_1e5_10PercNAs(t *testing.T) {
+	if G1_1e5_1e2_10_0_df == nil {
+		t.Skip("G1_1e5_1e2_10_0 dataframe not loaded")
+	}
+
+	df := (*G1_1e5_1e2_10_0_df).
+		GroupBy("id1").
+		Agg(Sum("v1"))
+
+	if df.NRows() != 91 {
+		t.Errorf("Expected 91 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 2 {
+		t.Errorf("Expected 2 columns, got %d", df.NCols())
+	}
+
+	check := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if check != 270421 {
+		t.Errorf("Expected 270421, got %f", check)
+	}
+}
+
+func Test_GroupBy_Q1_1e6_10PercNAs(t *testing.T) {
+	if G1_1e6_1e2_10_0_df == nil {
+		t.Skip("G1_1e6_1e2_10_0 dataframe not loaded")
+	}
+
+	df := (*G1_1e6_1e2_10_0_df).
+		GroupBy("id1").
+		Agg(Sum("v1"))
+
+	if df.NRows() != 91 {
+		t.Errorf("Expected 91 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 2 {
+		t.Errorf("Expected 2 columns, got %d", df.NCols())
+	}
+
+	check := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if check != 2700684 {
+		t.Errorf("Expected 2700684, got %f", check)
+	}
+}
+
+func Test_GroupBy_Q1_1e7_10PercNAs(t *testing.T) {
+	if G1_1e7_1e2_10_0_df == nil {
+		t.Skip("G1_1e7_1e2_10_0 dataframe not loaded")
+	}
+
+	df := (*G1_1e7_1e2_10_0_df).
+		GroupBy("id1").
+		Agg(Sum("v1"))
+
+	if df.NRows() != 91 {
+		t.Errorf("Expected 91 rows, got %d", df.NRows())
+	}
+
+	if df.NCols() != 2 {
+		t.Errorf("Expected 2 columns, got %d", df.NCols())
+	}
+
+	check := df.Agg(Sum("v1")).Series("v1").Get(0).(float64)
+	if check != 26998588 {
+		t.Errorf("Expected 26998588, got %f", check)
 	}
 }
 
