@@ -813,24 +813,21 @@ func (s SeriesInt64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt64Partition struct {
-	isDense             bool
-	hasNulls            bool
 	seriesSize          int
 	partition           map[int64][]int
-	nullKey             int64
+	indexToGroup        []int64
+	isDense             bool
 	partitionDenseMin   int64
 	partitionDense      [][]int
 	partitionDenseNulls []int
-	indexToGroup        []int64
 }
 
-func (gp SeriesInt64Partition) getSize() int {
+func (gp *SeriesInt64Partition) getSize() int {
 	if gp.isDense {
-		nulls := 0
-		if len(gp.partitionDenseNulls) > 0 {
-			nulls = 1
+		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
+			return len(gp.partitionDense) + 1
 		}
-		return len(gp.partitionDense) + nulls
+		return len(gp.partitionDense)
 	}
 	return len(gp.partition)
 }
@@ -849,27 +846,27 @@ func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
 			gp.indexToGroup[idx] = int64(len(gp.partitionDense))
 		}
 	} else {
-		if gp.hasNulls {
-			nulls := gp.partition[gp.nullKey]
-			delete(gp.partition, gp.nullKey)
+		// if gp.hasNulls {
+		// 	nulls := gp.partition[gp.nullKey]
+		// 	delete(gp.partition, gp.nullKey)
 
-			for i, part := range gp.partition {
-				for _, idx := range part {
-					gp.indexToGroup[idx] = i
-				}
-			}
+		// 	for i, part := range gp.partition {
+		// 		for _, idx := range part {
+		// 			gp.indexToGroup[idx] = i
+		// 		}
+		// 	}
 
-			// put nulls at the end
-			for _, idx := range nulls {
-				gp.indexToGroup[idx] = int64(len(gp.partition))
-			}
-		} else {
-			for i, part := range gp.partition {
-				for _, idx := range part {
-					gp.indexToGroup[idx] = i
-				}
+		// 	// put nulls at the end
+		// 	for _, idx := range nulls {
+		// 		gp.indexToGroup[idx] = int64(len(gp.partition))
+		// 	}
+		// } else {
+		for i, part := range gp.partition {
+			for _, idx := range part {
+				gp.indexToGroup[idx] = i
 			}
 		}
+		// }
 	}
 
 	return gp
@@ -925,19 +922,16 @@ func (gp *SeriesInt64Partition) getMap() map[int64][]int {
 			map_[int64(i)+gp.partitionDenseMin] = part
 		}
 
-		if gp.hasNulls {
-			gp.nullKey = __series_get_nullkey(map_, HASH_NULL_KEY)
-			map_[gp.nullKey] = gp.partitionDenseNulls
+		// Merge the nulls to the map
+		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
+			nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
+			map_[nullKey] = gp.partitionDenseNulls
 		}
 
 		return map_
 	}
 
 	return gp.partition
-}
-
-func (gp *SeriesInt64Partition) getNullKey() int64 {
-	return gp.nullKey
 }
 
 func (gp *SeriesInt64Partition) getValueIndices(val any) []int {
@@ -978,7 +972,7 @@ func (gp *SeriesInt64Partition) getKeys() any {
 }
 
 func (s SeriesInt64) Group() Series {
-	var useDenseMap, hasNulls bool
+	var useDenseMap bool
 	var min, max int64
 	var partition SeriesInt64Partition
 
@@ -1013,7 +1007,6 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		if s.HasNull() {
-			hasNulls = true
 			nulls = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
 			for i, v := range s.data {
 				if s.IsNull(i) {
@@ -1029,9 +1022,8 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		partition = SeriesInt64Partition{
-			hasNulls:            hasNulls,
-			isDense:             true,
 			seriesSize:          s.Len(),
+			isDense:             true,
 			partitionDenseMin:   min,
 			partitionDense:      map_,
 			partitionDenseNulls: nulls,
@@ -1049,7 +1041,6 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		if s.HasNull() {
-			hasNulls = true
 			allNulls := make([][]int, THREADS_NUMBER)
 
 			// Define the worker callback
@@ -1066,7 +1057,9 @@ func (s SeriesInt64) Group() Series {
 
 			__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, allNulls, worker)
 
+			// Merge the nulls to the first map
 			nullKey = __series_get_nullkey(allMaps[0], HASH_NULL_KEY)
+			allMaps[0][nullKey] = allNulls[0]
 		} else {
 			// Define the worker callback
 			worker := func(threadNum, start, end int) {
@@ -1100,11 +1093,9 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		partition = SeriesInt64Partition{
-			hasNulls:   hasNulls,
 			isDense:    false,
 			seriesSize: s.Len(),
 			partition:  allMaps[0],
-			nullKey:    nullKey,
 		}
 	}
 
@@ -1115,6 +1106,10 @@ func (s SeriesInt64) Group() Series {
 }
 
 func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
+	if partition == nil {
+		return s
+	}
+
 	var newPartition SeriesInt64Partition
 	otherIndeces := partition.getMap()
 
@@ -1133,19 +1128,25 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 	}
 
 	if s.HasNull() {
+		allNulls := make([][]int, THREADS_NUMBER)
+
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {
 			var newHash int64
 			map_ := allMaps[threadNum]
 			for _, h := range keys[start:end] {
 				for _, index := range otherIndeces[h] {
-					newHash = s.data[index] + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					if s.IsNull(index) {
+						newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+					} else {
+						newHash = s.data[index] + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					}
 					map_[newHash] = append(map_[newHash], index)
 				}
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
+		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, allNulls, worker)
 	} else {
 		// Define the worker callback
 		worker := func(threadNum, start, end int) {

@@ -980,7 +980,6 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesStringPartition struct {
 	seriesSize   int
-	nullKey      int64
 	partition    map[int64][]int
 	indexToGroup []int
 	pool         *StringPool
@@ -992,10 +991,6 @@ func (gp *SeriesStringPartition) getSize() int {
 
 func (gp *SeriesStringPartition) getMap() map[int64][]int {
 	return gp.partition
-}
-
-func (gp *SeriesStringPartition) getNullKey() int64 {
-	return gp.nullKey
 }
 
 func (gp *SeriesStringPartition) getValueIndices(val any) []int {

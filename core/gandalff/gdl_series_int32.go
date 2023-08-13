@@ -807,7 +807,6 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
-	nullKey             int64
 	isDense             bool
 	seriesSize          int
 	partition           map[int64][]int
@@ -897,10 +896,6 @@ func (gp SeriesInt32Partition) getMap() map[int64][]int {
 	}
 
 	return gp.partition
-}
-
-func (gp SeriesInt32Partition) getNullKey() int64 {
-	return gp.nullKey
 }
 
 func (gp SeriesInt32Partition) getValueIndices(val any) []int {
