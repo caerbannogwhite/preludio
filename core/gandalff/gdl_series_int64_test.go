@@ -829,21 +829,82 @@ func Test_SeriesInt64_GroupedSort(t *testing.T) {
 }
 
 func Test_SeriesInt64_Group(t *testing.T) {
+	var partMap map[int64][]int
 
-	part := []int64{1, 2, 2, 3, 3, 3, 4, 4, 4, 4}
-	partMask := []bool{false, false, false, false, false, true, false, true, false, true}
-	data := []int64{1, 2, 3, 4, 4, 5, 5, 6, 6, 7}
-	dataMask := []bool{false, false, false, false, false, false, true, false, true, false}
+	data1 := []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	data1Mask := []bool{false, false, false, false, false, true, true, true, true, true}
+	data2 := []int64{1, 1, 2, 2, 1, 1, 2, 2, 1, 1}
+	data2Mask := []bool{false, true, false, true, false, true, false, true, false, true}
+	data3 := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
 
-	p := NewSeriesInt64("part", true, true, part).
-		SetNullMask(partMask)
+	// Test 1
+	s1 := NewSeriesInt64("s1", true, true, data1).
+		SetNullMask(data1Mask).
+		Group()
 
-	s := NewSeriesInt64("test", true, true, data).
-		SetNullMask(dataMask).
-		SubGroup(p.Group().GetPartition())
+	p1 := s1.GetPartition().getMap()
+	if len(p1) != 2 {
+		t.Errorf("Expected 2 groups, got %d", len(p1))
+	}
 
-	debugPrintPartition(s.GetPartition(), p, s)
+	partMap = map[int64][]int{
+		0: {0, 1, 2, 3, 4},
+		1: {5, 6, 7, 8, 9},
+	}
+	if !checkEqPartitionMap(p1, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p1)
+	}
 
+	// Test 2
+	s2 := NewSeriesInt64("s2", true, true, data2).
+		SetNullMask(data2Mask).
+		SubGroup(s1.GetPartition())
+
+	p2 := s2.GetPartition().getMap()
+	if len(p2) != 6 {
+		t.Errorf("Expected 6 groups, got %d", len(p2))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 4},
+		1: {1, 3},
+		2: {2},
+		3: {5, 7, 9},
+		4: {6},
+		5: {8},
+	}
+	if !checkEqPartitionMap(p2, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// Test 3
+	s3 := NewSeriesInt64("test", true, true, data3).
+		SetNullMask(data3Mask).
+		SubGroup(s2.GetPartition())
+
+	p3 := s3.GetPartition().getMap()
+	if len(p3) != 8 {
+		t.Errorf("Expected 8 groups, got %d", len(p3))
+	}
+
+	partMap = map[int64][]int{
+		0: {0},
+		1: {1},
+		2: {2},
+		3: {3},
+		4: {4},
+		5: {5, 7, 9},
+		6: {6},
+		7: {8},
+	}
+	if !checkEqPartitionMap(p3, partMap, nil, "Int64 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// debugPrintPartition(s1.GetPartition(), s1)
+	// debugPrintPartition(s2.GetPartition(), s1, s2)
+	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
 }
 
 func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {
