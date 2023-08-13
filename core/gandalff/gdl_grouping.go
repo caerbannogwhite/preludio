@@ -17,8 +17,12 @@ func __series_groupby(
 		if hasNulls {
 			nulls := make([]int, 0)
 			workerNulls(0, 0, dataLen, map_, nulls)
-			nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
-			map_[nullKey] = nulls
+
+			// Add the nulls to the map
+			if len(nulls) > 0 {
+				nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
+				map_[nullKey] = nulls
+			}
 		} else {
 			worker(0, 0, dataLen, map_)
 		}
@@ -68,9 +72,12 @@ func __series_groupby(
 	wg = append(wg, make([]sync.WaitGroup, 1))
 	wg[len(wg)-1][0].Add(1)
 
-	// Compute the submaps
+	// Define the actual worker function
+	// and the merger function
+	var actualWorker func(int)
+	var merger func(int, int, int)
 	if hasNulls {
-		actualWorker := func(idx int) {
+		actualWorker = func(idx int) {
 			start := idx * dataLen / threadNum
 			end := (idx + 1) * dataLen / threadNum
 			if idx == threadNum-1 {
@@ -83,7 +90,7 @@ func __series_groupby(
 			wg[0][idx/2].Done()
 		}
 
-		merger := func(level, idx1, idx2 int) {
+		merger = func(level, idx1, idx2 int) {
 			// Example: if THREADS_NUMBER = 16 and level = 0, then
 			// 	- idx1 =  0, idx2 =  1 -> wait for wg[0][0]
 			// 	- idx1 =  2, idx2 =  3 -> wait for wg[0][1]
@@ -108,19 +115,8 @@ func __series_groupby(
 			// 	- idx1 = 14, idx2 = 15 -> notify wg[1][3]
 			wg[level+1][idx1>>uint(level+2)].Done()
 		}
-
-		for i := 0; i < threadNum; i++ {
-			go actualWorker(i)
-		}
-
-		// Merge the submaps
-		for level := 0; level < levels; level++ {
-			for i := 0; i < threadNum; i += (1 << uint(level+1)) {
-				go merger(level, i, i+(1<<level))
-			}
-		}
 	} else {
-		actualWorker := func(idx int) {
+		actualWorker = func(idx int) {
 			start := idx * dataLen / threadNum
 			end := (idx + 1) * dataLen / threadNum
 			if idx == threadNum-1 {
@@ -133,7 +129,7 @@ func __series_groupby(
 			wg[0][idx/2].Done()
 		}
 
-		merger := func(level, idx1, idx2 int) {
+		merger = func(level, idx1, idx2 int) {
 			// Example: if THREADS_NUMBER = 16 and level = 0, then
 			// 	- idx1 =  0, idx2 =  1 -> wait for wg[0][0]
 			// 	- idx1 =  2, idx2 =  3 -> wait for wg[0][1]
@@ -154,23 +150,25 @@ func __series_groupby(
 			// 	- idx1 = 14, idx2 = 15 -> notify wg[1][3]
 			wg[level+1][idx1>>uint(level+2)].Done()
 		}
+	}
 
-		for i := 0; i < threadNum; i++ {
-			go actualWorker(i)
-		}
+	// Compute the submaps
+	for i := 0; i < threadNum; i++ {
+		go actualWorker(i)
+	}
 
-		// Merge the submaps
-		for level := 0; level < levels; level++ {
-			for i := 0; i < threadNum; i += (1 << uint(level+1)) {
-				go merger(level, i, i+(1<<level))
-			}
+	// Merge the submaps
+	for level := 0; level < levels; level++ {
+		for i := 0; i < threadNum; i += (1 << uint(level+1)) {
+			go merger(level, i, i+(1<<level))
 		}
 	}
 
 	// Wait for the last level (there is only one wait group)
 	wg[len(wg)-1][0].Wait()
 
-	if hasNulls {
+	// Add the nulls to the map
+	if hasNulls && len(nulls[0]) > 0 {
 		nullKey := __series_get_nullkey(maps[0], HASH_NULL_KEY)
 		maps[0][nullKey] = nulls[0]
 	}
