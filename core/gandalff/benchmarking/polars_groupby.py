@@ -18,7 +18,10 @@ solution = "polars"
 fun = ".groupby"
 cache = "TRUE"
 on_disk = "FALSE"
-data_names = ["G1_1e4_1e2_0_0", "G1_1e5_1e2_0_0", "G1_1e6_1e2_0_0", "G1_1e7_1e2_0_0"]
+data_names = [
+    "G1_1e4_1e2_0_0", "G1_1e5_1e2_0_0", "G1_1e6_1e2_0_0", "G1_1e7_1e2_0_0",
+    "G1_1e4_1e2_10_0", "G1_1e5_1e2_10_0", "G1_1e6_1e2_10_0", "G1_1e7_1e2_10_0"
+]
 
 for data_name in data_names:
     filepath = os.path.join("..", "testdata", data_name+".csv")
