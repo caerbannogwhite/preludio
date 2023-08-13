@@ -989,17 +989,6 @@ func (s SeriesInt32) Group() Series {
 
 	// SPARSE MAP
 	{
-		// Define the worker callback for nulls
-		workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
-			for i := start; i < end; i++ {
-				if s.IsNull(i) {
-					nulls = append(nulls, i)
-				} else {
-					map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
-				}
-			}
-		}
-
 		// Define the worker callback
 		worker := func(threadNum, start, end int, map_ map[int64][]int) {
 			up := end - ((end - start) % 8)
@@ -1027,11 +1016,22 @@ func (s SeriesInt32) Group() Series {
 			}
 		}
 
+		// Define the worker callback for nulls
+		workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+			for i := start; i < end; i++ {
+				if s.IsNull(i) {
+					nulls = append(nulls, i)
+				} else {
+					map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				}
+			}
+		}
+
 		partition = SeriesInt32Partition{
 			isDense:    false,
 			seriesSize: s.Len(),
 			partition: __series_groupby(
-				THREADS_NUMBER, len(s.data), s.HasNull(),
+				THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
 				worker, workerNulls),
 		}
 	}
@@ -1057,11 +1057,22 @@ func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 		i++
 	}
 
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
+		var newHash int64
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				map_[newHash] = append(map_[newHash], index)
+			}
+		}
+	}
+
 	// Define the worker callback for nulls
 	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
 		var newHash int64
-		for _, h := range keys[start:end] {
-			for _, index := range otherIndeces[h] {
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
 				if s.IsNull(index) {
 					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
 				} else {
@@ -1072,21 +1083,10 @@ func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 		}
 	}
 
-	// Define the worker callback
-	worker := func(threadNum, start, end int, map_ map[int64][]int) {
-		var newHash int64
-		for _, h := range keys[start:end] {
-			for _, index := range otherIndeces[h] {
-				newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				map_[newHash] = append(map_[newHash], index)
-			}
-		}
-	}
-
 	newPartition := SeriesInt32Partition{
 		seriesSize: s.Len(),
 		partition: __series_groupby(
-			THREADS_NUMBER, len(keys), s.HasNull(),
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
 			worker, workerNulls),
 	}
 

@@ -994,46 +994,34 @@ func (gp *SeriesStringPartition) getMap() map[int64][]int {
 
 func (s SeriesString) Group() Series {
 
-	var partition SeriesStringPartition
-	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		var ptr unsafe.Pointer
-		for i := 0; i < len(s.data); i++ {
+		for i := start; i < end; i++ {
 			ptr = unsafe.Pointer(s.data[i])
 			map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 		}
+	}
 
-		partition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  map_,
-			pool:       s.pool,
-		}
-	} else {
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			map_ := allMaps[threadNum]
-			var ptr unsafe.Pointer
-			for i := start; i < end; i++ {
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+		var ptr unsafe.Pointer
+		for i := start; i < end; i++ {
+			if s.IsNull(i) {
+				nulls = append(nulls, i)
+			} else {
 				ptr = unsafe.Pointer(s.data[i])
 				map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 			}
 		}
+	}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
-
-		partition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
-			pool:       s.pool,
-		}
+	partition := SeriesStringPartition{
+		seriesSize: s.Len(),
+		pool:       s.pool,
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(s.data), s.HasNull(),
+			worker, workerNulls),
 	}
 
 	s.isGrouped = true
@@ -1046,63 +1034,50 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	var newPartition SeriesStringPartition
 	otherIndeces := partition.getMap()
 
-	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
+	// collect all keys
+	keys := make([]int64, len(otherIndeces))
+	i := 0
+	for k := range otherIndeces {
+		keys[i] = k
+		i++
+	}
 
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		var newHash int64
 		var ptr unsafe.Pointer
-		for h, v := range otherIndeces {
-			for _, index := range v {
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
 				ptr = unsafe.Pointer(s.data[index])
 				newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		newPartition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  map_,
-			pool:       s.pool,
-		}
-	} else {
-
-		// collect all keys
-		keys := make([]int64, len(otherIndeces))
-		i := 0
-		for k := range otherIndeces {
-			keys[i] = k
-			i++
-		}
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			var newHash int64
-			var ptr unsafe.Pointer
-
-			map_ := allMaps[threadNum]
-			for _, h := range keys[start:end] {
-				for _, index := range otherIndeces[h] {
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls []int) {
+		var newHash int64
+		var ptr unsafe.Pointer
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				if s.IsNull(index) {
+					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				} else {
 					ptr = unsafe.Pointer(s.data[index])
 					newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-					map_[newHash] = append(map_[newHash], index)
 				}
+				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
-
-		newPartition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
-			pool:       s.pool,
-		}
+	newPartition = SeriesStringPartition{
+		seriesSize: s.Len(),
+		pool:       s.pool,
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
+			worker, workerNulls),
 	}
 
 	s.isGrouped = true

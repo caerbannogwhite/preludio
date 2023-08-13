@@ -6,13 +6,13 @@ import (
 )
 
 func __series_groupby(
-	threadNum, dataLen int, hasNulls bool,
+	threadNum, minParallelSize, dataLen int, hasNulls bool,
 	worker func(threadNum, start, end int, map_ map[int64][]int),
 	workerNulls func(threadNum, start, end int, map_ map[int64][]int, nulls []int),
 ) map[int64][]int {
 
 	// If the data is too small, just run the worker function
-	if dataLen < MINIMUM_PARALLEL_SIZE_2 {
+	if dataLen < minParallelSize {
 		map_ := make(map[int64][]int)
 		if hasNulls {
 			nulls := make([]int, 0)
