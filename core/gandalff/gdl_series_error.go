@@ -58,7 +58,7 @@ func (s SeriesError) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesError) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.ErrorType, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.ErrorType, Card: s.Len()}
 }
 
 // Returns if the series has null values.

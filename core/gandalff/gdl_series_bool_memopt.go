@@ -53,7 +53,7 @@ func (s SeriesBoolMemOpt) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesBoolMemOpt) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.BoolType, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.BoolType, Card: s.Len()}
 }
 
 // Returns if the series is grouped.

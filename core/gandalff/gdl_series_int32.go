@@ -43,7 +43,7 @@ func (s SeriesInt32) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesInt32) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.Int32Type, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.Int32Type, Card: s.Len()}
 }
 
 // Returns if the series is grouped.

@@ -42,7 +42,7 @@ func (s SeriesFloat64) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesFloat64) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.Float64Type, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.Float64Type, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
