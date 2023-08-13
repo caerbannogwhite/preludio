@@ -1029,7 +1029,7 @@ func (s SeriesInt64) Group() Series {
 			}
 
 			for i := up; i < end; i++ {
-				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				map_[s.data[i]] = append(map_[s.data[i]], i)
 			}
 		}
 
