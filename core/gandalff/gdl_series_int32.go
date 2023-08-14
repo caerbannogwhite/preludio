@@ -826,6 +826,25 @@ func (gp *SeriesInt32Partition) getSize() int {
 	return len(gp.partition)
 }
 
+func (gp *SeriesInt32Partition) getMap() map[int64][]int {
+	if gp.isDense {
+		map_ := make(map[int64][]int, len(gp.partitionDense))
+		for i, part := range gp.partitionDense {
+			map_[int64(i)+int64(gp.partitionDenseMin)] = part
+		}
+
+		// Merge the nulls to the map
+		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
+			nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
+			map_[nullKey] = gp.partitionDenseNulls
+		}
+
+		return map_
+	}
+
+	return gp.partition
+}
+
 func (gp SeriesInt32Partition) beginSorting() SeriesInt32Partition {
 	gp.indexToGroup = make([]int64, gp.seriesSize)
 	if gp.isDense {
@@ -907,25 +926,6 @@ func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
 
 	gp.indexToGroup = nil
 	return gp
-}
-
-func (gp *SeriesInt32Partition) getMap() map[int64][]int {
-	if gp.isDense {
-		map_ := make(map[int64][]int, len(gp.partitionDense))
-		for i, part := range gp.partitionDense {
-			map_[int64(i)+int64(gp.partitionDenseMin)] = part
-		}
-
-		// Merge the nulls to the map
-		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
-			nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
-			map_[nullKey] = gp.partitionDenseNulls
-		}
-
-		return map_
-	}
-
-	return gp.partition
 }
 
 func (s SeriesInt32) Group() Series {
@@ -1092,6 +1092,12 @@ func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
 	s.isGrouped = true
 	s.partition = &newPartition
 
+	return s
+}
+
+func (s SeriesInt32) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
 	return s
 }
 

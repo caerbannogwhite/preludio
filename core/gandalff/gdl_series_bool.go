@@ -871,6 +871,12 @@ func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
 	return s
 }
 
+func (s SeriesBool) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
+}
+
 func (s SeriesBool) GetPartition() SeriesPartition {
 	return s.partition
 }

@@ -96,6 +96,7 @@ type Series interface {
 	// Group the elements in the series.
 	Group() Series
 	SubGroup(gp SeriesPartition) Series
+	UnGroup() Series
 
 	// Get the partition of the series.
 	GetPartition() SeriesPartition

@@ -1022,6 +1022,12 @@ func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
 		}}
 }
 
+func (s SeriesBoolMemOpt) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
+}
+
 func (s SeriesBoolMemOpt) GetPartition() SeriesPartition {
 	return s.partition
 }

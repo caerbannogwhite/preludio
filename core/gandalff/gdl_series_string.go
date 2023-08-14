@@ -1084,6 +1084,12 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	return s
 }
 
+func (s SeriesString) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
+}
+
 func (s SeriesString) GetPartition() SeriesPartition {
 	return s.partition
 }

@@ -762,6 +762,10 @@ func (gp *SeriesFloat64Partition) getSize() int {
 	return len(gp.partition)
 }
 
+func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
+	return gp.partition
+}
+
 func (gp SeriesFloat64Partition) beginSorting() SeriesFloat64Partition {
 	gp.indexToGroup = make([]int, gp.seriesSize)
 	for i, part := range gp.partition {
@@ -791,10 +795,6 @@ func (gp SeriesFloat64Partition) endSorting() SeriesFloat64Partition {
 
 	gp.indexToGroup = nil
 	return gp
-}
-
-func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
-	return gp.partition
 }
 
 func (s SeriesFloat64) Group() Series {
@@ -876,6 +876,12 @@ func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
 	s.isGrouped = true
 	s.partition = &newPartition
 
+	return s
+}
+
+func (s SeriesFloat64) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
 	return s
 }
 

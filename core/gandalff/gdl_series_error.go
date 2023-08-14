@@ -179,6 +179,10 @@ func (s SeriesError) SubGroup(gp SeriesPartition) Series {
 	return nil
 }
 
+func (s SeriesError) UnGroup() Series {
+	return s
+}
+
 func (s SeriesError) GetPartition() SeriesPartition {
 	return nil
 }
