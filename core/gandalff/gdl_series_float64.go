@@ -754,6 +754,7 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesFloat64Partition struct {
 	seriesSize   int
+	seriesList   []Series
 	partition    map[int64][]int
 	indexToGroup []int
 }
@@ -764,6 +765,10 @@ func (gp *SeriesFloat64Partition) getSize() int {
 
 func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
 	return gp.partition
+}
+
+func (gp *SeriesFloat64Partition) getSeriesList() []Series {
+	return gp.seriesList
 }
 
 func (gp SeriesFloat64Partition) beginSorting() SeriesFloat64Partition {

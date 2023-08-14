@@ -814,6 +814,7 @@ func (s SeriesInt64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesInt64Partition struct {
 	seriesSize          int
+	seriesList          []Series
 	partition           map[int64][]int
 	indexToGroup        []int64
 	isDense             bool
@@ -849,6 +850,10 @@ func (gp *SeriesInt64Partition) getMap() map[int64][]int {
 	}
 
 	return gp.partition
+}
+
+func (gp *SeriesInt64Partition) getSeriesList() []Series {
+	return gp.seriesList
 }
 
 func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
@@ -1042,6 +1047,10 @@ func (s SeriesInt64) Group() Series {
 		}
 	}
 
+	seriesList := make([]Series, 1)
+	seriesList[0] = &s
+	partition.seriesList = seriesList
+
 	s.isGrouped = true
 	s.partition = &partition
 
@@ -1090,6 +1099,7 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 
 	newPartition := SeriesInt64Partition{
 		seriesSize: s.Len(),
+		seriesList: append(partition.getSeriesList(), &s),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
 			worker, workerNulls),

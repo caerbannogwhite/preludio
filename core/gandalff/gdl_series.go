@@ -146,6 +146,8 @@ type SeriesPartition interface {
 	// Returns the indices of the groups.
 	getMap() map[int64][]int
 
+	getSeriesList() []Series
+
 	// Returns the indices for a given value. The value must be of the same type as the series.
 	// If val is nil then the indices of the null values are returned.
 	// GetValueIndices(val any) []int

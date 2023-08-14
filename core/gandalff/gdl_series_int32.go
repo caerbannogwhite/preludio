@@ -808,6 +808,7 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 type SeriesInt32Partition struct {
 	seriesSize          int
+	seriesList          []Series
 	partition           map[int64][]int
 	indexToGroup        []int64
 	isDense             bool
@@ -843,6 +844,10 @@ func (gp *SeriesInt32Partition) getMap() map[int64][]int {
 	}
 
 	return gp.partition
+}
+
+func (gp *SeriesInt32Partition) getSeriesList() []Series {
+	return gp.seriesList
 }
 
 func (gp SeriesInt32Partition) beginSorting() SeriesInt32Partition {

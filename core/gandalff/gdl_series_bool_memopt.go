@@ -964,9 +964,10 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolMemOptPartition struct {
-	series    *SeriesBoolMemOpt
-	partition map[int64][]int
-	nulls     []int
+	series     *SeriesBoolMemOpt
+	seriesList []Series
+	partition  map[int64][]int
+	nulls      []int
 }
 
 func (gp *SeriesBoolMemOptPartition) getSize() int {
@@ -975,6 +976,10 @@ func (gp *SeriesBoolMemOptPartition) getSize() int {
 
 func (gp *SeriesBoolMemOptPartition) getMap() map[int64][]int {
 	return gp.partition
+}
+
+func (gp *SeriesBoolMemOptPartition) getSeriesList() []Series {
+	return gp.seriesList
 }
 
 func (s SeriesBoolMemOpt) Group() Series {
