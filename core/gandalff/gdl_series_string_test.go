@@ -600,7 +600,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	// Test 1
 	s1 := NewSeriesString("s1", true, data1, pool).
 		SetNullMask(data1Mask).
-		Group()
+		group()
 
 	p1 := s1.GetPartition().getMap()
 	if len(p1) != 2 {
@@ -618,7 +618,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	// Test 2
 	s2 := NewSeriesString("s2", true, data2, pool).
 		SetNullMask(data2Mask).
-		SubGroup(s1.GetPartition())
+		GroupBy(s1.GetPartition())
 
 	p2 := s2.GetPartition().getMap()
 	if len(p2) != 6 {
@@ -640,7 +640,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	// Test 3
 	s3 := NewSeriesString("test", true, data3, pool).
 		SetNullMask(data3Mask).
-		SubGroup(s2.GetPartition())
+		GroupBy(s2.GetPartition())
 
 	p3 := s3.GetPartition().getMap()
 	if len(p3) != 8 {

@@ -764,7 +764,6 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
-	seriesSize int
 	seriesList []Series
 	partition  map[int64][]int
 }
@@ -781,7 +780,7 @@ func (gp *SeriesBoolPartition) getSeriesList() []Series {
 	return gp.seriesList
 }
 
-func (s SeriesBool) Group() Series {
+func (s SeriesBool) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
@@ -809,7 +808,6 @@ func (s SeriesBool) Group() Series {
 	}
 
 	partition := SeriesBoolPartition{
-		seriesSize: s.Len(),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, s.Len(), s.HasNull(),
 			worker, workerNulls),
@@ -821,7 +819,7 @@ func (s SeriesBool) Group() Series {
 	return s
 }
 
-func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
+func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -864,7 +862,6 @@ func (s SeriesBool) SubGroup(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesBoolPartition{
-		seriesSize: s.Len(),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),

@@ -753,7 +753,6 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesFloat64Partition struct {
-	seriesSize   int
 	seriesList   []Series
 	partition    map[int64][]int
 	indexToGroup []int
@@ -771,38 +770,7 @@ func (gp *SeriesFloat64Partition) getSeriesList() []Series {
 	return gp.seriesList
 }
 
-func (gp SeriesFloat64Partition) beginSorting() SeriesFloat64Partition {
-	gp.indexToGroup = make([]int, gp.seriesSize)
-	for i, part := range gp.partition {
-		for _, idx := range part {
-			gp.indexToGroup[idx] = int(i)
-		}
-	}
-
-	return gp
-}
-
-func (gp SeriesFloat64Partition) endSorting() SeriesFloat64Partition {
-	// newPartition := make(map[int64][]int, len(gp.partition))
-	// newNullGroup := make([]int, len(gp.nulls))
-
-	// for i, part := range gp.partition {
-	// 	newPartition[i] = make([]int, 0, len(part))
-	// }
-
-	// for i, g := range gp.indexToGroup {
-	// 	if g < len(gp.partition) {
-	// 		newPartition[int64(g)] = append(newPartition[int64(g)], i)
-	// 	} else {
-	// 		newNullGroup[g-len(gp.partition)] = append(newNullGroup[g-len(gp.partition)], i)
-	// 	}
-	// }
-
-	gp.indexToGroup = nil
-	return gp
-}
-
-func (s SeriesFloat64) Group() Series {
+func (s SeriesFloat64) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
@@ -823,7 +791,6 @@ func (s SeriesFloat64) Group() Series {
 	}
 
 	partition := SeriesFloat64Partition{
-		seriesSize: s.Len(),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
 			worker, workerNulls),
@@ -835,7 +802,7 @@ func (s SeriesFloat64) Group() Series {
 	return s
 }
 
-func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
+func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -872,7 +839,6 @@ func (s SeriesFloat64) SubGroup(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesFloat64Partition{
-		seriesSize: s.Len(),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),

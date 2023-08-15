@@ -964,7 +964,6 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolMemOptPartition struct {
-	series     *SeriesBoolMemOpt
 	seriesList []Series
 	partition  map[int64][]int
 	nulls      []int
@@ -982,7 +981,7 @@ func (gp *SeriesBoolMemOptPartition) getSeriesList() []Series {
 	return gp.seriesList
 }
 
-func (s SeriesBoolMemOpt) Group() Series {
+func (s SeriesBoolMemOpt) group() Series {
 	map_ := make(map[int64][]int)
 	for index := 0; index < s.size; index++ {
 		map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))] = append(map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))], index)
@@ -996,13 +995,12 @@ func (s SeriesBoolMemOpt) Group() Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{
-			series:    &s,
 			partition: map_,
 			nulls:     nil,
 		}}
 }
 
-func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
+func (s SeriesBoolMemOpt) GroupBy(partition SeriesPartition) Series {
 	newMap := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 	var newHash int64
@@ -1021,7 +1019,6 @@ func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{
-			series:    &s,
 			partition: newMap,
 			nulls:     nil,
 		}}

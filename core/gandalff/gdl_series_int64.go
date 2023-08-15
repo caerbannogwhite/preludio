@@ -246,11 +246,12 @@ func (s SeriesInt64) Take(params ...int) Series {
 
 func (s SeriesInt64) Less(i, j int) bool {
 	if s.isGrouped {
-		if s.partition.indexToGroup[i] != s.partition.indexToGroup[j] {
-			return s.partition.indexToGroup[i] < s.partition.indexToGroup[j]
+		for _, s := range s.partition.getSeriesList() {
+			if s.Less(i, j) {
+				return true
+			}
 		}
-		return s.data[i] < s.data[j]
-	} else
+	}
 
 	// if s is grouped the null element are is the same group
 	// so there is no need to check if the element is null
@@ -268,7 +269,10 @@ func (s SeriesInt64) Less(i, j int) bool {
 
 func (s SeriesInt64) Swap(i, j int) {
 	if s.isGrouped {
-		s.partition.indexToGroup[i], s.partition.indexToGroup[j] = s.partition.indexToGroup[j], s.partition.indexToGroup[i]
+		for _, s := range s.partition.getSeriesList() {
+			s.Swap(i, j)
+		}
+		return
 	}
 
 	if s.isNullable {
@@ -813,10 +817,8 @@ func (s SeriesInt64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt64Partition struct {
-	seriesSize          int
 	seriesList          []Series
 	partition           map[int64][]int
-	indexToGroup        []int64
 	isDense             bool
 	partitionDenseMin   int64
 	partitionDense      [][]int
@@ -856,90 +858,7 @@ func (gp *SeriesInt64Partition) getSeriesList() []Series {
 	return gp.seriesList
 }
 
-func (gp SeriesInt64Partition) beginSorting() SeriesInt64Partition {
-	gp.indexToGroup = make([]int64, gp.seriesSize)
-	if gp.isDense {
-		for i, part := range gp.partitionDense {
-			for _, idx := range part {
-				gp.indexToGroup[idx] = int64(i)
-			}
-		}
-
-		// put nulls at the end
-		for _, idx := range gp.partitionDenseNulls {
-			gp.indexToGroup[idx] = int64(len(gp.partitionDense))
-		}
-	} else {
-		// if gp.hasNulls {
-		// 	nulls := gp.partition[gp.nullKey]
-		// 	delete(gp.partition, gp.nullKey)
-
-		// 	for i, part := range gp.partition {
-		// 		for _, idx := range part {
-		// 			gp.indexToGroup[idx] = i
-		// 		}
-		// 	}
-
-		// 	// put nulls at the end
-		// 	for _, idx := range nulls {
-		// 		gp.indexToGroup[idx] = int64(len(gp.partition))
-		// 	}
-		// } else {
-		for i, part := range gp.partition {
-			for _, idx := range part {
-				gp.indexToGroup[idx] = i
-			}
-		}
-		// }
-	}
-
-	return gp
-}
-
-func (gp SeriesInt64Partition) endSorting() SeriesInt64Partition {
-	if gp.isDense {
-		newPartitionDense := make([][]int, len(gp.partitionDense))
-		newPartitionDenseNulls := make([]int, len(gp.partitionDenseNulls))
-
-		for _, part := range gp.partitionDense {
-			newPartitionDense[gp.indexToGroup[part[0]]] = make([]int, len(part))
-		}
-
-		if len(gp.partitionDenseNulls) > 0 {
-			for i, idx := range gp.indexToGroup {
-				if idx == int64(len(gp.partitionDense)) {
-					newPartitionDenseNulls = append(newPartitionDenseNulls, i)
-				} else {
-					newPartitionDense[idx] = append(newPartitionDense[idx], i)
-				}
-			}
-		} else {
-			for i, idx := range gp.indexToGroup {
-				newPartitionDense[idx] = append(newPartitionDense[idx], i)
-			}
-		}
-
-		gp.partitionDense = newPartitionDense
-		gp.partitionDenseNulls = newPartitionDenseNulls
-	} else {
-		newPartition := make(map[int64][]int, len(gp.partition))
-
-		for _, part := range gp.partition {
-			newPartition[int64(gp.indexToGroup[part[0]])] = make([]int, len(part))
-		}
-
-		for i, idx := range gp.indexToGroup {
-			newPartition[int64(idx)] = append(newPartition[int64(idx)], i)
-		}
-
-		gp.partition = newPartition
-	}
-
-	gp.indexToGroup = nil
-	return gp
-}
-
-func (s SeriesInt64) Group() Series {
+func (s SeriesInt64) group() Series {
 	var useDenseMap bool
 	var min, max int64
 	var partition SeriesInt64Partition
@@ -990,7 +909,7 @@ func (s SeriesInt64) Group() Series {
 		}
 
 		partition = SeriesInt64Partition{
-			seriesSize:          s.Len(),
+			seriesList:          []Series{},
 			isDense:             true,
 			partitionDenseMin:   min,
 			partitionDense:      map_,
@@ -1040,16 +959,12 @@ func (s SeriesInt64) Group() Series {
 
 		partition = SeriesInt64Partition{
 			isDense:    false,
-			seriesSize: s.Len(),
+			seriesList: []Series{},
 			partition: __series_groupby(
 				THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
 				worker, workerNulls),
 		}
 	}
-
-	seriesList := make([]Series, 1)
-	seriesList[0] = &s
-	partition.seriesList = seriesList
 
 	s.isGrouped = true
 	s.partition = &partition
@@ -1057,7 +972,7 @@ func (s SeriesInt64) Group() Series {
 	return s
 }
 
-func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
+func (s SeriesInt64) GroupBy(partition SeriesPartition) Series {
 	if partition == nil {
 		return s
 	}
@@ -1098,7 +1013,6 @@ func (s SeriesInt64) SubGroup(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesInt64Partition{
-		seriesSize: s.Len(),
 		seriesList: append(partition.getSeriesList(), &s),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
@@ -1125,13 +1039,7 @@ func (s SeriesInt64) GetPartition() SeriesPartition {
 
 func (s SeriesInt64) Sort() Series {
 	if s.sorted != SORTED_ASC {
-		if s.isGrouped {
-			*s.partition = (*s.partition).beginSorting()
-			sort.Sort(s)
-			*s.partition = (*s.partition).endSorting()
-		} else {
-			sort.Sort(s)
-		}
+		sort.Sort(s)
 		s.sorted = SORTED_ASC
 	}
 	return s
@@ -1139,13 +1047,7 @@ func (s SeriesInt64) Sort() Series {
 
 func (s SeriesInt64) SortRev() Series {
 	if s.sorted != SORTED_DESC {
-		if s.isGrouped {
-			*s.partition = (*s.partition).beginSorting()
-			sort.Sort(sort.Reverse(s))
-			*s.partition = (*s.partition).endSorting()
-		} else {
-			sort.Sort(sort.Reverse(s))
-		}
+		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC
 	}
 	return s

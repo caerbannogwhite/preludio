@@ -979,7 +979,6 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesStringPartition struct {
-	seriesSize int
 	seriesList []Series
 	partition  map[int64][]int
 	pool       *StringPool
@@ -997,7 +996,7 @@ func (gp *SeriesStringPartition) getSeriesList() []Series {
 	return gp.seriesList
 }
 
-func (s SeriesString) Group() Series {
+func (s SeriesString) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
@@ -1022,8 +1021,7 @@ func (s SeriesString) Group() Series {
 	}
 
 	partition := SeriesStringPartition{
-		seriesSize: s.Len(),
-		pool:       s.pool,
+		pool: s.pool,
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(s.data), s.HasNull(),
 			worker, workerNulls),
@@ -1035,7 +1033,7 @@ func (s SeriesString) Group() Series {
 	return s
 }
 
-func (s SeriesString) SubGroup(partition SeriesPartition) Series {
+func (s SeriesString) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -1076,8 +1074,7 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesStringPartition{
-		seriesSize: s.Len(),
-		pool:       s.pool,
+		pool: s.pool,
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),

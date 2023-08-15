@@ -721,113 +721,6 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 	}
 }
 
-func Test_SeriesInt64_GroupedSort(t *testing.T) {
-	data := []int64{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
-	// mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
-
-	partData := []int64{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
-	p := NewSeriesInt64("part", true, true, partData).Group()
-
-	// Create a new series.
-	s := NewSeriesInt64("test", true, true, data).
-		SubGroup(p.GetPartition()).
-		Sort()
-
-	// Check the length.
-	if s.Len() != 15 {
-		t.Errorf("Expected length of 15, got %d", s.Len())
-	}
-
-	// Check the data.
-	result := []int64{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
-	for i, v := range s.Data().([]int64) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////
-
-	// s = NewSeriesInt64("test", true, true, data).
-	// 	SetNullMask(mask).
-	// 	SubGroup(p.GetPartition()).
-	// 	Sort()
-
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
-
-	// // Check the data.
-	// result = []int64{6, 7, 8, 10, 1, 2, 3, 5, 11, 12, 13, 15, 9, 4, 14}
-	// for i, v := range s.Data().([]int64) {
-	// 	if i < 14 && v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
-
-	// // Check the null mask.
-	// for i, v := range s.GetNullMask() {
-	// 	if i < 12 && v != false {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-	// 	} else if i >= 12 && v != true {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-	// 	}
-	// }
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// 								Reverse sort.
-
-	dataRev := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
-
-	s = NewSeriesInt64("test", true, true, dataRev).
-		SubGroup(p.GetPartition()).
-		SortRev()
-
-	// Check the length.
-	if s.Len() != 15 {
-		t.Errorf("Expected length of 15, got %d", s.Len())
-	}
-
-	// Check the data.
-	result = []int64{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
-	for i, v := range s.Data().([]int64) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
-	}
-
-	///////////////////////////////////////////////////////////////////////////////////
-
-	// s = NewSeriesInt64("test", true, true, dataRev).
-	// 	SetNullMask(maskRev).
-	// 	SubGroup(p.GetPartition()).
-	// 	SortRev()
-
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
-
-	// // Check the data.
-	// result = []int64{5, 4, 3, 1, 10, 9, 8, 6, 15, 14, 13, 11, 2, 7, 12}
-	// for i, v := range s.Data().([]int64) {
-	// 	if i < 14 && v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
-
-	// // Check the null mask.
-	// for i, v := range s.GetNullMask() {
-	// 	if i < 12 && v != false {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-	// 	} else if i >= 12 && v != true {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-	// 	}
-	// }
-}
-
 func Test_SeriesInt64_Group(t *testing.T) {
 	var partMap map[int64][]int
 
@@ -841,7 +734,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	// Test 1
 	s1 := NewSeriesInt64("s1", true, true, data1).
 		SetNullMask(data1Mask).
-		Group()
+		group()
 
 	p1 := s1.GetPartition().getMap()
 	if len(p1) != 2 {
@@ -859,7 +752,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	// Test 2
 	s2 := NewSeriesInt64("s2", true, true, data2).
 		SetNullMask(data2Mask).
-		SubGroup(s1.GetPartition())
+		GroupBy(s1.GetPartition())
 
 	p2 := s2.GetPartition().getMap()
 	if len(p2) != 6 {
@@ -881,7 +774,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	// Test 3
 	s3 := NewSeriesInt64("test", true, true, data3).
 		SetNullMask(data3Mask).
-		SubGroup(s2.GetPartition())
+		GroupBy(s2.GetPartition())
 
 	p3 := s3.GetPartition().getMap()
 	if len(p3) != 8 {

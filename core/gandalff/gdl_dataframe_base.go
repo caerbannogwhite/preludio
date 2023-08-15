@@ -372,7 +372,7 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 				df.partitions[partitionsIndex] = BaseDataFramePartitionEntry{
 					index:     i,
 					name:      name,
-					partition: series.Group().GetPartition(),
+					partition: series.group().GetPartition(),
 				}
 			} else
 
@@ -381,7 +381,7 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 				df.partitions[partitionsIndex] = BaseDataFramePartitionEntry{
 					index:     i,
 					name:      name,
-					partition: series.SubGroup(df.partitions[partitionsIndex-1].partition).GetPartition(),
+					partition: series.GroupBy(df.partitions[partitionsIndex-1].partition).GetPartition(),
 				}
 			}
 		}

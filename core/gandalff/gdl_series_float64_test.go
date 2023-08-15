@@ -590,7 +590,7 @@ func Test_SeriesFloat64_Group(t *testing.T) {
 	// Test 1
 	s1 := NewSeriesFloat64("s1", true, true, data1).
 		SetNullMask(data1Mask).
-		Group()
+		group()
 
 	p1 := s1.GetPartition().getMap()
 	if len(p1) != 2 {
@@ -608,7 +608,7 @@ func Test_SeriesFloat64_Group(t *testing.T) {
 	// Test 2
 	s2 := NewSeriesFloat64("s2", true, true, data2).
 		SetNullMask(data2Mask).
-		SubGroup(s1.GetPartition())
+		GroupBy(s1.GetPartition())
 
 	p2 := s2.GetPartition().getMap()
 	if len(p2) != 6 {
@@ -630,7 +630,7 @@ func Test_SeriesFloat64_Group(t *testing.T) {
 	// Test 3
 	s3 := NewSeriesFloat64("test", true, true, data3).
 		SetNullMask(data3Mask).
-		SubGroup(s2.GetPartition())
+		GroupBy(s2.GetPartition())
 
 	p3 := s3.GetPartition().getMap()
 	if len(p3) != 8 {

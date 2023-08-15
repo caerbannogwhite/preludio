@@ -711,7 +711,7 @@ func Test_SeriesBool_Group(t *testing.T) {
 	// Test 1
 	s1 := NewSeriesBool("s1", true, true, data1).
 		SetNullMask(data1Mask).
-		Group()
+		group()
 
 	p1 := s1.GetPartition().getMap()
 	if len(p1) != 2 {
@@ -729,7 +729,7 @@ func Test_SeriesBool_Group(t *testing.T) {
 	// Test 2
 	s2 := NewSeriesBool("s2", true, true, data2).
 		SetNullMask(data2Mask).
-		SubGroup(s1.GetPartition())
+		GroupBy(s1.GetPartition())
 
 	p2 := s2.GetPartition().getMap()
 	if len(p2) != 6 {
@@ -751,7 +751,7 @@ func Test_SeriesBool_Group(t *testing.T) {
 	// Test 3
 	s3 := NewSeriesBool("test", true, true, data3).
 		SetNullMask(data3Mask).
-		SubGroup(s2.GetPartition())
+		GroupBy(s2.GetPartition())
 
 	p3 := s3.GetPartition().getMap()
 	if len(p3) != 7 {

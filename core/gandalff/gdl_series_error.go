@@ -171,11 +171,11 @@ func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
 }
 
 // Group the elements in the series.
-func (s SeriesError) Group() Series {
+func (s SeriesError) group() Series {
 	return nil
 }
 
-func (s SeriesError) SubGroup(gp SeriesPartition) Series {
+func (s SeriesError) GroupBy(gp SeriesPartition) Series {
 	return nil
 }
 

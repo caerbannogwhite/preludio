@@ -94,8 +94,8 @@ type Series interface {
 	Map(f GDLMapFunc, stringPool *StringPool) Series
 
 	// Group the elements in the series.
-	Group() Series
-	SubGroup(gp SeriesPartition) Series
+	group() Series
+	GroupBy(gp SeriesPartition) Series
 	UnGroup() Series
 
 	// Get the partition of the series.
@@ -147,11 +147,4 @@ type SeriesPartition interface {
 	getMap() map[int64][]int
 
 	getSeriesList() []Series
-
-	// Returns the indices for a given value. The value must be of the same type as the series.
-	// If val is nil then the indices of the null values are returned.
-	// GetValueIndices(val any) []int
-
-	// Returns  the keys of the groups.
-	// GetKeys() any
 }
