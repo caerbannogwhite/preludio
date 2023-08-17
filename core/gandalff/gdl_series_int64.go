@@ -245,16 +245,6 @@ func (s SeriesInt64) Take(params ...int) Series {
 }
 
 func (s SeriesInt64) Less(i, j int) bool {
-	if s.isGrouped {
-		for _, s := range s.partition.getSeriesList() {
-			if s.Less(i, j) {
-				return true
-			}
-		}
-	}
-
-	// if s is grouped the null element are is the same group
-	// so there is no need to check if the element is null
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -268,13 +258,6 @@ func (s SeriesInt64) Less(i, j int) bool {
 }
 
 func (s SeriesInt64) Swap(i, j int) {
-	if s.isGrouped {
-		for _, s := range s.partition.getSeriesList() {
-			s.Swap(i, j)
-		}
-		return
-	}
-
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -817,7 +800,6 @@ func (s SeriesInt64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt64Partition struct {
-	seriesList          []Series
 	partition           map[int64][]int
 	isDense             bool
 	partitionDenseMin   int64
@@ -852,10 +834,6 @@ func (gp *SeriesInt64Partition) getMap() map[int64][]int {
 	}
 
 	return gp.partition
-}
-
-func (gp *SeriesInt64Partition) getSeriesList() []Series {
-	return gp.seriesList
 }
 
 func (s SeriesInt64) group() Series {
@@ -909,7 +887,6 @@ func (s SeriesInt64) group() Series {
 		}
 
 		partition = SeriesInt64Partition{
-			seriesList:          []Series{},
 			isDense:             true,
 			partitionDenseMin:   min,
 			partitionDense:      map_,
@@ -958,8 +935,7 @@ func (s SeriesInt64) group() Series {
 		}
 
 		partition = SeriesInt64Partition{
-			isDense:    false,
-			seriesList: []Series{},
+			isDense: false,
 			partition: __series_groupby(
 				THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
 				worker, workerNulls),
@@ -1013,7 +989,6 @@ func (s SeriesInt64) GroupBy(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesInt64Partition{
-		seriesList: append(partition.getSeriesList(), &s),
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
 			worker, workerNulls),

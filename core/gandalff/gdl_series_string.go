@@ -979,9 +979,8 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesStringPartition struct {
-	seriesList []Series
-	partition  map[int64][]int
-	pool       *StringPool
+	partition map[int64][]int
+	pool      *StringPool
 }
 
 func (gp *SeriesStringPartition) getSize() int {
@@ -990,10 +989,6 @@ func (gp *SeriesStringPartition) getSize() int {
 
 func (gp *SeriesStringPartition) getMap() map[int64][]int {
 	return gp.partition
-}
-
-func (gp *SeriesStringPartition) getSeriesList() []Series {
-	return gp.seriesList
 }
 
 func (s SeriesString) group() Series {

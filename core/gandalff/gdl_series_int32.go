@@ -236,13 +236,6 @@ func (s SeriesInt32) Take(params ...int) Series {
 }
 
 func (s SeriesInt32) Less(i, j int) bool {
-	if s.isGrouped {
-
-		return s.data[i] < s.data[j]
-	} else
-
-	// if s is grouped the null element are is the same group
-	// so there is no need to check if the element is null
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -256,10 +249,6 @@ func (s SeriesInt32) Less(i, j int) bool {
 }
 
 func (s SeriesInt32) Swap(i, j int) {
-	if s.isGrouped {
-
-	}
-
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -805,7 +794,6 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
-	seriesList          []Series
 	partition           map[int64][]int
 	isDense             bool
 	partitionDenseMin   int32
@@ -840,10 +828,6 @@ func (gp *SeriesInt32Partition) getMap() map[int64][]int {
 	}
 
 	return gp.partition
-}
-
-func (gp *SeriesInt32Partition) getSeriesList() []Series {
-	return gp.seriesList
 }
 
 func (s SeriesInt32) group() Series {

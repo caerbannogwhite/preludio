@@ -753,7 +753,6 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesFloat64Partition struct {
-	seriesList   []Series
 	partition    map[int64][]int
 	indexToGroup []int
 }
@@ -764,10 +763,6 @@ func (gp *SeriesFloat64Partition) getSize() int {
 
 func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
 	return gp.partition
-}
-
-func (gp *SeriesFloat64Partition) getSeriesList() []Series {
-	return gp.seriesList
 }
 
 func (s SeriesFloat64) group() Series {

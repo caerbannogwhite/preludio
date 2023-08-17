@@ -145,6 +145,4 @@ type SeriesPartition interface {
 
 	// Returns the indices of the groups.
 	getMap() map[int64][]int
-
-	getSeriesList() []Series
 }
