@@ -731,3 +731,54 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Full Join")
 	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Full Join")
 }
+
+func Test_BaseDataFrame_Sort(t *testing.T) {
+	df := NewBaseDataFrame().
+		AddSeriesFromInt64("A", false, false, []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}).
+		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
+		AddSeriesFromFloat64("C", false, false, []float64{4.1, 4.1, 4.1, 3.1, 1.1, 1.1, 3.1, 2.1, 2.1, 6.1})
+
+	df.PrettyPrint(10)
+
+	res := df.Sort(Desc("A"), Asc("B"))
+
+	res.PrettyPrint(10)
+
+	// if res.GetError() != nil {
+	// 	t.Error(res.GetError())
+	// }
+
+	// if res.NRows() != 7 {
+	// 	t.Errorf("Expected 7 rows, got %d", res.NRows())
+	// }
+
+	// if res.NCols() != 2 {
+	// 	t.Errorf("Expected 2 cols, got %d", res.NCols())
+	// }
+
+	// resAexp := []int64{1, 1, 2, 3, 4, 5, 5}
+	// resBexp := []string{"a", "b", "c", "d", "e", "f", "g"}
+
+	// checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Sort")
+	// checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Sort")
+
+	// res = df.Sort("A", false)
+
+	// if res.GetError() != nil {
+	// 	t.Error(res.GetError())
+	// }
+
+	// if res.NRows() != 7 {
+	// 	t.Errorf("Expected 7 rows, got %d", res.NRows())
+	// }
+
+	// if res.NCols() != 2 {
+	// 	t.Errorf("Expected 2 cols, got %d", res.NCols())
+	// }
+
+	// resAexp = []int64{5, 5, 4, 3, 2, 1, 1}
+	// resBexp = []string{"f", "g", "e", "d", "c", "b", "a"}
+
+	// checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Sort")
+	// checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Sort")
+}

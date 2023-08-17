@@ -77,6 +77,10 @@ type DataFrame interface {
 
 	Agg(...aggregator) DataFrame
 
+	Less(i, j int) bool
+	Swap(i, j int)
+	Sort(params ...sortParam) DataFrame
+
 	// IO
 
 	Describe() string
@@ -226,4 +230,19 @@ func (agg stdAggregator) getAggregateType() AggregateType {
 
 func Std(name string) aggregator {
 	return stdAggregator{name, AGGREGATE_STD}
+}
+
+////////////////////////			SORT
+
+type sortParam struct {
+	name string
+	asc  bool
+}
+
+func Asc(name string) sortParam {
+	return sortParam{name, true}
+}
+
+func Desc(name string) sortParam {
+	return sortParam{name, false}
 }

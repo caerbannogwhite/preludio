@@ -17,6 +17,7 @@ type BaseDataFramePartitionEntry struct {
 type BaseDataFrame struct {
 	isGrouped  bool
 	err        error
+	sortParams []sortParam
 	series     []Series
 	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
@@ -974,6 +975,63 @@ func (df BaseDataFrame) Take(params ...int) DataFrame {
 	}
 
 	return taken
+}
+
+func (df BaseDataFrame) Len() int {
+	if df.err != nil || len(df.series) < 1 {
+		return 0
+	}
+
+	return df.series[0].Len()
+}
+
+func (df BaseDataFrame) Less(i, j int) bool {
+	var series Series
+	for _, p := range df.sortParams {
+		series = df.__series(p.name)
+		if (p.asc && series.Less(i, j)) || (!p.asc && series.Less(j, i)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (df BaseDataFrame) Swap(i, j int) {
+	for _, series := range df.series {
+		series.Swap(i, j)
+	}
+}
+
+func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.Sort: cannot sort grouped DataFrame")
+		return df
+	}
+
+	// CHECK: params must have unique names and names must be valid
+	paramNames := make(map[string]bool)
+	for _, param := range params {
+		if paramNames[param.name] {
+			df.err = fmt.Errorf("BaseDataFrame.Sort: sort param names must be unique")
+			return df
+		}
+		paramNames[param.name] = true
+
+		if df.__series(param.name) == nil {
+			df.err = fmt.Errorf("BaseDataFrame.Sort: series \"%s\" not found", param.name)
+			return df
+		}
+	}
+
+	df.sortParams = params
+	sort.Sort(df)
+
+	return df
 }
 
 ////////////////////////			SUMMARY
