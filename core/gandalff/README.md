@@ -78,22 +78,18 @@ The data types not checked are not yet supported, but might be in the future.
   - [x] FilterByMask
   - [x] FilterByIndex
 
-- [ ] Group
+- [x] Group
 
-  - [x] Group
-  - [x] SubGroup
-  - [ ] Group with nulls
-  - [ ] SubGroup with nulls
+  - [x] Group (with nulls)
+  - [x] SubGroup (with nulls)
 
 - [x] Map
-- [ ] Sort
+- [x] Sort
 
-  - [x] Sort
-  - [ ] SortRev
-  - [ ] Sort with nulls
-  - [ ] SortRev with nulls
+  - [x] Sort (with nulls)
+  - [x] SortRev (with nulls)
 
-- [ ] Take
+- [x] Take
 
 ### Supported operations for DataFrame
 
@@ -114,7 +110,7 @@ The data types not checked are not yet supported, but might be in the future.
 - [ ] Map
 - [ ] OrderBy
 - [x] Select
-- [ ] Take
+- [x] Take
 
 ### Supported stats functions
 
@@ -142,8 +138,13 @@ type Series interface {
 	Len() int
 	// Returns the name of the series.
 	Name() string
+	// Sets the name of the series.
+	SetName(name string) Series
+
 	// Returns the type of the series.
 	Type() typesys.BaseType
+	// Returns the type and cardinality of the series.
+	TypeCard() typesys.BaseTypeCard
 
 	// Returns if the series is grouped.
 	IsGrouped() bool
@@ -182,7 +183,7 @@ type Series interface {
 	// Set the element at index i.
 	Set(i int, v any) Series
 	// Take the elements according to the given interval.
-	Take(start, end, step int) Series
+	Take(params ...int) Series
 
 	// Sort Interface.
 	Less(i, j int) bool
@@ -212,13 +213,15 @@ type Series interface {
 	// Filters out the elements by the given mask.
 	// Mask can be a bool series, a slice of bools or a slice of ints.
 	Filter(mask any) Series
+	filterIntSlice(mask []int) Series
 
 	// Maps the elements of the series.
 	Map(f GDLMapFunc, stringPool *StringPool) Series
 
 	// Group the elements in the series.
-	Group() Series
-	SubGroup(gp SeriesPartition) Series
+	group() Series
+	GroupBy(gp SeriesPartition) Series
+	UnGroup() Series
 
 	// Get the partition of the series.
 	GetPartition() SeriesPartition
