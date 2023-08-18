@@ -679,9 +679,8 @@ func Test_SeriesInt32_Map(t *testing.T) {
 }
 
 func Test_SeriesInt32_Sort(t *testing.T) {
-
-	data := []int32{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
-	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
+	data := []int32{79, -40, -98, 48, -87, -42, 10, 82, 32, -41}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
 	s := NewSeriesInt32("test", true, true, data)
@@ -689,50 +688,29 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 	// Sort the series.
 	sorted := s.Sort()
 
-	// Check the length.
-	if sorted.Len() != 23 {
-		t.Errorf("Expected length of 23, got %d", sorted.Len())
-	}
-
 	// Check the data.
-	result := []int32{-173, -28, 2, 2, 3, 4, 4, 9, 9, 12, 31, 42, 42, 42, 48, 79, 323, 323, 425, 492, 674, 9811, 47005}
-	for i, v := range sorted.Data().([]int32) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	expected := []int32{-98, -87, -42, -41, -40, 10, 32, 48, 79, 82}
+	if !checkEqSliceInt32(sorted.Data().([]int32), expected, nil, "Test_SeriesInt64_Sort") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int32))
 	}
-
-	/////////////////////////////////////////////////////////////////////////////////////
 
 	// Create a new series.
-	s = NewSeriesInt32("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s = NewSeriesInt32("test", true, true, data).
+		SetNullMask(mask)
 
 	// Sort the series.
 	sorted = s.Sort()
 
-	// Check the length.
-	if sorted.Len() != 23 {
-		t.Errorf("Expected length of 23, got %d", sorted.Len())
-	}
-
 	// Check the data.
-	result = []int32{-28, 2, 2, 3, 4, 4, 9, 9, 42, 48, 79, 323, 323, 425, 492, 47005, 42, 674, 9811, 12, -173, 42, 31}
-	for i, v := range sorted.Data().([]int32) {
-		if i < 16 && v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	expected = []int32{-98, -87, 10, 32, 79, -40, 48, -42, 82, -41}
+	if !checkEqSliceInt32(sorted.Data().([]int32), expected, nil, "Test_SeriesInt32_Sort") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int32))
 	}
 
 	// Check the null mask.
-	for i, v := range sorted.GetNullMask() {
-		if i < 16 && v != false {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-		} else if i >= 16 && v != true {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-		}
+	expectedMask := []bool{false, false, false, false, false, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesInt32_Sort") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
 	}
 }
 
