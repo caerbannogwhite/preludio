@@ -279,6 +279,7 @@ func (s SeriesString) Swap(i, j int) {
 			s.nullMask[i>>3] &= ^(1 << uint(i%8))
 		}
 	}
+
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 

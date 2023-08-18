@@ -764,8 +764,7 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolPartition struct {
-	seriesList []Series
-	partition  map[int64][]int
+	partition map[int64][]int
 }
 
 func (gp *SeriesBoolPartition) getSize() int {
@@ -774,10 +773,6 @@ func (gp *SeriesBoolPartition) getSize() int {
 
 func (gp *SeriesBoolPartition) getMap() map[int64][]int {
 	return gp.partition
-}
-
-func (gp *SeriesBoolPartition) getSeriesList() []Series {
-	return gp.seriesList
 }
 
 func (s SeriesBool) group() Series {

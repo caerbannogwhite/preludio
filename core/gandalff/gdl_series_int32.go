@@ -250,16 +250,15 @@ func (s SeriesInt32) Less(i, j int) bool {
 
 func (s SeriesInt32) Swap(i, j int) {
 	if s.isNullable {
-		// i is null, j is not null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else
-
-		// i is not null, j is null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
 			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
 		}
 	}
 
