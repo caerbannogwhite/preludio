@@ -733,52 +733,51 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 }
 
 func Test_BaseDataFrame_Sort(t *testing.T) {
+	var res DataFrame
+
 	df := NewBaseDataFrame().
 		AddSeriesFromInt64("A", false, false, []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}).
 		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
-		AddSeriesFromFloat64("C", false, false, []float64{4.1, 4.1, 4.1, 3.1, 1.1, 1.1, 3.1, 2.1, 2.1, 6.1})
+		AddSeriesFromFloat64("C", false, false, []float64{4.1, 4.1, 4.1, 3.1, 1.1, 1.1, 3.1, 2.1, 2.1, 6.1}).
+		AddSeriesFromBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false})
 
-	df.PrettyPrint(10)
+	res = df.Sort(Asc("A"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 1, 1, 2, 2, 4, 5, 5}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column A asc failed")
+	}
 
-	res := df.Sort(Desc("A"), Asc("B"))
+	res = df.Sort(Desc("A"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{5, 5, 4, 2, 2, 1, 1, 1, 1, 1}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column A desc failed")
+	}
 
-	res.PrettyPrint(10)
+	res = df.Sort(Asc("B"))
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "a", "b", "b", "c", "c", "d", "e", "f", "g"}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column B asc failed")
+	}
 
-	// if res.GetError() != nil {
-	// 	t.Error(res.GetError())
-	// }
+	res = df.Sort(Desc("B"))
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"g", "f", "e", "d", "c", "c", "b", "b", "a", "a"}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column B desc failed")
+	}
 
-	// if res.NRows() != 7 {
-	// 	t.Errorf("Expected 7 rows, got %d", res.NRows())
-	// }
+	res = df.Sort(Asc("C"))
+	if !checkEqSliceFloat64(res.Series("C").(SeriesFloat64).Float64s(), []float64{1.1, 1.1, 2.1, 2.1, 3.1, 3.1, 4.1, 4.1, 4.1, 6.1}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column C asc failed")
+	}
 
-	// if res.NCols() != 2 {
-	// 	t.Errorf("Expected 2 cols, got %d", res.NCols())
-	// }
+	res = df.Sort(Desc("C"))
+	if !checkEqSliceFloat64(res.Series("C").(SeriesFloat64).Float64s(), []float64{6.1, 4.1, 4.1, 4.1, 3.1, 3.1, 2.1, 2.1, 1.1, 1.1}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column C desc failed")
+	}
 
-	// resAexp := []int64{1, 1, 2, 3, 4, 5, 5}
-	// resBexp := []string{"a", "b", "c", "d", "e", "f", "g"}
+	res = df.Sort(Asc("D"))
+	if !checkEqSliceBool(res.Series("D").(SeriesBool).Bools(), []bool{false, false, false, false, true, true, true, true, true, true}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column D asc failed")
+	}
 
-	// checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Sort")
-	// checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Sort")
-
-	// res = df.Sort("A", false)
-
-	// if res.GetError() != nil {
-	// 	t.Error(res.GetError())
-	// }
-
-	// if res.NRows() != 7 {
-	// 	t.Errorf("Expected 7 rows, got %d", res.NRows())
-	// }
-
-	// if res.NCols() != 2 {
-	// 	t.Errorf("Expected 2 cols, got %d", res.NCols())
-	// }
-
-	// resAexp = []int64{5, 5, 4, 3, 2, 1, 1}
-	// resBexp = []string{"f", "g", "e", "d", "c", "b", "a"}
-
-	// checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Sort")
-	// checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Sort")
+	res = df.Sort(Desc("D"))
+	if !checkEqSliceBool(res.Series("D").(SeriesBool).Bools(), []bool{true, true, true, true, true, true, false, false, false, false}, t, "BaseDataFrame Sort") {
+		t.Error("BaseDataFrame Sort, column D desc failed")
+	}
 }
