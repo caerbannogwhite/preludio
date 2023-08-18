@@ -434,8 +434,12 @@ MAIN_LOOP:
 				PreludioFunc_New("new", vm)
 			case "select":
 				PreludioFunc_Select("select", vm)
+			case "groupBy":
+				PreludioFunc_GroupBy("groupBy", vm)
+			case "ungroup":
+				PreludioFunc_Ungroup("ungroup", vm)
 			case "sort":
-				PreludioFunc_Sort("sort", vm)
+				PreludioFunc_SortBy("sort", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
 

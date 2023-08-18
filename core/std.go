@@ -447,8 +447,70 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	}
 }
 
+// Group a Dataframe
+func PreludioFunc_GroupBy(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df gandalff.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df, err = positional[0].getDataframe()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// The first value can be both a symbol or a list of symbols
+	switch v := positional[1].getValue().(type) {
+	case __p_symbol__:
+		vm.stackPush(vm.newPInternTerm(df.GroupBy(string(v))))
+		vm.setCurrentDataFrame()
+
+	case __p_list__:
+		list, err := positional[1].listToStringSlice()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+
+		vm.stackPush(vm.newPInternTerm(df.GroupBy(list...)))
+		vm.setCurrentDataFrame()
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		return
+	}
+}
+
+// Ungroup a Dataframe
+func PreludioFunc_Ungroup(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df gandalff.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df, err = positional[0].getDataframe()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df.Ungroup()))
+	vm.setCurrentDataFrame()
+}
+
 // Sort all the values in the Dataframe
-func PreludioFunc_Sort(funcName string, vm *ByteEater) {
+func PreludioFunc_SortBy(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 }
 
