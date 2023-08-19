@@ -663,42 +663,6 @@ func Test_SeriesInt64_Map(t *testing.T) {
 	}
 }
 
-func Test_SeriesInt64_Sort(t *testing.T) {
-	data := []int64{79, -40, -98, 48, -87, -42, 10, 82, 32, -41}
-	mask := []bool{false, true, false, true, false, true, false, true, false, true}
-
-	// Create a new series.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Sort the series.
-	sorted := s.Sort()
-
-	// Check the data.
-	expected := []int64{-98, -87, -42, -41, -40, 10, 32, 48, 79, 82}
-	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
-		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
-	}
-
-	// Create a new series.
-	s = NewSeriesInt64("test", true, true, data).
-		SetNullMask(mask)
-
-	// Sort the series.
-	sorted = s.Sort()
-
-	// Check the data.
-	expected = []int64{-98, -87, 10, 32, 79, -40, 48, -42, 82, -41}
-	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
-		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
-	}
-
-	// Check the null mask.
-	expectedMask := []bool{false, false, false, false, false, true, true, true, true, true}
-	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesInt64_Sort") {
-		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
-	}
-}
-
 func Test_SeriesInt64_Group(t *testing.T) {
 	var partMap map[int64][]int
 
@@ -776,6 +740,44 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	// debugPrintPartition(s1.GetPartition(), s1)
 	// debugPrintPartition(s2.GetPartition(), s1, s2)
 	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesInt64_Sort(t *testing.T) {
+	data := []int64{79, -40, -98, 48, -87, -42, 10, 82, 32, -41}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true}
+
+	// Create a new series.
+	s := NewSeriesInt64("test", false, true, data)
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the data.
+	expected := []int64{-98, -87, -42, -41, -40, 10, 32, 48, 79, 82}
+	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
+		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
+	}
+
+	// Create a new series.
+	s = NewSeriesInt64("test", true, true, data).
+		SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the data.
+	expected = []int64{-98, -87, 10, 32, 79, -40, 48, -42, 82, -41}
+	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
+		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
+	}
+
+	// Check the null mask.
+	expectedMask := []bool{false, false, false, false, false, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesInt64_Sort") {
+		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
+	}
 }
 
 func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {

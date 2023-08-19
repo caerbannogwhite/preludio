@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -1105,10 +1106,18 @@ func (s SeriesString) Swap(i, j int) {
 }
 
 func (s SeriesString) Sort() Series {
+	if s.sorted != SORTED_ASC {
+		sort.Sort(s)
+		s.sorted = SORTED_ASC
+	}
 	return s
 }
 
 func (s SeriesString) SortRev() Series {
+	if s.sorted != SORTED_DESC {
+		sort.Sort(sort.Reverse(s))
+		s.sorted = SORTED_DESC
+	}
 	return s
 }
 

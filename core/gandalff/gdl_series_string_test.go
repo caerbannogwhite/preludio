@@ -664,6 +664,44 @@ func Test_SeriesString_Group(t *testing.T) {
 	// debugPrintPartition(s1.GetPartition(), s1)
 	// debugPrintPartition(s2.GetPartition(), s1, s2)
 	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesString_Sort(t *testing.T) {
+	data := []string{"w", "w", "d", "y", "b", "e", "a", "e", "e", "b", "l", "u", "a", "g", "w", "u", "{", "x", "t", "h"}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
+
+	// Create a new series.
+	s := NewSeriesString("test", false, data, NewStringPool())
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the data.
+	expected := []string{"a", "a", "b", "b", "d", "e", "e", "e", "g", "h", "l", "t", "u", "u", "w", "w", "w", "x", "y", "{"}
+	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "Test_SeriesInt64_Sort") {
+		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]string))
+	}
+
+	// Create a new series.
+	s = NewSeriesString("test", true, data, NewStringPool()).
+		SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the data.
+	expected = []string{"a", "a", "b", "d", "e", "l", "t", "w", "w", "{", "e", "u", "b", "g", "e", "u", "y", "x", "w", "h"}
+	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "Test_SeriesString_Sort") {
+		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]string))
+	}
+
+	// Check the null mask.
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesString_Sort") {
+		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
+	}
 }
 
 func Test_SeriesString_Arithmetic_Add(t *testing.T) {
