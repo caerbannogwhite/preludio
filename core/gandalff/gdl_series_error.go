@@ -115,13 +115,6 @@ func (s SeriesError) Take(params ...int) Series {
 	return s
 }
 
-// Sort interface.
-func (s SeriesError) Less(i, j int) bool {
-	return false
-}
-
-func (s SeriesError) Swap(i, j int) {}
-
 // Append elements to the series.
 func (s SeriesError) Append(v any) Series {
 	return s
@@ -186,6 +179,17 @@ func (s SeriesError) UnGroup() Series {
 func (s SeriesError) GetPartition() SeriesPartition {
 	return nil
 }
+
+// Sort interface.
+func (s SeriesError) Less(i, j int) bool {
+	return false
+}
+
+func (s SeriesError) equal(i, j int) bool {
+	return false
+}
+
+func (s SeriesError) Swap(i, j int) {}
 
 func (s SeriesError) Sort() Series {
 	return s

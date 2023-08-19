@@ -222,36 +222,6 @@ func (s SeriesBool) Take(params ...int) Series {
 	return s.filterIntSlice(indeces)
 }
 
-func (s SeriesBool) Less(i, j int) bool {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-	return !s.data[i] && s.data[j]
-}
-
-func (s SeriesBool) Swap(i, j int) {
-	if s.isNullable {
-		// i is null, j is not null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else
-
-		// i is not null, j is null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-	}
-
-	s.data[i], s.data[j] = s.data[j], s.data[i]
-}
-
 // Append appends a value or a slice of values to the series.
 func (s SeriesBool) Append(v any) Series {
 	switch v := v.(type) {
@@ -880,6 +850,44 @@ func (s SeriesBool) GetPartition() SeriesPartition {
 }
 
 ////////////////////////			SORTING OPERATIONS
+
+func (s SeriesBool) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return !s.data[i] && s.data[j]
+}
+
+func (s SeriesBool) equal(i, j int) bool {
+	if s.isNullable && (s.nullMask[i>>3]&(1<<uint(i%8))) > 0 && (s.nullMask[j>>3]&(1<<uint(j%8)) > 0) {
+		return true
+	}
+
+	return s.data[i] == s.data[j]
+}
+
+func (s SeriesBool) Swap(i, j int) {
+	if s.isNullable {
+		// i is null, j is not null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else
+
+		// i is not null, j is null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+	}
+
+	s.data[i], s.data[j] = s.data[j], s.data[i]
+}
 
 func (s SeriesBool) Sort() Series {
 	return s

@@ -244,37 +244,6 @@ func (s SeriesInt64) Take(params ...int) Series {
 	return s.filterIntSlice(indeces)
 }
 
-func (s SeriesInt64) Less(i, j int) bool {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-
-	return s.data[i] < s.data[j]
-}
-
-func (s SeriesInt64) Swap(i, j int) {
-	if s.isNullable {
-		// i is null, j is not null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else
-
-		// i is not null, j is null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-	}
-
-	s.data[i], s.data[j] = s.data[j], s.data[i]
-}
-
 func (s SeriesInt64) Append(v any) Series {
 	switch v := v.(type) {
 	case int64, []int64:
@@ -1011,6 +980,45 @@ func (s SeriesInt64) GetPartition() SeriesPartition {
 }
 
 ////////////////////////			SORTING OPERATIONS
+
+func (s SeriesInt64) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+
+	return s.data[i] < s.data[j]
+}
+
+func (s SeriesInt64) equal(i, j int) bool {
+	if s.isNullable && (s.nullMask[i>>3]&(1<<uint(i%8))) > 0 && (s.nullMask[j>>3]&(1<<uint(j%8)) > 0) {
+		return true
+	}
+
+	return s.data[i] == s.data[j]
+}
+
+func (s SeriesInt64) Swap(i, j int) {
+	if s.isNullable {
+		// i is null, j is not null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else
+
+		// i is not null, j is null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+	}
+
+	s.data[i], s.data[j] = s.data[j], s.data[i]
+}
 
 func (s SeriesInt64) Sort() Series {
 	if s.sorted != SORTED_ASC {

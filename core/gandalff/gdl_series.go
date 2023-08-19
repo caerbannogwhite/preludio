@@ -60,10 +60,6 @@ type Series interface {
 	// Take the elements according to the given interval.
 	Take(params ...int) Series
 
-	// Sort Interface.
-	Less(i, j int) bool
-	Swap(i, j int)
-
 	// Append elements to the series.
 	// Value can be a single value, slice of values,
 	// a nullable value, a slice of nullable values or a series.
@@ -100,6 +96,11 @@ type Series interface {
 
 	// Get the partition of the series.
 	GetPartition() SeriesPartition
+
+	// Sort Interface.
+	Less(i, j int) bool
+	equal(i, j int) bool
+	Swap(i, j int)
 
 	// Sorts the elements of the series.
 	Sort() Series

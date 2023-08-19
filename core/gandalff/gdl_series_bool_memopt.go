@@ -241,43 +241,6 @@ func (s SeriesBoolMemOpt) Take(params ...int) Series {
 	return s.filterIntSlice(indeces)
 }
 
-func (s SeriesBoolMemOpt) Less(i, j int) bool {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-	return s.data[i>>3]&(1<<uint(i%8)) > 0 && s.data[j>>3]&(1<<uint(j%8)) == 0
-}
-
-func (s SeriesBoolMemOpt) Swap(i, j int) {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else {
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		} else {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-		}
-	}
-	if s.data[i>>3]&(1<<uint(i%8)) > 0 {
-		s.data[j>>3] |= 1 << uint(j%8)
-	} else {
-		s.data[j>>3] &= ^(1 << uint(j%8))
-	}
-	if s.data[j>>3]&(1<<uint(j%8)) > 0 {
-		s.data[i>>3] |= 1 << uint(i%8)
-	} else {
-		s.data[i>>3] &= ^(1 << uint(i%8))
-	}
-}
-
 // Append appends a value or a slice of values to the series.
 func (s SeriesBoolMemOpt) Append(v any) Series {
 	switch v := v.(type) {
@@ -1032,6 +995,52 @@ func (s SeriesBoolMemOpt) UnGroup() Series {
 
 func (s SeriesBoolMemOpt) GetPartition() SeriesPartition {
 	return s.partition
+}
+
+func (s SeriesBoolMemOpt) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return s.data[i>>3]&(1<<uint(i%8)) > 0 && s.data[j>>3]&(1<<uint(j%8)) == 0
+}
+
+func (s SeriesBoolMemOpt) equal(i, j int) bool {
+	if s.isNullable {
+		if (s.nullMask[i>>3]&(1<<uint(i%8)) > 0) && (s.nullMask[j>>3]&(1<<uint(j%8)) > 0) {
+			return true
+		}
+	}
+	return ((s.data[i>>3]&(1<<uint(i%8)) > 0) && (s.data[j>>3]&(1<<uint(j%8)) > 0)) || ((s.data[i>>3]&(1<<uint(i%8)) == 0) && (s.data[j>>3]&(1<<uint(j%8)) == 0))
+}
+
+func (s SeriesBoolMemOpt) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	if s.data[i>>3]&(1<<uint(i%8)) > 0 {
+		s.data[j>>3] |= 1 << uint(j%8)
+	} else {
+		s.data[j>>3] &= ^(1 << uint(j%8))
+	}
+	if s.data[j>>3]&(1<<uint(j%8)) > 0 {
+		s.data[i>>3] |= 1 << uint(i%8)
+	} else {
+		s.data[i>>3] &= ^(1 << uint(i%8))
+	}
 }
 
 func (s SeriesBoolMemOpt) Sort() Series {
