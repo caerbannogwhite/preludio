@@ -774,6 +774,44 @@ func Test_SeriesBool_Group(t *testing.T) {
 	// debugPrintPartition(s1.GetPartition(), s1)
 	// debugPrintPartition(s2.GetPartition(), s1, s2)
 	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesBool_Sort(t *testing.T) {
+	data := []bool{false, false, false, true, true, true, false, true, false, false, true, true, true, false, true, true, true, false, true, false}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
+
+	// Create a new series.
+	s := NewSeriesBool("test", false, true, data)
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the data.
+	expected := []bool{false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.Data().([]bool), expected, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]bool))
+	}
+
+	// Create a new series.
+	s = NewSeriesBool("test", true, true, data).
+		SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the data.
+	expected = []bool{false, false, false, false, true, true, true, true, true, true, true, true, false, false, true, true, true, false, false, false}
+	if !checkEqSliceBool(sorted.Data().([]bool), expected, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]bool))
+	}
+
+	// Check the null mask.
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
+	}
 }
 
 func Test_SeriesBool_Arithmetic_Mul(t *testing.T) {
