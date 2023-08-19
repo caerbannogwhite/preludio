@@ -33,7 +33,11 @@ func checkEqSliceBool(a, b []bool, t *testing.T, msg string) bool {
 	if t == nil {
 		for i, x := range a {
 			if x != b[i] {
-				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceBool: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
 				return false
 			}
 		}
@@ -70,7 +74,11 @@ func checkEqSliceInt32(a, b []int32, t *testing.T, msg string) bool {
 	if t == nil {
 		for i, x := range a {
 			if x != b[i] {
-				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceInt32: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
 				return false
 			}
 		}
@@ -93,7 +101,11 @@ func checkEqSliceInt64(a, b []int64, t *testing.T, msg string) bool {
 	if t == nil {
 		for i, x := range a {
 			if x != b[i] {
-				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceInt64: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
 				return false
 			}
 		}
@@ -119,7 +131,11 @@ func checkEqSliceFloat64(a, b []float64, t *testing.T, msg string) bool {
 				continue
 			}
 			if x != b[i] {
-				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceFloat64: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
 				return false
 			}
 		}
@@ -145,7 +161,11 @@ func checkEqSliceString(a, b []string, t *testing.T, msg string) bool {
 	if t == nil {
 		for i, x := range a {
 			if x != b[i] {
-				fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceString: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
 				return false
 			}
 		}
