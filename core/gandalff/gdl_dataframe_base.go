@@ -264,15 +264,6 @@ func (df BaseDataFrame) SeriesAt(index int) Series {
 	return df.series[index]
 }
 
-// Returns the series at the given index.
-// For internal use only: returns nil if the series is not found.
-func (df BaseDataFrame) __seriesAt(index int) Series {
-	if index < 0 || index >= len(df.series) {
-		return nil
-	}
-	return df.series[index]
-}
-
 func (df BaseDataFrame) Select(names ...string) DataFrame {
 	if df.err != nil {
 		return df
@@ -303,13 +294,10 @@ func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
 
 	selected := NewBaseDataFrame()
 	for _, index := range indices {
-		series := df.__seriesAt(index)
-		if series != nil {
-			selected.AddSeries(series)
+		if index < 0 || index >= len(df.series) {
+			selected.AddSeries(df.series[index])
 		} else {
-			return BaseDataFrame{
-				err: fmt.Errorf("BaseDataFrame.SelectAt: series at index %d not found", index),
-			}
+			return BaseDataFrame{err: fmt.Errorf("BaseDataFrame.SelectAt: index %d out of bounds", index)}
 		}
 	}
 
@@ -439,7 +427,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 	// Keep only the grouped series
 	for _, partition := range df.partitions {
 		seriesIndices[partition.index] = false
-		old := df.__seriesAt(partition.index)
+		old := df.series[partition.index]
 
 		// TODO: null masks, null values are all mapped to the same group
 
@@ -1190,7 +1178,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	if header {
 		out[0] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[0][j] = df.__seriesAt(j).Name()
+			out[0][j] = df.series[j].Name()
 		}
 
 		h = 1
@@ -1199,7 +1187,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	for i := 0 + h; i < df.NRows()+h; i++ {
 		out[i] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[i][j] = df.__seriesAt(j).GetString(i - h)
+			out[i][j] = df.series[j].GetString(i - h)
 		}
 	}
 
