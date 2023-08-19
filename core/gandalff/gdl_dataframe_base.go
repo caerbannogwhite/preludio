@@ -99,7 +99,7 @@ func (df BaseDataFrame) GetSeriesIndex(name string) int {
 	return -1
 }
 
-func (df BaseDataFrame) AddSeries(series Series) DataFrame {
+func (df BaseDataFrame) AddSeries(series ...Series) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -109,12 +109,14 @@ func (df BaseDataFrame) AddSeries(series Series) DataFrame {
 		return df
 	}
 
-	if df.NCols() > 0 && series.Len() != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series.Len(), df.NRows())
-		return df
-	}
+	for _, series_ := range series {
+		if df.NCols() > 0 && series_.Len() != df.NRows() {
+			df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series_.Len(), df.NRows())
+			return df
+		}
 
-	df.series = append(df.series, series)
+		df.series = append(df.series, series_)
+	}
 	return df
 }
 

@@ -909,3 +909,26 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 		t.Error("BaseDataFrame Sort D desc, C asc, B desc: D failed")
 	}
 }
+
+func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
+	var res DataFrame
+
+	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}).
+		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
+	b := NewSeriesString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
+		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
+	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
+		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
+	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}).
+		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
+
+	df := NewBaseDataFrame().
+		AddSeries(a, b, c, d)
+
+	res = df.OrderBy(Asc("A"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 1, 1, 2, 2, 4, 4, 4}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc: A failed")
+	}
+
+	res.PrettyPrint(20)
+}

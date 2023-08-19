@@ -38,7 +38,7 @@ type DataFrame interface {
 	// Add new series to the dataframe.
 
 	// AddSeries adds a generic series to the dataframe.
-	AddSeries(series Series) DataFrame
+	AddSeries(series ...Series) DataFrame
 	// AddSeriesFromBool adds a series of bools to the dataframe.
 	AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame
 	// AddSeriesFromInt32 adds a series of ints to the dataframe.
