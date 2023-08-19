@@ -990,9 +990,6 @@ func (df BaseDataFrame) Less(i, j int) bool {
 		if !param.series.equal(i, j) {
 			return (param.asc && param.series.Less(i, j)) || (!param.asc && param.series.Less(j, i))
 		}
-		if (param.asc && param.series.Less(i, j)) || (!param.asc && param.series.Less(j, i)) {
-			return true
-		}
 	}
 
 	return false
