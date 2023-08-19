@@ -81,7 +81,7 @@ type DataFrame interface {
 	Len() int
 	Less(i, j int) bool
 	Swap(i, j int)
-	Sort(params ...sortParam) DataFrame
+	OrderBy(params ...sortParam) DataFrame
 
 	// IO
 

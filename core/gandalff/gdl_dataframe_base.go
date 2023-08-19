@@ -1001,13 +1001,13 @@ func (df BaseDataFrame) Swap(i, j int) {
 	}
 }
 
-func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
+func (df BaseDataFrame) OrderBy(params ...sortParam) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.Sort: cannot sort grouped DataFrame")
+		df.err = fmt.Errorf("BaseDataFrame.OrderBy: cannot order grouped DataFrame")
 		return df
 	}
 
@@ -1015,7 +1015,7 @@ func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
 	paramNames := make(map[string]bool)
 	for i, param := range params {
 		if paramNames[param.name] {
-			df.err = fmt.Errorf("BaseDataFrame.Sort: sort param names must be unique")
+			df.err = fmt.Errorf("BaseDataFrame.OrderBy: series names must be unique")
 			return df
 		}
 		paramNames[param.name] = true
@@ -1023,7 +1023,7 @@ func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
 		if series := df.__series(param.name); series != nil {
 			params[i].series = series
 		} else {
-			df.err = fmt.Errorf("BaseDataFrame.Sort: series \"%s\" not found", param.name)
+			df.err = fmt.Errorf("BaseDataFrame.OrderBy: series \"%s\" not found", param.name)
 			return df
 		}
 	}
