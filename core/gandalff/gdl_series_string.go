@@ -1080,8 +1080,13 @@ func (s SeriesString) Less(i, j int) bool {
 }
 
 func (s SeriesString) equal(i, j int) bool {
-	if s.isNullable && (s.nullMask[i>>3]&(1<<uint(i%8))) > 0 && (s.nullMask[j>>3]&(1<<uint(j%8)) > 0) {
-		return true
+	if s.isNullable {
+		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
+			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
+		}
+		if (s.nullMask[j>>3] & (1 << uint(j%8))) > 0 {
+			return false
+		}
 	}
 
 	return (*s.data[i]) == (*s.data[j])

@@ -1194,7 +1194,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	return out
 }
 
-func (df BaseDataFrame) PrettyPrint(nrows int) DataFrame {
+func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return df
@@ -1274,6 +1274,17 @@ func (df BaseDataFrame) PrettyPrint(nrows int) DataFrame {
 		}
 	}
 	fmt.Println("+")
+
+	var nrows int
+	if len(nrowsParam) == 0 {
+		if df.NRows() < 20 {
+			nrows = df.NRows()
+		} else {
+			nrows = 10
+		}
+	} else {
+		nrows = nrowsParam[0]
+	}
 
 	// data
 	if nrows >= 0 {

@@ -87,7 +87,7 @@ type DataFrame interface {
 
 	Describe() string
 	Records(header bool) [][]string
-	PrettyPrint(nrows int) DataFrame
+	PrettyPrint(nrows ...int) DataFrame
 
 	FromCSV() *CsvReader
 	ToCSV() *CsvWriter

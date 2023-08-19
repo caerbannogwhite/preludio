@@ -916,7 +916,7 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 	b := NewSeriesString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
-		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
+		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
 	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}).
@@ -926,9 +926,48 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 		AddSeries(a, b, c, d)
 
 	res = df.OrderBy(Asc("A"))
-	// if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 1, 1, 2, 2, 4, 4, 4}, nil, "") {
-	// 	t.Error("BaseDataFrame Sort A asc: A failed")
-	// }
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 2, 4, 4, 4, 1, 2, 1}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc: A failed")
+	}
+	if !checkEqSliceBool(res.Series("A").GetNullMask(), []bool{false, false, false, false, false, false, false, true, true, true}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
+	}
 
-	res.PrettyPrint(20)
+	res = df.OrderBy(Desc("A"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 2, 1, 4, 4, 4, 2, 1, 1, 1}, nil, "") {
+		t.Error("BaseDataFrame Sort A desc: A failed")
+	}
+	if !checkEqSliceBool(res.Series("A").GetNullMask(), []bool{true, true, true, false, false, false, false, false, false, false}, nil, "") {
+		t.Error("BaseDataFrame Sort A desc: A nullmask failed")
+	}
+
+	res = df.OrderBy(Asc("A"), Asc("B"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 2, 4, 4, 4, 2, 1, 1}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: A failed")
+	}
+	if !checkEqSliceBool(res.Series("A").GetNullMask(), []bool{false, false, false, false, false, false, false, true, true, true}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
+	}
+
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "e", "g", "b", "b", "c", "f"}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
+	}
+	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{false, false, true, false, false, false, true, false, false, true}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: B nullmask failed")
+	}
+
+	res = df.OrderBy(Asc("A"), Desc("B"))
+	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 2, 4, 4, 4, 1, 1, 2}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: A failed")
+	}
+	if !checkEqSliceBool(res.Series("A").GetNullMask(), []bool{false, false, false, false, false, false, false, true, true, true}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
+	}
+
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "b", "g", "e", "f", "c", "b"}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
+	}
+	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{true, false, false, false, true, false, false, true, false, false}, nil, "") {
+		t.Error("BaseDataFrame Sort A asc, B asc: B nullmask failed")
+	}
 }
