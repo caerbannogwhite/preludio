@@ -680,7 +680,7 @@ func Test_SeriesString_Sort(t *testing.T) {
 
 	// Check the data.
 	expected := []string{"a", "a", "b", "b", "d", "e", "e", "e", "g", "h", "l", "t", "u", "u", "w", "w", "w", "x", "y", "{"}
-	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "Test_SeriesInt64_Sort") {
+	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "") {
 		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]string))
 	}
 
@@ -693,13 +693,13 @@ func Test_SeriesString_Sort(t *testing.T) {
 
 	// Check the data.
 	expected = []string{"a", "a", "b", "d", "e", "l", "t", "w", "w", "{", "e", "u", "b", "g", "e", "u", "y", "x", "w", "h"}
-	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "Test_SeriesString_Sort") {
+	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "") {
 		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]string))
 	}
 
 	// Check the null mask.
 	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
-	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesString_Sort") {
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
 		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
 	}
 }

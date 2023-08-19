@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"typesys"
 	"unsafe"
 )
@@ -869,9 +870,17 @@ func (s SeriesFloat64) Swap(i, j int) {
 }
 
 func (s SeriesFloat64) Sort() Series {
+	if s.sorted != SORTED_ASC {
+		sort.Sort(s)
+		s.sorted = SORTED_ASC
+	}
 	return s
 }
 
 func (s SeriesFloat64) SortRev() Series {
+	if s.sorted != SORTED_DESC {
+		sort.Sort(sort.Reverse(s))
+		s.sorted = SORTED_DESC
+	}
 	return s
 }

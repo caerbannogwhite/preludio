@@ -654,6 +654,44 @@ func Test_SeriesFloat64_Group(t *testing.T) {
 	// debugPrintPartition(s1.GetPartition(), s1)
 	// debugPrintPartition(s2.GetPartition(), s1, s2)
 	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesFloat64_Sort(t *testing.T) {
+	data := []float64{3.8, 5.7, -2.3, -0.2, 6.6, -0.5, -6.4, -2.4, 0.2, -2.8, -7.1, -1.7, -4.2, 1.3, -6.2, -2.8, -4.4, -0.6, 0.0, 9.3}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
+
+	// Create a new series.
+	s := NewSeriesFloat64("test", false, true, data)
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the data.
+	expected := []float64{-7.1, -6.4, -6.2, -4.4, -4.2, -2.8, -2.8, -2.4, -2.3, -1.7, -0.6, -0.5, -0.2, 0.0, 0.2, 1.3, 3.8, 5.7, 6.6, 9.3}
+	if !checkEqSliceFloat64(sorted.Data().([]float64), expected, nil, "") {
+		t.Errorf("SeriesFloat64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]float64))
+	}
+
+	// Create a new series.
+	s = NewSeriesFloat64("test", true, true, data).
+		SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the data.
+	expected = []float64{-7.1, -6.4, -6.2, -4.4, -4.2, -2.3, 0.0, 0.2, 3.8, 6.6, -0.5, -1.7, -2.8, 1.3, -2.4, -2.8, -0.2, -0.6, 5.7, 9.3}
+	if !checkEqSliceFloat64(sorted.Data().([]float64), expected, nil, "") {
+		t.Errorf("SeriesFloat64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]float64))
+	}
+
+	// Check the null mask.
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
+		t.Errorf("SeriesFloat64.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
+	}
 }
 
 func Test_SeriesFloat64_Arithmetic_Mul(t *testing.T) {

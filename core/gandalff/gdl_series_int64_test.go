@@ -745,8 +745,8 @@ func Test_SeriesInt64_Group(t *testing.T) {
 }
 
 func Test_SeriesInt64_Sort(t *testing.T) {
-	data := []int64{79, -40, -98, 48, -87, -42, 10, 82, 32, -41}
-	mask := []bool{false, true, false, true, false, true, false, true, false, true}
+	data := []int64{821, 258, -547, -624, 337, -909, -715, 317, -827, -103, 271, 159, 230, -346, 471, 897, 801, 492, 45, -70}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
 	s := NewSeriesInt64("test", false, true, data)
@@ -755,8 +755,8 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 	sorted := s.Sort()
 
 	// Check the data.
-	expected := []int64{-98, -87, -42, -41, -40, 10, 32, 48, 79, 82}
-	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
+	expected := []int64{-909, -827, -715, -624, -547, -346, -103, -70, 45, 159, 230, 258, 271, 317, 337, 471, 492, 801, 821, 897}
+	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "") {
 		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
 	}
 
@@ -768,14 +768,14 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 	sorted = s.Sort()
 
 	// Check the data.
-	expected = []int64{-98, -87, 10, 32, 79, -40, 48, -42, 82, -41}
-	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "Test_SeriesInt64_Sort") {
+	expected = []int64{-827, -715, -547, 45, 230, 271, 337, 471, 801, 821, -909, 159, -103, -346, 317, 897, -624, 492, 258, -70}
+	if !checkEqSliceInt64(sorted.Data().([]int64), expected, nil, "") {
 		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int64))
 	}
 
 	// Check the null mask.
-	expectedMask := []bool{false, false, false, false, false, true, true, true, true, true}
-	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "Test_SeriesInt64_Sort") {
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
 		t.Errorf("SeriesInt64.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
 	}
 }
