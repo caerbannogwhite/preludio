@@ -17,10 +17,10 @@ type BaseDataFramePartitionEntry struct {
 type BaseDataFrame struct {
 	isGrouped  bool
 	err        error
-	sortParams []sortParam
 	series     []Series
 	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
+	sortParams []sortParam
 }
 
 func NewBaseDataFrame() DataFrame {
@@ -986,10 +986,11 @@ func (df BaseDataFrame) Len() int {
 }
 
 func (df BaseDataFrame) Less(i, j int) bool {
-	var series Series
-	for _, p := range df.sortParams {
-		series = df.__series(p.name)
-		if (p.asc && series.Less(i, j)) || (!p.asc && series.Less(j, i)) {
+	for _, param := range df.sortParams {
+		if !param.series.equal(i, j) {
+			return (param.asc && param.series.Less(i, j)) || (!param.asc && param.series.Less(j, i))
+		}
+		if (param.asc && param.series.Less(i, j)) || (!param.asc && param.series.Less(j, i)) {
 			return true
 		}
 	}
@@ -1015,14 +1016,16 @@ func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
 
 	// CHECK: params must have unique names and names must be valid
 	paramNames := make(map[string]bool)
-	for _, param := range params {
+	for i, param := range params {
 		if paramNames[param.name] {
 			df.err = fmt.Errorf("BaseDataFrame.Sort: sort param names must be unique")
 			return df
 		}
 		paramNames[param.name] = true
 
-		if df.__series(param.name) == nil {
+		if series := df.__series(param.name); series != nil {
+			params[i].series = series
+		} else {
 			df.err = fmt.Errorf("BaseDataFrame.Sort: series \"%s\" not found", param.name)
 			return df
 		}
@@ -1030,6 +1033,7 @@ func (df BaseDataFrame) Sort(params ...sortParam) DataFrame {
 
 	df.sortParams = params
 	sort.Sort(df)
+	df.sortParams = nil
 
 	return df
 }
