@@ -21,8 +21,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -145,8 +144,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	var df gandalff.DataFrame
 	var outputFile *os.File
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -218,8 +216,7 @@ func PreludioFunc_Filter(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -249,8 +246,7 @@ func PreludioFunc_From(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -342,8 +338,7 @@ func PreludioFunc_Names(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -420,8 +415,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -453,14 +447,13 @@ func PreludioFunc_GroupBy(funcName string, vm *ByteEater) {
 
 	var err error
 	var df gandalff.DataFrame
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -493,14 +486,13 @@ func PreludioFunc_Ungroup(funcName string, vm *ByteEater) {
 
 	var err error
 	var df gandalff.DataFrame
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
@@ -510,8 +502,59 @@ func PreludioFunc_Ungroup(funcName string, vm *ByteEater) {
 }
 
 // Sort all the values in the Dataframe
-func PreludioFunc_SortBy(funcName string, vm *ByteEater) {
+func PreludioFunc_OrderBy(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df gandalff.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if len(positional) != 2 {
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 2 parameters, got %d", funcName, len(positional)))
+		return
+	}
+
+	// The first value can be both a symbol or a list of symbols
+	sortParams := make([]gandalff.SortParam, 0)
+	switch v := positional[1].getValue().(type) {
+	case __p_symbol__:
+		if positional[1].isNeg() {
+			sortParams = append(sortParams, gandalff.Desc(string(v)))
+		} else {
+			sortParams = append(sortParams, gandalff.Asc(string(v)))
+		}
+
+	case __p_list__:
+		for _, v1 := range positional[1].getValue().(__p_list__) {
+			switch v2 := v1.expr[0].(type) {
+			case __p_symbol__:
+				if v1.isNeg() {
+					sortParams = append(sortParams, gandalff.Desc(string(v2)))
+				} else {
+					sortParams = append(sortParams, gandalff.Asc(string(v2)))
+				}
+			default:
+				vm.setPanicMode(fmt.Sprintf("%s: expecting symbol, got %T", funcName, v))
+				return
+			}
+		}
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df.OrderBy(sortParams...)))
+	vm.setCurrentDataFrame()
 }
 
 // Take a subset of the Dataframe's rows
@@ -526,8 +569,7 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df, err = positional[0].getDataframe()
-	if err != nil {
+	if df, err = positional[0].getDataframe(); err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
