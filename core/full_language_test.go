@@ -101,13 +101,8 @@ func Test_Expressions(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 / 3`)
 	be.RunBytecode(bytecode)
-
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isFloat64Scalar() == false {
-		t.Error("Expected float scalar, got", be.__currentResult)
-	} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != 0.00044174499999999995 {
-		t.Error("Expected 0.00044174499999999995, got", f, err)
+	if err = checkCurrentResult(be, float64(0.00044174499999999995)); err != nil {
+		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`"hello" + "world"`)

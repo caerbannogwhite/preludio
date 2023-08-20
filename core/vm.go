@@ -281,7 +281,7 @@ func (vm *ByteEater) loadResults() {
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
 
 		result := vm.stackPop()
-		if err := solveExpr(vm, result); err != nil {
+		if err := vm.solveExpr(result); err != nil {
 			vm.setPanicMode(err.Error())
 			break
 		}
@@ -438,8 +438,8 @@ MAIN_LOOP:
 				PreludioFunc_GroupBy("groupBy", vm)
 			case "ungroup":
 				PreludioFunc_Ungroup("ungroup", vm)
-			case "sort":
-				PreludioFunc_SortBy("sort", vm)
+			case "orderBy":
+				PreludioFunc_OrderBy("orderBy", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
 
@@ -758,14 +758,14 @@ LOOP1:
 
 	if solve {
 		for _, p := range positionalParams {
-			if err := solveExpr(vm, p); err != nil {
+			if err := vm.solveExpr(p); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
-				if err := solveExpr(vm, p); err != nil {
+				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
@@ -773,7 +773,7 @@ LOOP1:
 
 		if acceptingAssignments {
 			for _, p := range assignments {
-				if err := solveExpr(vm, p); err != nil {
+				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
