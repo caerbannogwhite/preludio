@@ -404,9 +404,24 @@ func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
 	}
 }
 
-func (lhs *__p_intern__) appendOperand(op typesys.OPCODE, rhs *__p_intern__) {
+// isNeg returns true if the expression is a negative number
+// used for special cases like orderBy
+func (i *__p_intern__) isNeg() bool {
+	if len(i.expr) == 2 {
+		if op, ok := i.expr[1].(typesys.OPCODE); ok && op == typesys.OP_UNARY_SUB {
+			return true
+		}
+	}
+	return false
+}
+
+func (lhs *__p_intern__) appendBinaryOperation(op typesys.OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
 	lhs.expr = append(lhs.expr, op)
+}
+
+func (rhs *__p_intern__) appendUnaryOperation(op typesys.OPCODE) {
+	rhs.expr = append(rhs.expr, op)
 }
 
 func isOperator(t interface{}) (typesys.OPCODE, bool) {

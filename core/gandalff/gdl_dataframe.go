@@ -38,7 +38,7 @@ type DataFrame interface {
 	// Add new series to the dataframe.
 
 	// AddSeries adds a generic series to the dataframe.
-	AddSeries(series Series) DataFrame
+	AddSeries(series ...Series) DataFrame
 	// AddSeriesFromBool adds a series of bools to the dataframe.
 	AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame
 	// AddSeriesFromInt32 adds a series of ints to the dataframe.
@@ -77,11 +77,17 @@ type DataFrame interface {
 
 	Agg(...aggregator) DataFrame
 
+	// Sort the dataframe.
+	Len() int
+	Less(i, j int) bool
+	Swap(i, j int)
+	OrderBy(params ...SortParam) DataFrame
+
 	// IO
 
 	Describe() string
 	Records(header bool) [][]string
-	PrettyPrint(nrows int) DataFrame
+	PrettyPrint(nrows ...int) DataFrame
 
 	FromCSV() *CsvReader
 	ToCSV() *CsvWriter
@@ -226,4 +232,20 @@ func (agg stdAggregator) getAggregateType() AggregateType {
 
 func Std(name string) aggregator {
 	return stdAggregator{name, AGGREGATE_STD}
+}
+
+////////////////////////			SORT
+
+type SortParam struct {
+	asc    bool
+	name   string
+	series Series
+}
+
+func Asc(name string) SortParam {
+	return SortParam{asc: true, name: name}
+}
+
+func Desc(name string) SortParam {
+	return SortParam{asc: false, name: name}
 }

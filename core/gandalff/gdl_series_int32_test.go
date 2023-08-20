@@ -678,211 +678,122 @@ func Test_SeriesInt32_Map(t *testing.T) {
 	}
 }
 
-func Test_SeriesInt32_Sort(t *testing.T) {
+func Test_SeriesInt32_Group(t *testing.T) {
+	var partMap map[int64][]int
 
-	data := []int32{2, 323, 42, 4, 9, 674, 42, 48, 9811, 79, 3, 12, 492, 47005, -173, -28, 323, 42, 4, 9, 31, 425, 2}
-	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false}
+	data1 := []int32{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+	data1Mask := []bool{false, false, false, false, false, true, true, true, true, true}
+	data2 := []int32{1, 1, 2, 2, 1, 1, 2, 2, 1, 1}
+	data2Mask := []bool{false, true, false, true, false, true, false, true, false, true}
+	data3 := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
+
+	// Test 1
+	s1 := NewSeriesInt32("s1", true, true, data1).
+		SetNullMask(data1Mask).
+		group()
+
+	p1 := s1.GetPartition().getMap()
+	if len(p1) != 2 {
+		t.Errorf("Expected 2 groups, got %d", len(p1))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 1, 2, 3, 4},
+		1: {5, 6, 7, 8, 9},
+	}
+	if !checkEqPartitionMap(p1, partMap, nil, "Int32 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p1)
+	}
+
+	// Test 2
+	s2 := NewSeriesInt32("s2", true, true, data2).
+		SetNullMask(data2Mask).
+		GroupBy(s1.GetPartition())
+
+	p2 := s2.GetPartition().getMap()
+	if len(p2) != 6 {
+		t.Errorf("Expected 6 groups, got %d", len(p2))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 4},
+		1: {1, 3},
+		2: {2},
+		3: {5, 7, 9},
+		4: {6},
+		5: {8},
+	}
+	if !checkEqPartitionMap(p2, partMap, nil, "Int32 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// Test 3
+	s3 := NewSeriesInt32("test", true, true, data3).
+		SetNullMask(data3Mask).
+		GroupBy(s2.GetPartition())
+
+	p3 := s3.GetPartition().getMap()
+	if len(p3) != 8 {
+		t.Errorf("Expected 8 groups, got %d", len(p3))
+	}
+
+	partMap = map[int64][]int{
+		0: {0},
+		1: {1},
+		2: {2},
+		3: {3},
+		4: {4},
+		5: {5, 7, 9},
+		6: {6},
+		7: {8},
+	}
+	if !checkEqPartitionMap(p3, partMap, nil, "Int32 Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p3)
+	}
+
+	// debugPrintPartition(s1.GetPartition(), s1)
+	// debugPrintPartition(s2.GetPartition(), s1, s2)
+	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesInt32_Sort(t *testing.T) {
+	data := []int32{-195, -27, 33, 679, -67, 920, -352, -674, 250, 767, 697, 873, -802, -123, 308, -558, -518, 169, 313, 593}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", false, true, data)
 
 	// Sort the series.
 	sorted := s.Sort()
 
-	// Check the length.
-	if sorted.Len() != 23 {
-		t.Errorf("Expected length of 23, got %d", sorted.Len())
-	}
-
 	// Check the data.
-	result := []int32{-173, -28, 2, 2, 3, 4, 4, 9, 9, 12, 31, 42, 42, 42, 48, 79, 323, 323, 425, 492, 674, 9811, 47005}
-	for i, v := range sorted.Data().([]int32) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	expected := []int32{-802, -674, -558, -518, -352, -195, -123, -67, -27, 33, 169, 250, 308, 313, 593, 679, 697, 767, 873, 920}
+	if !checkEqSliceInt32(sorted.Data().([]int32), expected, nil, "") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int32))
 	}
-
-	/////////////////////////////////////////////////////////////////////////////////////
 
 	// Create a new series.
-	s = NewSeriesInt32("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s = NewSeriesInt32("test", true, true, data).
+		SetNullMask(mask)
 
 	// Sort the series.
 	sorted = s.Sort()
 
-	// Check the length.
-	if sorted.Len() != 23 {
-		t.Errorf("Expected length of 23, got %d", sorted.Len())
-	}
-
 	// Check the data.
-	result = []int32{-28, 2, 2, 3, 4, 4, 9, 9, 42, 48, 79, 323, 323, 425, 492, 47005, 42, 674, 9811, 12, -173, 42, 31}
-	for i, v := range sorted.Data().([]int32) {
-		if i < 16 && v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	expected = []int32{-802, -518, -352, -195, -67, 33, 250, 308, 313, 697, 920, 873, 767, -123, -674, -558, 679, 169, -27, 593}
+	if !checkEqSliceInt32(sorted.Data().([]int32), expected, nil, "") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]int32))
 	}
 
 	// Check the null mask.
-	for i, v := range sorted.GetNullMask() {
-		if i < 16 && v != false {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-		} else if i >= 16 && v != true {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-		}
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
+		t.Errorf("SeriesInt32.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
 	}
 }
-
-func Test_SeriesInt32_GroupedSort(t *testing.T) {
-	data := []int32{15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
-	// mask := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
-
-	partData := []int32{3, 3, 3, 3, 3, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2}
-	p := NewSeriesInt32("part", true, true, partData).Group()
-
-	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data).
-		SubGroup(p.GetPartition()).
-		Sort()
-
-	// Check the length.
-	if s.Len() != 15 {
-		t.Errorf("Expected length of 15, got %d", s.Len())
-	}
-
-	// Check the data.
-	result := []int32{6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 11, 12, 13, 14, 15}
-	for i, v := range s.Data().([]int32) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
-	}
-
-	// /////////////////////////////////////////////////////////////////////////////////////
-
-	// s = NewSeriesInt32("test", true, true, data).
-	// 	SetNullMask(mask).
-	// 	SubGroup(p.GetPartition()).
-	// 	Sort()
-
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
-
-	// // Check the data.
-	// result = []int{6, 7, 8, 10, 1, 2, 3, 5, 11, 12, 13, 15, 9, 4, 14}
-	// for i, v := range s.Data().([]int) {
-	// 	if i < 14 && v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
-
-	// // Check the null mask.
-	// for i, v := range s.GetNullMask() {
-	// 	if i < 12 && v != false {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-	// 	} else if i >= 12 && v != true {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-	// 	}
-	// }
-
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// // 								Reverse sort.
-
-	dataRev := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-	// maskRev := []bool{false, true, false, false, false, false, true, false, false, false, false, true, false, false, false}
-
-	s = NewSeriesInt32("test", true, true, dataRev).
-		SubGroup(p.GetPartition()).
-		SortRev()
-
-	// Check the length.
-	if s.Len() != 15 {
-		t.Errorf("Expected length of 15, got %d", s.Len())
-	}
-
-	// Check the data.
-	result = []int32{5, 4, 3, 2, 1, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6}
-	for i, v := range s.Data().([]int32) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
-	}
-
-	/////////////////////////////////////////////////////////////////////////////////////
-
-	// s = NewSeriesInt32("test", true, true, dataRev).
-	// 	SetNullMask(maskRev).
-	// 	SubGroup(p.GetPartition()).
-	// 	SortRev()
-
-	// // Check the length.
-	// if s.Len() != 15 {
-	// 	t.Errorf("Expected length of 15, got %d", s.Len())
-	// }
-
-	// // Check the data.
-	// result = []int{5, 4, 3, 1, 10, 9, 8, 6, 15, 14, 13, 11, 2, 7, 12}
-	// for i, v := range s.Data().([]int) {
-	// 	if i < 14 && v != result[i] {
-	// 		t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-	// 	}
-	// }
-
-	// Check the null mask.
-	// for i, v := range s.GetNullMask() {
-	// 	if i < 12 && v != false {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", false, v, i)
-	// 	} else if i >= 12 && v != true {
-	// 		t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-	// 	}
-	// }
-}
-
-// func Test_SeriesInt32_Multiplication(t *testing.T) {
-
-// 	data := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
-
-// 	// s * 2
-// 	res := NewSeriesInt32("test", true, true, &data).Mul(NewSeriesInt32("test", true, true, &[]int{2}))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
-
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
-
-// 	// Check the data.
-// 	for i, v := range res.Data().([]int) {
-// 		if v != data[i]*2 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
-// 		}
-// 	}
-
-// 	// 2 * s
-// 	res = NewSeriesInt32("test", true, true, &[]int{2}).Mul(NewSeriesInt32("test", true, true, &data))
-// 	if e, ok := res.(SeriesError); ok {
-// 		t.Errorf("Got error: %v", e)
-// 	}
-
-// 	// Check the length.
-// 	if res.Len() != 20 {
-// 		t.Errorf("Expected length of 20, got %d", res.Len())
-// 	}
-
-// 	// Check the data.
-// 	for i, v := range res.Data().([]int) {
-// 		if v != data[i]*2 {
-// 			t.Errorf("Expected %v, got %v at index %d", data[i]*2, v, i)
-// 		}
-// 	}
-// }
 
 func Test_SeriesInt32_Arithmetic_Mul(t *testing.T) {
 	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)

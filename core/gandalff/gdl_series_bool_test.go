@@ -698,6 +698,122 @@ func Test_SeriesBool_Map(t *testing.T) {
 	}
 }
 
+func Test_SeriesBool_Group(t *testing.T) {
+	var partMap map[int64][]int
+
+	data1 := []bool{true, true, true, true, true, true, true, true, true, true}
+	data1Mask := []bool{false, false, false, false, false, true, true, true, true, true}
+	data2 := []bool{true, true, false, false, true, true, false, false, true, true}
+	data2Mask := []bool{false, true, false, true, false, true, false, true, false, true}
+	data3 := []bool{true, false, true, false, true, false, true, false, true, false}
+	data3Mask := []bool{false, false, true, false, false, true, false, false, true, false}
+
+	// Test 1
+	s1 := NewSeriesBool("s1", true, true, data1).
+		SetNullMask(data1Mask).
+		group()
+
+	p1 := s1.GetPartition().getMap()
+	if len(p1) != 2 {
+		t.Errorf("Expected 2 groups, got %d", len(p1))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 1, 2, 3, 4},
+		1: {5, 6, 7, 8, 9},
+	}
+	if !checkEqPartitionMap(p1, partMap, nil, "Bool Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p1)
+	}
+
+	// Test 2
+	s2 := NewSeriesBool("s2", true, true, data2).
+		SetNullMask(data2Mask).
+		GroupBy(s1.GetPartition())
+
+	p2 := s2.GetPartition().getMap()
+	if len(p2) != 6 {
+		t.Errorf("Expected 6 groups, got %d", len(p2))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 4},
+		1: {1, 3},
+		2: {2},
+		3: {5, 7, 9},
+		4: {6},
+		5: {8},
+	}
+	if !checkEqPartitionMap(p2, partMap, nil, "Bool Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p2)
+	}
+
+	// Test 3
+	s3 := NewSeriesBool("test", true, true, data3).
+		SetNullMask(data3Mask).
+		GroupBy(s2.GetPartition())
+
+	p3 := s3.GetPartition().getMap()
+	if len(p3) != 7 {
+		t.Errorf("Expected 7 groups, got %d", len(p3))
+	}
+
+	partMap = map[int64][]int{
+		0: {0, 4},
+		1: {1, 3},
+		2: {2},
+		3: {5},
+		4: {6},
+		5: {7, 9},
+		6: {8},
+	}
+	if !checkEqPartitionMap(p3, partMap, nil, "Bool Group") {
+		t.Errorf("Expected partition map of %v, got %v", partMap, p3)
+	}
+
+	// debugPrintPartition(s1.GetPartition(), s1)
+	// debugPrintPartition(s2.GetPartition(), s1, s2)
+	// debugPrintPartition(s3.GetPartition(), s1, s2, s3)
+
+	partMap = nil
+}
+
+func Test_SeriesBool_Sort(t *testing.T) {
+	data := []bool{false, false, false, true, true, true, false, true, false, false, true, true, true, false, true, true, true, false, true, false}
+	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
+
+	// Create a new series.
+	s := NewSeriesBool("test", false, true, data)
+
+	// Sort the series.
+	sorted := s.Sort()
+
+	// Check the data.
+	expected := []bool{false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.Data().([]bool), expected, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]bool))
+	}
+
+	// Create a new series.
+	s = NewSeriesBool("test", true, true, data).
+		SetNullMask(mask)
+
+	// Sort the series.
+	sorted = s.Sort()
+
+	// Check the data.
+	expected = []bool{false, false, false, false, true, true, true, true, true, true, true, true, false, false, true, true, true, false, false, false}
+	if !checkEqSliceBool(sorted.Data().([]bool), expected, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]bool))
+	}
+
+	// Check the null mask.
+	expectedMask := []bool{false, false, false, false, false, false, false, false, false, false, true, true, true, true, true, true, true, true, true, true}
+	if !checkEqSliceBool(sorted.GetNullMask(), expectedMask, nil, "") {
+		t.Errorf("SeriesBool.Sort() failed, expecting %v, got %v", expectedMask, sorted.GetNullMask())
+	}
+}
+
 func Test_SeriesBool_Arithmetic_Mul(t *testing.T) {
 	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
 	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)

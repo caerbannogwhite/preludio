@@ -53,7 +53,7 @@ func (s SeriesBoolMemOpt) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesBoolMemOpt) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.BoolType, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.BoolType, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
@@ -239,43 +239,6 @@ func (s SeriesBoolMemOpt) Take(params ...int) Series {
 		return SeriesError{err.Error()}
 	}
 	return s.filterIntSlice(indeces)
-}
-
-func (s SeriesBoolMemOpt) Less(i, j int) bool {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-	return s.data[i>>3]&(1<<uint(i%8)) > 0 && s.data[j>>3]&(1<<uint(j%8)) == 0
-}
-
-func (s SeriesBoolMemOpt) Swap(i, j int) {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else {
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		} else {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-		}
-	}
-	if s.data[i>>3]&(1<<uint(i%8)) > 0 {
-		s.data[j>>3] |= 1 << uint(j%8)
-	} else {
-		s.data[j>>3] &= ^(1 << uint(j%8))
-	}
-	if s.data[j>>3]&(1<<uint(j%8)) > 0 {
-		s.data[i>>3] |= 1 << uint(i%8)
-	} else {
-		s.data[i>>3] &= ^(1 << uint(i%8))
-	}
 }
 
 // Append appends a value or a slice of values to the series.
@@ -964,47 +927,24 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
 type SeriesBoolMemOptPartition struct {
-	series    *SeriesBoolMemOpt
-	partition map[int64][]int
-	nulls     []int
+	seriesList []Series
+	partition  map[int64][]int
+	nulls      []int
 }
 
-func (p SeriesBoolMemOptPartition) GetSize() int {
-	return len(p.partition)
+func (gp *SeriesBoolMemOptPartition) getSize() int {
+	return len(gp.partition)
 }
 
-func (p SeriesBoolMemOptPartition) GetMap() map[int64][]int {
-	return p.partition
+func (gp *SeriesBoolMemOptPartition) getMap() map[int64][]int {
+	return gp.partition
 }
 
-func (p SeriesBoolMemOptPartition) GetValueIndices(val any) []int {
-	if val == nil {
-		return p.nulls
-	} else if v, ok := val.(bool); ok {
-		if v {
-			return p.partition[1]
-		} else {
-			return p.partition[0]
-		}
-	}
-
-	return make([]int, 0)
+func (gp *SeriesBoolMemOptPartition) getSeriesList() []Series {
+	return gp.seriesList
 }
 
-func (gp SeriesBoolMemOptPartition) GetKeys() any {
-	keys := make([]bool, 0, 2)
-	return keys
-}
-
-func (gp SeriesBoolMemOptPartition) debugPrint() {
-	fmt.Println("SeriesBoolMemOptPartition")
-	data := gp.series.Data().([]bool)
-	for k, v := range gp.partition {
-		fmt.Printf("%10v - %5v: %v\n", k, data[v[0]], v)
-	}
-}
-
-func (s SeriesBoolMemOpt) Group() Series {
+func (s SeriesBoolMemOpt) group() Series {
 	map_ := make(map[int64][]int)
 	for index := 0; index < s.size; index++ {
 		map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))] = append(map_[int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8))], index)
@@ -1018,17 +958,16 @@ func (s SeriesBoolMemOpt) Group() Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{
-			series:    &s,
 			partition: map_,
 			nulls:     nil,
 		}}
 }
 
-func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
+func (s SeriesBoolMemOpt) GroupBy(partition SeriesPartition) Series {
 	newMap := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
 
 	var newHash int64
-	for h, indexes := range partition.GetMap() {
+	for h, indexes := range partition.getMap() {
 		for _, index := range indexes {
 			newHash = int64((s.data[index>>3]&(1<<(index%8)))>>int64(index%8)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 			newMap[newHash] = append(newMap[newHash], index)
@@ -1043,14 +982,65 @@ func (s SeriesBoolMemOpt) SubGroup(partition SeriesPartition) Series {
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{
-			series:    &s,
 			partition: newMap,
 			nulls:     nil,
 		}}
 }
 
+func (s SeriesBoolMemOpt) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
+}
+
 func (s SeriesBoolMemOpt) GetPartition() SeriesPartition {
 	return s.partition
+}
+
+func (s SeriesBoolMemOpt) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+	return s.data[i>>3]&(1<<uint(i%8)) > 0 && s.data[j>>3]&(1<<uint(j%8)) == 0
+}
+
+func (s SeriesBoolMemOpt) equal(i, j int) bool {
+	if s.isNullable {
+		if (s.nullMask[i>>3]&(1<<uint(i%8)) > 0) && (s.nullMask[j>>3]&(1<<uint(j%8)) > 0) {
+			return true
+		}
+	}
+	return ((s.data[i>>3]&(1<<uint(i%8)) > 0) && (s.data[j>>3]&(1<<uint(j%8)) > 0)) || ((s.data[i>>3]&(1<<uint(i%8)) == 0) && (s.data[j>>3]&(1<<uint(j%8)) == 0))
+}
+
+func (s SeriesBoolMemOpt) Swap(i, j int) {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else {
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		} else {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+		}
+	}
+	if s.data[i>>3]&(1<<uint(i%8)) > 0 {
+		s.data[j>>3] |= 1 << uint(j%8)
+	} else {
+		s.data[j>>3] &= ^(1 << uint(j%8))
+	}
+	if s.data[j>>3]&(1<<uint(j%8)) > 0 {
+		s.data[i>>3] |= 1 << uint(i%8)
+	} else {
+		s.data[i>>3] &= ^(1 << uint(i%8))
+	}
 }
 
 func (s SeriesBoolMemOpt) Sort() Series {

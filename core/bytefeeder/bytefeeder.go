@@ -379,7 +379,6 @@ func (bf *ByteFeeder) ExitExprUnary(ctx *ExprUnaryContext) {
 
 		case "not":
 			bf.AppendInstruction(typesys.OP_UNARY_NOT, 0, 0)
-
 		}
 	}
 }

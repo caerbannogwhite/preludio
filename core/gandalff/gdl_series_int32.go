@@ -43,7 +43,7 @@ func (s SeriesInt32) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesInt32) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.Int32Type, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.Int32Type, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
@@ -233,50 +233,6 @@ func (s SeriesInt32) Take(params ...int) Series {
 		return SeriesError{err.Error()}
 	}
 	return s.filterIntSlice(indeces)
-}
-
-func (s SeriesInt32) Less(i, j int) bool {
-	if s.isGrouped {
-		if s.partition.indexToGroup[i] != s.partition.indexToGroup[j] {
-			return s.partition.indexToGroup[i] < s.partition.indexToGroup[j]
-		}
-		return s.data[i] < s.data[j]
-	} else
-
-	// if s is grouped the null element are is the same group
-	// so there is no need to check if the element is null
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-
-	return s.data[i] < s.data[j]
-}
-
-func (s SeriesInt32) Swap(i, j int) {
-	if s.isGrouped {
-		s.partition.indexToGroup[i], s.partition.indexToGroup[j] = s.partition.indexToGroup[j], s.partition.indexToGroup[i]
-	}
-
-	if s.isNullable {
-		// i is null, j is not null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else
-
-		// i is not null, j is null
-		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-	}
-
-	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
 func (s SeriesInt32) Append(v any) Series {
@@ -807,149 +763,53 @@ func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt32Partition struct {
-	isDense             bool
-	seriesSize          int
 	partition           map[int64][]int
+	isDense             bool
 	partitionDenseMin   int32
 	partitionDense      [][]int
 	partitionDenseNulls []int
-	indexToGroup        []int
 }
 
-func (gp SeriesInt32Partition) GetSize() int {
+func (gp *SeriesInt32Partition) getSize() int {
 	if gp.isDense {
-		nulls := 0
-		if len(gp.partitionDenseNulls) > 0 {
-			nulls = 1
+		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
+			return len(gp.partitionDense) + 1
 		}
-		return len(gp.partitionDense) + nulls
+		return len(gp.partitionDense)
 	}
 	return len(gp.partition)
 }
 
-func (gp SeriesInt32Partition) beginSorting() SeriesInt32Partition {
-	gp.indexToGroup = make([]int, gp.seriesSize)
-	if gp.isDense {
-		for i, part := range gp.partitionDense {
-			for _, idx := range part {
-				gp.indexToGroup[idx] = i
-			}
-		}
-
-		for _, idx := range gp.partitionDenseNulls {
-			gp.indexToGroup[idx] = len(gp.partitionDense)
-		}
-	} else {
-		for i, part := range gp.partition {
-			for _, idx := range part {
-				gp.indexToGroup[idx] = int(i)
-			}
-		}
-	}
-	return gp
-}
-
-func (gp SeriesInt32Partition) endSorting() SeriesInt32Partition {
-	if gp.isDense {
-		newPartitionDense := make([][]int, len(gp.partitionDense))
-		newPartitionDenseNulls := make([]int, len(gp.partitionDenseNulls))
-
-		for _, part := range gp.partitionDense {
-			newPartitionDense[gp.indexToGroup[part[0]]] = make([]int, len(part))
-		}
-
-		for i, idx := range gp.indexToGroup {
-			if idx == len(gp.partitionDense) {
-				newPartitionDenseNulls = append(newPartitionDenseNulls, i)
-			} else {
-				newPartitionDense[idx] = append(newPartitionDense[idx], i)
-			}
-		}
-
-		gp.partitionDense = newPartitionDense
-		gp.partitionDenseNulls = newPartitionDenseNulls
-	} else {
-		newPartition := make(map[int64][]int, len(gp.partition))
-
-		for _, part := range gp.partition {
-			newPartition[int64(gp.indexToGroup[part[0]])] = make([]int, len(part))
-		}
-
-		for i, idx := range gp.indexToGroup {
-			newPartition[int64(idx)] = append(newPartition[int64(idx)], i)
-		}
-
-		gp.partition = newPartition
-	}
-
-	gp.indexToGroup = nil
-	return gp
-}
-
-func (gp SeriesInt32Partition) GetMap() map[int64][]int {
+func (gp *SeriesInt32Partition) getMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
-			map_[int64(i+int(gp.partitionDenseMin))] = part
+			map_[int64(i)+int64(gp.partitionDenseMin)] = part
 		}
+
+		// Merge the nulls to the map
+		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
+			nullKey := __series_get_nullkey(map_, HASH_NULL_KEY)
+			map_[nullKey] = gp.partitionDenseNulls
+		}
+
 		return map_
 	}
 
 	return gp.partition
 }
 
-func (gp SeriesInt32Partition) GetValueIndices(val any) []int {
-	if val == nil {
-		if gp.isDense {
-			return gp.partitionDenseNulls
-		} else if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
-			return nulls
-		}
-	} else if v, ok := val.(int32); ok {
-		if gp.isDense {
-			return gp.partitionDense[v]
-		} else if part, ok := gp.partition[int64(v)]; ok {
-			return part
-		}
-	}
-
-	return make([]int, 0)
-}
-
-func (gp SeriesInt32Partition) GetKeys() any {
-	var keys []int
-	if gp.isDense {
-		keys = make([]int, 0, len(gp.partitionDense))
-		for k, indeces := range gp.partitionDense {
-			if len(indeces) > 0 {
-				keys = append(keys, k)
-			}
-		}
-	} else {
-		keys = make([]int, 0, len(gp.partition))
-		for k := range gp.partition {
-			if k != HASH_NULL_KEY {
-				keys = append(keys, int(k))
-			}
-		}
-	}
-
-	return keys
-}
-
-func (gp SeriesInt32Partition) debugPrint() {
-	fmt.Println("SeriesInt32Partition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		fmt.Printf("%4d: %v\n", k, v)
-	}
-}
-
-func (s SeriesInt32) Group() Series {
+func (s SeriesInt32) group() Series {
+	var useDenseMap bool
+	var min, max int32
 	var partition SeriesInt32Partition
+
+	// If the number of elements is small,
+	// look for the minimum and maximum values
 	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
-		max := s.data[0]
-		min := s.data[0]
+		useDenseMap = true
+		max = s.data[0]
+		min = s.data[0]
 		for _, v := range s.data {
 			if v > max {
 				max = v
@@ -958,33 +818,49 @@ func (s SeriesInt32) Group() Series {
 				min = v
 			}
 		}
+	}
 
+	// If the difference between the maximum and minimum values is acceptable,
+	// then we can use a dense map, otherwise we use a sparse map
+	if useDenseMap && (max-min >= MINIMUM_PARALLEL_SIZE_1) {
+		useDenseMap = false
+	}
+
+	// DENSE MAP
+	if useDenseMap {
+		var nulls []int
 		map_ := make([][]int, max-min+1)
 		for i := 0; i < len(map_); i++ {
 			map_[i] = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
 		}
 
-		for i, v := range s.data {
-			map_[v-min] = append(map_[v-min], i)
+		if s.HasNull() {
+			nulls = make([]int, 0, DEFAULT_DENSE_MAP_ARRAY_INITIAL_CAPACITY)
+			for i, v := range s.data {
+				if s.IsNull(i) {
+					nulls = append(nulls, i)
+				} else {
+					map_[v-min] = append(map_[v-min], i)
+				}
+			}
+		} else {
+			for i, v := range s.data {
+				map_[v-min] = append(map_[v-min], i)
+			}
 		}
 
 		partition = SeriesInt32Partition{
-			isDense:           true,
-			seriesSize:        s.Len(),
-			partitionDenseMin: min,
-			partitionDense:    map_,
+			isDense:             true,
+			partitionDenseMin:   min,
+			partitionDense:      map_,
+			partitionDenseNulls: nulls,
 		}
+	} else
 
-	} else {
-		// Initialize the maps
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
+	// SPARSE MAP
+	{
 		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			map_ := allMaps[threadNum]
+		worker := func(threadNum, start, end int, map_ map[int64][]int) {
 			up := end - ((end - start) % 8)
 			for i := start; i < up; {
 				map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
@@ -1010,12 +886,22 @@ func (s SeriesInt32) Group() Series {
 			}
 		}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
+		// Define the worker callback for nulls
+		workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+			for i := start; i < end; i++ {
+				if s.IsNull(i) {
+					(*nulls) = append((*nulls), i)
+				} else {
+					map_[int64(s.data[i])] = append(map_[int64(s.data[i])], i)
+				}
+			}
+		}
 
 		partition = SeriesInt32Partition{
-			isDense:    false,
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
+			isDense: false,
+			partition: __series_groupby(
+				THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
+				worker, workerNulls),
 		}
 	}
 
@@ -1025,65 +911,61 @@ func (s SeriesInt32) Group() Series {
 	return s
 }
 
-func (s SeriesInt32) SubGroup(partition SeriesPartition) Series {
-	var newPartition SeriesInt32Partition
-	otherIndeces := partition.GetMap()
+func (s SeriesInt32) GroupBy(partition SeriesPartition) Series {
+	if partition == nil {
+		return s
+	}
 
-	if len(s.data) < MINIMUM_PARALLEL_SIZE_2 {
+	// collect all keys
+	otherIndeces := partition.getMap()
+	keys := make([]int64, len(otherIndeces))
+	i := 0
+	for k := range otherIndeces {
+		keys[i] = k
+		i++
+	}
 
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		var newHash int64
-		for h, v := range otherIndeces {
-			for _, index := range v {
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
 				newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		newPartition = SeriesInt32Partition{
-			seriesSize: s.Len(),
-			partition:  map_,
-		}
-	} else {
-
-		// collect all keys
-		keys := make([]int64, len(otherIndeces))
-		i := 0
-		for k := range otherIndeces {
-			keys[i] = k
-			i++
-		}
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			var newHash int64
-			map_ := allMaps[threadNum]
-			for _, h := range keys[start:end] {
-				for _, index := range otherIndeces[h] {
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+		var newHash int64
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				if s.IsNull(index) {
+					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				} else {
 					newHash = int64(s.data[index]) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-					map_[newHash] = append(map_[newHash], index)
 				}
+				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
-
-		newPartition = SeriesInt32Partition{
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
-		}
+	newPartition := SeriesInt32Partition{
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
+			worker, workerNulls),
 	}
 
 	s.isGrouped = true
 	s.partition = &newPartition
 
+	return s
+}
+
+func (s SeriesInt32) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
 	return s
 }
 
@@ -1093,15 +975,53 @@ func (s SeriesInt32) GetPartition() SeriesPartition {
 
 ////////////////////////			SORTING OPERATIONS
 
+func (s SeriesInt32) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+
+	return s.data[i] < s.data[j]
+}
+
+func (s SeriesInt32) equal(i, j int) bool {
+	if s.isNullable {
+		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
+			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
+		}
+		if (s.nullMask[j>>3] & (1 << uint(j%8))) > 0 {
+			return false
+		}
+	}
+
+	return s.data[i] == s.data[j]
+}
+
+func (s SeriesInt32) Swap(i, j int) {
+	if s.isNullable {
+		// i is null, j is not null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else
+
+		// i is not null, j is null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+	}
+
+	s.data[i], s.data[j] = s.data[j], s.data[i]
+}
+
 func (s SeriesInt32) Sort() Series {
 	if s.sorted != SORTED_ASC {
-		if s.isGrouped {
-			*s.partition = (*s.partition).beginSorting()
-			sort.Sort(s)
-			*s.partition = (*s.partition).endSorting()
-		} else {
-			sort.Sort(s)
-		}
+		sort.Sort(s)
 		s.sorted = SORTED_ASC
 	}
 	return s
@@ -1109,13 +1029,7 @@ func (s SeriesInt32) Sort() Series {
 
 func (s SeriesInt32) SortRev() Series {
 	if s.sorted != SORTED_DESC {
-		if s.isGrouped {
-			*s.partition = (*s.partition).beginSorting()
-			sort.Sort(sort.Reverse(s))
-			*s.partition = (*s.partition).endSorting()
-		} else {
-			sort.Sort(sort.Reverse(s))
-		}
+		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC
 	}
 	return s

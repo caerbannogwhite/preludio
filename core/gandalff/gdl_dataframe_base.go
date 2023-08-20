@@ -20,6 +20,7 @@ type BaseDataFrame struct {
 	series     []Series
 	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
+	sortParams []SortParam
 }
 
 func NewBaseDataFrame() DataFrame {
@@ -98,7 +99,7 @@ func (df BaseDataFrame) GetSeriesIndex(name string) int {
 	return -1
 }
 
-func (df BaseDataFrame) AddSeries(series Series) DataFrame {
+func (df BaseDataFrame) AddSeries(series ...Series) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -108,12 +109,14 @@ func (df BaseDataFrame) AddSeries(series Series) DataFrame {
 		return df
 	}
 
-	if df.NCols() > 0 && series.Len() != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series.Len(), df.NRows())
-		return df
-	}
+	for _, series_ := range series {
+		if df.NCols() > 0 && series_.Len() != df.NRows() {
+			df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series_.Len(), df.NRows())
+			return df
+		}
 
-	df.series = append(df.series, series)
+		df.series = append(df.series, series_)
+	}
 	return df
 }
 
@@ -261,15 +264,6 @@ func (df BaseDataFrame) SeriesAt(index int) Series {
 	return df.series[index]
 }
 
-// Returns the series at the given index.
-// For internal use only: returns nil if the series is not found.
-func (df BaseDataFrame) __seriesAt(index int) Series {
-	if index < 0 || index >= len(df.series) {
-		return nil
-	}
-	return df.series[index]
-}
-
 func (df BaseDataFrame) Select(names ...string) DataFrame {
 	if df.err != nil {
 		return df
@@ -300,13 +294,10 @@ func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
 
 	selected := NewBaseDataFrame()
 	for _, index := range indices {
-		series := df.__seriesAt(index)
-		if series != nil {
-			selected.AddSeries(series)
+		if index < 0 || index >= len(df.series) {
+			selected.AddSeries(df.series[index])
 		} else {
-			return BaseDataFrame{
-				err: fmt.Errorf("BaseDataFrame.SelectAt: series at index %d not found", index),
-			}
+			return BaseDataFrame{err: fmt.Errorf("BaseDataFrame.SelectAt: index %d out of bounds", index)}
 		}
 	}
 
@@ -372,7 +363,7 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 				df.partitions[partitionsIndex] = BaseDataFramePartitionEntry{
 					index:     i,
 					name:      name,
-					partition: series.Group().GetPartition(),
+					partition: series.group().GetPartition(),
 				}
 			} else
 
@@ -381,7 +372,7 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 				df.partitions[partitionsIndex] = BaseDataFramePartitionEntry{
 					index:     i,
 					name:      name,
-					partition: series.SubGroup(df.partitions[partitionsIndex-1].partition).GetPartition(),
+					partition: series.GroupBy(df.partitions[partitionsIndex-1].partition).GetPartition(),
 				}
 			}
 		}
@@ -428,15 +419,15 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 	// The last partition tells us how many groups there are
 	// and how many rows are in each group
-	indeces := make([][]int, 0, df.partitions[len(df.partitions)-1].partition.GetSize())
-	for _, group := range df.partitions[len(df.partitions)-1].partition.GetMap() {
+	indeces := make([][]int, 0, df.partitions[len(df.partitions)-1].partition.getSize())
+	for _, group := range df.partitions[len(df.partitions)-1].partition.getMap() {
 		indeces = append(indeces, group)
 	}
 
 	// Keep only the grouped series
 	for _, partition := range df.partitions {
 		seriesIndices[partition.index] = false
-		old := df.__seriesAt(partition.index)
+		old := df.series[partition.index]
 
 		// TODO: null masks, null values are all mapped to the same group
 
@@ -650,8 +641,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 	pB := otherGrouped.getPartitions()
 
 	// Get the maps, keys and sort them
-	mapA := pA[len(pA)-1].GetMap()
-	mapB := pB[len(pB)-1].GetMap()
+	mapA := pA[len(pA)-1].getMap()
+	mapB := pB[len(pB)-1].getMap()
 
 	keysA := make([]int64, 0, len(mapA))
 	keysB := make([]int64, 0, len(mapB))
@@ -976,6 +967,64 @@ func (df BaseDataFrame) Take(params ...int) DataFrame {
 	return taken
 }
 
+func (df BaseDataFrame) Len() int {
+	if df.err != nil || len(df.series) < 1 {
+		return 0
+	}
+
+	return df.series[0].Len()
+}
+
+func (df BaseDataFrame) Less(i, j int) bool {
+	for _, param := range df.sortParams {
+		if !param.series.equal(i, j) {
+			return (param.asc && param.series.Less(i, j)) || (!param.asc && param.series.Less(j, i))
+		}
+	}
+
+	return false
+}
+
+func (df BaseDataFrame) Swap(i, j int) {
+	for _, series := range df.series {
+		series.Swap(i, j)
+	}
+}
+
+func (df BaseDataFrame) OrderBy(params ...SortParam) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.OrderBy: cannot order grouped DataFrame")
+		return df
+	}
+
+	// CHECK: params must have unique names and names must be valid
+	paramNames := make(map[string]bool)
+	for i, param := range params {
+		if paramNames[param.name] {
+			df.err = fmt.Errorf("BaseDataFrame.OrderBy: series names must be unique")
+			return df
+		}
+		paramNames[param.name] = true
+
+		if series := df.__series(param.name); series != nil {
+			params[i].series = series
+		} else {
+			df.err = fmt.Errorf("BaseDataFrame.OrderBy: series \"%s\" not found", param.name)
+			return df
+		}
+	}
+
+	df.sortParams = params
+	sort.Sort(df)
+	df.sortParams = nil
+
+	return df
+}
+
 ////////////////////////			SUMMARY
 
 func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
@@ -1129,7 +1178,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	if header {
 		out[0] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[0][j] = df.__seriesAt(j).Name()
+			out[0][j] = df.series[j].Name()
 		}
 
 		h = 1
@@ -1138,14 +1187,14 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	for i := 0 + h; i < df.NRows()+h; i++ {
 		out[i] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[i][j] = df.__seriesAt(j).GetString(i - h)
+			out[i][j] = df.series[j].GetString(i - h)
 		}
 	}
 
 	return out
 }
 
-func (df BaseDataFrame) PrettyPrint(nrows int) DataFrame {
+func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return df
@@ -1225,6 +1274,17 @@ func (df BaseDataFrame) PrettyPrint(nrows int) DataFrame {
 		}
 	}
 	fmt.Println("+")
+
+	var nrows int
+	if len(nrowsParam) == 0 {
+		if df.NRows() < 20 {
+			nrows = df.NRows()
+		} else {
+			nrows = 10
+		}
+	} else {
+		nrows = nrowsParam[0]
+	}
 
 	// data
 	if nrows >= 0 {

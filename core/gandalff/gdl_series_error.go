@@ -58,7 +58,7 @@ func (s SeriesError) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesError) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.ErrorType, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.ErrorType, Card: s.Len()}
 }
 
 // Returns if the series has null values.
@@ -115,13 +115,6 @@ func (s SeriesError) Take(params ...int) Series {
 	return s
 }
 
-// Sort interface.
-func (s SeriesError) Less(i, j int) bool {
-	return false
-}
-
-func (s SeriesError) Swap(i, j int) {}
-
 // Append elements to the series.
 func (s SeriesError) Append(v any) Series {
 	return s
@@ -171,17 +164,32 @@ func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
 }
 
 // Group the elements in the series.
-func (s SeriesError) Group() Series {
+func (s SeriesError) group() Series {
 	return nil
 }
 
-func (s SeriesError) SubGroup(gp SeriesPartition) Series {
+func (s SeriesError) GroupBy(gp SeriesPartition) Series {
 	return nil
+}
+
+func (s SeriesError) UnGroup() Series {
+	return s
 }
 
 func (s SeriesError) GetPartition() SeriesPartition {
 	return nil
 }
+
+// Sort interface.
+func (s SeriesError) Less(i, j int) bool {
+	return false
+}
+
+func (s SeriesError) equal(i, j int) bool {
+	return false
+}
+
+func (s SeriesError) Swap(i, j int) {}
 
 func (s SeriesError) Sort() Series {
 	return s

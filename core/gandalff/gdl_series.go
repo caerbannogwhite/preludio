@@ -60,10 +60,6 @@ type Series interface {
 	// Take the elements according to the given interval.
 	Take(params ...int) Series
 
-	// Sort Interface.
-	Less(i, j int) bool
-	Swap(i, j int)
-
 	// Append elements to the series.
 	// Value can be a single value, slice of values,
 	// a nullable value, a slice of nullable values or a series.
@@ -94,11 +90,17 @@ type Series interface {
 	Map(f GDLMapFunc, stringPool *StringPool) Series
 
 	// Group the elements in the series.
-	Group() Series
-	SubGroup(gp SeriesPartition) Series
+	group() Series
+	GroupBy(gp SeriesPartition) Series
+	UnGroup() Series
 
 	// Get the partition of the series.
 	GetPartition() SeriesPartition
+
+	// Sort Interface.
+	Less(i, j int) bool
+	equal(i, j int) bool
+	Swap(i, j int)
 
 	// Sorts the elements of the series.
 	Sort() Series
@@ -140,14 +142,8 @@ func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, da
 
 type SeriesPartition interface {
 	// Returns the number partitions.
-	GetSize() int
-	// Returns the indices of the groups.
-	GetMap() map[int64][]int
-	// Returns the indices for a given value. The value must be of the same type as the series.
-	// If val is nil then the indices of the null values are returned.
-	GetValueIndices(val any) []int
-	// Returns  the keys of the groups.
-	GetKeys() any
+	getSize() int
 
-	debugPrint()
+	// Returns the indices of the groups.
+	getMap() map[int64][]int
 }

@@ -281,7 +281,7 @@ func (vm *ByteEater) loadResults() {
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
 
 		result := vm.stackPop()
-		if err := solveExpr(vm, result); err != nil {
+		if err := vm.solveExpr(result); err != nil {
 			vm.setPanicMode(err.Error())
 			break
 		}
@@ -434,8 +434,12 @@ MAIN_LOOP:
 				PreludioFunc_New("new", vm)
 			case "select":
 				PreludioFunc_Select("select", vm)
-			case "sort":
-				PreludioFunc_Sort("sort", vm)
+			case "groupBy":
+				PreludioFunc_GroupBy("groupBy", vm)
+			case "ungroup":
+				PreludioFunc_Ungroup("ungroup", vm)
+			case "orderBy":
+				PreludioFunc_OrderBy("orderBy", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
 
@@ -583,37 +587,37 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_BINARY_MUL", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_MUL, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_MUL, op2)
 
 		case typesys.OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_DIV, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_DIV, op2)
 
 		case typesys.OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_MOD, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_MOD, op2)
 
 		case typesys.OP_BINARY_ADD:
 			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_ADD, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_ADD, op2)
 
 		case typesys.OP_BINARY_SUB:
 			vm.printDebug(10, "OP_BINARY_SUB", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_SUB, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_SUB, op2)
 
 		case typesys.OP_BINARY_POW:
 			vm.printDebug(10, "OP_BINARY_POW", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_POW, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_POW, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
@@ -622,49 +626,49 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_EQ, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EQ, op2)
 
 		case typesys.OP_BINARY_NE:
 			vm.printDebug(10, "OP_BINARY_NE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_NE, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_NE, op2)
 
 		case typesys.OP_BINARY_GE:
 			vm.printDebug(10, "OP_BINARY_GE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_GE, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_GE, op2)
 
 		case typesys.OP_BINARY_LE:
 			vm.printDebug(10, "OP_BINARY_LE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_LE, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_LE, op2)
 
 		case typesys.OP_BINARY_GT:
 			vm.printDebug(10, "OP_BINARY_GT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_GT, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_GT, op2)
 
 		case typesys.OP_BINARY_LT:
 			vm.printDebug(10, "OP_BINARY_LT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_LT, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_LT, op2)
 
 		case typesys.OP_BINARY_AND:
 			vm.printDebug(10, "OP_BINARY_AND", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_AND, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_AND, op2)
 
 		case typesys.OP_BINARY_OR:
 			vm.printDebug(10, "OP_BINARY_OR", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendOperand(typesys.OP_BINARY_OR, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_OR, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				OTHER OPERATIONS
@@ -681,11 +685,17 @@ MAIN_LOOP:
 		case typesys.OP_UNARY_SUB:
 			vm.printDebug(10, "OP_UNARY_SUB", "", "")
 
+			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_SUB)
+
 		case typesys.OP_UNARY_ADD:
 			vm.printDebug(10, "OP_UNARY_ADD", "", "")
 
+			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_ADD)
+
 		case typesys.OP_UNARY_NOT:
 			vm.printDebug(10, "OP_UNARY_NOT", "", "")
+
+			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_NOT)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				NO OPERATION
@@ -754,14 +764,14 @@ LOOP1:
 
 	if solve {
 		for _, p := range positionalParams {
-			if err := solveExpr(vm, p); err != nil {
+			if err := vm.solveExpr(p); err != nil {
 				return positionalParams, assignments, err
 			}
 		}
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
-				if err := solveExpr(vm, p); err != nil {
+				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}
@@ -769,7 +779,7 @@ LOOP1:
 
 		if acceptingAssignments {
 			for _, p := range assignments {
-				if err := solveExpr(vm, p); err != nil {
+				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
 			}

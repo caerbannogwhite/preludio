@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -70,7 +71,7 @@ func (s SeriesString) Type() typesys.BaseType {
 
 // Returns the type and cardinality of the series.
 func (s SeriesString) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{typesys.StringType, s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.StringType, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
@@ -252,34 +253,6 @@ func (s SeriesString) Take(params ...int) Series {
 		return SeriesError{err.Error()}
 	}
 	return s.filterIntSlice(indeces)
-}
-
-func (s SeriesString) Less(i, j int) bool {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			return false
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			return true
-		}
-	}
-	return strings.Compare(*s.data[i], *s.data[j]) < 0
-}
-
-func (s SeriesString) Swap(i, j int) {
-	if s.isNullable {
-		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
-			s.nullMask[j>>3] |= 1 << uint(j%8)
-		} else {
-			s.nullMask[j>>3] &= ^(1 << uint(j%8))
-		}
-		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		} else {
-			s.nullMask[i>>3] &= ^(1 << uint(i%8))
-		}
-	}
-	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
 // Append appends a value or a slice of values to the series.
@@ -979,99 +952,47 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesStringPartition struct {
-	seriesSize   int
-	partition    map[int64][]int
-	indexToGroup []int
-	pool         *StringPool
+	partition map[int64][]int
+	pool      *StringPool
 }
 
-func (gp SeriesStringPartition) GetSize() int {
+func (gp *SeriesStringPartition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp SeriesStringPartition) GetMap() map[int64][]int {
+func (gp *SeriesStringPartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (gp SeriesStringPartition) GetValueIndices(val any) []int {
-	if val == nil {
-		if nulls, ok := gp.partition[HASH_NULL_KEY]; ok {
-			return nulls
-		}
-	} else {
-		if v, ok := val.(string); ok {
-			if addr := gp.pool.Put(v); addr == nil {
-				if vals, ok := gp.partition[(*(*int64)(unsafe.Pointer(unsafe.Pointer(addr))))]; ok {
-					return vals
-				}
-			}
-		}
-	}
+func (s SeriesString) group() Series {
 
-	return make([]int, 0)
-}
-
-func (gp SeriesStringPartition) GetKeys() any {
-	keys := make([]string, 0, len(gp.partition))
-	for k := range gp.partition {
-		if k != HASH_NULL_KEY {
-			keys = append(keys, *(*string)(unsafe.Pointer(&k)))
-		}
-	}
-	return keys
-}
-
-func (gp SeriesStringPartition) debugPrint() {
-	fmt.Println("SeriesStringPartition")
-	map_ := gp.GetMap()
-	for k, v := range map_ {
-		ptr := (*string)(unsafe.Pointer(uintptr(k)))
-		fmt.Printf("%10s: %v\n", *ptr, v)
-	}
-}
-
-func (s SeriesString) Group() Series {
-
-	var partition SeriesStringPartition
-	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		var ptr unsafe.Pointer
-		for i := 0; i < len(s.data); i++ {
+		for i := start; i < end; i++ {
 			ptr = unsafe.Pointer(s.data[i])
 			map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 		}
+	}
 
-		partition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  map_,
-			pool:       s.pool,
-		}
-	} else {
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			map_ := allMaps[threadNum]
-			var ptr unsafe.Pointer
-			for i := start; i < end; i++ {
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+		var ptr unsafe.Pointer
+		for i := start; i < end; i++ {
+			if s.IsNull(i) {
+				(*nulls) = append((*nulls), i)
+			} else {
 				ptr = unsafe.Pointer(s.data[i])
 				map_[(*(*int64)(unsafe.Pointer(&ptr)))] = append(map_[(*(*int64)(unsafe.Pointer(&ptr)))], i)
 			}
 		}
+	}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(s.data), allMaps, nil, worker)
-
-		partition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
-			pool:       s.pool,
-		}
+	partition := SeriesStringPartition{
+		pool: s.pool,
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(s.data), s.HasNull(),
+			worker, workerNulls),
 	}
 
 	s.isGrouped = true
@@ -1080,67 +1001,51 @@ func (s SeriesString) Group() Series {
 	return s
 }
 
-func (s SeriesString) SubGroup(partition SeriesPartition) Series {
-	var newPartition SeriesStringPartition
-	otherIndeces := partition.GetMap()
+func (s SeriesString) GroupBy(partition SeriesPartition) Series {
+	// collect all keys
+	otherIndeces := partition.getMap()
+	keys := make([]int64, len(otherIndeces))
+	i := 0
+	for k := range otherIndeces {
+		keys[i] = k
+		i++
+	}
 
-	if len(s.data) < MINIMUM_PARALLEL_SIZE_1 {
-
-		map_ := make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-
+	// Define the worker callback
+	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		var newHash int64
 		var ptr unsafe.Pointer
-		for h, v := range otherIndeces {
-			for _, index := range v {
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
 				ptr = unsafe.Pointer(s.data[index])
 				newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		newPartition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  map_,
-			pool:       s.pool,
-		}
-	} else {
-
-		// collect all keys
-		keys := make([]int64, len(otherIndeces))
-		i := 0
-		for k := range otherIndeces {
-			keys[i] = k
-			i++
-		}
-
-		// Initialize the maps and the wait groups
-		allMaps := make([]map[int64][]int, THREADS_NUMBER)
-		for i := 0; i < THREADS_NUMBER; i++ {
-			allMaps[i] = make(map[int64][]int, DEFAULT_HASH_MAP_INITIAL_CAPACITY)
-		}
-
-		// Define the worker callback
-		worker := func(threadNum, start, end int) {
-			var newHash int64
-			var ptr unsafe.Pointer
-
-			map_ := allMaps[threadNum]
-			for _, h := range keys[start:end] {
-				for _, index := range otherIndeces[h] {
+	// Define the worker callback for nulls
+	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
+		var newHash int64
+		var ptr unsafe.Pointer
+		for _, h := range keys[start:end] { // keys is defined outside the function
+			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
+				if s.IsNull(index) {
+					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				} else {
 					ptr = unsafe.Pointer(s.data[index])
 					newHash = *(*int64)(unsafe.Pointer(&ptr)) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-					map_[newHash] = append(map_[newHash], index)
 				}
+				map_[newHash] = append(map_[newHash], index)
 			}
 		}
+	}
 
-		__series_groupby_multithreaded(THREADS_NUMBER, len(keys), allMaps, nil, worker)
-
-		newPartition = SeriesStringPartition{
-			seriesSize: s.Len(),
-			partition:  allMaps[0],
-			pool:       s.pool,
-		}
+	newPartition := SeriesStringPartition{
+		pool: s.pool,
+		partition: __series_groupby(
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
+			worker, workerNulls),
 	}
 
 	s.isGrouped = true
@@ -1149,19 +1054,77 @@ func (s SeriesString) SubGroup(partition SeriesPartition) Series {
 	return s
 }
 
+func (s SeriesString) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
+}
+
 func (s SeriesString) GetPartition() SeriesPartition {
 	return s.partition
 }
 
+////////////////////////			SORTING OPERATIONS
+
+func (s SeriesString) Less(i, j int) bool {
+	if s.isNullable {
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
+			return false
+		}
+		if s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			return true
+		}
+	}
+
+	return (*s.data[i]) < (*s.data[j])
+}
+
+func (s SeriesString) equal(i, j int) bool {
+	if s.isNullable {
+		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
+			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
+		}
+		if (s.nullMask[j>>3] & (1 << uint(j%8))) > 0 {
+			return false
+		}
+	}
+
+	return (*s.data[i]) == (*s.data[j])
+}
+
+func (s SeriesString) Swap(i, j int) {
+	if s.isNullable {
+		// i is null, j is not null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
+			s.nullMask[i>>3] &= ^(1 << uint(i%8))
+			s.nullMask[j>>3] |= 1 << uint(j%8)
+		} else
+
+		// i is not null, j is null
+		if s.nullMask[i>>3]&(1<<uint(i%8)) == 0 && s.nullMask[j>>3]&(1<<uint(j%8)) > 0 {
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.nullMask[j>>3] &= ^(1 << uint(j%8))
+		}
+	}
+
+	s.data[i], s.data[j] = s.data[j], s.data[i]
+}
+
 func (s SeriesString) Sort() Series {
+	if s.sorted != SORTED_ASC {
+		sort.Sort(s)
+		s.sorted = SORTED_ASC
+	}
 	return s
 }
 
 func (s SeriesString) SortRev() Series {
+	if s.sorted != SORTED_DESC {
+		sort.Sort(sort.Reverse(s))
+		s.sorted = SORTED_DESC
+	}
 	return s
 }
-
-////////////////////////			SORTING OPERATIONS
 
 ////////////////////////			STRING OPERATIONS
 
