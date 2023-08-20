@@ -81,7 +81,7 @@ type DataFrame interface {
 	Len() int
 	Less(i, j int) bool
 	Swap(i, j int)
-	OrderBy(params ...sortParam) DataFrame
+	OrderBy(params ...SortParam) DataFrame
 
 	// IO
 
@@ -236,16 +236,16 @@ func Std(name string) aggregator {
 
 ////////////////////////			SORT
 
-type sortParam struct {
+type SortParam struct {
 	asc    bool
 	name   string
 	series Series
 }
 
-func Asc(name string) sortParam {
-	return sortParam{asc: true, name: name}
+func Asc(name string) SortParam {
+	return SortParam{asc: true, name: name}
 }
 
-func Desc(name string) sortParam {
-	return sortParam{asc: false, name: name}
+func Desc(name string) SortParam {
+	return SortParam{asc: false, name: name}
 }

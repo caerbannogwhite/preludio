@@ -20,7 +20,7 @@ type BaseDataFrame struct {
 	series     []Series
 	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
-	sortParams []sortParam
+	sortParams []SortParam
 }
 
 func NewBaseDataFrame() DataFrame {
@@ -991,7 +991,7 @@ func (df BaseDataFrame) Swap(i, j int) {
 	}
 }
 
-func (df BaseDataFrame) OrderBy(params ...sortParam) DataFrame {
+func (df BaseDataFrame) OrderBy(params ...SortParam) DataFrame {
 	if df.err != nil {
 		return df
 	}
