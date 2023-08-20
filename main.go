@@ -15,7 +15,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const VERSION = "0.1.0-alpha"
+const VERSION = "0.2.0"
 
 type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
