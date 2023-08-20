@@ -15,6 +15,7 @@ func truncate(s string, n int) string {
 
 func operatorToString(op typesys.OPCODE) string {
 	switch op {
+
 	case typesys.OP_BINARY_MUL:
 		return "*"
 	case typesys.OP_BINARY_DIV:
@@ -43,8 +44,60 @@ func operatorToString(op typesys.OPCODE) string {
 		return ">"
 	case typesys.OP_BINARY_GE:
 		return ">="
+
+	case typesys.OP_UNARY_ADD:
+		return "+"
+	case typesys.OP_UNARY_SUB:
+		return "-"
+	case typesys.OP_UNARY_NOT:
+		return "not"
+
 	default:
-		return ""
+		return "UNKNOWN OPERATOR"
+	}
+}
+
+func operatorToCode(op typesys.OPCODE) string {
+	switch op {
+
+	case typesys.OP_BINARY_MUL:
+		return "  * <BINARY_MUL>"
+	case typesys.OP_BINARY_DIV:
+		return "  / <BINARY_DIV>"
+	case typesys.OP_BINARY_MOD:
+		return "  % <BINARY_MOD>"
+	case typesys.OP_BINARY_POW:
+		return " ** <BINARY_POW>"
+	case typesys.OP_BINARY_ADD:
+		return "  + <BINARY_ADD>"
+	case typesys.OP_BINARY_SUB:
+		return "  - <BINARY_SUB>"
+	case typesys.OP_BINARY_AND:
+		return "and <BINARY_AND>"
+	case typesys.OP_BINARY_OR:
+		return " or <BINARY_OR>"
+	case typesys.OP_BINARY_EQ:
+		return " == <BINARY_EQ>"
+	case typesys.OP_BINARY_NE:
+		return " != <BINARY_NE>"
+	case typesys.OP_BINARY_LT:
+		return "  < <BINARY_LT>"
+	case typesys.OP_BINARY_LE:
+		return " <= <BINARY_LE>"
+	case typesys.OP_BINARY_GT:
+		return "  > <BINARY_GT>"
+	case typesys.OP_BINARY_GE:
+		return " >= <BINARY_GE>"
+
+	case typesys.OP_UNARY_ADD:
+		return "  + <UNARY_ADD>"
+	case typesys.OP_UNARY_SUB:
+		return "  - <UNARY_SUB>"
+	case typesys.OP_UNARY_NOT:
+		return "not <UNARY_NOT>"
+
+	default:
+		return "UNKNOWN OPERATOR"
 	}
 }
 
