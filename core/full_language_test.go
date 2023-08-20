@@ -17,85 +17,85 @@ func Test_Expressions(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(`true`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, true); err != nil {
+	if err = checkCurrentResult(be, true); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`false`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, false); err != nil {
+	if err = checkCurrentResult(be, false); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(1)); err != nil {
+	if err = checkCurrentResult(be, int64(1)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`true and false`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, false); err != nil {
+	if err = checkCurrentResult(be, false); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`true or false`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, true); err != nil {
+	if err = checkCurrentResult(be, true); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`true or (false and true)`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, true); err != nil {
+	if err = checkCurrentResult(be, true); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 * 5`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(5)); err != nil {
+	if err = checkCurrentResult(be, int64(5)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 / 3`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(0.3333333333333333)); err != nil {
+	if err = checkCurrentResult(be, float64(0.3333333333333333)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`4682 % 427`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(412)); err != nil {
+	if err = checkCurrentResult(be, float64(412)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`3 ** 4`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(81)); err != nil {
+	if err = checkCurrentResult(be, int64(81)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`2 ** (2 + 1 * 2)`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(16)); err != nil {
+	if err = checkCurrentResult(be, int64(16)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 - 2`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(-1)); err != nil {
+	if err = checkCurrentResult(be, int64(-1)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(3)); err != nil {
+	if err = checkCurrentResult(be, int64(3)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1.325235e-3 * 5`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(0.006626175)); err != nil {
+	if err = checkCurrentResult(be, float64(0.006626175)); err != nil {
 		t.Error(err)
 	}
 
@@ -112,49 +112,49 @@ func Test_Expressions(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(`"hello" + "world"`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, "helloworld"); err != nil {
+	if err = checkCurrentResult(be, "helloworld"); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(33)); err != nil {
+	if err = checkCurrentResult(be, int64(33)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, "5hello"); err != nil {
+	if err = checkCurrentResult(be, "5hello"); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`3.4 + 2.3 * 3.2 - 4.1 + 5.0 * 6.9`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(41.16)); err != nil {
+	if err = checkCurrentResult(be, float64(41.16)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`(1 + 2) * (3 - 4) + 5 * 6`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(27)); err != nil {
+	if err = checkCurrentResult(be, int64(27)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * 3)) - (4 + (5 * (6 % 7 + 8))) / ((9) + (10 * 11 - 12 % 13))`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(6.308411214953271)); err != nil {
+	if err = checkCurrentResult(be, float64(6.308411214953271)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`(1 + (2 * (3 - (4 + (5 * (6 % (7 + (8 - (9 + (10 * (11 - (12 + (13 * (14 % (15 + (16 - (17 + (18 * (19 - (20 + (21 * (22 % (23 + (24 - (25 + (26 * (27 - (28 + (29 * (30 - (31 + (32 * (33 - (34 + (35 * (36 % (37 + (38 - (39 + (40 * (41 - (42 + (43 * (44 % (45 + (46 - (47 + (48 * (49 - (50 + (51 * (52 % (53 + (54 - (55 + (56 * (57 - (58 + (59 * (60 % (61 + (62 - (63 + (64 * (65 - (66 + (67 * (68 % (69 + (70 - (71 + (72 * (73 - (74 + (75 * (76 % (77 + (78 - (79 + (80 * (81 - (82 + (83 * (84 % (85 + (86 - (87 + (88 * (89 - (90 + (91 * (92 % (93 + (94 - (95 + (96 * (97 - (98 + (99 * (100))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(-61.0)); err != nil {
+	if err = checkCurrentResult(be, float64(-61.0)); err != nil {
 		t.Error(err)
 	}
 
 	bytecode, _, _ = bytefeeder.CompileSource(`1e30 / 1.000001 / 1.000002 / 1.000003 / 1.000004 / 1.000005 / 1.000006 / 1.000007 / 1.000008 / 1.000009 / 1.000010 / 1.000011 / 1.000012 / 1.000013 / 1.000014 / 1.000015 / 1.000016 / 1.000017 / 1.000018 / 1.000019 / 1.000020 / 1.000021 / 1.000022 / 1.000023 / 1.000024 / 1.000025 / 1.000026 / 1.000027 / 1.000028 / 1.000029 / 1.000030 / 1.000031 / 1.000032 / 1.000033 / 1.000034 / 1.000035 / 1.000036 / 1.000037 / 1.000038 / 1.000039 / 1.000040 / 1.000041 / 1.000042 / 1.000043 / 1.000044 / 1.000045 / 1.000046 / 1.000047 / 1.000048 / 1.000049 / 1.000050 / 1.000051 / 1.000052 / 1.000053 / 1.000054 / 1.000055 / 1.000056 / 1.000057 / 1.000058 / 1.000059 / 1.000060 / 1.000061 / 1.000062 / 1.000063 / 1.000064 / 1.000065 / 1.000066 / 1.000067 / 1.000068 / 1.000069 / 1.000070 / 1.000071 / 1.000072 / 1.000073 / 1.000074 / 1.000075 / 1.000076 / 1.000077 / 1.000078 / 1.000079 / 1.000080 / 1.000081 / 1.000082 / 1.000083 / 1.000084 / 1.000085 / 1.000086 / 1.000087 / 1.000088 / 1.000089 / 1.000090 / 1.000091 / 1.000092 / 1.000093 / 1.000094 / 1.000095 / 1.000096 / 1.000097 / 1.000098 / 1.000099 / 1.000100`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, float64(9.949628981268441e+29)); err != nil {
+	if err = checkCurrentResult(be, float64(9.949628981268441e+29)); err != nil {
 		t.Error(err)
 	}
 }
@@ -172,7 +172,7 @@ func Test_Assignements(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(source)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, int64(33)); err != nil {
+	if err = checkCurrentResult(be, int64(33)); err != nil {
 		t.Error(err)
 	}
 
@@ -185,7 +185,7 @@ func Test_Assignements(t *testing.T) {
 
 	bytecode, _, _ = bytefeeder.CompileSource(`d * (e * (f * (g * (d * (e * (f * (g)))))))`)
 	be.RunBytecode(bytecode)
-	if err = currentResultChecker(be, 1.000000040200004); err != nil {
+	if err = checkCurrentResult(be, 1.000000040200004); err != nil {
 		t.Error(err)
 	}
 
