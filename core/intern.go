@@ -404,9 +404,14 @@ func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
 	}
 }
 
-func (lhs *__p_intern__) appendOperand(op typesys.OPCODE, rhs *__p_intern__) {
+func (lhs *__p_intern__) appendBinaryOperation(op typesys.OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
 	lhs.expr = append(lhs.expr, op)
+}
+
+func (rhs *__p_intern__) appendUnaryOperation(op typesys.OPCODE) {
+	// lhs.expr = append(lhs.expr, rhs.expr...)
+	rhs.expr = append(rhs.expr, op)
 }
 
 func isOperator(t interface{}) (typesys.OPCODE, bool) {
