@@ -27,39 +27,31 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 					return err
 				}
 			}
-
-		default:
 		}
 	}
 
 	stack := make([]interface{}, 0)
 
-	var iterations int
 	var op typesys.OPCODE
 	var ok, errorMode bool
+	var exprIdx int
 	var result interface{}
 
 	for len(i.expr) > 1 {
 
 		// Load the stack until we find an operators
-		iterations = 0
-		for {
-			if op, ok = isOperator(i.expr[0]); ok {
-				i.expr = i.expr[1:len(i.expr)]
-				break
-			}
-
-			stack = append(stack, i.expr[0])
-			i.expr = i.expr[1:len(i.expr)]
-
-			iterations++
+		ok = false
+		for exprIdx = 0; !ok; op, ok = i.expr[exprIdx].(typesys.OPCODE) {
+			exprIdx++
 		}
+		stack = append(stack, i.expr[0:exprIdx]...)
+		i.expr = i.expr[exprIdx+1 : len(i.expr)]
 
 		errorMode = false
 		result = gandalff.SeriesError{}
 
 		// UNARY
-		// if iterations == 1 {
+		// if op.IsUnaryOp() {
 		// 	t1 := stack[len(stack)-1]
 		// 	stack = stack[0 : len(stack)-1]
 
@@ -93,7 +85,7 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 		// 	// Check for errors
 		// 	if _, ok := result.(gandalff.SeriesError); ok || errorMode {
 		// 		return fmt.Errorf("unary operator %s not supported for %s",
-		// 			operatorToString(op),
+		// 			operatorToCode(op),
 		// 			t1.(gandalff.Series).TypeCard().ToString())
 		// 	}
 		// } else
