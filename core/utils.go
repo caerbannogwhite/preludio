@@ -193,7 +193,7 @@ func checkCurrentResult(be *ByteEater, expected interface{}) error {
 	case float64:
 		if !be.__currentResult.isFloat64Scalar() {
 			return fmt.Errorf("expected float64 scalar, got %T", be.__currentResult)
-		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || f != v {
+		} else if f, err := be.__currentResult.getFloat64Scalar(); err != nil || !float64SliceEqual([]float64{f}, []float64{v}) {
 			return fmt.Errorf("expected %f, got %f: %T", v, f, err)
 		}
 

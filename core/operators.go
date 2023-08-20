@@ -51,44 +51,45 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 		result = gandalff.SeriesError{}
 
 		// UNARY
-		// if op.IsUnaryOp() {
-		// 	t1 := stack[len(stack)-1]
-		// 	stack = stack[0 : len(stack)-1]
+		if op.IsUnaryOp() {
+			t1 := stack[len(stack)-1]
+			stack = stack[0 : len(stack)-1]
 
-		// 	if s, ok := t1.(__p_symbol__); ok {
-		// 		t1 = vm.symbolResolution(s)
-		// 	}
+			if s, ok := t1.(__p_symbol__); ok {
+				t1 = vm.symbolResolution(s)
+			}
 
-		// 	switch op {
-		// 	// case typesys.OP_UNARY_ADD: // TODO: ignore?
+			switch op {
+			case typesys.OP_UNARY_ADD:
+				result = t1
 
-		// 	case typesys.OP_UNARY_SUB:
-		// 		switch s1 := t1.(type) {
-		// 		case gandalff.SeriesInt32:
-		// 			result = s1.Neg()
-		// 		case gandalff.SeriesInt64:
-		// 			result = s1.Neg()
-		// 		case gandalff.SeriesFloat64:
-		// 			result = s1.Neg()
-		// 		default:
-		// 			errorMode = true
-		// 		}
+			case typesys.OP_UNARY_SUB:
+				switch s1 := t1.(type) {
+				case gandalff.SeriesInt32:
+					result = s1.Neg()
+				case gandalff.SeriesInt64:
+					result = s1.Neg()
+				case gandalff.SeriesFloat64:
+					result = s1.Neg()
+				default:
+					errorMode = true
+				}
 
-		// 	case typesys.OP_UNARY_NOT:
-		// 		if s1, ok := t1.(gandalff.SeriesBool); ok {
-		// 			result = s1.Not()
-		// 		} else {
-		// 			errorMode = true
-		// 		}
-		// 	}
+			case typesys.OP_UNARY_NOT:
+				if s1, ok := t1.(gandalff.SeriesBool); ok {
+					result = s1.Not()
+				} else {
+					errorMode = true
+				}
+			}
 
-		// 	// Check for errors
-		// 	if _, ok := result.(gandalff.SeriesError); ok || errorMode {
-		// 		return fmt.Errorf("unary operator %s not supported for %s",
-		// 			operatorToCode(op),
-		// 			t1.(gandalff.Series).TypeCard().ToString())
-		// 	}
-		// } else
+			// Check for errors
+			if _, ok := result.(gandalff.SeriesError); ok || errorMode {
+				return fmt.Errorf("unary operator %s not supported for %s",
+					operatorToCode(op),
+					t1.(gandalff.Series).TypeCard().ToString())
+			}
+		} else
 
 		// BINARY
 		{

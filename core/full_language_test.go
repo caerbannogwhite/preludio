@@ -3,6 +3,7 @@ package preludiocore
 import (
 	"bytefeeder"
 	"gandalff"
+	"math"
 	"os"
 	"testing"
 )
@@ -27,7 +28,37 @@ func Test_Expressions(t *testing.T) {
 		t.Error(err)
 	}
 
+	bytecode, _, _ = bytefeeder.CompileSource(`true * false`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(0)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`true / false`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, math.Inf(1)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`true % false`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, math.NaN()); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`true ** false`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(1)); err != nil {
+		t.Error(err)
+	}
+
 	bytecode, _, _ = bytefeeder.CompileSource(`true + false`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(1)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`true - false`)
 	be.RunBytecode(bytecode)
 	if err = checkCurrentResult(be, int64(1)); err != nil {
 		t.Error(err)
@@ -45,7 +76,19 @@ func Test_Expressions(t *testing.T) {
 		t.Error(err)
 	}
 
+	bytecode, _, _ = bytefeeder.CompileSource(`not true`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, false); err != nil {
+		t.Error(err)
+	}
+
 	bytecode, _, _ = bytefeeder.CompileSource(`true or (false and true)`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, true); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`true or not false and true or not true`)
 	be.RunBytecode(bytecode)
 	if err = checkCurrentResult(be, true); err != nil {
 		t.Error(err)
@@ -90,6 +133,30 @@ func Test_Expressions(t *testing.T) {
 	bytecode, _, _ = bytefeeder.CompileSource(`1 + 2`)
 	be.RunBytecode(bytecode)
 	if err = checkCurrentResult(be, int64(3)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`+1 + 2`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(3)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`-1`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(-1)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`-1 + 2`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, int64(1)); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`-1.0 - 2`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, float64(-3)); err != nil {
 		t.Error(err)
 	}
 
