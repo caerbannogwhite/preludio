@@ -9,10 +9,9 @@ manipulate data in a simple and intuitive way, batteries included.
 
 No libraries or external dependencies are required to run the language.
 
-### Example
+### Examples
 
-This is a simple example of what you can already do with Preludio.
-It reads a CSV file, derives two new columns, selects some columns and writes the result to a new CSV file.
+Read and clean up a CSV file, then store the result in a variable called `clean`:
 
 ```
 let clean = (
@@ -21,12 +20,18 @@ let clean = (
   asFloat [MPG, Displacement, Horsepower, Acceleration]
   orderBy [-Origin, Cylinders, -MPG]
 )
+```
 
+```
 let europe5Cylinders = (
   from clean
   filter Cylinders == 5 and Origin == "Europe"
 )
+```
 
+Derive new columns and write the result to a CSV file:
+
+```
 (
   from clean
   derive [
@@ -40,6 +45,24 @@ let europe5Cylinders = (
 
 ```
 
+Create a new table by joining two tables:
+
+```
+let myTab = (
+  new [
+    Continent = ["Asia", "America", "Europe"],
+    Origin = ["Japan", "US", "Europe"]
+  ]
+)
+
+let joined = (
+  from clean
+  join left myTab on Origin
+  select [Car, Origin, Continent]
+  orderBy [Continent, Origin]
+)
+```
+
 ![](media/repl_example.gif)
 
 ### Features
@@ -51,7 +74,7 @@ let europe5Cylinders = (
 - [x] Filter rows
 - [x] Sort rows
 - [ ] Group by and aggregate
-- [ ] Join tables
+- [x] Join tables
 
 ### Installation
 
@@ -61,6 +84,7 @@ Once you have Go, you can clone this repository.
 To run the program, you can use the following command:
 
 ```bash
+go mod tidy
 go run .
 ```
 
