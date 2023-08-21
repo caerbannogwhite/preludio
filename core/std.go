@@ -501,6 +501,71 @@ func PreludioFunc_Ungroup(funcName string, vm *ByteEater) {
 	vm.setCurrentDataFrame()
 }
 
+// Join two Dataframes
+func PreludioFunc_Join(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	named := map[string]*__p_intern__{
+		"by": nil,
+	}
+
+	var err error
+	var how __p_symbol__
+	var df1, df2 gandalff.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if len(positional) != 3 {
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 3 positional arguments, got %d", funcName, len(positional)))
+		return
+	}
+
+	// Left dataframe
+	if df1, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// How
+	if how, err = positional[1].getSymbol(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// Right dataframe
+	if df2, err = positional[2].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// By
+	var by []string
+	if named["by"] != nil {
+		if by, err = named["by"].listToStringSlice(); err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+	}
+
+	switch how {
+	case "inner":
+		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.INNER_JOIN, df2, by...)))
+	case "outer":
+		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.OUTER_JOIN, df2, by...)))
+	case "left":
+		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.LEFT_JOIN, df2, by...)))
+	case "right":
+		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.RIGHT_JOIN, df2, by...)))
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting one of 'inner', 'outer', 'left', 'right', got %s", funcName, how))
+		return
+	}
+	vm.setCurrentDataFrame()
+}
+
 // Sort all the values in the Dataframe
 func PreludioFunc_OrderBy(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
