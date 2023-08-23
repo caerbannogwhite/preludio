@@ -27,6 +27,15 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 					return err
 				}
 			}
+
+			i_, err := i.listToSeries()
+			if err != nil {
+				return err
+			}
+
+			i = vm.newPInternTerm(i_)
+
+			return nil
 		}
 	}
 
@@ -173,5 +182,6 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 
 		i.expr = append([]interface{}{result}, i.expr...)
 	}
+
 	return nil
 }
