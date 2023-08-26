@@ -372,17 +372,12 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 	}
 
 	df := gandalff.NewBaseDataFrame()
-	for _, e := range list {
-		if l, ok := e.getValue().(__p_list__); ok {
-			switch v := l[0].getValue().(type) {
-			case gandalff.Series:
-				df = df.AddSeries(v.SetName(l[0].name))
-			default:
-				vm.setPanicMode(fmt.Sprintf("%s: exprecting list of list for building dataframe, got %T", funcName, l[0].getValue()))
-				return
-			}
-		} else {
-			vm.setPanicMode(fmt.Sprintf("%s: exprecting list for building dataframe, got %T", funcName, l))
+	for _, p := range list {
+		switch v := p.expr[0].(type) {
+		case gandalff.Series:
+			df = df.AddSeries(v.SetName(p.name))
+		default:
+			vm.setPanicMode(fmt.Sprintf("%s: exprecting list of list for building dataframe, got %T", funcName, p.expr[0]))
 			return
 		}
 	}

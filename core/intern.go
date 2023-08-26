@@ -313,8 +313,15 @@ func (p *__p_intern__) processList() error {
 
 	list := p.expr[0].(__p_list__)
 	for _, q := range list {
+
+		// Skip assignments
+		if q.tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+			return nil
+		}
+
 		switch v := q.expr[0].(type) {
-		// case __p_list__:
+		case __p_list__:
+			return q.processList()
 
 		case gandalff.Series:
 			if series == nil {
@@ -323,6 +330,8 @@ func (p *__p_intern__) processList() error {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
 				series = series.Cast(v.Type(), p.vm.__stringPool).Append(v)
+			} else if v.Type().CanCoerceTo(series.Type()) {
+				series = series.Append(v.Cast(series.Type(), p.vm.__stringPool))
 			} else {
 				return fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
 			}

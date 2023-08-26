@@ -6,29 +6,29 @@ import (
 	"typesys"
 )
 
-func (vm *ByteEater) solveExpr(i *__p_intern__) error {
+func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 	// TODO: check if this is possible and
 	// if it's the case to raise an error
-	if i == nil || i.expr == nil || len(i.expr) == 0 {
+	if p == nil || p.expr == nil || len(p.expr) == 0 {
 		return fmt.Errorf("invalid expression")
 	}
 
 	// Check if the expression is:
 	//  - a symbol: resolve it
 	//  - a list: recursively solve all the expressions
-	if len(i.expr) == 1 {
-		switch l := i.expr[0].(type) {
+	if len(p.expr) == 1 {
+		switch e := p.expr[0].(type) {
 		case __p_symbol__:
-			i.expr[0] = vm.symbolResolution(l)
+			p.expr[0] = vm.symbolResolution(e)
 
 		case __p_list__:
-			for idx := range l {
-				if err := vm.solveExpr(&l[idx]); err != nil {
+			for idx := range e {
+				if err := vm.solveExpr(&e[idx]); err != nil {
 					return err
 				}
 			}
 
-			return i.processList()
+			return p.processList()
 		}
 	}
 
@@ -39,15 +39,15 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 	var exprIdx int
 	var result interface{}
 
-	for len(i.expr) > 1 {
+	for len(p.expr) > 1 {
 
 		// Load the stack until we find an operators
 		ok = false
-		for exprIdx = 0; !ok; op, ok = i.expr[exprIdx].(typesys.OPCODE) {
+		for exprIdx = 0; !ok; op, ok = p.expr[exprIdx].(typesys.OPCODE) {
 			exprIdx++
 		}
-		stack = append(stack, i.expr[0:exprIdx]...)
-		i.expr = i.expr[exprIdx+1 : len(i.expr)]
+		stack = append(stack, p.expr[0:exprIdx]...)
+		p.expr = p.expr[exprIdx+1 : len(p.expr)]
 
 		errorMode = false
 		result = gandalff.SeriesError{}
@@ -173,7 +173,7 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 			}
 		}
 
-		i.expr = append([]interface{}{result}, i.expr...)
+		p.expr = append([]interface{}{result}, p.expr...)
 	}
 
 	return nil
