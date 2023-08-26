@@ -28,14 +28,7 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 				}
 			}
 
-			i_, err := i.listToSeries()
-			if err != nil {
-				return err
-			}
-
-			i = vm.newPInternTerm(i_)
-
-			return nil
+			return i.processList()
 		}
 	}
 

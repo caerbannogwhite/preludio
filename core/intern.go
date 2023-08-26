@@ -308,6 +308,32 @@ func (i *__p_intern__) getList() (__p_list__, error) {
 	}
 }
 
+func (p *__p_intern__) processList() error {
+	var series gandalff.Series
+
+	list := p.expr[0].(__p_list__)
+	for _, q := range list {
+		switch v := q.expr[0].(type) {
+		// case __p_list__:
+
+		case gandalff.Series:
+			if series == nil {
+				series = v
+			} else if series.Type() == v.Type() {
+				series = series.Append(v)
+			} else if series.Type().CanCoerceTo(v.Type()) {
+				series = series.Cast(v.Type(), p.vm.__stringPool).Append(v)
+			} else {
+				return fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
+			}
+		}
+	}
+
+	p.expr[0] = series
+
+	return nil
+}
+
 func (i *__p_intern__) listToSeries() (gandalff.Series, error) {
 	switch l := i.expr[0].(type) {
 	case __p_list__:
