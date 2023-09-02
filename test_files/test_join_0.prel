@@ -1,0 +1,22 @@
+let clean = (
+  readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+  strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+  asFloat [MPG, Displacement, Horsepower, Acceleration]
+  orderBy [-Origin, Cylinders, -MPG]
+)
+
+let continents = (
+  new [
+    Continent = ["Asia", "America", "Europe"],
+    Origin = ["Japan", "US", "Europe"]
+  ]
+)
+
+let joined = (
+  from clean
+  join left continents on: [Origin]
+  select [Car, Origin, Continent]
+  orderBy [Continent, Origin]
+)
+
+joined
