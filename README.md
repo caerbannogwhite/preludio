@@ -48,7 +48,7 @@ Derive new columns and write the result to a CSV file:
 Create a new table by joining two tables:
 
 ```
-let myTab = (
+let continents = (
   new [
     Continent = ["Asia", "America", "Europe"],
     Origin = ["Japan", "US", "Europe"]
@@ -57,7 +57,7 @@ let myTab = (
 
 let joined = (
   from clean
-  join left myTab on Origin
+  join left continents on: [Origin]
   select [Car, Origin, Continent]
   orderBy [Continent, Origin]
 )

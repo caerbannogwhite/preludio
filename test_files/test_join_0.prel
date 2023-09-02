@@ -18,5 +18,3 @@ let joined = (
   select [Car, Origin, Continent]
   orderBy [Continent, Origin]
 )
-
-joined
