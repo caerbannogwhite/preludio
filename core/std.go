@@ -489,9 +489,10 @@ func PreludioFunc_Join(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"by": nil,
+		"on": nil,
 	}
 
+	var ok bool
 	var err error
 	var how __p_symbol__
 	var df1, df2 gandalff.DataFrame
@@ -519,33 +520,46 @@ func PreludioFunc_Join(funcName string, vm *ByteEater) {
 	}
 
 	// Right dataframe
-	if df2, err = positional[2].getDataframe(); err != nil {
+	if symb, err := positional[2].getSymbol(); err == nil {
+		if df2, ok = vm.symbolResolution(symb).(gandalff.DataFrame); !ok {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "expecting dataframe"))
+			return
+		}
+	} else {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
 	// By
-	var by []string
-	if named["by"] != nil {
-		if by, err = named["by"].listToStringSlice(); err != nil {
+	on := make([]string, 0)
+	if named["on"] != nil {
+		if on, err = named["on"].listToStringSlice(); err != nil {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
 	}
 
+	var res gandalff.DataFrame
 	switch how {
 	case "inner":
-		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.INNER_JOIN, df2, by...)))
+		res = df1.Join(gandalff.INNER_JOIN, df2, on...)
 	case "outer":
-		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.OUTER_JOIN, df2, by...)))
+		res = df1.Join(gandalff.OUTER_JOIN, df2, on...)
 	case "left":
-		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.LEFT_JOIN, df2, by...)))
+		res = df1.Join(gandalff.LEFT_JOIN, df2, on...)
 	case "right":
-		vm.stackPush(vm.newPInternTerm(df1.Join(gandalff.RIGHT_JOIN, df2, by...)))
+		res = df1.Join(gandalff.RIGHT_JOIN, df2, on...)
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting one of 'inner', 'outer', 'left', 'right', got %s", funcName, how))
 		return
 	}
+
+	if res.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.GetError()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(res))
 	vm.setCurrentDataFrame()
 }
 

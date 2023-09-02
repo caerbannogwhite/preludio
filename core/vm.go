@@ -438,6 +438,8 @@ MAIN_LOOP:
 				PreludioFunc_GroupBy("groupBy", vm)
 			case "ungroup":
 				PreludioFunc_Ungroup("ungroup", vm)
+			case "join":
+				PreludioFunc_Join("join", vm)
 			case "orderBy":
 				PreludioFunc_OrderBy("orderBy", vm)
 			case "take":
