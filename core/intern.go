@@ -326,6 +326,9 @@ func (p *__p_intern__) processList() error {
 		case gandalff.Series:
 			if series == nil {
 				series = v
+			} else if v.Len() > 1 {
+				// only append if the elements in the list are scalars
+				return nil
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
