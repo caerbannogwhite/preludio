@@ -343,14 +343,7 @@ func PreludioFunc_Names(funcName string, vm *ByteEater) {
 		return
 	}
 
-	fmt.Print("\t")
-	for _, name := range df.Names() {
-		fmt.Print(name, ", ")
-	}
-	fmt.Println()
-	fmt.Println()
-
-	vm.stackPush(vm.newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df.Names()))
 }
 
 // Create a new Dataframe
