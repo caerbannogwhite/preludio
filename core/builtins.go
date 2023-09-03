@@ -359,27 +359,42 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 
 	var list __p_list__
 	var err error
+	var df gandalff.DataFrame
+
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
-	list, err = positional[0].getList()
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
-	}
+	switch len(positional) {
+	case 1:
+		// New: parameter is a list of assignments
+		if positional[0].isList() {
+			list, err = positional[0].getList()
+			if err != nil {
+				vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+				return
+			}
 
-	df := gandalff.NewBaseDataFrame()
-	for _, p := range list {
-		switch v := p.expr[0].(type) {
-		case gandalff.Series:
-			df = df.AddSeries(v.SetName(p.name))
-		default:
-			vm.setPanicMode(fmt.Sprintf("%s: exprecting list of list for building dataframe, got %T", funcName, p.expr[0]))
+			df = gandalff.NewBaseDataFrame()
+			for _, p := range list {
+				switch v := p.expr[0].(type) {
+				case gandalff.Series:
+					df = df.AddSeries(v.SetName(p.name))
+				default:
+					vm.setPanicMode(fmt.Sprintf("%s: exprecting list of assignments for building a new dataframe, got %T", funcName, p.expr[0]))
+					return
+				}
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("%s: expecting assignment for building a new dataframe, got %T", funcName, positional[0].getValue()))
 			return
 		}
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "expecting exactly one positional parameter."))
+		return
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
