@@ -6,29 +6,64 @@ import (
 	"typesys"
 )
 
-func (vm *ByteEater) solveExpr(p *__p_intern__) error {
-	// TODO: check if this is possible and
-	// if it's the case to raise an error
-	if p == nil || p.expr == nil || len(p.expr) == 0 {
-		return fmt.Errorf("invalid expression")
-	}
+func (vm *ByteEater) processList(p *__p_intern__) error {
+	var series gandalff.Series
 
-	// Check if the expression is:
-	//  - a symbol: resolve it
-	//  - a list: recursively solve all the expressions
-	if len(p.expr) == 1 {
-		switch e := p.expr[0].(type) {
-		case __p_symbol__:
-			p.expr[0] = vm.symbolResolution(e)
+	list := p.expr[0].(__p_list__)
+	for _, q := range list {
 
+		// Skip assignments
+		if q.tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+			return nil
+		}
+
+		switch v := q.expr[0].(type) {
 		case __p_list__:
-			for idx := range e {
-				if err := vm.solveExpr(&e[idx]); err != nil {
-					return err
-				}
+			return vm.processList(&q)
+
+		case gandalff.Series:
+			err := vm.solveExpr(&q)
+			if err != nil {
+				return err
 			}
 
-			return p.processList()
+			if series == nil {
+				series = v
+			} else if v.Len() > 1 {
+				// only append if the elements in the list are scalars
+				return nil
+			} else if series.Type() == v.Type() {
+				series = series.Append(v)
+			} else if series.Type().CanCoerceTo(v.Type()) {
+				series = series.Cast(v.Type(), p.vm.__stringPool).Append(v)
+			} else if v.Type().CanCoerceTo(series.Type()) {
+				series = series.Append(v.Cast(series.Type(), p.vm.__stringPool))
+			} else {
+				return fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
+			}
+		}
+	}
+
+	p.expr[0] = series
+
+	return nil
+}
+
+func (vm *ByteEater) solveExpr(p *__p_intern__) error {
+	// Preprocess the expression
+	// Check if elements in the expression are:
+	//  - symbols: resolve them
+	//  - lists: recursively solve all the sub-expressions
+	for i := range p.expr {
+		if symb, ok := p.expr[i].(__p_symbol__); ok {
+			p.expr[i] = vm.symbolResolution(symb)
+		}
+
+		if _, ok := p.expr[i].(__p_list__); ok {
+			err := vm.processList(p)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
