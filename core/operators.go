@@ -10,19 +10,26 @@ func (vm *ByteEater) processList(p *__p_intern__) error {
 	var series gandalff.Series
 
 	list := p.expr[0].(__p_list__)
-	for _, q := range list {
+	for i := range list {
 
 		// Skip assignments
-		if q.tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+		if list[i].tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
 			return nil
 		}
 
-		switch v := q.expr[0].(type) {
-		case __p_list__:
-			return vm.processList(&q)
+		if symb, ok := list[i].expr[0].(__p_symbol__); ok {
+			list[i].expr[0] = vm.symbolResolution(symb)
+		}
 
-		case gandalff.Series:
-			err := vm.solveExpr(&q)
+		if _, ok := list[i].expr[0].(__p_list__); ok {
+			err := vm.processList(&list[i])
+			if err != nil {
+				return err
+			}
+		}
+
+		if v, ok := list[i].expr[0].(gandalff.Series); ok {
+			err := vm.solveExpr(&list[i])
 			if err != nil {
 				return err
 			}
