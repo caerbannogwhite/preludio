@@ -38,7 +38,7 @@ func (vm *ByteEater) processList(p *__p_intern__) error {
 				series = v
 			} else if v.Len() > 1 {
 				// only append if the elements in the list are scalars
-				return nil
+				continue
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
@@ -99,10 +99,6 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			t1 := stack[len(stack)-1]
 			stack = stack[0 : len(stack)-1]
 
-			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.symbolResolution(s)
-			}
-
 			switch op {
 			case typesys.OP_UNARY_ADD:
 				result = t1
@@ -137,22 +133,9 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 		// BINARY
 		{
-			t2 := stack[len(stack)-1]
-			t1 := stack[len(stack)-2]
+			s2 := stack[len(stack)-1].(gandalff.Series)
+			s1 := stack[len(stack)-2].(gandalff.Series)
 			stack = stack[0 : len(stack)-2]
-
-			// Symbol resolution
-			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.symbolResolution(s)
-			}
-
-			if s, ok := t2.(__p_symbol__); ok {
-				t2 = vm.symbolResolution(s)
-			}
-
-			// Type check
-			s1 := t1.(gandalff.Series)
-			s2 := t2.(gandalff.Series)
 
 			switch op {
 			case typesys.OP_BINARY_MUL:
@@ -192,14 +175,14 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				result = s1.Ge(s2)
 
 			case typesys.OP_BINARY_AND:
-				if s1, ok := t1.(gandalff.SeriesBool); ok {
+				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.And(s2)
 				} else {
 					errorMode = true
 				}
 
 			case typesys.OP_BINARY_OR:
-				if s1, ok := t1.(gandalff.SeriesBool); ok {
+				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.Or(s2)
 				} else {
 					errorMode = true
