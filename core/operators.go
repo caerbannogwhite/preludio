@@ -7,38 +7,21 @@ import (
 )
 
 func (vm *ByteEater) processList(p *__p_intern__) error {
+	var convertToSeries bool = true
 	var series gandalff.Series
 
 	list := p.expr[0].(__p_list__)
 	for i := range list {
+		switch v := list[i].expr[0].(type) {
+		case __p_list__:
+			convertToSeries = false
 
-		// Skip assignments
-		if list[i].tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
-			return nil
-		}
-
-		if symb, ok := list[i].expr[0].(__p_symbol__); ok {
-			list[i].expr[0] = vm.symbolResolution(symb)
-		}
-
-		if _, ok := list[i].expr[0].(__p_list__); ok {
-			err := vm.processList(&list[i])
-			if err != nil {
-				return err
-			}
-		}
-
-		if v, ok := list[i].expr[0].(gandalff.Series); ok {
-			err := vm.solveExpr(&list[i])
-			if err != nil {
-				return err
-			}
-
+		case gandalff.Series:
 			if series == nil {
 				series = v
 			} else if v.Len() > 1 {
-				// only append if the elements in the list are scalars
-				continue
+				convertToSeries = false
+				break
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
@@ -51,7 +34,9 @@ func (vm *ByteEater) processList(p *__p_intern__) error {
 		}
 	}
 
-	p.expr[0] = series
+	if convertToSeries {
+		p.expr[0] = series
+	}
 
 	return nil
 }
@@ -61,12 +46,20 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 	// Check if elements in the expression are:
 	//  - symbols: resolve them
 	//  - lists: recursively solve all the sub-expressions
+	var err error
 	for i := range p.expr {
 		if symb, ok := p.expr[i].(__p_symbol__); ok {
 			p.expr[i] = vm.symbolResolution(symb)
 		}
 
-		if _, ok := p.expr[i].(__p_list__); ok {
+		if list, ok := p.expr[i].(__p_list__); ok {
+			for j := range list {
+				err = vm.solveExpr(&list[j])
+				if err != nil {
+					return err
+				}
+			}
+
 			err := vm.processList(p)
 			if err != nil {
 				return err
