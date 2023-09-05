@@ -1,6 +1,6 @@
-![](media/logo_med.png)
+<!-- ![](media/logo_med.png) -->
 
-# Preludio
+# 🎭 Preludio
 
 ### A PRQL based data transformation language
 
