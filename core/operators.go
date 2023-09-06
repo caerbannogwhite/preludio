@@ -6,13 +6,12 @@ import (
 	"typesys"
 )
 
-func (vm *ByteEater) processList(p *__p_intern__) error {
+func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 	var convertToSeries bool = true
 	var series gandalff.Series
 
-	list := p.expr[0].(__p_list__)
-	for i := range list {
-		switch v := list[i].expr[0].(type) {
+	for i := range *list {
+		switch v := (*list)[i].expr[0].(type) {
 		case __p_list__:
 			convertToSeries = false
 
@@ -25,20 +24,19 @@ func (vm *ByteEater) processList(p *__p_intern__) error {
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
-				series = series.Cast(v.Type(), p.vm.__stringPool).Append(v)
+				series = series.Cast(v.Type(), vm.__stringPool).Append(v)
 			} else if v.Type().CanCoerceTo(series.Type()) {
-				series = series.Append(v.Cast(series.Type(), p.vm.__stringPool))
+				series = series.Append(v.Cast(series.Type(), vm.__stringPool))
 			} else {
-				return fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
+				return list, fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
 			}
 		}
 	}
 
 	if convertToSeries {
-		p.expr[0] = series
+		return series, nil
 	}
-
-	return nil
+	return list, nil
 }
 
 func (vm *ByteEater) solveExpr(p *__p_intern__) error {
@@ -60,7 +58,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				}
 			}
 
-			err := vm.processList(p)
+			p.expr[i], err = vm.processList(&list)
 			if err != nil {
 				return err
 			}
