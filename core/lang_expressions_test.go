@@ -221,6 +221,52 @@ func Test_Expressions(t *testing.T) {
 	}
 }
 
+func Test_Lists(t *testing.T) {
+	var err error
+	var bytecode []byte
+
+	bytecode, _, _ = bytefeeder.CompileSource(`[true, false, true]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []bool{true, false, true}); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`[1, 2, 3]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []int64{1, 2, 3}); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`[1.0, 2.0, 3.0]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []float64{1.0, 2.0, 3.0}); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`["hello", "world", "this is a string"]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []string{"hello", "world", "this is a string"}); err != nil {
+		t.Error(err)
+	}
+}
+
+func Test_Lists_Expressions(t *testing.T) {
+	var err error
+	var bytecode []byte
+
+	bytecode, _, _ = bytefeeder.CompileSource(`[true, false, true] + [true, false, true]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []int64{2, 0, 2}); err != nil {
+		t.Error(err)
+	}
+
+	bytecode, _, _ = bytefeeder.CompileSource(`[1, 2, 3] + [1, 2, 3]`)
+	be.RunBytecode(bytecode)
+	if err = checkCurrentResult(be, []int64{2, 4, 6}); err != nil {
+		t.Error(err)
+	}
+}
+
 func Test_Assignements(t *testing.T) {
 	var bytecode []byte
 	var source string
