@@ -2,7 +2,6 @@ package preludiocore
 
 import (
 	"bytefeeder"
-	"fmt"
 	"gandalff"
 	"os"
 	"testing"
@@ -27,8 +26,9 @@ func Test_Builtin_New(t *testing.T) {
 )
 `
 
+	be := new(ByteEater).InitVM()
 	bytecode, _, _ = bytefeeder.CompileSource(source)
-	new(ByteEater).InitVM().RunBytecode(bytecode)
+	be.RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
@@ -90,7 +90,7 @@ func Test_Builtin_New(t *testing.T) {
 `
 
 	bytecode, _, _ = bytefeeder.CompileSource(source)
-	new(ByteEater).InitVM().RunBytecode(bytecode)
+	be.InitVM().RunBytecode(bytecode)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
@@ -118,7 +118,7 @@ func Test_Builtin_New(t *testing.T) {
 			t.Error("Expected bool values", bools, "got", df.Series("A").(gandalff.SeriesBool).Bools())
 		}
 
-		strings := []string{"hello", "world", "this is a string", "this is another string", "this is a third string"}
+		strings := []string{"hello!", "world!", "this is a string!", "this is another string!", "this is a third string!"}
 		if !stringSliceEqual(df.Series("B").(gandalff.SeriesString).Strings(), strings) {
 			t.Error("Expected string values", strings, "got", df.Series("B").(gandalff.SeriesString).Strings())
 		}
@@ -148,17 +148,7 @@ func Test_Builtin_New(t *testing.T) {
 `
 
 	bytecode, _, err = bytefeeder.CompileSource(source)
-	new(ByteEater).InitVM().RunBytecode(bytecode)
-
-	fmt.Println(be.__currentResult)
-
-	// if be.__currentResult == nil {
-	// 	t.Error("Expected result, got nil")
-	// } else if be.__currentResult.isDataframe() == false {
-	// 	t.Error("Expected dataframe, got", be.__currentResult)
-	// } else if df, err = be.__currentResult.getDataframe(); err == nil {
-	// }
-
+	be.RunBytecode(bytecode)
 }
 
 func Test_Builtin_Pipelines1(t *testing.T) {
@@ -387,5 +377,8 @@ Chevrolet Chevette	US	1.3142830188679246
 		t.Error("Expected", expected, "got", string(b))
 	}
 
-	os.Remove("..\\test_files\\CarsRes.csv")
+	err = os.Remove("..\\test_files\\CarsRes.csv")
+	if err != nil {
+		t.Error("Expected no error, got", err)
+	}
 }
