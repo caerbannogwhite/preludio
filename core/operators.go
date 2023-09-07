@@ -36,7 +36,7 @@ func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 	if convertToSeries {
 		return series, nil
 	}
-	return list, nil
+	return *list, nil
 }
 
 func (vm *ByteEater) solveExpr(p *__p_intern__) error {
