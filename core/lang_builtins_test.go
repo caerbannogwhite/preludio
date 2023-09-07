@@ -4,6 +4,7 @@ import (
 	"bytefeeder"
 	"fmt"
 	"gandalff"
+	"os"
 	"testing"
 	"typesys"
 )
@@ -149,7 +150,7 @@ func Test_Builtin_New(t *testing.T) {
 	bytecode, _, err = bytefeeder.CompileSource(source)
 	new(ByteEater).InitVM().RunBytecode(bytecode)
 
-	fmt.Println(err)
+	fmt.Println(be.__currentResult)
 
 	// if be.__currentResult == nil {
 	// 	t.Error("Expected result, got nil")
@@ -169,7 +170,7 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 let clean = (
-	readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+	readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
 	strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 	asFloat [MPG, Displacement, Horsepower, Acceleration]
 	orderBy [-Origin, Cylinders, -MPG]
@@ -180,16 +181,157 @@ let europe5Cylinders = (
 	filter Cylinders == 5 and Origin == "Europe"
 )	  
 `
-
+	be = new(ByteEater).InitVM()
 	bytecode, _, _ = bytefeeder.CompileSource(source)
-	new(ByteEater).InitVM().RunBytecode(bytecode)
+	be.RunBytecode(bytecode)
 
-	if be.__currentResult == nil {
+	// check clean
+	if p, ok := be.__globalNamespace["clean"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err != nil {
+			t.Error("Expected no error, got", err)
+		} else {
+			if df.NCols() != 9 {
+				t.Error("Expected 9 columns, got", df.NCols())
+			}
+
+			// check types
+			if df.SeriesAt(0).Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.SeriesAt(0).Type())
+			}
+			if df.SeriesAt(1).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(1).Type())
+			}
+			if df.SeriesAt(2).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(2).Type())
+			}
+			if df.SeriesAt(3).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(3).Type())
+			}
+			if df.SeriesAt(4).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(4).Type())
+			}
+			if df.SeriesAt(5).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(5).Type())
+			}
+			if df.SeriesAt(6).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(6).Type())
+			}
+			if df.SeriesAt(7).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(7).Type())
+			}
+			if df.SeriesAt(8).Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.SeriesAt(8).Type())
+			}
+
+			// check names
+			if df.SeriesAt(0).Name() != "Car" {
+				t.Error("Expected Car, got", df.SeriesAt(0).Name())
+			}
+			if df.SeriesAt(1).Name() != "MPG" {
+				t.Error("Expected MPG, got", df.SeriesAt(1).Name())
+			}
+			if df.SeriesAt(2).Name() != "Cylinders" {
+				t.Error("Expected Cylinders, got", df.SeriesAt(2).Name())
+			}
+			if df.SeriesAt(3).Name() != "Displacement" {
+				t.Error("Expected Displacement, got", df.SeriesAt(3).Name())
+			}
+			if df.SeriesAt(4).Name() != "Horsepower" {
+				t.Error("Expected Horsepower, got", df.SeriesAt(4).Name())
+			}
+			if df.SeriesAt(5).Name() != "Weight" {
+				t.Error("Expected Weight, got", df.SeriesAt(5).Name())
+			}
+			if df.SeriesAt(6).Name() != "Acceleration" {
+				t.Error("Expected Acceleration, got", df.SeriesAt(6).Name())
+			}
+			if df.SeriesAt(7).Name() != "Model" {
+				t.Error("Expected Model, got", df.SeriesAt(7).Name())
+			}
+			if df.SeriesAt(8).Name() != "Origin" {
+				t.Error("Expected Origin, got", df.SeriesAt(8).Name())
+			}
+		}
+	} else {
 		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isDataframe() == false {
-		t.Error("Expected dataframe, got", be.__currentResult)
-	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		df.PrettyPrint()
+	}
+
+	// check europe5Cylinders
+	if p, ok := be.__globalNamespace["europe5Cylinders"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err != nil {
+			t.Error("Expected no error, got", err)
+		} else {
+			if df.NCols() != 9 {
+				t.Error("Expected 9 columns, got", df.NCols())
+			}
+			if df.NRows() != 3 {
+				t.Error("Expected 3 rows, got", df.NRows())
+			}
+
+			// check types
+			if df.SeriesAt(0).Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.SeriesAt(0).Type())
+			}
+			if df.SeriesAt(1).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(1).Type())
+			}
+			if df.SeriesAt(2).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(2).Type())
+			}
+			if df.SeriesAt(3).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(3).Type())
+			}
+			if df.SeriesAt(4).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(4).Type())
+			}
+			if df.SeriesAt(5).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(5).Type())
+			}
+			if df.SeriesAt(6).Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.SeriesAt(6).Type())
+			}
+			if df.SeriesAt(7).Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.SeriesAt(7).Type())
+			}
+			if df.SeriesAt(8).Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.SeriesAt(8).Type())
+			}
+
+			// check names
+			if df.SeriesAt(0).Name() != "Car" {
+				t.Error("Expected Car, got", df.SeriesAt(0).Name())
+			}
+			if df.SeriesAt(1).Name() != "MPG" {
+				t.Error("Expected MPG, got", df.SeriesAt(1).Name())
+			}
+			if df.SeriesAt(2).Name() != "Cylinders" {
+				t.Error("Expected Cylinders, got", df.SeriesAt(2).Name())
+			}
+			if df.SeriesAt(3).Name() != "Displacement" {
+				t.Error("Expected Displacement, got", df.SeriesAt(3).Name())
+			}
+			if df.SeriesAt(4).Name() != "Horsepower" {
+				t.Error("Expected Horsepower, got", df.SeriesAt(4).Name())
+			}
+			if df.SeriesAt(5).Name() != "Weight" {
+				t.Error("Expected Weight, got", df.SeriesAt(5).Name())
+			}
+			if df.SeriesAt(6).Name() != "Acceleration" {
+				t.Error("Expected Acceleration, got", df.SeriesAt(6).Name())
+			}
+			if df.SeriesAt(7).Name() != "Model" {
+				t.Error("Expected Model, got", df.SeriesAt(7).Name())
+			}
+			if df.SeriesAt(8).Name() != "Origin" {
+				t.Error("Expected Origin, got", df.SeriesAt(8).Name())
+			}
+		}
+	} else {
+		t.Error("Expected result, got nil")
 	}
 }
 
@@ -197,12 +339,11 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	var err error
 	var source string
 	var bytecode []byte
-	var df gandalff.DataFrame
 
 	// basic test
 	source = `
 let clean = (
-	readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+	readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
 	strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 	asFloat [MPG, Displacement, Horsepower, Acceleration]
 	orderBy [-Origin, Cylinders, -MPG]
@@ -216,18 +357,35 @@ let clean = (
 	]
 	filter Stat > 1.3
 	select [Car, Origin, Stat]
-	writeCSV "test_files\\Cars1.csv" delimiter: "\t"
+	take 10
+	writeCSV "..\\test_files\\CarsRes.csv" delimiter: "\t"
 )	  
 `
 
 	bytecode, _, _ = bytefeeder.CompileSource(source)
 	new(ByteEater).InitVM().RunBytecode(bytecode)
 
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isDataframe() == false {
-		t.Error("Expected dataframe, got", be.__currentResult)
-	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		df.PrettyPrint()
+	b, err := os.ReadFile("..\\test_files\\CarsRes.csv")
+	if err != nil {
+		t.Error("Expected no error, got", err)
 	}
+
+	expected := `Car	Origin	Stat
+Plymouth Champ	US	1.83352
+Plymouth Horizon Miser	US	1.7524705882352942
+Ford Fiesta	US	1.71529696969697
+Mercury Lynx l	US	1.6412611764705882
+Dodge Colt Hatchback Custom	US	1.3154005221932117
+Plymouth Horizon 4	US	1.5561474793077505
+Plymouth Horizon TC3	US	1.4345581395348839
+Ford Escort 4W	US	1.6434362234342674
+Chevrolet Cavalier 2-door	US	1.3008920098690453
+Chevrolet Chevette	US	1.3142830188679246
+`
+
+	if string(b) != expected {
+		t.Error("Expected", expected, "got", string(b))
+	}
+
+	os.Remove("..\\test_files\\CarsRes.csv")
 }
