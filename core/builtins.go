@@ -160,6 +160,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
+	defer outputFile.Close()
 
 	err = outputFile.Truncate(int64(0))
 	if err != nil {
@@ -915,7 +916,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			return
 		}
 
-		switch v := positional[1].getValue().(type) {
+		switch v := positional[1].expr[0].(type) {
 		case gandalff.SeriesString:
 			df = df.Replace(v.Name(), v.Replace(strOld, strNew, int(num)))
 			vm.stackPush(vm.newPInternTerm(df))
