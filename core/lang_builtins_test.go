@@ -151,6 +151,63 @@ func Test_Builtin_New(t *testing.T) {
 	be.RunBytecode(bytecode)
 }
 
+func Test_Builtin_Join(t *testing.T) {
+	var err error
+	var source string
+	var bytecode []byte
+	var df gandalff.DataFrame
+
+	// basic test
+	source = `
+let df1 = (
+	new [
+		A = [true, false, true, false, true],
+		B = ["one", "two", "three", "four", "five"],
+		C = [1, 2, 3, 4, 5],
+		D = [1.1, 2.2, 3.3, 4.4, 5.5]
+	]
+)
+
+let df2 = (
+	new [
+		A = [true, true, false],
+		B = ["one", "four", "five"],
+		C = [1, 1, 1],
+	]
+)
+
+let df3 = (
+	new [
+		A = [true, false, true, false, true],
+		B = ["four", "five", "six", "seven", "eight"],
+		C = [1, 1, 2, 6, 7],
+		D = [5.5, 4.4, 1.1, 1.1, 1.1]
+	]
+)
+
+let j1 = (from df1 join left df2 on: [A, B])
+let j2 = (from df1 join right df2 on: [A, B])
+let j3 = (from df1 join inner df2 on: [A, B])
+let j4 = (from df1 join outer df2 on: [A, B])
+`
+
+	be := new(ByteEater).InitVM()
+	bytecode, _, err = bytefeeder.CompileSource(source)
+	be.RunBytecode(bytecode)
+
+	if p, ok := be.__globalNamespace["j1"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err != nil {
+			df.PrettyPrint()
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+}
+
 func Test_Builtin_Pipelines1(t *testing.T) {
 	var err error
 	var source string
@@ -169,7 +226,7 @@ let clean = (
 let europe5Cylinders = (
 	from clean
 	filter Cylinders == 5 and Origin == "Europe"
-)	  
+)
 `
 	be = new(ByteEater).InitVM()
 	bytecode, _, _ = bytefeeder.CompileSource(source)
