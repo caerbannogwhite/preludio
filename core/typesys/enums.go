@@ -86,6 +86,7 @@ type Columnar struct {
 	Type         string   `json:"type"`
 	ActualLength int      `json:"actualLength"` // actual length of the column
 	Data         []string `json:"data"`
+	Nulls        []bool   `json:"nulls"`
 }
 
 type PreludioOutput struct {

@@ -8,15 +8,14 @@ import (
 func seriesToColumnar(fullOutput bool, outputSnippetLength int, series gandalff.Series) typesys.Columnar {
 	col := typesys.Columnar{}
 	col.Name = series.Name()
-	col.Type = series.TypeCard().ToString()
+	col.Type = series.Type().ToString()
 	col.ActualLength = series.Len()
 
 	if !fullOutput && series.Len() > outputSnippetLength {
-		col.Data = series.Take(outputSnippetLength).DataAsString()
-		col.Data = append(col.Data, "...")
-	} else {
-		col.Data = series.DataAsString()
+		series = series.Take(outputSnippetLength)
 	}
+	col.Data = series.DataAsString()
+	col.Nulls = series.GetNullMask()
 
 	return col
 }
