@@ -15,7 +15,17 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-const VERSION = "0.2.0"
+const VERSION = "0.3.0"
+
+const DEFAULT_NULL_STRING = "NA"
+const DEFAULT_OUTPUT_COLUMN_SIZE = 12
+
+var JUST_RIGHT_TYPES = map[string]bool{
+	"Bool":    true,
+	"Int64":   true,
+	"Float64": true,
+	"String":  false,
+}
 
 type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
@@ -93,7 +103,7 @@ func LaunchCodeEditor(args CliArgs) {
 
 func LaunchRepl(args CliArgs) {
 
-	var outputColumnSize = 10
+	outputColumnSize := DEFAULT_OUTPUT_COLUMN_SIZE
 
 	fmt.Println("Welcome to the Preludio REPL!")
 	fmt.Println("Version:", VERSION)
@@ -248,7 +258,8 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	}
 
 	actualColSize := colSize + 3
-	fmtString := fmt.Sprintf("| %%%ds ", colSize)
+	fmtStringLeft := fmt.Sprintf("| %%-%ds ", colSize)
+	fmtStringRight := fmt.Sprintf("| %%%ds ", colSize)
 
 	// header
 	fmt.Printf("    ")
@@ -275,7 +286,7 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	if colNames {
 		fmt.Printf("    ")
 		for _, c := range columnar {
-			fmt.Printf(fmtString, truncate(c.Name, colSize))
+			fmt.Printf(fmtStringLeft, truncate(c.Name, colSize))
 		}
 		fmt.Println("|")
 
@@ -294,7 +305,7 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	// column typesys
 	fmt.Printf("    ")
 	for _, c := range columnar {
-		fmt.Printf(fmtString, truncate(c.Type, colSize))
+		fmt.Printf(fmtStringLeft, truncate(c.Type, colSize))
 	}
 	fmt.Println("|")
 
@@ -313,7 +324,28 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	for i := 0; i < len(columnar[0].Data); i++ {
 		fmt.Printf("    ")
 		for _, c := range columnar {
-			fmt.Printf(fmtString, truncate(c.Data[i], colSize))
+			fmtString := fmtStringLeft
+			if JUST_RIGHT_TYPES[c.Type] {
+				fmtString = fmtStringRight
+			}
+
+			if c.Nulls[i] {
+				fmt.Printf(fmtString, DEFAULT_NULL_STRING)
+			} else {
+				fmt.Printf(fmtString, truncate(c.Data[i], colSize))
+			}
+		}
+		fmt.Println("|")
+	}
+
+	if len(columnar[0].Data) < columnar[0].ActualLength {
+		fmt.Printf("    ")
+		for _, c := range columnar {
+			fmtString := fmtStringLeft
+			if JUST_RIGHT_TYPES[c.Type] {
+				fmtString = fmtStringRight
+			}
+			fmt.Printf(fmtString, "...")
 		}
 		fmt.Println("|")
 	}
