@@ -13,6 +13,7 @@ import (
 
 	"github.com/alexflint/go-arg"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 const VERSION = "0.3.0"
@@ -26,6 +27,16 @@ var JUST_RIGHT_TYPES = map[string]bool{
 	"Float64": true,
 	"String":  false,
 }
+
+var (
+	STYLE_BOLD    = lipgloss.NewStyle().Bold(true)
+	STYLE_NA      = lipgloss.NewStyle().Bold(true)   // .Foreground(lipgloss.Color("#ff0e0e"))
+	STYLE_BOOL    = lipgloss.NewStyle()              // .Foreground(lipgloss.Color("#00FA9A"))
+	STYLE_NUMERIC = lipgloss.NewStyle()              // .Foreground(lipgloss.Color("#00BFFF"))
+	STYLE_STRING  = lipgloss.NewStyle().Italic(true) // .Foreground(lipgloss.Color("240"))
+
+	NO_STYLE = lipgloss.NewStyle()
+)
 
 type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
@@ -257,20 +268,23 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 		return
 	}
 
+	indent := "    "
+	buffer := ""
+
 	actualColSize := colSize + 3
-	fmtStringLeft := fmt.Sprintf("| %%-%ds ", colSize)
-	fmtStringRight := fmt.Sprintf("| %%%ds ", colSize)
+	fmtStringLeft := fmt.Sprintf("│ %%-%ds ", colSize)
+	fmtStringRight := fmt.Sprintf("│ %%%ds ", colSize)
 
 	// header
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer += indent + "╭"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┬"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╮\n"
 
 	// column names
 	// check if there are any column names
@@ -284,45 +298,51 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 
 	// only print column names if there are any
 	if colNames {
-		fmt.Printf("    ")
+		buffer += indent
 		for _, c := range columnar {
-			fmt.Printf(fmtStringLeft, truncate(c.Name, colSize))
+			buffer += STYLE_BOLD.
+				// Inline(true).
+				// MaxWidth(colSize + 3).
+				// BorderStyle(lipgloss.RoundedBorder()).
+				// BorderLeft(true).BorderTop(false).
+				Render(fmt.Sprintf(fmtStringLeft, truncate(c.Name, colSize)))
 		}
-		fmt.Println("|")
+		buffer += "│\n"
 
 		// separator
-		fmt.Printf("    ")
-		for i := 0; i < len(columnar)*actualColSize; i++ {
+		buffer += indent + "├"
+		for i := 1; i < len(columnar)*actualColSize; i++ {
 			if i%actualColSize == 0 {
-				fmt.Print("+")
+				buffer += "┼"
 			} else {
-				fmt.Print("-")
+				buffer += "─"
 			}
 		}
-		fmt.Println("+")
+		buffer += "┤\n"
 	}
 
 	// column typesys
-	fmt.Printf("    ")
+	buffer += indent
 	for _, c := range columnar {
-		fmt.Printf(fmtStringLeft, truncate(c.Type, colSize))
+		buffer += STYLE_BOLD.Italic(true).
+			Render(fmt.Sprintf(fmtStringLeft, truncate(c.Type, colSize)))
 	}
-	fmt.Println("|")
+	buffer += "|\n"
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer += indent + "├"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┼"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "┤\n"
 
 	// data
 	for i := 0; i < len(columnar[0].Data); i++ {
-		fmt.Printf("    ")
+		buffer += indent
 		for _, c := range columnar {
 			fmtString := fmtStringLeft
 			if JUST_RIGHT_TYPES[c.Type] {
@@ -330,34 +350,51 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 			}
 
 			if c.Nulls[i] {
-				fmt.Printf(fmtString, DEFAULT_NULL_STRING)
+				buffer += STYLE_NA.
+					Render(fmt.Sprintf(fmtString, DEFAULT_NULL_STRING))
 			} else {
-				fmt.Printf(fmtString, truncate(c.Data[i], colSize))
+				switch c.Type {
+				case "Bool":
+					buffer += STYLE_BOOL.
+						Render(fmt.Sprintf(fmtString, c.Data[i]))
+				case "Int64", "Float64":
+					buffer += STYLE_NUMERIC.
+						Render(fmt.Sprintf(fmtString, c.Data[i]))
+				case "String":
+					buffer += STYLE_STRING.
+						Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+				default:
+					buffer += STYLE_STRING.
+						Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+				}
 			}
 		}
-		fmt.Println("|")
+		buffer += "│\n"
 	}
 
 	if len(columnar[0].Data) < columnar[0].ActualLength {
-		fmt.Printf("    ")
+		buffer += indent
 		for _, c := range columnar {
 			fmtString := fmtStringLeft
 			if JUST_RIGHT_TYPES[c.Type] {
 				fmtString = fmtStringRight
 			}
-			fmt.Printf(fmtString, "...")
+			buffer += STYLE_STRING.
+				Render(fmt.Sprintf(fmtString, "..."))
 		}
-		fmt.Println("|")
+		buffer += "│\n"
 	}
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer += indent + "╰"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┴"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╯\n"
+
+	fmt.Print(buffer)
 }
