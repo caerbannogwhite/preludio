@@ -65,10 +65,6 @@ let joined = (
 
 ![](media/repl_example.gif)
 
-### Known Issues
-
-- [ ] `not` operator is not working in front of a list (eg. `not [true, false, true]`), possible grammar issue
-
 ### Features
 
 - [x] Arithmetic and logical operators
