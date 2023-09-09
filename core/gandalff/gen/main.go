@@ -390,7 +390,7 @@ func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 }
 
 // Generate the if statement to check the size of the series
-func generateSizeCheck(info BuildInfo) ast.Stmt {
+func generateSizeCheck(info BuildInfo, defaultReturn ast.Stmt) ast.Stmt {
 	return &ast.IfStmt{
 		Cond: &ast.BinaryExpr{
 			X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op1VarName)},
@@ -437,10 +437,20 @@ func generateSizeCheck(info BuildInfo) ast.Stmt {
 					},
 
 					// CASE OP1_SIZE != 1 AND OP2_SIZE != 1
-					Else: &ast.BlockStmt{
-						List: generateNullabilityCheck(info.UpdateScalarInfo(false, false)),
+					Else: &ast.IfStmt{
+						Cond: &ast.BinaryExpr{
+							X:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op1VarName)},
+							Op: token.EQL,
+							Y:  &ast.Ident{Name: fmt.Sprintf("%s.Len()", info.Op2VarName)},
+						},
+
+						Body: &ast.BlockStmt{
+							List: generateNullabilityCheck(info.UpdateScalarInfo(false, false)),
+						},
 					},
 				},
+
+				defaultReturn,
 			},
 		},
 	}
@@ -476,7 +486,7 @@ func generateSwitchType(
 						Op2SeriesType: op2.SeriesType,
 						Op2InnerType:  op2.InnerType,
 						MakeOperation: op2.MakeOperation,
-					}),
+					}, defaultReturn),
 				},
 			},
 		)

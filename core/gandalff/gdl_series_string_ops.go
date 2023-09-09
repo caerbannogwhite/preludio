@@ -157,7 +157,7 @@ func (s SeriesString) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -199,6 +199,7 @@ func (s SeriesString) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -319,7 +320,7 @@ func (s SeriesString) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -361,6 +362,7 @@ func (s SeriesString) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -481,7 +483,7 @@ func (s SeriesString) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -523,6 +525,7 @@ func (s SeriesString) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -643,7 +646,7 @@ func (s SeriesString) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -685,6 +688,7 @@ func (s SeriesString) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesString:
 		if s.Len() == 1 {
@@ -805,7 +809,7 @@ func (s SeriesString) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: s.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -847,6 +851,7 @@ func (s SeriesString) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -983,7 +988,7 @@ func (s SeriesString) Eq(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1025,6 +1030,7 @@ func (s SeriesString) Eq(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1153,7 +1159,7 @@ func (s SeriesString) Ne(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1195,6 +1201,7 @@ func (s SeriesString) Ne(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1323,7 +1330,7 @@ func (s SeriesString) Gt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1365,6 +1372,7 @@ func (s SeriesString) Gt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1493,7 +1501,7 @@ func (s SeriesString) Ge(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1535,6 +1543,7 @@ func (s SeriesString) Ge(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1663,7 +1672,7 @@ func (s SeriesString) Lt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1705,6 +1714,7 @@ func (s SeriesString) Lt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1833,7 +1843,7 @@ func (s SeriesString) Le(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1875,6 +1885,7 @@ func (s SeriesString) Le(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}

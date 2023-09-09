@@ -157,7 +157,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -207,6 +207,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -327,7 +328,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -369,6 +370,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -489,7 +491,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -531,6 +533,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -651,7 +654,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -693,6 +696,7 @@ func (s SeriesInt32) Mul(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -869,7 +873,7 @@ func (s SeriesInt32) Div(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -927,6 +931,7 @@ func (s SeriesInt32) Div(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -1047,7 +1052,7 @@ func (s SeriesInt32) Div(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1089,6 +1094,7 @@ func (s SeriesInt32) Div(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -1209,7 +1215,7 @@ func (s SeriesInt32) Div(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1251,6 +1257,7 @@ func (s SeriesInt32) Div(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -1371,7 +1378,7 @@ func (s SeriesInt32) Div(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1413,6 +1420,7 @@ func (s SeriesInt32) Div(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -1589,7 +1597,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1647,6 +1655,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -1767,7 +1776,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1809,6 +1818,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -1929,7 +1939,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -1971,6 +1981,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -2091,7 +2102,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -2133,6 +2144,7 @@ func (s SeriesInt32) Mod(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -2309,7 +2321,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -2367,6 +2379,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -2487,7 +2500,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -2529,6 +2542,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -2649,7 +2663,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -2691,6 +2705,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -2811,7 +2826,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -2853,6 +2868,7 @@ func (s SeriesInt32) Pow(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -3029,7 +3045,7 @@ func (s SeriesInt32) Add(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3087,6 +3103,7 @@ func (s SeriesInt32) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -3207,7 +3224,7 @@ func (s SeriesInt32) Add(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3249,6 +3266,7 @@ func (s SeriesInt32) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -3369,7 +3387,7 @@ func (s SeriesInt32) Add(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3411,6 +3429,7 @@ func (s SeriesInt32) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -3531,7 +3550,7 @@ func (s SeriesInt32) Add(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3573,6 +3592,7 @@ func (s SeriesInt32) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesString:
 		if s.Len() == 1 {
@@ -3693,7 +3713,7 @@ func (s SeriesInt32) Add(other Series) Series {
 						return SeriesString{isNullable: false, name: s.name, nullMask: resultNullMask, pool: o.pool, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3735,6 +3755,7 @@ func (s SeriesInt32) Add(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -3911,7 +3932,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -3969,6 +3990,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -4089,7 +4111,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 						return SeriesInt32{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4131,6 +4153,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -4251,7 +4274,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 						return SeriesInt64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4293,6 +4316,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -4413,7 +4437,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 						return SeriesFloat64{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4455,6 +4479,7 @@ func (s SeriesInt32) Sub(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot subtract %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -4583,7 +4608,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4625,6 +4650,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -4745,7 +4771,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4787,6 +4813,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -4907,7 +4934,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -4949,6 +4976,7 @@ func (s SeriesInt32) Eq(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for equality %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -5077,7 +5105,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -5119,6 +5147,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -5239,7 +5268,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -5281,6 +5310,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -5401,7 +5431,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -5443,6 +5473,7 @@ func (s SeriesInt32) Ne(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for inequality %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -5619,7 +5650,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -5677,6 +5708,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -5797,7 +5829,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -5839,6 +5871,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -5959,7 +5992,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6001,6 +6034,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -6121,7 +6155,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6163,6 +6197,7 @@ func (s SeriesInt32) Gt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for greater than %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -6339,7 +6374,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6397,6 +6432,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -6517,7 +6553,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6559,6 +6595,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -6679,7 +6716,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6721,6 +6758,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -6841,7 +6879,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -6883,6 +6921,7 @@ func (s SeriesInt32) Ge(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for greater than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -7059,7 +7098,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7117,6 +7156,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -7237,7 +7277,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7279,6 +7319,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -7399,7 +7440,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7441,6 +7482,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -7561,7 +7603,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7603,6 +7645,7 @@ func (s SeriesInt32) Lt(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for less than %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -7779,7 +7822,7 @@ func (s SeriesInt32) Le(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7837,6 +7880,7 @@ func (s SeriesInt32) Le(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -7957,7 +8001,7 @@ func (s SeriesInt32) Le(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -7999,6 +8043,7 @@ func (s SeriesInt32) Le(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -8119,7 +8164,7 @@ func (s SeriesInt32) Le(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -8161,6 +8206,7 @@ func (s SeriesInt32) Le(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -8281,7 +8327,7 @@ func (s SeriesInt32) Le(other Series) Series {
 						return SeriesBool{isNullable: false, name: s.name, nullMask: resultNullMask, data: result}
 					}
 				}
-			} else {
+			} else if s.Len() == o.Len() {
 				if s.isNullable {
 					if o.isNullable {
 						resultSize := len(s.data)
@@ -8323,6 +8369,7 @@ func (s SeriesInt32) Le(other Series) Series {
 					}
 				}
 			}
+			return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
 		return SeriesError{fmt.Sprintf("Cannot compare for less than or equal to %s and %s", s.Type().ToString(), o.Type().ToString())}
