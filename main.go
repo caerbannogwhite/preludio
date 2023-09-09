@@ -18,6 +18,9 @@ import (
 
 const VERSION = "0.3.0"
 
+const DEFAULT_PROMPT = ">>> "
+const DEFAULT_INDENTAION = "    "
+const DEFAULT_SUSPENSION_STRING = "... "
 const DEFAULT_NULL_STRING = "NA"
 const DEFAULT_OUTPUT_COLUMN_SIZE = 12
 
@@ -30,12 +33,13 @@ var JUST_RIGHT_TYPES = map[string]bool{
 
 var (
 	STYLE_BOLD    = lipgloss.NewStyle().Bold(true)
-	STYLE_NA      = lipgloss.NewStyle().Bold(true)   // .Foreground(lipgloss.Color("#ff0e0e"))
-	STYLE_BOOL    = lipgloss.NewStyle()              // .Foreground(lipgloss.Color("#00FA9A"))
-	STYLE_NUMERIC = lipgloss.NewStyle()              // .Foreground(lipgloss.Color("#00BFFF"))
-	STYLE_STRING  = lipgloss.NewStyle().Italic(true) // .Foreground(lipgloss.Color("240"))
-
-	NO_STYLE = lipgloss.NewStyle()
+	STYLE_ITALIC  = lipgloss.NewStyle().Italic(true)
+	STYLE_PROMPT  = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#F87217"))
+	STYLE_NA      = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#C04000"))
+	STYLE_BOOL    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
+	STYLE_NUMERIC = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
+	STYLE_STRING  = STYLE_ITALIC.Copy().Foreground(lipgloss.Color("#98AFC7"))
+	NO_STYLE      = lipgloss.NewStyle()
 )
 
 type CliArgs struct {
@@ -97,7 +101,6 @@ func main() {
 }
 
 func LaunchCodeEditor(args CliArgs) {
-
 	be := new(preludiocore.ByteEater).
 		InitVM().
 		SetParamPrintWarning(args.Warnings).
@@ -116,8 +119,8 @@ func LaunchRepl(args CliArgs) {
 
 	outputColumnSize := DEFAULT_OUTPUT_COLUMN_SIZE
 
-	fmt.Println("Welcome to the Preludio REPL!")
-	fmt.Println("Version:", VERSION)
+	fmt.Println("Welcome to the " + STYLE_PROMPT.Copy().Italic(true).Render("Preludio REPL") + "!")
+	fmt.Println("Version:", STYLE_NUMERIC.Render(VERSION))
 
 	be := new(preludiocore.ByteEater).
 		InitVM().
@@ -140,9 +143,9 @@ func LaunchRepl(args CliArgs) {
 	code := ""
 	for {
 		if readerStart {
-			fmt.Print(">>> ")
+			fmt.Print(STYLE_PROMPT.Render(DEFAULT_PROMPT))
 		} else {
-			fmt.Print("... ")
+			fmt.Print(DEFAULT_SUSPENSION_STRING)
 		}
 
 		line, err := in.ReadString('\n')
@@ -242,7 +245,7 @@ func LaunchRepl(args CliArgs) {
 			}
 
 			for _, c := range res.Data {
-				prettyPrint(outputColumnSize, c)
+				prettyPrint(DEFAULT_INDENTAION, outputColumnSize, c)
 			}
 
 			code = ""
@@ -262,21 +265,17 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(colSize int, columnar []typesys.Columnar) {
-
+func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
 	if len(columnar) == 0 {
 		return
 	}
 
-	indent := "    "
-	buffer := ""
-
 	actualColSize := colSize + 3
-	fmtStringLeft := fmt.Sprintf("│ %%-%ds ", colSize)
-	fmtStringRight := fmt.Sprintf("│ %%%ds ", colSize)
+	fmtStringLeft := fmt.Sprintf(" %%-%ds ", colSize)
+	fmtStringRight := fmt.Sprintf(" %%%ds ", colSize)
 
 	// header
-	buffer += indent + "╭"
+	buffer := indent + "╭"
 	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
 			buffer += "┬"
@@ -300,12 +299,7 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	if colNames {
 		buffer += indent
 		for _, c := range columnar {
-			buffer += STYLE_BOLD.
-				// Inline(true).
-				// MaxWidth(colSize + 3).
-				// BorderStyle(lipgloss.RoundedBorder()).
-				// BorderLeft(true).BorderTop(false).
-				Render(fmt.Sprintf(fmtStringLeft, truncate(c.Name, colSize)))
+			buffer += "│" + STYLE_BOLD.Render(fmt.Sprintf(fmtStringLeft, truncate(c.Name, colSize)))
 		}
 		buffer += "│\n"
 
@@ -324,10 +318,11 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 	// column typesys
 	buffer += indent
 	for _, c := range columnar {
-		buffer += STYLE_BOLD.Italic(true).
+		buffer += "│" + STYLE_BOLD.Copy().
+			Italic(true).
 			Render(fmt.Sprintf(fmtStringLeft, truncate(c.Type, colSize)))
 	}
-	buffer += "|\n"
+	buffer += "│\n"
 
 	// separator
 	buffer += indent + "├"
@@ -350,22 +345,17 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 			}
 
 			if c.Nulls[i] {
-				buffer += STYLE_NA.
-					Render(fmt.Sprintf(fmtString, DEFAULT_NULL_STRING))
+				buffer += "│" + STYLE_NA.Render(fmt.Sprintf(fmtString, DEFAULT_NULL_STRING))
 			} else {
 				switch c.Type {
 				case "Bool":
-					buffer += STYLE_BOOL.
-						Render(fmt.Sprintf(fmtString, c.Data[i]))
+					buffer += "│" + STYLE_BOOL.Render(fmt.Sprintf(fmtString, c.Data[i]))
 				case "Int64", "Float64":
-					buffer += STYLE_NUMERIC.
-						Render(fmt.Sprintf(fmtString, c.Data[i]))
+					buffer += "│" + STYLE_NUMERIC.Render(fmt.Sprintf(fmtString, c.Data[i]))
 				case "String":
-					buffer += STYLE_STRING.
-						Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
 				default:
-					buffer += STYLE_STRING.
-						Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
 				}
 			}
 		}
@@ -379,8 +369,7 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 			if JUST_RIGHT_TYPES[c.Type] {
 				fmtString = fmtStringRight
 			}
-			buffer += STYLE_STRING.
-				Render(fmt.Sprintf(fmtString, "..."))
+			buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, "..."))
 		}
 		buffer += "│\n"
 	}
