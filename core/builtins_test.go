@@ -185,10 +185,10 @@ let df3 = (
 	]
 )
 
-let j1 = (from df1 join left df2 on: [A, B])
-let j2 = (from df1 join right df2 on: [A, B])
-let j3 = (from df1 join inner df2 on: [A, B])
-let j4 = (from df1 join outer df2 on: [A, B])
+let j1 = (from df1 | join left df2 on: [A, B])
+let j2 = (from df1 | join right df2 on: [A, B])
+let j3 = (from df1 | join inner df2 on: [A, B])
+let j4 = (from df1 | join outer df2 on: [A, B])
 `
 
 	be := new(ByteEater).InitVM()
@@ -198,7 +198,19 @@ let j4 = (from df1 join outer df2 on: [A, B])
 	if p, ok := be.__globalNamespace["j1"]; ok {
 		if !p.isDataframe() {
 			t.Error("Expected dataframe, got", p)
-		} else if df, err = p.getDataframe(); err != nil {
+		} else if df, err = p.getDataframe(); err == nil {
+			df.PrettyPrint()
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j2"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
 			df.PrettyPrint()
 		} else {
 			t.Error("Expected no error, got", err)
