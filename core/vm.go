@@ -106,7 +106,7 @@ func (vm *ByteEater) SetParamOutputSnippetLength(length int) *ByteEater {
 func (vm *ByteEater) InitVM() *ByteEater {
 
 	// set default values
-	vm.__param_outputSnippetLength = 10
+	vm.__param_outputSnippetLength = DEFAULT_OUTPUT_SNIPPET_LENGTH
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNamespace = map[string]*__p_intern__{}

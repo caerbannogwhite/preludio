@@ -7,16 +7,6 @@ import (
 	"gandalff"
 )
 
-type __p_intern_tag__ uint8
-
-const (
-	// PRELUDIO_INTERNAL_TAG_ERROR       __p_intern_tag__ = 0
-	PRELUDIO_INTERNAL_TAG_EXPRESSION  __p_intern_tag__ = 1
-	PRELUDIO_INTERNAL_TAG_NAMED_PARAM __p_intern_tag__ = 2
-	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  __p_intern_tag__ = 3
-	PRELUDIO_INTERNAL_TAG_BEGIN_FRAME __p_intern_tag__ = 4
-)
-
 type __p_intern__ struct {
 	tag  __p_intern_tag__
 	vm   *ByteEater
