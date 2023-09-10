@@ -311,6 +311,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	}
 
 	df := gandalff.NewBaseDataFrame().
+		SetStringPool(vm.__stringPool).
 		FromCSV().
 		SetReader(inputFile).
 		SetDelimiter(del).
@@ -371,7 +372,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				return
 			}
 
-			df = gandalff.NewBaseDataFrame()
+			df = gandalff.NewBaseDataFrame().SetStringPool(vm.__stringPool)
 			for _, p := range list {
 				switch v := p.expr[0].(type) {
 				case gandalff.Series:

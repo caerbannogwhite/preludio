@@ -208,10 +208,10 @@ func Test_Builtin_Join(t *testing.T) {
 		]
 	)
 
-	let j1 = (from df1 | join left df2 on: [A, B])
-	let j2 = (from df1 | join right df2 on: [A, B])
-	let j3 = (from df1 | join inner df2 on: [A, B])
-	let j4 = (from df1 | join outer df2 on: [A, B])
+	let j1 = (from df1 | join left df2 on: [A])
+	let j2 = (from df1 | join right df2 on: [A])
+	let j3 = (from df1 | join inner df2 on: [A])
+	let j4 = (from df1 | join outer df2 on: [A])
 	`
 
 	be.RunSource(source)
@@ -220,8 +220,32 @@ func Test_Builtin_Join(t *testing.T) {
 		if !p.isDataframe() {
 			t.Error("Expected dataframe, got", p)
 		} else if df, err = p.getDataframe(); err == nil {
-			df.GetError()
-			// df.PrettyPrint()
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B_x").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("B_y").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 8 {
+				t.Error("Expected 8 rows, got", df.NRows())
+			}
+
 		} else {
 			t.Error("Expected no error, got", err)
 		}
@@ -233,7 +257,251 @@ func Test_Builtin_Join(t *testing.T) {
 		if !p.isDataframe() {
 			t.Error("Expected dataframe, got", p)
 		} else if df, err = p.getDataframe(); err == nil {
-			// df.PrettyPrint()
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B_x").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("B_y").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 8 {
+				t.Error("Expected 8 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j3"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B_x").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("B_y").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 8 {
+				t.Error("Expected 8 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j4"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B_x").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("B_y").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 8 {
+				t.Error("Expected 8 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	source = `
+	j1 = (from df1 | join left df2 on: [A, B])
+	j2 = (from df1 | join right df2 on: [A, B])
+	j3 = (from df1 | join inner df2 on: [A, B])
+	j4 = (from df1 | join outer df2 on: [A, B])
+	`
+
+	be.RunSource(source)
+
+	if p, ok := be.__globalNamespace["j1"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 5 {
+				t.Error("Expected 5 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j2"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 3 {
+				t.Error("Expected 3 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j3"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 1 {
+				t.Error("Expected 1 rows, got", df.NRows())
+			}
+
+		} else {
+			t.Error("Expected no error, got", err)
+		}
+	} else {
+		t.Error("Expected result, got nil")
+	}
+
+	if p, ok := be.__globalNamespace["j4"]; ok {
+		if !p.isDataframe() {
+			t.Error("Expected dataframe, got", p)
+		} else if df, err = p.getDataframe(); err == nil {
+
+			// check types
+			if df.Series("A").Type() != typesys.BoolType {
+				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			}
+			if df.Series("B").Type() != typesys.StringType {
+				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			}
+			if df.Series("C_x").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			}
+			if df.Series("D").Type() != typesys.Float64Type {
+				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			}
+			if df.Series("C_y").Type() != typesys.Int64Type {
+				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			}
+
+			// check number of rows
+			if df.NRows() != 7 {
+				t.Error("Expected 7 rows, got", df.NRows())
+			}
+
 		} else {
 			t.Error("Expected no error, got", err)
 		}
