@@ -735,7 +735,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			if commonCols[name] {
 				ser_ = ser_.SetName(name + "_y")
 			}
-			joined = joined.AddSeries(other.Series(name).Filter(indicesB))
+			joined = joined.AddSeries(ser_.Filter(indicesB))
 		}
 
 	case LEFT_JOIN:
