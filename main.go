@@ -226,21 +226,22 @@ func LaunchRepl(args CliArgs) {
 		line = strings.TrimSpace(line)
 
 		if line == "" {
-			bytecode, logs, err := bytefeeder.CompileSource(code)
-			if err != nil {
-				fmt.Println("Error compiling source:", err)
-				continue
-			}
-			be.RunBytecode(bytecode)
-
-			res := be.GetOutput()
-			for _, log := range append(logs, res.Log...) {
-				if log.LogType == typesys.LOG_DEBUG {
+			res := be.RunSource(code)
+			for _, log := range res.Log {
+				switch log.LogType {
+				case typesys.LOG_DEBUG:
 					if int(log.Level) < be.GetParamDebugLevel() {
-						fmt.Println(log.Message)
+						fmt.Println("[🐛] " + log.Message)
 					}
-				} else {
-					fmt.Println(log.Message)
+
+				case typesys.LOG_INFO:
+					fmt.Println("[ ℹ️ ] " + log.Message)
+
+				case typesys.LOG_WARNING:
+					fmt.Println("[⚠️] " + log.Message)
+
+				case typesys.LOG_ERROR:
+					fmt.Println("[❌] " + log.Message)
 				}
 			}
 
