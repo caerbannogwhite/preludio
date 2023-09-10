@@ -254,7 +254,7 @@ func Test_Lists_Expressions(t *testing.T) {
 	var err error
 	var bytecode []byte
 
-	// TODO: Fix this
+	// TODO: Fix this https://github.com/caerbannogwhite/preludio/issues/7#issue-1888727166
 	// bytecode, _, _ = bytefeeder.CompileSource(`not [true, false, true]`)
 	// be.RunBytecode(bytecode)
 	// if err = checkCurrentResult(be, []bool{false, true, false}); err != nil {

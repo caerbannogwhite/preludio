@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"bufio"
+	"bytefeeder"
 	"encoding/binary"
 	"fmt"
 	"io/fs"
@@ -126,7 +127,22 @@ const (
 	LOG_DEBUG   LOG_TYPE = 3
 )
 
-// Run Preludio Bytecode from byte array
+// Run Preludio source code.
+func (vm *ByteEater) RunSource(source string) *typesys.PreludioOutput {
+	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
+	if err == nil {
+		vm.RunBytecode(bytecode)
+	} else {
+		vm.setPanicMode(err.Error())
+	}
+
+	res := vm.GetOutput()
+	res.Log = append(compilerLogs, res.Log...)
+
+	return res
+}
+
+// Run Preludio Bytecode from byte array.
 func (vm *ByteEater) RunBytecode(bytecode []byte) {
 
 	// clean vm state
@@ -177,8 +193,8 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.RunPrqlInstructions(bytecode, offset)
 }
 
-// Run Preludio bytecode from a binary file located
-// at __param_inputPath with SetInputPath
+// Run Preludio bytecode from a binary file.
+// The location of the file can be set using SetInputPath.
 func (vm *ByteEater) RunFileBytecode() {
 	var err error
 	var file *os.File
@@ -297,9 +313,7 @@ func (vm *ByteEater) loadResults() {
 }
 
 func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
-
 	vm.__output.Data = make([][]typesys.Columnar, 0)
-
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -825,36 +839,29 @@ func (vm *ByteEater) setCurrentDataFrame() {
 }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
-	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
+	msg := fmt.Sprintf("%-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_DEBUG, Level: level, Message: msg})
-
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	msg = fmt.Sprintf("[ ℹ️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_INFO, Level: level, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	msg = fmt.Sprintf("[ ⚠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_WARNING, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printError(msg string) {
-	msg = fmt.Sprintf("[ ☠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_ERROR, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
