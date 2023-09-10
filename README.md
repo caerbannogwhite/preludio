@@ -73,8 +73,8 @@ let joined = (
 - [x] Select columns
 - [x] Filter rows
 - [x] Sort rows
-- [ ] Group by and aggregate
 - [x] Join tables
+- [ ] Group by and aggregate
 
 ### Installation
 
