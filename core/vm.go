@@ -291,18 +291,21 @@ func (vm *ByteEater) stackLast() *__p_intern__ {
 	return &vm.__stack[len(vm.__stack)-1]
 }
 
-func (vm *ByteEater) loadResults() {
+func (vm *ByteEater) endOfPipeline() {
 	// get the results from the stack until we find the begin frame
 	results := make([]__p_intern__, 0)
 	for !vm.stackIsEmpty() && vm.stackLast().tag != PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
-
 		result := vm.stackPop()
 		if err := vm.solveExpr(result); err != nil {
 			vm.setPanicMode(err.Error())
 			break
 		}
-
 		results = append(results, *result)
+	}
+
+	// remove the begin frame if exists
+	if !vm.stackIsEmpty() && vm.stackLast().tag == PRELUDIO_INTERNAL_TAG_BEGIN_FRAME {
+		vm.stackPop()
 	}
 
 	if len(results) > 1 {
@@ -310,6 +313,9 @@ func (vm *ByteEater) loadResults() {
 	} else if len(results) == 1 {
 		vm.__currentResult = &results[0]
 	}
+
+	// push the results back on the stack
+	vm.stackPush(vm.__currentResult)
 }
 
 func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
@@ -371,10 +377,10 @@ MAIN_LOOP:
 		case typesys.OP_END_STMT:
 			vm.printDebug(10, "OP_END_STMT", "", "")
 
-			vm.loadResults()
+			vm.endOfPipeline()
 
 			// Estract BEGIN FRAME
-			vm.stackPop()
+			// vm.stackPop()
 
 		case typesys.OP_VAR_DECL:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
@@ -383,7 +389,7 @@ MAIN_LOOP:
 			if _, ok := vm.__globalNamespace[varName]; ok {
 				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is already declared", varName))
 			} else {
-				vm.loadResults()
+				vm.endOfPipeline()
 				if vm.__currentResult != nil {
 					vm.__globalNamespace[varName] = vm.__currentResult
 					vm.__currentResult = nil
@@ -395,7 +401,7 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
 
 			if _, ok := vm.__globalNamespace[varName]; ok {
-				vm.loadResults()
+				vm.endOfPipeline()
 				if vm.__currentResult != nil {
 					vm.__globalNamespace[varName] = vm.__currentResult
 					vm.__currentResult = nil
@@ -418,10 +424,10 @@ MAIN_LOOP:
 		case typesys.OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
 
-			vm.loadResults()
+			vm.endOfPipeline()
 
 			// Extract BEGIN FRAME
-			vm.stackPop()
+			// vm.stackPop()
 
 		case typesys.OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
