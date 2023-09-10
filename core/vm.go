@@ -866,3 +866,14 @@ func (vm *ByteEater) printError(msg string) {
 		fmt.Println(msg)
 	}
 }
+
+func (vm *ByteEater) getLastError() string {
+	if len(vm.__output.Log) > 0 {
+		for i := len(vm.__output.Log) - 1; i >= 0; i-- {
+			if vm.__output.Log[i].LogType == typesys.LOG_ERROR {
+				return vm.__output.Log[i].Message
+			}
+		}
+	}
+	return ""
+}
