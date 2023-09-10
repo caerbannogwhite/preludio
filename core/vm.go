@@ -432,46 +432,46 @@ MAIN_LOOP:
 			// Standard library functions build-ins
 			case "derive":
 				PreludioFunc_Derive("derive", vm)
-			case "describe":
-				PreludioFunc_Describe("describe", vm)
+			// case "describe":
+			// 	PreludioFunc_Describe("describe", vm)
 			case "filter":
 				PreludioFunc_Filter("filter", vm)
 			case "from":
 				PreludioFunc_From("from", vm)
-			case "writeCSV":
-				PreludioFunc_WriteCSV("writeCSV", vm)
-			case "readCSV":
-				PreludioFunc_ReadCSV("readCSV", vm)
+			case "wcsv":
+				PreludioFunc_WriteCSV("wcsv", vm)
+			case "rcsv":
+				PreludioFunc_ReadCSV("rcsv", vm)
 			case "names":
 				PreludioFunc_Names("names", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
 				PreludioFunc_Select("select", vm)
-			case "groupBy":
-				PreludioFunc_GroupBy("groupBy", vm)
+			case "group":
+				PreludioFunc_GroupBy("group", vm)
 			case "ungroup":
 				PreludioFunc_Ungroup("ungroup", vm)
 			case "join":
 				PreludioFunc_Join("join", vm)
-			case "orderBy":
-				PreludioFunc_OrderBy("orderBy", vm)
+			case "sort":
+				PreludioFunc_OrderBy("sort", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
 
 			// Environment functions
-			case "toCurrent":
-				PreludioFunc_ToCurrent("toCurrent", vm)
+			// case "toCurrent":
+			// 	PreludioFunc_ToCurrent("toCurrent", vm)
 
 			// Coerce functions
 			case "asBool":
 				preludioAsType("asBool", vm, typesys.BoolType)
-			case "asInteger":
-				preludioAsType("asInteger", vm, typesys.Int64Type)
-			case "asFloat":
-				preludioAsType("asFloat", vm, typesys.Float64Type)
-			case "asString":
-				preludioAsType("asString", vm, typesys.StringType)
+			case "asInt":
+				preludioAsType("asInt", vm, typesys.Int64Type)
+			case "asFlt":
+				preludioAsType("asFlt", vm, typesys.Float64Type)
+			case "asStr":
+				preludioAsType("asStr", vm, typesys.StringType)
 
 			// String functions
 			case "strReplace":

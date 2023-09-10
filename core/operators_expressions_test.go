@@ -1,9 +1,7 @@
 package preludiocore
 
 import (
-	"gandalff"
 	"math"
-	"os"
 	"testing"
 )
 
@@ -314,123 +312,5 @@ func Test_Assignements(t *testing.T) {
 	be.RunSource(source)
 	if err = checkCurrentResult(be, []float64{11.990000000000004, 38.7436, 84.16508100000001, 148.02920144, 230.00455002249993, 330.00065400032395, 448.0000088899999, 584.0000011600001, 738.0000001467001, 910.0000000180999}); err != nil {
 		t.Error(err)
-	}
-}
-
-func Test_Function_readCSV(t *testing.T) {
-	var err error
-	var df gandalff.DataFrame
-
-	// CSV, comma delimiter, no header
-	content := `true,hello,.43403,0
-false,world,3e-2,4294
-true,,0.000000001,-324
-false,this is a string,4E4,3245
-false,"hello again",0.000000000001,0`
-
-	err = os.WriteFile("csvtest00_read_comma.csv", []byte(content), 0644)
-	if err != nil {
-		t.Error("Error writing test file", err)
-	}
-	defer os.Remove("csvtest00_read_comma.csv")
-
-	be.RunSource(`readCSV "csvtest00_read_comma.csv" del: "," header: false`)
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isDataframe() == false {
-		t.Error("Expected dataframe, got", be.__currentResult)
-	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		records := df.Records(false)
-
-		if len(records) != 5 {
-			t.Error("Expected 5 records, got", len(records))
-		}
-
-		if records[0][0] != "true" {
-			t.Error("Expected \"true\", got", records[0][0])
-		}
-		if records[0][1] != "hello" {
-			t.Error("Expected \"hello\", got", records[0][1])
-		}
-		if records[3][1] != "this is a string" {
-			t.Error("Expected \"this is a string\", got", records[3][1])
-		}
-	} else {
-		t.Error("Expected no error, got", err)
-	}
-
-	// CSV, semicolon delimiter, no header
-	content = `true;hello;.43403;0
-false;world;3e-2;4294
-true;;0.000000001;-324
-false;this is a string;4E4;3245
-false;"hello again";0.000000000001;0`
-
-	err = os.WriteFile("csvtest01_read_semicolon.csv", []byte(content), 0644)
-	if err != nil {
-		t.Error("Error writing test file", err)
-	}
-	defer os.Remove("csvtest01_read_semicolon.csv")
-
-	be.RunSource(`readCSV "csvtest01_read_semicolon.csv" del: ";" header: false`)
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil", be.__output.Log)
-	} else if be.__currentResult.isDataframe() == false {
-		t.Error("Expected dataframe, got", be.__currentResult)
-	} else if df, err = be.__currentResult.getDataframe(); err == nil {
-		records := df.Records(false)
-
-		if len(records) != 5 {
-			t.Error("Expected 5 records, got", len(records))
-		}
-
-		if records[0][0] != "true" {
-			t.Error("Expected \"true\", got", records[0][0])
-		}
-		if records[0][1] != "hello" {
-			t.Error("Expected \"hello\", got", records[0][1])
-		}
-		if records[3][1] != "this is a string" {
-			t.Error("Expected \"this is a string\", got", records[3][1])
-		}
-	} else {
-		t.Error("Expected no error, got", err)
-	}
-
-	// CSV, tab delimiter, header
-	content = `A bool	something	a numeric value	an integer value
-true	hello	.43403	0
-false	world	3e-2	4294
-true	0.000000001	-324	-1
-false	this is a string	4E4	3245
-false	"hello again"	0.000000000001	0`
-
-	err = os.WriteFile("csvtest02_read_tab_header.csv", []byte(content), 0644)
-	if err != nil {
-		t.Error("Error writing test file", err)
-	}
-	defer os.Remove("csvtest02_read_tab_header.csv")
-
-	be.RunSource(`readCSV "csvtest02_read_tab_header.csv" del: "\t" header: true`)
-	if be.__currentResult == nil {
-		t.Error("Expected result, got nil")
-	} else if be.__currentResult.isDataframe() == false {
-		t.Error("Expected dataframe, got", be.__currentResult)
-	} else if df, err = be.__currentResult.getDataframe(); err != nil {
-		records := df.Records(false)
-
-		if len(records) != 4 {
-			t.Error("Expected 4 records, got", len(records))
-		}
-
-		if records[0][0] != "true" {
-			t.Error("Expected \"true\", got", records[0][0])
-		}
-		if records[0][1] != "hello" {
-			t.Error("Expected \"hello\", got", records[0][1])
-		}
-		if records[3][1] != "this is a string" {
-			t.Error("Expected \"this is a string\", got", records[3][1])
-		}
 	}
 }

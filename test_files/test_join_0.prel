@@ -1,8 +1,8 @@
 let clean = (
-  readCSV "test_files\\Cars.csv" del: ";" header:true
+  rcsv "test_files\\Cars.csv" del:";" head:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-  asFloat [MPG, Displacement, Horsepower, Acceleration]
-  orderBy [-Origin, Cylinders, -MPG]
+  asFlt [MPG, Displacement, Horsepower, Acceleration]
+  sort [-Origin, Cylinders, -MPG]
 )
 
 let continents = (
@@ -16,5 +16,5 @@ let joined = (
   from clean
   join left continents on: [Origin]
   select [Car, Origin, Continent]
-  orderBy [Continent, Origin]
+  sort [Continent, Origin]
 )

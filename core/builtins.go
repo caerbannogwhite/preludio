@@ -128,8 +128,8 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"del":    vm.newPInternTerm([]string{","}),
-		"header": vm.newPInternTerm([]bool{true}),
+		"del":  vm.newPInternTerm([]string{","}),
+		"head": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -184,7 +184,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err = named["header"].getBoolScalar()
+	header, err = named["head"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -261,8 +261,8 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"del":    vm.newPInternTerm([]string{","}),
-		"header": vm.newPInternTerm([]bool{true}),
+		"del":  vm.newPInternTerm([]string{","}),
+		"head": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -304,7 +304,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err := named["header"].getBoolScalar()
+	header, err := named["head"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return

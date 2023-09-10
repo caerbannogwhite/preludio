@@ -15,10 +15,10 @@ Read and clean up a CSV file, then store the result in a variable called `clean`
 
 ```
 let clean = (
-  readCSV "test_files\\Cars.csv" del: ";" header:true
+  rcsv "test_files\\Cars.csv" del:";" head:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-  asFloat [MPG, Displacement, Horsepower, Acceleration]
-  orderBy [-Origin, Cylinders, -MPG]
+  asFlt [MPG, Displacement, Horsepower, Acceleration]
+  sort [-Origin, Cylinders, -MPG]
 )
 ```
 
@@ -40,7 +40,7 @@ Derive new columns and write the result to a CSV file:
   ]
   filter Stat > 1.3
   select [Car, Origin, Stat]
-  writeCSV "test_files\\Cars1.csv" del: "\t"
+  wcsv "test_files\\Cars1.csv" del: "\t"
 )
 
 ```
@@ -59,7 +59,7 @@ let joined = (
   from clean
   join left continents on: [Origin]
   select [Car, Origin, Continent]
-  orderBy [Continent, Origin]
+  sort [Continent, Origin]
 )
 ```
 

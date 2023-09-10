@@ -11,6 +11,124 @@ func init() {
 	be = new(ByteEater).InitVM()
 }
 
+func Test_Builtin_readCSV(t *testing.T) {
+	var err error
+	var df gandalff.DataFrame
+
+	// CSV, comma delimiter, no header
+	content := `true,hello,.43403,0
+false,world,3e-2,4294
+true,,0.000000001,-324
+false,this is a string,4E4,3245
+false,"hello again",0.000000000001,0`
+
+	err = os.WriteFile("csvtest00_read_comma.csv", []byte(content), 0644)
+	if err != nil {
+		t.Error("Error writing test file", err)
+	}
+	defer os.Remove("csvtest00_read_comma.csv")
+
+	be.RunSource(`rcsv "csvtest00_read_comma.csv" del: "," head: false`)
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isDataframe() == false {
+		t.Error("Expected dataframe, got", be.__currentResult)
+	} else if df, err = be.__currentResult.getDataframe(); err == nil {
+		records := df.Records(false)
+
+		if len(records) != 5 {
+			t.Error("Expected 5 records, got", len(records))
+		}
+
+		if records[0][0] != "true" {
+			t.Error("Expected \"true\", got", records[0][0])
+		}
+		if records[0][1] != "hello" {
+			t.Error("Expected \"hello\", got", records[0][1])
+		}
+		if records[3][1] != "this is a string" {
+			t.Error("Expected \"this is a string\", got", records[3][1])
+		}
+	} else {
+		t.Error("Expected no error, got", err)
+	}
+
+	// CSV, semicolon delimiter, no header
+	content = `true;hello;.43403;0
+false;world;3e-2;4294
+true;;0.000000001;-324
+false;this is a string;4E4;3245
+false;"hello again";0.000000000001;0`
+
+	err = os.WriteFile("csvtest01_read_semicolon.csv", []byte(content), 0644)
+	if err != nil {
+		t.Error("Error writing test file", err)
+	}
+	defer os.Remove("csvtest01_read_semicolon.csv")
+
+	be.RunSource(`rcsv "csvtest01_read_semicolon.csv" del: ";" head: false`)
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil", be.__output.Log)
+	} else if be.__currentResult.isDataframe() == false {
+		t.Error("Expected dataframe, got", be.__currentResult)
+	} else if df, err = be.__currentResult.getDataframe(); err == nil {
+		records := df.Records(false)
+
+		if len(records) != 5 {
+			t.Error("Expected 5 records, got", len(records))
+		}
+
+		if records[0][0] != "true" {
+			t.Error("Expected \"true\", got", records[0][0])
+		}
+		if records[0][1] != "hello" {
+			t.Error("Expected \"hello\", got", records[0][1])
+		}
+		if records[3][1] != "this is a string" {
+			t.Error("Expected \"this is a string\", got", records[3][1])
+		}
+	} else {
+		t.Error("Expected no error, got", err)
+	}
+
+	// CSV, tab delimiter, header
+	content = `A bool	something	a numeric value	an integer value
+true	hello	.43403	0
+false	world	3e-2	4294
+true	0.000000001	-324	-1
+false	this is a string	4E4	3245
+false	"hello again"	0.000000000001	0`
+
+	err = os.WriteFile("csvtest02_read_tab_header.csv", []byte(content), 0644)
+	if err != nil {
+		t.Error("Error writing test file", err)
+	}
+	defer os.Remove("csvtest02_read_tab_header.csv")
+
+	be.RunSource(`rcsv "csvtest02_read_tab_header.csv" del: "\t" head: true`)
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isDataframe() == false {
+		t.Error("Expected dataframe, got", be.__currentResult)
+	} else if df, err = be.__currentResult.getDataframe(); err != nil {
+		records := df.Records(false)
+
+		if len(records) != 4 {
+			t.Error("Expected 4 records, got", len(records))
+		}
+
+		if records[0][0] != "true" {
+			t.Error("Expected \"true\", got", records[0][0])
+		}
+		if records[0][1] != "hello" {
+			t.Error("Expected \"hello\", got", records[0][1])
+		}
+		if records[3][1] != "this is a string" {
+			t.Error("Expected \"this is a string\", got", records[3][1])
+		}
+	}
+}
+
 func Test_Builtin_New(t *testing.T) {
 	var err error
 	var source string
@@ -518,10 +636,10 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 	let clean = (
-		readCSV "..\\test_files\\Cars.csv" del: ";" header:true
+		rcsv "..\\test_files\\Cars.csv" del:";" head:true
 		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFloat [MPG, Displacement, Horsepower, Acceleration]
-		orderBy [-Origin, Cylinders, -MPG]
+		asFlt [MPG, Displacement, Horsepower, Acceleration]
+		sort [-Origin, Cylinders, -MPG]
 	)
 
 	let europe5Cylinders = (
@@ -688,10 +806,10 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	// basic test
 	source := `
 	let clean = (
-		readCSV "..\\test_files\\Cars.csv" del: ";" header:true
+		rcsv "..\\test_files\\Cars.csv" del:";" head:true
 		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFloat [MPG, Displacement, Horsepower, Acceleration]
-		orderBy [-Origin, Cylinders, -MPG]
+		asFlt [MPG, Displacement, Horsepower, Acceleration]
+		sort [-Origin, Cylinders, -MPG]
 	)
 
 	(
@@ -703,7 +821,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 		filter Stat > 1.3
 		select [Car, Origin, Stat]
 		take 10
-		writeCSV "..\\test_files\\CarsRes.csv" del: "\t"
+		wcsv "..\\test_files\\CarsRes.csv" del:"\t"
 	)
 	`
 
