@@ -5,14 +5,12 @@ import (
 	"bytefeeder"
 	"fmt"
 	"os"
-	"preludiocli"
 	"preludiocore"
 	"strconv"
 	"strings"
 	"typesys"
 
 	"github.com/alexflint/go-arg"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -46,7 +44,6 @@ type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
-	Editor     bool   `arg:"-e, --editor" help:"launch the text editor" default:"false"`
 	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
 	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
 }
@@ -92,26 +89,8 @@ func main() {
 		}
 
 		be.RunBytecode(bytecode)
-
-	} else if args.Editor {
-		LaunchCodeEditor(args)
 	} else {
 		LaunchRepl(args)
-	}
-}
-
-func LaunchCodeEditor(args CliArgs) {
-	be := new(preludiocore.ByteEater).
-		InitVM().
-		SetParamPrintWarning(args.Warnings).
-		SetParamDebugLevel(args.DebugLevel)
-
-	codeEditor := preludiocli.NewCodeEditor().
-		SetPreludioByteEater(*be)
-
-	if _, err := tea.NewProgram(codeEditor).Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
 	}
 }
 
