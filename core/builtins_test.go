@@ -1,34 +1,34 @@
 package preludiocore
 
 import (
-	"bytefeeder"
 	"gandalff"
 	"os"
 	"testing"
 	"typesys"
 )
 
+func init() {
+	be = new(ByteEater).InitVM()
+}
+
 func Test_Builtin_New(t *testing.T) {
 	var err error
 	var source string
-	var bytecode []byte
 	var df gandalff.DataFrame
 
 	// basic test
 	source = `
-(
-	new [
-		A = [true, false, true, false, true],
-		B = ["hello", "world", "this is a string", "this is another string", "this is a third string"],
-		C = [1, 2, 3, 4, 5],
-		D = [1.1, 2.2, 3.3, 4.4, 5.5]
-	]
-)
-`
+	(
+		new [
+			A = [true, false, true, false, true],
+			B = ["hello", "world", "this is a string", "this is another string", "this is a third string"],
+			C = [1, 2, 3, 4, 5],
+			D = [1.1, 2.2, 3.3, 4.4, 5.5]
+		]
+	)
+	`
 
-	be := new(ByteEater).InitVM()
-	bytecode, _, _ = bytefeeder.CompileSource(source)
-	be.RunBytecode(bytecode)
+	be.RunSource(source)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
@@ -79,18 +79,17 @@ func Test_Builtin_New(t *testing.T) {
 	let listOfBools = [true, false, true, false, true]
 	let listOfStrings = ["hello", "world", "this is a string", "this is another string", "this is a third string"]
 
-(
-	new [
-		A = listOfBools or false,
-		B = listOfStrings + "!",
-		C = [1, 2, 3, 4, 5] * 2,
-		D = [1.1, 2.2, 3.3, 4.4, 5.5] / 2
-	]
-)
-`
+	(
+		new [
+			A = listOfBools or false,
+			B = listOfStrings + "!",
+			C = [1, 2, 3, 4, 5] * 2,
+			D = [1.1, 2.2, 3.3, 4.4, 5.5] / 2
+		]
+	)
+	`
 
-	bytecode, _, _ = bytefeeder.CompileSource(source)
-	be.InitVM().RunBytecode(bytecode)
+	be.RunSource(source)
 
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
@@ -138,62 +137,59 @@ func Test_Builtin_New(t *testing.T) {
 
 	// different lengths
 	source = `
-(
-	new [
-		A = [true, false, true, false],
-		B = ["hello", "world", "this is a string"],
-		C = [1, 2, 3, 4, 5],
-	]
-)
-`
+	(
+		new [
+			A = [true, false, true, false],
+			B = ["hello", "world", "this is a string"],
+			C = [1, 2, 3, 4, 5],
+		]
+	)
+	`
 
-	bytecode, _, err = bytefeeder.CompileSource(source)
-	be.RunBytecode(bytecode)
+	be.RunSource(source)
+
 }
 
 func Test_Builtin_Join(t *testing.T) {
 	var err error
 	var source string
-	var bytecode []byte
 	var df gandalff.DataFrame
 
 	// basic test
 	source = `
-let df1 = (
-	new [
-		A = [true, false, true, false, true],
-		B = ["one", "two", "three", "four", "five"],
-		C = [1, 2, 3, 4, 5],
-		D = [1.1, 2.2, 3.3, 4.4, 5.5]
-	]
-)
+	let df1 = (
+		new [
+			A = [true, false, true, false, true],
+			B = ["one", "two", "three", "four", "five"],
+			C = [1, 2, 3, 4, 5],
+			D = [1.1, 2.2, 3.3, 4.4, 5.5]
+		]
+	)
 
-let df2 = (
-	new [
-		A = [true, true, false],
-		B = ["one", "four", "five"],
-		C = [1, 1, 1],
-	]
-)
+	let df2 = (
+		new [
+			A = [true, true, false],
+			B = ["one", "four", "five"],
+			C = [1, 1, 1],
+		]
+	)
 
-let df3 = (
-	new [
-		A = [true, false, true, false, true],
-		B = ["four", "five", "six", "seven", "eight"],
-		C = [1, 1, 2, 6, 7],
-		D = [5.5, 4.4, 1.1, 1.1, 1.1]
-	]
-)
+	let df3 = (
+		new [
+			A = [true, false, true, false, true],
+			B = ["four", "five", "six", "seven", "eight"],
+			C = [1, 1, 2, 6, 7],
+			D = [5.5, 4.4, 1.1, 1.1, 1.1]
+		]
+	)
 
-let j1 = (from df1 | join left df2 on: [A, B])
-let j2 = (from df1 | join right df2 on: [A, B])
-let j3 = (from df1 | join inner df2 on: [A, B])
-let j4 = (from df1 | join outer df2 on: [A, B])
-`
+	let j1 = (from df1 | join left df2 on: [A, B])
+	let j2 = (from df1 | join right df2 on: [A, B])
+	let j3 = (from df1 | join inner df2 on: [A, B])
+	let j4 = (from df1 | join outer df2 on: [A, B])
+	`
 
-	be := new(ByteEater).InitVM()
-	bytecode, _, err = bytefeeder.CompileSource(source)
-	be.RunBytecode(bytecode)
+	be.RunSource(source)
 
 	if p, ok := be.__globalNamespace["j1"]; ok {
 		if !p.isDataframe() {
@@ -223,26 +219,24 @@ let j4 = (from df1 | join outer df2 on: [A, B])
 func Test_Builtin_Pipelines1(t *testing.T) {
 	var err error
 	var source string
-	var bytecode []byte
 	var df gandalff.DataFrame
 
 	// basic test
 	source = `
-let clean = (
-	readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
-	strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-	asFloat [MPG, Displacement, Horsepower, Acceleration]
-	orderBy [-Origin, Cylinders, -MPG]
-)
+	let clean = (
+		readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
+		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		asFloat [MPG, Displacement, Horsepower, Acceleration]
+		orderBy [-Origin, Cylinders, -MPG]
+	)
 
-let europe5Cylinders = (
-	from clean
-	filter Cylinders == 5 and Origin == "Europe"
-)
-`
-	be = new(ByteEater).InitVM()
-	bytecode, _, _ = bytefeeder.CompileSource(source)
-	be.RunBytecode(bytecode)
+	let europe5Cylinders = (
+		from clean
+		filter Cylinders == 5 and Origin == "Europe"
+	)
+	`
+
+	be.RunSource(source)
 
 	// check clean
 	if p, ok := be.__globalNamespace["clean"]; ok {
@@ -396,33 +390,30 @@ let europe5Cylinders = (
 
 func Test_Builtin_Pipelines2(t *testing.T) {
 	var err error
-	var source string
-	var bytecode []byte
 
 	// basic test
-	source = `
-let clean = (
-	readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
-	strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-	asFloat [MPG, Displacement, Horsepower, Acceleration]
-	orderBy [-Origin, Cylinders, -MPG]
-)
+	source := `
+	let clean = (
+		readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
+		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		asFloat [MPG, Displacement, Horsepower, Acceleration]
+		orderBy [-Origin, Cylinders, -MPG]
+	)
 
-(
-	from clean
-	derive [
-	  Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
-	  CarOrigin = Car + " - " + Origin
-	]
-	filter Stat > 1.3
-	select [Car, Origin, Stat]
-	take 10
-	writeCSV "..\\test_files\\CarsRes.csv" delimiter: "\t"
-)	  
-`
+	(
+		from clean
+		derive [
+			Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
+			CarOrigin = Car + " - " + Origin
+		]
+		filter Stat > 1.3
+		select [Car, Origin, Stat]
+		take 10
+		writeCSV "..\\test_files\\CarsRes.csv" delimiter: "\t"
+	)
+	`
 
-	bytecode, _, _ = bytefeeder.CompileSource(source)
-	new(ByteEater).InitVM().RunBytecode(bytecode)
+	new(ByteEater).InitVM().RunSource(source)
 
 	b, err := os.ReadFile("..\\test_files\\CarsRes.csv")
 	if err != nil {
