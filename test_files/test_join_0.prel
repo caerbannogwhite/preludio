@@ -1,5 +1,5 @@
 let clean = (
-  readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+  readCSV "test_files\\Cars.csv" del: ";" header:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
   asFloat [MPG, Displacement, Horsepower, Acceleration]
   orderBy [-Origin, Cylinders, -MPG]

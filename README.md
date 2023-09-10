@@ -15,7 +15,7 @@ Read and clean up a CSV file, then store the result in a variable called `clean`
 
 ```
 let clean = (
-  readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+  readCSV "test_files\\Cars.csv" del: ";" header:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
   asFloat [MPG, Displacement, Horsepower, Acceleration]
   orderBy [-Origin, Cylinders, -MPG]
@@ -40,7 +40,7 @@ Derive new columns and write the result to a CSV file:
   ]
   filter Stat > 1.3
   select [Car, Origin, Stat]
-  writeCSV "test_files\\Cars1.csv" delimiter: "\t"
+  writeCSV "test_files\\Cars1.csv" del: "\t"
 )
 
 ```

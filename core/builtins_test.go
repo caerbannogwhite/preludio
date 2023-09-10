@@ -220,7 +220,8 @@ func Test_Builtin_Join(t *testing.T) {
 		if !p.isDataframe() {
 			t.Error("Expected dataframe, got", p)
 		} else if df, err = p.getDataframe(); err == nil {
-			df.PrettyPrint()
+			df.GetError()
+			// df.PrettyPrint()
 		} else {
 			t.Error("Expected no error, got", err)
 		}
@@ -232,7 +233,7 @@ func Test_Builtin_Join(t *testing.T) {
 		if !p.isDataframe() {
 			t.Error("Expected dataframe, got", p)
 		} else if df, err = p.getDataframe(); err == nil {
-			df.PrettyPrint()
+			// df.PrettyPrint()
 		} else {
 			t.Error("Expected no error, got", err)
 		}
@@ -249,7 +250,7 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 	let clean = (
-		readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
+		readCSV "..\\test_files\\Cars.csv" del: ";" header:true
 		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 		asFloat [MPG, Displacement, Horsepower, Acceleration]
 		orderBy [-Origin, Cylinders, -MPG]
@@ -419,7 +420,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	// basic test
 	source := `
 	let clean = (
-		readCSV "..\\test_files\\Cars.csv" delimiter: ";" header:true
+		readCSV "..\\test_files\\Cars.csv" del: ";" header:true
 		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 		asFloat [MPG, Displacement, Horsepower, Acceleration]
 		orderBy [-Origin, Cylinders, -MPG]
@@ -434,7 +435,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 		filter Stat > 1.3
 		select [Car, Origin, Stat]
 		take 10
-		writeCSV "..\\test_files\\CarsRes.csv" delimiter: "\t"
+		writeCSV "..\\test_files\\CarsRes.csv" del: "\t"
 	)
 	`
 

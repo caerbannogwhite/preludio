@@ -334,7 +334,7 @@ false,"hello again",0.000000000001,0`
 	}
 	defer os.Remove("csvtest00_read_comma.csv")
 
-	be.RunSource(`readCSV "csvtest00_read_comma.csv" delimiter: "," header: false`)
+	be.RunSource(`readCSV "csvtest00_read_comma.csv" del: "," header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -372,7 +372,7 @@ false;"hello again";0.000000000001;0`
 	}
 	defer os.Remove("csvtest01_read_semicolon.csv")
 
-	be.RunSource(`readCSV "csvtest01_read_semicolon.csv" delimiter: ";" header: false`)
+	be.RunSource(`readCSV "csvtest01_read_semicolon.csv" del: ";" header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil", be.__output.Log)
 	} else if be.__currentResult.isDataframe() == false {
@@ -411,7 +411,7 @@ false	"hello again"	0.000000000001	0`
 	}
 	defer os.Remove("csvtest02_read_tab_header.csv")
 
-	be.RunSource(`readCSV "csvtest02_read_tab_header.csv" delimiter: "\t" header: true`)
+	be.RunSource(`readCSV "csvtest02_read_tab_header.csv" del: "\t" header: true`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
