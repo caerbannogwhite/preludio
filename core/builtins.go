@@ -391,6 +391,11 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 		return
 	}
 
+	if df.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.GetError()))
+		return
+	}
+
 	vm.stackPush(vm.newPInternTerm(df))
 	vm.setCurrentDataFrame()
 }

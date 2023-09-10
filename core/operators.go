@@ -7,10 +7,16 @@ import (
 )
 
 func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
-	var convertToSeries bool = true
-	var series gandalff.Series
+	convertToSeries := true
 
+	var series gandalff.Series
 	for i := range *list {
+
+		if (*list)[i].tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+			convertToSeries = false
+			break
+		}
+
 		switch v := (*list)[i].expr[0].(type) {
 		case __p_list__:
 			convertToSeries = false

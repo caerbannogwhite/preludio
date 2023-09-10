@@ -135,6 +135,29 @@ func Test_Builtin_New(t *testing.T) {
 		t.Error("Expected no error, got", err)
 	}
 
+	// only one column
+	source = `(new [A = [1, 2, 3, 4, 5]])`
+	be.RunSource(source)
+	if be.__currentResult == nil {
+		t.Error("Expected result, got nil")
+	} else if be.__currentResult.isDataframe() == false {
+		t.Error("Expected dataframe, got", be.__currentResult)
+	} else if df, err = be.__currentResult.getDataframe(); err == nil {
+
+		// check types
+		if df.Series("A").Type() != typesys.Int64Type {
+			t.Error("Expected int type, got", df.Series("A").Type())
+		}
+
+		// check values
+		ints := []int64{1, 2, 3, 4, 5}
+		if !int64SliceEqual(df.Series("A").(gandalff.SeriesInt64).Int64s(), ints) {
+			t.Error("Expected int values", ints, "got", df.Series("A").(gandalff.SeriesInt64).Int64s())
+		}
+	} else {
+		t.Error("Expected no error, got", err)
+	}
+
 	// different lengths
 	source = `
 	(
@@ -147,7 +170,9 @@ func Test_Builtin_New(t *testing.T) {
 	`
 
 	be.RunSource(source)
-
+	if be.getLastError() != "new: BaseDataFrame.AddSeries: series length (3) does not match dataframe length (4)" {
+		t.Error("Expected error, got", be.getLastError())
+	}
 }
 
 func Test_Builtin_Join(t *testing.T) {
