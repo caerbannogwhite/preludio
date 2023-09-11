@@ -128,8 +128,8 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"delimiter": vm.newPInternTerm([]string{","}),
-		"header":    vm.newPInternTerm([]bool{true}),
+		"del":  vm.newPInternTerm([]string{","}),
+		"head": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -160,6 +160,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
+	defer outputFile.Close()
 
 	err = outputFile.Truncate(int64(0))
 	if err != nil {
@@ -167,7 +168,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	delimiter, err := named["delimiter"].getStringScalar()
+	delimiter, err := named["del"].getStringScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -183,7 +184,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err = named["header"].getBoolScalar()
+	header, err = named["head"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -260,8 +261,8 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"delimiter": vm.newPInternTerm([]string{","}),
-		"header":    vm.newPInternTerm([]bool{true}),
+		"del":  vm.newPInternTerm([]string{","}),
+		"head": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -287,7 +288,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	}
 	defer inputFile.Close()
 
-	delimiter, err = named["delimiter"].getStringScalar()
+	delimiter, err = named["del"].getStringScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -303,13 +304,14 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err := named["header"].getBoolScalar()
+	header, err := named["head"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
 	df := gandalff.NewBaseDataFrame().
+		SetStringPool(vm.__stringPool).
 		FromCSV().
 		SetReader(inputFile).
 		SetDelimiter(del).
@@ -343,14 +345,7 @@ func PreludioFunc_Names(funcName string, vm *ByteEater) {
 		return
 	}
 
-	fmt.Print("\t")
-	for _, name := range df.Names() {
-		fmt.Print(name, ", ")
-	}
-	fmt.Println()
-	fmt.Println()
-
-	vm.stackPush(vm.newPInternTerm(df))
+	vm.stackPush(vm.newPInternTerm(df.Names()))
 }
 
 // Create a new Dataframe
@@ -359,44 +354,47 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 
 	var list __p_list__
 	var err error
+	var df gandalff.DataFrame
+
 	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 
-	list, err = positional[0].getList()
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
-	}
-
-	df := gandalff.NewBaseDataFrame()
-
-	var ser gandalff.Series
-	for _, e := range list {
-		if l, ok := e.getValue().(__p_list__); ok {
-			switch l[0].getValue().(type) {
-			case []bool:
-				ser, err = e.listToSeriesBool()
-			case []int64:
-				ser, err = e.listToSeriesInt64()
-			case []float64:
-				ser, err = e.listToSeriesFloat64()
-			case []string:
-				ser, err = e.listToSeriesString()
-			}
-
+	switch len(positional) {
+	case 1:
+		// New: parameter is a list of assignments
+		if positional[0].isList() {
+			list, err = positional[0].getList()
 			if err != nil {
 				vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 				return
 			}
-			df.AddSeries(ser)
 
+			df = gandalff.NewBaseDataFrame().SetStringPool(vm.__stringPool)
+			for _, p := range list {
+				switch v := p.expr[0].(type) {
+				case gandalff.Series:
+					df = df.AddSeries(v.SetName(p.name))
+				default:
+					vm.setPanicMode(fmt.Sprintf("%s: exprecting list of assignments for building a new dataframe, got %T", funcName, p.expr[0]))
+					return
+				}
+			}
 		} else {
-			vm.setPanicMode(fmt.Sprintf("%s: exprecting list for building dataframe, got %T", funcName, l))
+			vm.setPanicMode(fmt.Sprintf("%s: expecting assignment for building a new dataframe, got %T", funcName, positional[0].getValue()))
 			return
 		}
+
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "expecting exactly one positional parameter."))
+		return
+	}
+
+	if df.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.GetError()))
+		return
 	}
 
 	vm.stackPush(vm.newPInternTerm(df))
@@ -498,6 +496,85 @@ func PreludioFunc_Ungroup(funcName string, vm *ByteEater) {
 	}
 
 	vm.stackPush(vm.newPInternTerm(df.Ungroup()))
+	vm.setCurrentDataFrame()
+}
+
+// Join two Dataframes
+func PreludioFunc_Join(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	named := map[string]*__p_intern__{
+		"on": nil,
+	}
+
+	var ok bool
+	var err error
+	var how __p_symbol__
+	var df1, df2 gandalff.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if len(positional) != 3 {
+		vm.setPanicMode(fmt.Sprintf("%s: expecting 3 positional arguments, got %d", funcName, len(positional)))
+		return
+	}
+
+	// Left dataframe
+	if df1, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// How
+	if how, err = positional[1].getSymbol(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// Right dataframe
+	if symb, err := positional[2].getSymbol(); err == nil {
+		if df2, ok = vm.symbolResolution(symb).(gandalff.DataFrame); !ok {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "expecting dataframe"))
+			return
+		}
+	} else {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// By
+	on := make([]string, 0)
+	if named["on"] != nil {
+		if on, err = named["on"].listToStringSlice(); err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+	}
+
+	var res gandalff.DataFrame
+	switch how {
+	case "inner":
+		res = df1.Join(gandalff.INNER_JOIN, df2, on...)
+	case "outer":
+		res = df1.Join(gandalff.OUTER_JOIN, df2, on...)
+	case "left":
+		res = df1.Join(gandalff.LEFT_JOIN, df2, on...)
+	case "right":
+		res = df1.Join(gandalff.RIGHT_JOIN, df2, on...)
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting one of 'inner', 'outer', 'left', 'right', got %s", funcName, how))
+		return
+	}
+
+	if res.IsErrored() {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.GetError()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(res))
 	vm.setCurrentDataFrame()
 }
 
@@ -845,7 +922,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			return
 		}
 
-		switch v := positional[1].getValue().(type) {
+		switch v := positional[1].expr[0].(type) {
 		case gandalff.SeriesString:
 			df = df.Replace(v.Name(), v.Replace(strOld, strNew, int(num)))
 			vm.stackPush(vm.newPInternTerm(df))

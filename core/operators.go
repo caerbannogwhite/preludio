@@ -6,26 +6,67 @@ import (
 	"typesys"
 )
 
-func (vm *ByteEater) solveExpr(i *__p_intern__) error {
-	// TODO: check if this is possible and
-	// if it's the case to raise an error
-	if i == nil || i.expr == nil || len(i.expr) == 0 {
-		return fmt.Errorf("invalid expression")
+func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
+	convertToSeries := true
+
+	var series gandalff.Series
+	for i := range *list {
+
+		if (*list)[i].tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+			convertToSeries = false
+			break
+		}
+
+		switch v := (*list)[i].expr[0].(type) {
+		case __p_list__:
+			convertToSeries = false
+
+		case gandalff.Series:
+			if series == nil {
+				series = v
+			} else if v.Len() > 1 {
+				convertToSeries = false
+				break
+			} else if series.Type() == v.Type() {
+				series = series.Append(v)
+			} else if series.Type().CanCoerceTo(v.Type()) {
+				series = series.Cast(v.Type(), vm.__stringPool).Append(v)
+			} else if v.Type().CanCoerceTo(series.Type()) {
+				series = series.Append(v.Cast(series.Type(), vm.__stringPool))
+			} else {
+				return list, fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
+			}
+		}
 	}
 
-	// Check if the expression is:
-	//  - a symbol: resolve it
-	//  - a list: recursively solve all the expressions
-	if len(i.expr) == 1 {
-		switch l := i.expr[0].(type) {
-		case __p_symbol__:
-			i.expr[0] = vm.symbolResolution(l)
+	if convertToSeries {
+		return series, nil
+	}
+	return *list, nil
+}
 
-		case __p_list__:
-			for idx := range l {
-				if err := vm.solveExpr(&l[idx]); err != nil {
+func (vm *ByteEater) solveExpr(p *__p_intern__) error {
+	// Preprocess the expression
+	// Check if elements in the expression are:
+	//  - symbols: resolve them
+	//  - lists: recursively solve all the sub-expressions
+	var err error
+	for i := range p.expr {
+		if symb, ok := p.expr[i].(__p_symbol__); ok {
+			p.expr[i] = vm.symbolResolution(symb)
+		}
+
+		if list, ok := p.expr[i].(__p_list__); ok {
+			for j := range list {
+				err = vm.solveExpr(&list[j])
+				if err != nil {
 					return err
 				}
+			}
+
+			p.expr[i], err = vm.processList(&list)
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -37,15 +78,15 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 	var exprIdx int
 	var result interface{}
 
-	for len(i.expr) > 1 {
+	for len(p.expr) > 1 {
 
 		// Load the stack until we find an operators
 		ok = false
-		for exprIdx = 0; !ok; op, ok = i.expr[exprIdx].(typesys.OPCODE) {
+		for exprIdx = 0; !ok; op, ok = p.expr[exprIdx].(typesys.OPCODE) {
 			exprIdx++
 		}
-		stack = append(stack, i.expr[0:exprIdx]...)
-		i.expr = i.expr[exprIdx+1 : len(i.expr)]
+		stack = append(stack, p.expr[0:exprIdx]...)
+		p.expr = p.expr[exprIdx+1 : len(p.expr)]
 
 		errorMode = false
 		result = gandalff.SeriesError{}
@@ -54,10 +95,6 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 		if op.IsUnaryOp() {
 			t1 := stack[len(stack)-1]
 			stack = stack[0 : len(stack)-1]
-
-			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.symbolResolution(s)
-			}
 
 			switch op {
 			case typesys.OP_UNARY_ADD:
@@ -93,22 +130,9 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 
 		// BINARY
 		{
-			t2 := stack[len(stack)-1]
-			t1 := stack[len(stack)-2]
+			s2 := stack[len(stack)-1].(gandalff.Series)
+			s1 := stack[len(stack)-2].(gandalff.Series)
 			stack = stack[0 : len(stack)-2]
-
-			// Symbol resolution
-			if s, ok := t1.(__p_symbol__); ok {
-				t1 = vm.symbolResolution(s)
-			}
-
-			if s, ok := t2.(__p_symbol__); ok {
-				t2 = vm.symbolResolution(s)
-			}
-
-			// Type check
-			s1 := t1.(gandalff.Series)
-			s2 := t2.(gandalff.Series)
 
 			switch op {
 			case typesys.OP_BINARY_MUL:
@@ -148,14 +172,14 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 				result = s1.Ge(s2)
 
 			case typesys.OP_BINARY_AND:
-				if s1, ok := t1.(gandalff.SeriesBool); ok {
+				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.And(s2)
 				} else {
 					errorMode = true
 				}
 
 			case typesys.OP_BINARY_OR:
-				if s1, ok := t1.(gandalff.SeriesBool); ok {
+				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.Or(s2)
 				} else {
 					errorMode = true
@@ -171,7 +195,8 @@ func (vm *ByteEater) solveExpr(i *__p_intern__) error {
 			}
 		}
 
-		i.expr = append([]interface{}{result}, i.expr...)
+		p.expr = append([]interface{}{result}, p.expr...)
 	}
+
 	return nil
 }

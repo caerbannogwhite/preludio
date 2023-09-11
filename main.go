@@ -5,23 +5,45 @@ import (
 	"bytefeeder"
 	"fmt"
 	"os"
-	"preludiocli"
 	"preludiocore"
 	"strconv"
 	"strings"
 	"typesys"
 
 	"github.com/alexflint/go-arg"
-	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
-const VERSION = "0.2.0"
+const VERSION = "0.3.0"
+
+const DEFAULT_PROMPT = ">>> "
+const DEFAULT_INDENTAION = "    "
+const DEFAULT_SUSPENSION_STRING = "... "
+const DEFAULT_NULL_STRING = "NA"
+const DEFAULT_OUTPUT_COLUMN_SIZE = 12
+
+var JUST_RIGHT_TYPES = map[string]bool{
+	"Bool":    true,
+	"Int64":   true,
+	"Float64": true,
+	"String":  false,
+}
+
+var (
+	STYLE_BOLD    = lipgloss.NewStyle().Bold(true)
+	STYLE_ITALIC  = lipgloss.NewStyle().Italic(true)
+	STYLE_PROMPT  = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#F87217"))
+	STYLE_NA      = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#C04000"))
+	STYLE_BOOL    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
+	STYLE_NUMERIC = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
+	STYLE_STRING  = STYLE_ITALIC.Copy().Foreground(lipgloss.Color("#98AFC7"))
+	NO_STYLE      = lipgloss.NewStyle()
+)
 
 type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
-	Editor     bool   `arg:"-e, --editor" help:"launch the text editor" default:"false"`
 	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
 	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
 }
@@ -67,36 +89,17 @@ func main() {
 		}
 
 		be.RunBytecode(bytecode)
-
-	} else if args.Editor {
-		LaunchCodeEditor(args)
 	} else {
 		LaunchRepl(args)
 	}
 }
 
-func LaunchCodeEditor(args CliArgs) {
-
-	be := new(preludiocore.ByteEater).
-		InitVM().
-		SetParamPrintWarning(args.Warnings).
-		SetParamDebugLevel(args.DebugLevel)
-
-	codeEditor := preludiocli.NewCodeEditor().
-		SetPreludioByteEater(*be)
-
-	if _, err := tea.NewProgram(codeEditor).Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
-	}
-}
-
 func LaunchRepl(args CliArgs) {
 
-	var outputColumnSize = 10
+	outputColumnSize := DEFAULT_OUTPUT_COLUMN_SIZE
 
-	fmt.Println("Welcome to the Preludio REPL!")
-	fmt.Println("Version:", VERSION)
+	fmt.Println("Welcome to the " + STYLE_PROMPT.Copy().Italic(true).Render("Preludio REPL") + "!")
+	fmt.Println("Version:", STYLE_NUMERIC.Render(VERSION))
 
 	be := new(preludiocore.ByteEater).
 		InitVM().
@@ -119,9 +122,9 @@ func LaunchRepl(args CliArgs) {
 	code := ""
 	for {
 		if readerStart {
-			fmt.Print(">>> ")
+			fmt.Print(STYLE_PROMPT.Render(DEFAULT_PROMPT))
 		} else {
-			fmt.Print("... ")
+			fmt.Print(DEFAULT_SUSPENSION_STRING)
 		}
 
 		line, err := in.ReadString('\n')
@@ -202,26 +205,27 @@ func LaunchRepl(args CliArgs) {
 		line = strings.TrimSpace(line)
 
 		if line == "" {
-			bytecode, logs, err := bytefeeder.CompileSource(code)
-			if err != nil {
-				fmt.Println("Error compiling source:", err)
-				continue
-			}
-			be.RunBytecode(bytecode)
-
-			res := be.GetOutput()
-			for _, log := range append(logs, res.Log...) {
-				if log.LogType == typesys.LOG_DEBUG {
+			res := be.RunSource(code)
+			for _, log := range res.Log {
+				switch log.LogType {
+				case typesys.LOG_DEBUG:
 					if int(log.Level) < be.GetParamDebugLevel() {
-						fmt.Println(log.Message)
+						fmt.Println("[🐛] " + log.Message)
 					}
-				} else {
-					fmt.Println(log.Message)
+
+				case typesys.LOG_INFO:
+					fmt.Println("[ ℹ️ ] " + log.Message)
+
+				case typesys.LOG_WARNING:
+					fmt.Println("[⚠️] " + log.Message)
+
+				case typesys.LOG_ERROR:
+					fmt.Println("[❌] " + log.Message)
 				}
 			}
 
 			for _, c := range res.Data {
-				prettyPrint(outputColumnSize, c)
+				prettyPrint(DEFAULT_INDENTAION, outputColumnSize, c)
 			}
 
 			code = ""
@@ -241,25 +245,25 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(colSize int, columnar []typesys.Columnar) {
-
+func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
 	if len(columnar) == 0 {
 		return
 	}
 
 	actualColSize := colSize + 3
-	fmtString := fmt.Sprintf("| %%%ds ", colSize)
+	fmtStringLeft := fmt.Sprintf(" %%-%ds ", colSize)
+	fmtStringRight := fmt.Sprintf(" %%%ds ", colSize)
 
 	// header
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer := indent + "╭"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┬"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╮\n"
 
 	// column names
 	// check if there are any column names
@@ -273,59 +277,93 @@ func prettyPrint(colSize int, columnar []typesys.Columnar) {
 
 	// only print column names if there are any
 	if colNames {
-		fmt.Printf("    ")
+		buffer += indent
 		for _, c := range columnar {
-			fmt.Printf(fmtString, truncate(c.Name, colSize))
+			buffer += "│" + STYLE_BOLD.Render(fmt.Sprintf(fmtStringLeft, truncate(c.Name, colSize)))
 		}
-		fmt.Println("|")
+		buffer += "│\n"
 
 		// separator
-		fmt.Printf("    ")
-		for i := 0; i < len(columnar)*actualColSize; i++ {
+		buffer += indent + "├"
+		for i := 1; i < len(columnar)*actualColSize; i++ {
 			if i%actualColSize == 0 {
-				fmt.Print("+")
+				buffer += "┼"
 			} else {
-				fmt.Print("-")
+				buffer += "─"
 			}
 		}
-		fmt.Println("+")
+		buffer += "┤\n"
 	}
 
 	// column typesys
-	fmt.Printf("    ")
+	buffer += indent
 	for _, c := range columnar {
-		fmt.Printf(fmtString, truncate(c.Type, colSize))
+		buffer += "│" + STYLE_BOLD.Copy().
+			Italic(true).
+			Render(fmt.Sprintf(fmtStringLeft, truncate(c.Type, colSize)))
 	}
-	fmt.Println("|")
+	buffer += "│\n"
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer += indent + "├"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┼"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "┤\n"
 
 	// data
 	for i := 0; i < len(columnar[0].Data); i++ {
-		fmt.Printf("    ")
+		buffer += indent
 		for _, c := range columnar {
-			fmt.Printf(fmtString, truncate(c.Data[i], colSize))
+			fmtString := fmtStringLeft
+			if JUST_RIGHT_TYPES[c.Type] {
+				fmtString = fmtStringRight
+			}
+
+			if c.Nulls[i] {
+				buffer += "│" + STYLE_NA.Render(fmt.Sprintf(fmtString, DEFAULT_NULL_STRING))
+			} else {
+				switch c.Type {
+				case "Bool":
+					buffer += "│" + STYLE_BOOL.Render(fmt.Sprintf(fmtString, c.Data[i]))
+				case "Int64", "Float64":
+					buffer += "│" + STYLE_NUMERIC.Render(fmt.Sprintf(fmtString, c.Data[i]))
+				case "String":
+					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+				default:
+					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
+				}
+			}
 		}
-		fmt.Println("|")
+		buffer += "│\n"
+	}
+
+	if len(columnar[0].Data) < columnar[0].ActualLength {
+		buffer += indent
+		for _, c := range columnar {
+			fmtString := fmtStringLeft
+			if JUST_RIGHT_TYPES[c.Type] {
+				fmtString = fmtStringRight
+			}
+			buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, "..."))
+		}
+		buffer += "│\n"
 	}
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(columnar)*actualColSize; i++ {
+	buffer += indent + "╰"
+	for i := 1; i < len(columnar)*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┴"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╯\n"
+
+	fmt.Print(buffer)
 }

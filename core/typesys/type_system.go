@@ -81,6 +81,65 @@ func (bt BaseType) ToGoType() string {
 	return "Unknown"
 }
 
+func (bt BaseType) CanCoerceTo(other BaseType) bool {
+	switch bt {
+	case NullType:
+		return true
+	case BoolType:
+		switch other {
+		case BoolType, Int32Type, Int64Type, Float32Type, Float64Type, StringType:
+			return true
+		default:
+			return false
+		}
+
+	case Int32Type:
+		switch other {
+		case Int32Type, Int64Type, Float32Type, Float64Type, StringType:
+			return true
+		default:
+			return false
+		}
+
+	case Int64Type:
+		switch other {
+		case Int64Type, Float32Type, Float64Type, StringType:
+			return true
+		default:
+			return false
+		}
+
+	case Float32Type:
+		switch other {
+		case Float32Type, Float64Type, StringType:
+			return true
+		default:
+			return false
+		}
+
+	case Float64Type:
+		switch other {
+		case Float64Type, StringType:
+			return true
+		default:
+			return false
+		}
+
+	case StringType:
+		switch other {
+		case StringType:
+			return true
+		default:
+			return false
+		}
+
+	case AnyType:
+		return true
+	}
+
+	return false
+}
+
 func (btc BaseTypeCard) ToString() string {
 	return fmt.Sprintf("%s[%d]", btc.Base.ToString(), btc.Card)
 }

@@ -1,6 +1,6 @@
-![](media/logo_med.png)
+<!-- ![](media/logo_med.png) -->
 
-# Preludio
+# 🎭 Preludio
 
 ### A PRQL based data transformation language
 
@@ -9,24 +9,29 @@ manipulate data in a simple and intuitive way, batteries included.
 
 No libraries or external dependencies are required to run the language.
 
-### Example
+### Examples
 
-This is a simple example of what you can already do with Preludio.
-It reads a CSV file, derives two new columns, selects some columns and writes the result to a new CSV file.
+Read and clean up a CSV file, then store the result in a variable called `clean`:
 
 ```
 let clean = (
-  readCSV "test_files\\Cars.csv" delimiter: ";" header:true
+  rcsv "test_files\\Cars.csv" del:";" head:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-  asFloat [MPG, Displacement, Horsepower, Acceleration]
-  orderBy [-Origin, Cylinders, -MPG]
+  asFlt [MPG, Displacement, Horsepower, Acceleration]
+  sort [-Origin, Cylinders, -MPG]
 )
+```
 
+```
 let europe5Cylinders = (
   from clean
   filter Cylinders == 5 and Origin == "Europe"
 )
+```
 
+Derive new columns and write the result to a CSV file:
+
+```
 (
   from clean
   derive [
@@ -35,9 +40,27 @@ let europe5Cylinders = (
   ]
   filter Stat > 1.3
   select [Car, Origin, Stat]
-  writeCSV "test_files\\Cars1.csv" delimiter: "\t"
+  wcsv "test_files\\Cars1.csv" del: "\t"
 )
 
+```
+
+Create a new table by joining two tables:
+
+```
+let continents = (
+  new [
+    Continent = ["Asia", "America", "Europe"],
+    Origin = ["Japan", "US", "Europe"]
+  ]
+)
+
+let joined = (
+  from clean
+  join left continents on: [Origin]
+  select [Car, Origin, Continent]
+  sort [Continent, Origin]
+)
 ```
 
 ![](media/repl_example.gif)
@@ -50,8 +73,8 @@ let europe5Cylinders = (
 - [x] Select columns
 - [x] Filter rows
 - [x] Sort rows
+- [x] Join tables
 - [ ] Group by and aggregate
-- [ ] Join tables
 
 ### Installation
 
@@ -61,6 +84,7 @@ Once you have Go, you can clone this repository.
 To run the program, you can use the following command:
 
 ```bash
+go mod tidy
 go run .
 ```
 

@@ -7,16 +7,6 @@ import (
 	"gandalff"
 )
 
-type __p_intern_tag__ uint8
-
-const (
-	// PRELUDIO_INTERNAL_TAG_ERROR       __p_intern_tag__ = 0
-	PRELUDIO_INTERNAL_TAG_EXPRESSION  __p_intern_tag__ = 1
-	PRELUDIO_INTERNAL_TAG_NAMED_PARAM __p_intern_tag__ = 2
-	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  __p_intern_tag__ = 3
-	PRELUDIO_INTERNAL_TAG_BEGIN_FRAME __p_intern_tag__ = 4
-)
-
 type __p_intern__ struct {
 	tag  __p_intern_tag__
 	vm   *ByteEater
@@ -67,57 +57,13 @@ func (i *__p_intern__) setAssignment(name string) {
 
 func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, outputSnippetLength int) error {
 	switch i.tag {
-	case PRELUDIO_INTERNAL_TAG_EXPRESSION:
+	case PRELUDIO_INTERNAL_TAG_EXPRESSION, PRELUDIO_INTERNAL_TAG_NAMED_PARAM, PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 		switch v := i.expr[0].(type) {
-		case gandalff.SeriesBool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
-		case gandalff.SeriesInt64:
-			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
-		case gandalff.SeriesFloat64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
-		case gandalff.SeriesString:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
-		case gandalff.DataFrame:
-			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
-			if err != nil {
-				return err
-			}
-			*res = append(*res, df...)
-		}
+		case gandalff.Series:
+			*res = append(*res, seriesToColumnar(fullOutput, outputSnippetLength, v))
 
-	case PRELUDIO_INTERNAL_TAG_NAMED_PARAM:
-		switch v := i.expr[0].(type) {
-		case gandalff.SeriesBool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
-		case gandalff.SeriesInt64:
-			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
-		case gandalff.SeriesFloat64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
-		case gandalff.SeriesString:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
 		case gandalff.DataFrame:
-			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
-			if err != nil {
-				return err
-			}
-			*res = append(*res, df...)
-		}
-
-	case PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
-		switch v := i.expr[0].(type) {
-		case gandalff.SeriesBool:
-			*res = append(*res, NewColumnarBool(i.name, fullOutput, outputSnippetLength, v.Bools()))
-		case gandalff.SeriesInt64:
-			*res = append(*res, NewColumnarInt64(i.name, fullOutput, outputSnippetLength, v.Int64s()))
-		case gandalff.SeriesFloat64:
-			*res = append(*res, NewColumnarFloat(i.name, fullOutput, outputSnippetLength, v.Float64s()))
-		case gandalff.SeriesString:
-			*res = append(*res, NewColumnarString(i.name, fullOutput, outputSnippetLength, v.Strings()))
-		case gandalff.DataFrame:
-			df, err := DataFrameToColumnar(fullOutput, outputSnippetLength, &v)
-			if err != nil {
-				return err
-			}
+			df := dataFrameToColumnar(fullOutput, outputSnippetLength, &v)
 			*res = append(*res, df...)
 		}
 	}

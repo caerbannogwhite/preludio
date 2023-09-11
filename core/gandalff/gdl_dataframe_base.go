@@ -635,6 +635,17 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 	}
 
+	// Get the columns that are in both dataframes
+	commonCols := make(map[string]bool)
+	for _, name := range df.Names() {
+		for _, otherName := range other.Names() {
+			if name == otherName {
+				commonCols[name] = true
+				break
+			}
+		}
+	}
+
 	joined := NewBaseDataFrame()
 
 	pA := dfGrouped.getPartitions()
@@ -709,13 +720,22 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// A columns
+		var ser_ Series
 		for _, name := range colsDiffA {
-			joined = joined.AddSeries(df.Series(name).Filter(indicesA))
+			ser_ = df.Series(name).Filter(indicesA)
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_x")
+			}
+			joined = joined.AddSeries(ser_)
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
-			joined = joined.AddSeries(other.Series(name).Filter(indicesB))
+			ser_ = other.Series(name).Filter(indicesB)
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_y")
+			}
+			joined = joined.AddSeries(ser_.Filter(indicesB))
 		}
 
 	case LEFT_JOIN:
@@ -741,8 +761,13 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// A columns
+		var ser_ Series
 		for _, name := range colsDiffA {
-			joined = joined.AddSeries(df.Series(name).Filter(indicesA))
+			ser_ = df.Series(name).Filter(indicesA)
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_x")
+			}
+			joined = joined.AddSeries(ser_)
 		}
 
 		padBlen := len(indicesA) - len(indicesB)
@@ -753,7 +778,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// B columns
 		for _, name := range colsDiffB {
-			ser_ := other.Series(name).Filter(indicesB)
+			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
 				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
@@ -781,6 +806,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					appendSeries(ser_)
 			}
 
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_y")
+			}
 			joined = joined.AddSeries(ser_)
 		}
 
@@ -813,8 +841,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// A columns
+		var ser_ Series
 		for _, name := range colsDiffA {
-			ser_ := df.Series(name).Filter(indicesA)
+			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
 				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
@@ -832,12 +861,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
 			}
 
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_x")
+			}
 			joined = joined.AddSeries(ser_)
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
-			joined = joined.AddSeries(other.Series(name).Filter(indicesB))
+			ser_ = other.Series(name).Filter(indicesB)
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_y")
+			}
+			joined = joined.AddSeries(ser_)
 		}
 
 	case OUTER_JOIN:
@@ -889,8 +925,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// A columns
+		var ser_ Series
 		for _, name := range colsDiffA {
-			ser_ := df.Series(name).Filter(indicesA)
+			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
 				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
@@ -908,12 +945,15 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
 			}
 
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_x")
+			}
 			joined = joined.AddSeries(ser_)
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
-			ser_ := other.Series(name).Filter(indicesB)
+			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
 				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
@@ -941,6 +981,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 					appendSeries(ser_)
 			}
 
+			if commonCols[name] {
+				ser_ = ser_.SetName(name + "_y")
+			}
 			joined = joined.AddSeries(ser_)
 		}
 	}

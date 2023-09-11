@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"bufio"
+	"bytefeeder"
 	"encoding/binary"
 	"fmt"
 	"io/fs"
@@ -106,7 +107,7 @@ func (vm *ByteEater) SetParamOutputSnippetLength(length int) *ByteEater {
 func (vm *ByteEater) InitVM() *ByteEater {
 
 	// set default values
-	vm.__param_outputSnippetLength = 10
+	vm.__param_outputSnippetLength = DEFAULT_OUTPUT_SNIPPET_LENGTH
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	vm.__globalNamespace = map[string]*__p_intern__{}
@@ -126,7 +127,22 @@ const (
 	LOG_DEBUG   LOG_TYPE = 3
 )
 
-// Run Preludio Bytecode from byte array
+// Run Preludio source code.
+func (vm *ByteEater) RunSource(source string) *typesys.PreludioOutput {
+	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
+	if err == nil {
+		vm.RunBytecode(bytecode)
+	} else {
+		vm.setPanicMode(err.Error())
+	}
+
+	res := vm.GetOutput()
+	res.Log = append(compilerLogs, res.Log...)
+
+	return res
+}
+
+// Run Preludio Bytecode from byte array.
 func (vm *ByteEater) RunBytecode(bytecode []byte) {
 
 	// clean vm state
@@ -177,8 +193,8 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.RunPrqlInstructions(bytecode, offset)
 }
 
-// Run Preludio bytecode from a binary file located
-// at __param_inputPath with SetInputPath
+// Run Preludio bytecode from a binary file.
+// The location of the file can be set using SetInputPath.
 func (vm *ByteEater) RunFileBytecode() {
 	var err error
 	var file *os.File
@@ -297,9 +313,7 @@ func (vm *ByteEater) loadResults() {
 }
 
 func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
-
 	vm.__output.Data = make([][]typesys.Columnar, 0)
-
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -418,44 +432,46 @@ MAIN_LOOP:
 			// Standard library functions build-ins
 			case "derive":
 				PreludioFunc_Derive("derive", vm)
-			case "describe":
-				PreludioFunc_Describe("describe", vm)
+			// case "describe":
+			// 	PreludioFunc_Describe("describe", vm)
 			case "filter":
 				PreludioFunc_Filter("filter", vm)
 			case "from":
 				PreludioFunc_From("from", vm)
-			case "writeCSV":
-				PreludioFunc_WriteCSV("writeCSV", vm)
-			case "readCSV":
-				PreludioFunc_ReadCSV("readCSV", vm)
+			case "wcsv":
+				PreludioFunc_WriteCSV("wcsv", vm)
+			case "rcsv":
+				PreludioFunc_ReadCSV("rcsv", vm)
 			case "names":
 				PreludioFunc_Names("names", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
 				PreludioFunc_Select("select", vm)
-			case "groupBy":
-				PreludioFunc_GroupBy("groupBy", vm)
+			case "group":
+				PreludioFunc_GroupBy("group", vm)
 			case "ungroup":
 				PreludioFunc_Ungroup("ungroup", vm)
-			case "orderBy":
-				PreludioFunc_OrderBy("orderBy", vm)
+			case "join":
+				PreludioFunc_Join("join", vm)
+			case "sort":
+				PreludioFunc_OrderBy("sort", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
 
 			// Environment functions
-			case "toCurrent":
-				PreludioFunc_ToCurrent("toCurrent", vm)
+			// case "toCurrent":
+			// 	PreludioFunc_ToCurrent("toCurrent", vm)
 
 			// Coerce functions
 			case "asBool":
 				preludioAsType("asBool", vm, typesys.BoolType)
-			case "asInteger":
-				preludioAsType("asInteger", vm, typesys.Int64Type)
-			case "asFloat":
-				preludioAsType("asFloat", vm, typesys.Float64Type)
-			case "asString":
-				preludioAsType("asString", vm, typesys.StringType)
+			case "asInt":
+				preludioAsType("asInt", vm, typesys.Int64Type)
+			case "asFlt":
+				preludioAsType("asFlt", vm, typesys.Float64Type)
+			case "asStr":
+				preludioAsType("asStr", vm, typesys.StringType)
 
 			// String functions
 			case "strReplace":
@@ -823,37 +839,41 @@ func (vm *ByteEater) setCurrentDataFrame() {
 }
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
-	msg := fmt.Sprintf("[ 🐛 ]  %-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
+	msg := fmt.Sprintf("%-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_DEBUG, Level: level, Message: msg})
-
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	msg = fmt.Sprintf("[ ℹ️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_INFO, Level: level, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	msg = fmt.Sprintf("[ ⚠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_WARNING, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printError(msg string) {
-	msg = fmt.Sprintf("[ ☠️ ]  %s", msg)
 	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_ERROR, Message: msg})
-
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
+}
+
+func (vm *ByteEater) getLastError() string {
+	if len(vm.__output.Log) > 0 {
+		for i := len(vm.__output.Log) - 1; i >= 0; i-- {
+			if vm.__output.Log[i].LogType == typesys.LOG_ERROR {
+				return vm.__output.Log[i].Message
+			}
+		}
+	}
+	return ""
 }
