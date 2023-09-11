@@ -1,0 +1,36 @@
+let clean = (
+  rcsv "test_files\\Cars.csv" del:";" head:true
+  strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+  asFlt [MPG, Displacement, Horsepower, Acceleration]
+  sort [-Origin, Cylinders, -MPG]
+)
+
+let europe5Cylinders = (
+  from clean
+  filter Cylinders == 5 and Origin == "Europe"
+)
+
+(
+  from clean
+  derive [
+    Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
+    CarOrigin = Car + " - " + Origin
+  ]
+  filter Stat > 1.3
+  select [Car, Origin, Stat]
+  wcsv "test_files\\Cars1.csv" del: "\t"
+)
+
+let continents = (
+  new [
+    Continent = ["Asia", "America", "Europe"],
+    Origin = ["Japan", "US", "Europe"]
+  ]
+)
+
+let joined = (
+  from clean
+  join left continents on: [Origin]
+  select [Car, Origin, Continent]
+  sort [Continent, Origin]
+)
