@@ -1,6 +1,9 @@
 package gandalff
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 const (
 	// The default capacity of a series.
@@ -103,6 +106,11 @@ type NullableFloat64 struct {
 type NullableString struct {
 	Valid bool
 	Value string
+}
+
+type NullableTime struct {
+	Valid bool
+	Value time.Time
 }
 
 type GDLMapFunc func(any) any
