@@ -369,7 +369,7 @@ func (s SeriesBool) Data() any {
 func (s SeriesBool) DataAsNullable() any {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableBool{v, s.IsNull(i)}
+		data[i] = NullableBool{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }

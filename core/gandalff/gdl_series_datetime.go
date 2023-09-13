@@ -365,7 +365,7 @@ func (s SeriesDateTime) Data() any {
 func (s SeriesDateTime) DataAsNullable() any {
 	data := make([]NullableTime, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableTime{Valid: s.IsNull(i), Value: v}
+		data[i] = NullableTime{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }
