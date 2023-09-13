@@ -97,7 +97,7 @@ literal:
 	| NULL_
 	| BOOLEAN
 	| STRING // | timestamp | date | time | s_string | f_string |
-	| REGEXP_OPEN REGEXP REGEXP_CLOSE
+	| REGEXP_LITERAL
 	| INTEGER
 	| FLOAT
 	| (INTEGER | FLOAT) INTERVAL_KIND

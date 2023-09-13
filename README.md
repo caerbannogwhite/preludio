@@ -123,6 +123,11 @@ If the grammar is changed, the parser must be regenerated. To do this, run the f
 make.ps1
 ```
 
+### New Ideas
+
+- Add datetime series to Gandalff
+- List can be indexed with integers, ranges, strings and regex
+
 ### Log
 
 - **20 / 08 / 2023** After exactly one year from the first commit, Preludio is fairly stable and usable. The language is still missing a few core features (like `join` and aggregators, already supported by Gandalff), but it is already possible to perform many operations with it.

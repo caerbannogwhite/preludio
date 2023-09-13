@@ -1,5 +1,9 @@
 lexer grammar preludioLexer;
 
+SINGLE_LINE_COMMENT:
+	'#' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
+REGEXP_LITERAL: 'r/' REGEXP_FIRST_CHAR REGEXP_CHAR* '/';
+
 FUNC: 'func';
 PRQL: 'prql';
 LET: 'let';
@@ -48,10 +52,6 @@ COALESCE: '??';
 NULL_: 'null';
 BOOLEAN: 'true' | 'false';
 
-fragment DIGIT: [0-9];
-fragment LETTER: [a-zA-Z];
-fragment EXP: ('E' | 'e') ('+' | '-')? INTEGER;
-
 INTEGER: DIGIT+;
 FLOAT: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
 
@@ -88,12 +88,9 @@ RANGELIT: (INTEGER | IDENT) RANGE (INTEGER | IDENT) (
 
 STRING: '"' (ESC | ~[\\"])*? '"' | '\'' (ESC | ~[\\'])*? '\'';
 
-REGEXP_OPEN: AT ('"' | '\'') -> pushMode(REGEXP_MODE);
-REGEXP_CLOSE: ('"' | '\'') -> popMode;
-
-mode REGEXP_MODE;
-
-REGEXP: .+;
+fragment DIGIT: [0-9];
+fragment LETTER: [a-zA-Z];
+fragment EXP: ('E' | 'e') ('+' | '-')? INTEGER;
 
 fragment ESC:
 	'\\' [abtnfrv"'\\]
@@ -113,6 +110,22 @@ fragment OCTAL_ESCAPE:
 fragment HEX_ESCAPE: '\\' HEXDIGIT HEXDIGIT?;
 
 fragment HEXDIGIT: ('0' ..'9' | 'a' ..'f' | 'A' ..'F');
+
+fragment REGEXP_FIRST_CHAR:
+	~[*\r\n\u2028\u2029\\/[]
+	| REGEXP_BACK_SEQ
+	| '[' REGEXP_CLASS_CHAR* ']';
+
+fragment REGEXP_CHAR:
+	~[\r\n\u2028\u2029\\/[]
+	| REGEXP_BACK_SEQ
+	| '[' REGEXP_CLASS_CHAR* ']';
+
+fragment REGEXP_CLASS_CHAR:
+	~[\r\n\u2028\u2029\]\\]
+	| REGEXP_BACK_SEQ;
+
+fragment REGEXP_BACK_SEQ: '\\' ~[\r\n\u2028\u2029];
 
 // date: '@' date_inner end_expr; time: '@' time_inner end_expr; timestamp: '@' timestamp_inner
 // end_expr;

@@ -14,8 +14,10 @@ myList[0]
 myList[1..2]
 myList[1..2:2]
 myList[n..3:n]
-myList[@"A"]
-myList[[1..2, @"A"]]
+myList[r/A/]
+myList[[1..2, r/A/]]
 
 # regex
-let regex = @"[a-z]+{2,4}"
+let regex = r/[a-z]+{2,4}/
+
+(from x | select r/.*/)
