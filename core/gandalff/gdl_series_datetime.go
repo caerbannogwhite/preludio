@@ -377,19 +377,13 @@ func (s SeriesDateTime) DataAsString() []string {
 		for i, v := range s.data {
 			if s.IsNull(i) {
 				data[i] = NULL_STRING
-			} else if v {
-				data[i] = BOOL_TRUE_STRING
 			} else {
-				data[i] = BOOL_FALSE_STRING
+				data[i] = v.String()
 			}
 		}
 	} else {
 		for i, v := range s.data {
-			if v {
-				data[i] = BOOL_TRUE_STRING
-			} else {
-				data[i] = BOOL_FALSE_STRING
-			}
+			data[i] = v.String()
 		}
 	}
 	return data
@@ -397,17 +391,16 @@ func (s SeriesDateTime) DataAsString() []string {
 
 // Casts the series to a given type.
 func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+
 	switch t {
-	case typesys.BoolType:
-		return s
+	// case typesys.BoolType:
+	// 	return s
 
 	case typesys.Int32Type:
 		data := make([]int32, len(s.data))
-		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
-		}
+		// for i, v := range s.data {
+
+		// }
 
 		return SeriesInt32{
 			isGrouped:  false,
@@ -421,11 +414,9 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 	case typesys.Int64Type:
 		data := make([]int64, len(s.data))
-		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
-		}
+		// for i, v := range s.data {
+
+		// }
 
 		return SeriesInt64{
 			isGrouped:  false,
@@ -439,11 +430,9 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
-		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
-		}
+		// for i, v := range s.data {
+
+		// }
 
 		return SeriesFloat64{
 			isGrouped:  false,
@@ -465,19 +454,13 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 			for i, v := range s.data {
 				if s.IsNull(i) {
 					data[i] = stringPool.Put(NULL_STRING)
-				} else if v {
-					data[i] = stringPool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = stringPool.Put(BOOL_FALSE_STRING)
+					data[i] = stringPool.Put(v.String())
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				if v {
-					data[i] = stringPool.Put(BOOL_TRUE_STRING)
-				} else {
-					data[i] = stringPool.Put(BOOL_FALSE_STRING)
-				}
+				data[i] = stringPool.Put(v.String())
 			}
 		}
 
@@ -498,7 +481,7 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 // Copy returns a copy of the series.
 func (s SeriesDateTime) Copy() Series {
-	data := make([]bool, len(s.data))
+	data := make([]time.Time, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
@@ -512,7 +495,7 @@ func (s SeriesDateTime) Copy() Series {
 	}
 }
 
-func (s SeriesDateTime) getDataPtr() *[]bool {
+func (s SeriesDateTime) getDataPtr() *[]time.Time {
 	return &s.data
 }
 
@@ -522,9 +505,9 @@ func (s SeriesDateTime) getDataPtr() *[]bool {
 // Mask can be a bool series, a slice of bools or a slice of ints.
 func (s SeriesDateTime) Filter(mask any) Series {
 	switch mask := mask.(type) {
-	case SeriesDateTime:
+	case SeriesBool:
 		return s.filterBool(mask)
-	case SeriesDateTimeMemOpt:
+	case SeriesBoolMemOpt:
 		return s.filterBoolMemOpt(mask)
 	case []bool:
 		return s.filterBoolSlice(mask)
@@ -535,12 +518,12 @@ func (s SeriesDateTime) Filter(mask any) Series {
 	}
 }
 
-func (s SeriesDateTime) filterBool(mask SeriesDateTime) Series {
+func (s SeriesDateTime) filterBool(mask SeriesBool) Series {
 	return s.filterBoolSlice(mask.data)
 }
 
 // Filters out the elements by the given mask series.
-func (s SeriesDateTime) filterBoolMemOpt(mask SeriesDateTimeMemOpt) Series {
+func (s SeriesDateTime) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	if mask.Len() != len(s.data) {
 		return SeriesError{fmt.Sprintf("SeriesDateTime.Filter: mask length (%d) does not match series length (%d)", mask.Len(), len(s.data))}
 	}
@@ -564,7 +547,7 @@ func (s SeriesDateTime) filterBoolSlice(mask []bool) Series {
 		}
 	}
 
-	data := make([]bool, elementCount)
+	data := make([]time.Time, elementCount)
 	var nullMask []uint8
 
 	if s.isNullable {
@@ -609,7 +592,7 @@ func (s SeriesDateTime) filterIntSlice(indexes []int) Series {
 	var nullMask []uint8
 
 	size := len(indexes)
-	data := make([]bool, size)
+	data := make([]time.Time, size)
 
 	if s.isNullable {
 		nullMask = __binVecInit(size)
@@ -641,20 +624,20 @@ func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 	v := f(s.Get(0))
 	switch v.(type) {
-	case bool:
-		data := make([]bool, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(bool)
-		}
+	// case bool:
+	// 	data := make([]bool, len(s.data))
+	// 	for i := 0; i < len(s.data); i++ {
+	// 		data[i] = f(s.data[i]).(bool)
+	// 	}
 
-		return SeriesDateTime{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-		}
+	// 	return SeriesDateTime{
+	// 		isGrouped:  false,
+	// 		isNullable: s.isNullable,
+	// 		sorted:     SORTED_NONE,
+	// 		name:       s.name,
+	// 		data:       data,
+	// 		nullMask:   s.nullMask,
+	// 	}
 
 	case int32:
 		data := make([]int32, len(s.data))
@@ -747,27 +730,27 @@ func (s SeriesDateTime) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
-		for i := start; i < end; i++ {
-			if s.data[i] {
-				map_[1] = append(map_[1], i)
-			} else {
-				map_[0] = append(map_[0], i)
-			}
-		}
+		// for i := start; i < end; i++ {
+		// 	if s.data[i] {
+		// 		map_[1] = append(map_[1], i)
+		// 	} else {
+		// 		map_[0] = append(map_[0], i)
+		// 	}
+		// }
 	}
 
 	// Define the worker callback for nulls
 	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
-		for i := start; i < end; i++ {
-			if s.IsNull(i) {
-				(*nulls) = append((*nulls), i)
-			} else if s.data[i] {
-				map_[1] = append(map_[1], i)
-			} else {
-				map_[0] = append(map_[0], i)
-			}
+		// for i := start; i < end; i++ {
+		// 	if s.IsNull(i) {
+		// 		(*nulls) = append((*nulls), i)
+		// 	} else if s.data[i] {
+		// 		map_[1] = append(map_[1], i)
+		// 	} else {
+		// 		map_[0] = append(map_[0], i)
+		// 	}
 
-		}
+		// }
 	}
 
 	partition := SeriesDateTimePartition{
@@ -797,11 +780,11 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				if s.data[index] {
-					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
-				} else {
-					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				}
+				// if s.data[index] {
+				// 	newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
+				// } else {
+				// 	newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				// }
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -812,13 +795,13 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				if s.IsNull(index) {
-					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
-				} else if s.data[index] {
-					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
-				} else {
-					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				}
+				// if s.IsNull(index) {
+				// 	newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				// } else if s.data[index] {
+				// 	newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
+				// } else {
+				// 	newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				// }
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -857,7 +840,7 @@ func (s SeriesDateTime) Less(i, j int) bool {
 			return true
 		}
 	}
-	return !s.data[i] && s.data[j]
+	return s.data[i].Compare(s.data[j]) < 0
 }
 
 func (s SeriesDateTime) equal(i, j int) bool {
