@@ -393,14 +393,14 @@ func (s SeriesDateTime) DataAsString() []string {
 func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 
 	switch t {
-	// case typesys.BoolType:
-	// 	return s
+	case typesys.BoolType:
+		return SeriesError{"SeriesDateTime.Cast: cannot cast to bool"}
 
 	case typesys.Int32Type:
 		data := make([]int32, len(s.data))
-		// for i, v := range s.data {
-
-		// }
+		for i, v := range s.data {
+			data[i] = int32(v.UnixNano())
+		}
 
 		return SeriesInt32{
 			isGrouped:  false,
@@ -414,9 +414,9 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 	case typesys.Int64Type:
 		data := make([]int64, len(s.data))
-		// for i, v := range s.data {
-
-		// }
+		for i, v := range s.data {
+			data[i] = v.UnixNano()
+		}
 
 		return SeriesInt64{
 			isGrouped:  false,
@@ -430,9 +430,9 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
-		// for i, v := range s.data {
-
-		// }
+		for i, v := range s.data {
+			data[i] = float64(v.UnixNano())
+		}
 
 		return SeriesFloat64{
 			isGrouped:  false,
@@ -624,20 +624,20 @@ func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 	v := f(s.Get(0))
 	switch v.(type) {
-	// case bool:
-	// 	data := make([]bool, len(s.data))
-	// 	for i := 0; i < len(s.data); i++ {
-	// 		data[i] = f(s.data[i]).(bool)
-	// 	}
+	case bool:
+		data := make([]bool, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(bool)
+		}
 
-	// 	return SeriesDateTime{
-	// 		isGrouped:  false,
-	// 		isNullable: s.isNullable,
-	// 		sorted:     SORTED_NONE,
-	// 		name:       s.name,
-	// 		data:       data,
-	// 		nullMask:   s.nullMask,
-	// 	}
+		return SeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+		}
 
 	case int32:
 		data := make([]int32, len(s.data))
@@ -730,27 +730,20 @@ func (s SeriesDateTime) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
-		// for i := start; i < end; i++ {
-		// 	if s.data[i] {
-		// 		map_[1] = append(map_[1], i)
-		// 	} else {
-		// 		map_[0] = append(map_[0], i)
-		// 	}
-		// }
+		for i := start; i < end; i++ {
+			map_[s.data[i].UnixNano()] = append(map_[s.data[i].UnixNano()], i)
+		}
 	}
 
 	// Define the worker callback for nulls
 	workerNulls := func(threadNum, start, end int, map_ map[int64][]int, nulls *[]int) {
-		// for i := start; i < end; i++ {
-		// 	if s.IsNull(i) {
-		// 		(*nulls) = append((*nulls), i)
-		// 	} else if s.data[i] {
-		// 		map_[1] = append(map_[1], i)
-		// 	} else {
-		// 		map_[0] = append(map_[0], i)
-		// 	}
-
-		// }
+		for i := start; i < end; i++ {
+			if s.IsNull(i) {
+				(*nulls) = append((*nulls), i)
+			} else {
+				map_[s.data[i].UnixNano()] = append(map_[s.data[i].UnixNano()], i)
+			}
+		}
 	}
 
 	partition := SeriesDateTimePartition{
@@ -780,11 +773,7 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				// if s.data[index] {
-				// 	newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
-				// } else {
-				// 	newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				// }
+				newHash = s.data[index].UnixNano() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -795,13 +784,11 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				// if s.IsNull(index) {
-				// 	newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
-				// } else if s.data[index] {
-				// 	newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
-				// } else {
-				// 	newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				// }
+				if s.IsNull(index) {
+					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
+				} else {
+					newHash = s.data[index].UnixNano() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				}
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
