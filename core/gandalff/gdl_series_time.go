@@ -7,72 +7,72 @@ import (
 	"typesys"
 )
 
-// SeriesDateTime represents a datetime series.
-type SeriesDateTime struct {
+// SeriesTime represents a datetime series.
+type SeriesTime struct {
 	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	name       string
 	data       []time.Time
 	nullMask   []uint8
-	partition  *SeriesDateTimePartition
+	partition  *SeriesTimePartition
 }
 
 ////////////////////////			BASIC ACCESSORS
 
 // Returns the number of elements in the series.
-func (s SeriesDateTime) Len() int {
+func (s SeriesTime) Len() int {
 	return len(s.data)
 }
 
 // Returns the name of the series.
-func (s SeriesDateTime) Name() string {
+func (s SeriesTime) Name() string {
 	return s.name
 }
 
 // Sets the name of the series.
-func (s SeriesDateTime) SetName(name string) Series {
+func (s SeriesTime) SetName(name string) Series {
 	s.name = name
 	return s
 }
 
 // Returns the type of the series.
-func (s SeriesDateTime) Type() typesys.BaseType {
+func (s SeriesTime) Type() typesys.BaseType {
 	return typesys.BoolType
 }
 
 // Returns the type and cardinality of the series.
-func (s SeriesDateTime) TypeCard() typesys.BaseTypeCard {
+func (s SeriesTime) TypeCard() typesys.BaseTypeCard {
 	return typesys.BaseTypeCard{Base: typesys.BoolType, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
-func (s SeriesDateTime) IsGrouped() bool {
+func (s SeriesTime) IsGrouped() bool {
 	return s.isGrouped
 }
 
 // Returns if the series admits null values.
-func (s SeriesDateTime) IsNullable() bool {
+func (s SeriesTime) IsNullable() bool {
 	return s.isNullable
 }
 
 // Returns if the series is sorted.
-func (s SeriesDateTime) IsSorted() SeriesSortOrder {
+func (s SeriesTime) IsSorted() SeriesSortOrder {
 	return s.sorted
 }
 
 // Returns if the series is error.
-func (s SeriesDateTime) IsError() bool {
+func (s SeriesTime) IsError() bool {
 	return false
 }
 
 // Returns the error message of the series.
-func (s SeriesDateTime) GetError() string {
+func (s SeriesTime) GetError() string {
 	return ""
 }
 
 // Returns if the series has null values.
-func (s SeriesDateTime) HasNull() bool {
+func (s SeriesTime) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
 			return true
@@ -82,7 +82,7 @@ func (s SeriesDateTime) HasNull() bool {
 }
 
 // Returns the number of null values in the series.
-func (s SeriesDateTime) NullCount() int {
+func (s SeriesTime) NullCount() int {
 	count := 0
 	for _, x := range s.nullMask {
 		for ; x != 0; x >>= 1 {
@@ -93,7 +93,7 @@ func (s SeriesDateTime) NullCount() int {
 }
 
 // Returns if the element at index i is null.
-func (s SeriesDateTime) IsNull(i int) bool {
+func (s SeriesTime) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i>>3]&(1<<uint(i%8)) != 0
 	}
@@ -101,7 +101,7 @@ func (s SeriesDateTime) IsNull(i int) bool {
 }
 
 // Sets the element at index i to null.
-func (s SeriesDateTime) SetNull(i int) Series {
+func (s SeriesTime) SetNull(i int) Series {
 	if s.isNullable {
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
@@ -120,7 +120,7 @@ func (s SeriesDateTime) SetNull(i int) Series {
 }
 
 // Returns the null mask of the series.
-func (s SeriesDateTime) GetNullMask() []bool {
+func (s SeriesTime) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
 	for _, v := range s.nullMask {
@@ -133,7 +133,7 @@ func (s SeriesDateTime) GetNullMask() []bool {
 }
 
 // Sets the null mask of the series.
-func (s SeriesDateTime) SetNullMask(mask []bool) Series {
+func (s SeriesTime) SetNullMask(mask []bool) Series {
 	if s.isNullable {
 		for k, v := range mask {
 			if v {
@@ -164,7 +164,7 @@ func (s SeriesDateTime) SetNullMask(mask []bool) Series {
 }
 
 // Makes the series nullable.
-func (s SeriesDateTime) MakeNullable() Series {
+func (s SeriesTime) MakeNullable() Series {
 	if !s.isNullable {
 		s.isNullable = true
 		s.sorted = SORTED_NONE
@@ -174,12 +174,12 @@ func (s SeriesDateTime) MakeNullable() Series {
 }
 
 // Get the element at index i.
-func (s SeriesDateTime) Get(i int) any {
+func (s SeriesTime) Get(i int) any {
 	return s.data[i]
 }
 
 // Get the element at index i as a string.
-func (s SeriesDateTime) GetString(i int) string {
+func (s SeriesTime) GetString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	}
@@ -187,7 +187,7 @@ func (s SeriesDateTime) GetString(i int) string {
 }
 
 // Set the element at index i. The value v must be of type time.Time or NullableTime.
-func (s SeriesDateTime) Set(i int, v any) Series {
+func (s SeriesTime) Set(i int, v any) Series {
 	switch v := v.(type) {
 	case time.Time:
 		s.data[i] = v
@@ -201,7 +201,7 @@ func (s SeriesDateTime) Set(i int, v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Set: provided value %T is not compatible with type time.Time or NullableTime", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Set: provided value %T is not compatible with type time.Time or NullableTime", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -209,7 +209,7 @@ func (s SeriesDateTime) Set(i int, v any) Series {
 }
 
 // Take the elements according to the given interval.
-func (s SeriesDateTime) Take(params ...int) Series {
+func (s SeriesTime) Take(params ...int) Series {
 	indeces, err := seriesTakePreprocess(s.Len(), params...)
 	if err != nil {
 		return SeriesError{err.Error()}
@@ -218,23 +218,23 @@ func (s SeriesDateTime) Take(params ...int) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesDateTime) Append(v any) Series {
+func (s SeriesTime) Append(v any) Series {
 	switch v := v.(type) {
 	case bool, []bool:
 		return s.appendRaw(v)
 	case NullableTime, []NullableTime:
 		return s.appendNullable(v)
-	case SeriesDateTime:
+	case SeriesTime:
 		return s.appendSeries(v)
 	case SeriesError:
 		return v
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Append: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Append: invalid type %T", v)}
 	}
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesDateTime) appendRaw(v any) Series {
+func (s SeriesTime) appendRaw(v any) Series {
 	switch v := v.(type) {
 	case time.Time:
 		s.data = append(s.data, v)
@@ -249,15 +249,15 @@ func (s SeriesDateTime) appendRaw(v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Append: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Append: invalid type %T", v)}
 	}
 	return s
 }
 
 // AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesDateTime) appendNullable(v any) Series {
+func (s SeriesTime) appendNullable(v any) Series {
 	if !s.isNullable {
-		return SeriesError{"SeriesDateTime.AppendNullable: series is not nullable"}
+		return SeriesError{"SeriesTime.AppendNullable: series is not nullable"}
 	}
 
 	switch v := v.(type) {
@@ -284,18 +284,18 @@ func (s SeriesDateTime) appendNullable(v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.AppendNullable: invalid type %T", v)}
 	}
 
 	return s
 }
 
 // AppendSeries appends a series to the series.
-func (s SeriesDateTime) appendSeries(other Series) Series {
+func (s SeriesTime) appendSeries(other Series) Series {
 	var ok bool
-	var o SeriesDateTime
-	if o, ok = other.(SeriesDateTime); !ok {
-		return SeriesError{fmt.Sprintf("SeriesDateTime.AppendSeries: invalid type %T", other)}
+	var o SeriesTime
+	if o, ok = other.(SeriesTime); !ok {
+		return SeriesError{fmt.Sprintf("SeriesTime.AppendSeries: invalid type %T", other)}
 	}
 
 	if s.isNullable {
@@ -351,16 +351,16 @@ func (s SeriesDateTime) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
-func (s SeriesDateTime) Times() []time.Time {
+func (s SeriesTime) Times() []time.Time {
 	return s.data
 }
 
-func (s SeriesDateTime) Data() any {
+func (s SeriesTime) Data() any {
 	return s.data
 }
 
 // NullableData returns a slice of NullableTime.
-func (s SeriesDateTime) DataAsNullable() any {
+func (s SeriesTime) DataAsNullable() any {
 	data := make([]NullableTime, len(s.data))
 	for i, v := range s.data {
 		data[i] = NullableTime{Valid: !s.IsNull(i), Value: v}
@@ -369,7 +369,7 @@ func (s SeriesDateTime) DataAsNullable() any {
 }
 
 // StringData returns a slice of strings.
-func (s SeriesDateTime) DataAsString() []string {
+func (s SeriesTime) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
 		for i, v := range s.data {
@@ -388,11 +388,11 @@ func (s SeriesDateTime) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 
 	switch t {
 	case typesys.BoolType:
-		return SeriesError{"SeriesDateTime.Cast: cannot cast to bool"}
+		return SeriesError{"SeriesTime.Cast: cannot cast to bool"}
 
 	case typesys.Int32Type:
 		data := make([]int32, len(s.data))
@@ -444,7 +444,7 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 
 	case typesys.StringType:
 		if stringPool == nil {
-			return SeriesError{"SeriesDateTime.Cast: StringPool is nil"}
+			return SeriesError{"SeriesTime.Cast: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -473,18 +473,18 @@ func (s SeriesDateTime) Cast(t typesys.BaseType, stringPool *StringPool) Series 
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %s", t.ToString())}
 	}
 }
 
 // Copy returns a copy of the series.
-func (s SeriesDateTime) Copy() Series {
+func (s SeriesTime) Copy() Series {
 	data := make([]time.Time, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
 
-	return SeriesDateTime{
+	return SeriesTime{
 		isGrouped:  s.isGrouped,
 		isNullable: s.isNullable,
 		data:       data,
@@ -493,7 +493,7 @@ func (s SeriesDateTime) Copy() Series {
 	}
 }
 
-func (s SeriesDateTime) getDataPtr() *[]time.Time {
+func (s SeriesTime) getDataPtr() *[]time.Time {
 	return &s.data
 }
 
@@ -501,7 +501,7 @@ func (s SeriesDateTime) getDataPtr() *[]time.Time {
 
 // Filters out the elements by the given mask.
 // Mask can be a bool series, a slice of bools or a slice of ints.
-func (s SeriesDateTime) Filter(mask any) Series {
+func (s SeriesTime) Filter(mask any) Series {
 	switch mask := mask.(type) {
 	case SeriesBool:
 		return s.filterBool(mask)
@@ -512,30 +512,30 @@ func (s SeriesDateTime) Filter(mask any) Series {
 	case []int:
 		return s.filterIntSlice(mask)
 	default:
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Filter: invalid type %T", mask)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Filter: invalid type %T", mask)}
 	}
 }
 
-func (s SeriesDateTime) filterBool(mask SeriesBool) Series {
+func (s SeriesTime) filterBool(mask SeriesBool) Series {
 	return s.filterBoolSlice(mask.data)
 }
 
 // Filters out the elements by the given mask series.
-func (s SeriesDateTime) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
+func (s SeriesTime) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	if mask.Len() != len(s.data) {
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Filter: mask length (%d) does not match series length (%d)", mask.Len(), len(s.data))}
+		return SeriesError{fmt.Sprintf("SeriesTime.Filter: mask length (%d) does not match series length (%d)", mask.Len(), len(s.data))}
 	}
 
 	if mask.isNullable {
-		return SeriesError{"SeriesDateTime.Filter: mask series cannot be nullable for this operation"}
+		return SeriesError{"SeriesTime.Filter: mask series cannot be nullable for this operation"}
 	}
 
 	return s.filterBoolSlice(mask.Data().([]bool))
 }
 
-func (s SeriesDateTime) filterBoolSlice(mask []bool) Series {
+func (s SeriesTime) filterBoolSlice(mask []bool) Series {
 	if len(mask) != len(s.data) {
-		return SeriesError{fmt.Sprintf("SeriesDateTime.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+		return SeriesError{fmt.Sprintf("SeriesTime.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
 	elementCount := 0
@@ -586,7 +586,7 @@ func (s SeriesDateTime) filterBoolSlice(mask []bool) Series {
 	return s
 }
 
-func (s SeriesDateTime) filterIntSlice(indexes []int) Series {
+func (s SeriesTime) filterIntSlice(indexes []int) Series {
 	var nullMask []uint8
 
 	size := len(indexes)
@@ -615,7 +615,7 @@ func (s SeriesDateTime) filterIntSlice(indexes []int) Series {
 	return s
 }
 
-func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -684,7 +684,7 @@ func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 
 	case string:
 		if stringPool == nil {
-			return SeriesError{"SeriesDateTime.Map: StringPool is nil"}
+			return SeriesError{"SeriesTime.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -703,7 +703,7 @@ func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 		}
 	}
 
-	return SeriesError{fmt.Sprintf("SeriesDateTime.Map: Unsupported type %T", v)}
+	return SeriesError{fmt.Sprintf("SeriesTime.Map: Unsupported type %T", v)}
 }
 
 ////////////////////////			GROUPING OPERATIONS
@@ -712,19 +712,19 @@ func (s SeriesDateTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 // Each element of the vector represent a sub-group (the default is 1,
 // which means no sub-grouping).
 // So is for the null group, which has the same size as the partition vector.
-type SeriesDateTimePartition struct {
+type SeriesTimePartition struct {
 	partition map[int64][]int
 }
 
-func (gp *SeriesDateTimePartition) getSize() int {
+func (gp *SeriesTimePartition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp *SeriesDateTimePartition) getMap() map[int64][]int {
+func (gp *SeriesTimePartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (s SeriesDateTime) group() Series {
+func (s SeriesTime) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
@@ -744,7 +744,7 @@ func (s SeriesDateTime) group() Series {
 		}
 	}
 
-	partition := SeriesDateTimePartition{
+	partition := SeriesTimePartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, s.Len(), s.HasNull(),
 			worker, workerNulls),
@@ -756,7 +756,7 @@ func (s SeriesDateTime) group() Series {
 	return s
 }
 
-func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
+func (s SeriesTime) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -792,7 +792,7 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 		}
 	}
 
-	newPartition := SeriesDateTimePartition{
+	newPartition := SeriesTimePartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),
@@ -804,19 +804,19 @@ func (s SeriesDateTime) GroupBy(partition SeriesPartition) Series {
 	return s
 }
 
-func (s SeriesDateTime) UnGroup() Series {
+func (s SeriesTime) UnGroup() Series {
 	s.isGrouped = false
 	s.partition = nil
 	return s
 }
 
-func (s SeriesDateTime) GetPartition() SeriesPartition {
+func (s SeriesTime) GetPartition() SeriesPartition {
 	return s.partition
 }
 
 ////////////////////////			SORTING OPERATIONS
 
-func (s SeriesDateTime) Less(i, j int) bool {
+func (s SeriesTime) Less(i, j int) bool {
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -828,7 +828,7 @@ func (s SeriesDateTime) Less(i, j int) bool {
 	return s.data[i].Compare(s.data[j]) < 0
 }
 
-func (s SeriesDateTime) equal(i, j int) bool {
+func (s SeriesTime) equal(i, j int) bool {
 	if s.isNullable {
 		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
 			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
@@ -841,7 +841,7 @@ func (s SeriesDateTime) equal(i, j int) bool {
 	return s.data[i] == s.data[j]
 }
 
-func (s SeriesDateTime) Swap(i, j int) {
+func (s SeriesTime) Swap(i, j int) {
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -859,7 +859,7 @@ func (s SeriesDateTime) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s SeriesDateTime) Sort() Series {
+func (s SeriesTime) Sort() Series {
 	if s.sorted != SORTED_ASC {
 		sort.Sort(s)
 		s.sorted = SORTED_ASC
@@ -867,7 +867,7 @@ func (s SeriesDateTime) Sort() Series {
 	return s
 }
 
-func (s SeriesDateTime) SortRev() Series {
+func (s SeriesTime) SortRev() Series {
 	if s.sorted != SORTED_DESC {
 		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC

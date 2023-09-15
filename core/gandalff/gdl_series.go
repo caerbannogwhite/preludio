@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"time"
 	"typesys"
 )
 
@@ -133,6 +134,8 @@ func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, da
 		return NewSeriesFloat64(name, nullable, makeCopy, data.([]float64))
 	case typesys.StringType:
 		return NewSeriesString(name, nullable, data.([]string), pool)
+	case typesys.TimeType:
+		return NewSeriesTime(name, nullable, makeCopy, data.([]time.Time))
 	default:
 		return SeriesError{fmt.Sprintf("NewSeries: unknown type: %v", t)}
 	}

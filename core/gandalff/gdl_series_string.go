@@ -22,22 +22,6 @@ type SeriesString struct {
 	partition  *SeriesStringPartition
 }
 
-func NewSeriesString(name string, isNullable bool, data []string, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
-	} else {
-		nullMask = make([]uint8, 0)
-	}
-
-	actualData := make([]*string, len(data))
-	for i, v := range data {
-		actualData[i] = pool.Put(v)
-	}
-
-	return SeriesString{isNullable: isNullable, name: name, data: actualData, nullMask: nullMask, pool: pool}
-}
-
 ////////////////////////			BASIC ACCESSORS
 
 func (s SeriesString) SetStringPool(pool *StringPool) Series {

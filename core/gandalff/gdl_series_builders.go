@@ -1,5 +1,7 @@
 package gandalff
 
+import "time"
+
 func NewSeriesError(err string) SeriesError {
 	return SeriesError{msg: err}
 }
@@ -89,4 +91,37 @@ func NewSeriesFloat64(name string, isNullable, makeCopy bool, data []float64) Se
 	}
 
 	return SeriesFloat64{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
+}
+
+func NewSeriesString(name string, isNullable bool, data []string, pool *StringPool) Series {
+	var nullMask []uint8
+	if isNullable {
+		nullMask = __binVecInit(len(data))
+	} else {
+		nullMask = make([]uint8, 0)
+	}
+
+	actualData := make([]*string, len(data))
+	for i, v := range data {
+		actualData[i] = pool.Put(v)
+	}
+
+	return SeriesString{isNullable: isNullable, name: name, data: actualData, nullMask: nullMask, pool: pool}
+}
+
+func NewSeriesTime(name string, isNullable, makeCopy bool, data []time.Time) Series {
+	var nullMask []uint8
+	if isNullable {
+		nullMask = __binVecInit(len(data))
+	} else {
+		nullMask = make([]uint8, 0)
+	}
+
+	if makeCopy {
+		actualData := make([]time.Time, len(data))
+		copy(actualData, data)
+		data = actualData
+	}
+
+	return SeriesTime{isNullable: isNullable, name: name, data: data, nullMask: nullMask}
 }
