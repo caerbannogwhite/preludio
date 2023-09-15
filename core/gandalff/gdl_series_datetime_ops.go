@@ -19,7 +19,6 @@ func (s SeriesDateTime) Sub(other Series) Series {
 	return s
 }
 
-// Logical operations.
 func (s SeriesDateTime) Eq(other Series) Series {
 	return s
 }

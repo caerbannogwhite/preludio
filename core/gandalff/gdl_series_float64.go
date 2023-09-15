@@ -179,19 +179,81 @@ func (s SeriesFloat64) GetString(i int) string {
 	return floatToString(s.data[i])
 }
 
-// Set the element at index i. The type of v must be float64 or NullableFloat64.
+// Set the element at index i. The value v can be any belonging to types:
+// int8, int16, int, int32, int64, float32, float64 and their nullable versions.
 func (s SeriesFloat64) Set(i int, v any) Series {
-	if f, ok := v.(float64); ok {
-		s.data[i] = f
-	} else if nf, ok := v.(NullableFloat64); ok {
-		if nf.Valid {
-			s.data[i] = nf.Value
+	switch val := v.(type) {
+	case int8:
+		s.data[i] = float64(val)
+
+	case int16:
+		s.data[i] = float64(val)
+
+	case int:
+		s.data[i] = float64(val)
+
+	case int32:
+		s.data[i] = float64(val)
+
+	case int64:
+		s.data[i] = float64(val)
+
+	case float32:
+		s.data[i] = float64(val)
+
+	case float64:
+		s.data[i] = val
+
+	case NullableInt8:
+		if v.(NullableInt8).Valid {
+			s.data[i] = float64(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
-	} else {
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Set: provided value %t is not of type float64 or NullableFloat64", v)}
+
+	case NullableInt16:
+		if v.(NullableInt16).Valid {
+			s.data[i] = float64(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
+	case NullableInt32:
+		if v.(NullableInt32).Valid {
+			s.data[i] = float64(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
+	case NullableInt64:
+		if v.(NullableInt64).Valid {
+			s.data[i] = float64(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
+	case NullableFloat32:
+		if v.(NullableFloat32).Valid {
+			s.data[i] = float64(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
+	case NullableFloat64:
+		if v.(NullableFloat64).Valid {
+			s.data[i] = val.Value
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Set: provided value %T is not compatible with type float64 or NullableFloat64", v)}
 	}
 
 	s.sorted = SORTED_NONE

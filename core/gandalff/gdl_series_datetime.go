@@ -186,18 +186,22 @@ func (s SeriesDateTime) GetString(i int) string {
 	return s.data[i].String()
 }
 
-// Set the element at index i. The value must be of type time.Time or NullableTime.
+// Set the element at index i. The value v must be of type time.Time or NullableTime.
 func (s SeriesDateTime) Set(i int, v any) Series {
-	if b, ok := v.(time.Time); ok {
-		s.data[i] = b
-	} else if nb, ok := v.(NullableTime); ok {
-		if nb.Valid {
-			s.data[i] = nb.Value
+	switch v := v.(type) {
+	case time.Time:
+		s.data[i] = v
+
+	case NullableTime:
+		if v.Valid {
+			s.data[i] = v.Value
 		} else {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.data[i] = time.Time{}
+			s.nullMask[i/8] |= 1 << uint(i%8)
 		}
-	} else {
-		return SeriesError{fmt.Sprintf("SeriesDateTime.Set: provided value %t is not of type bool or NullableTime", v)}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesDateTime.Set: provided value %T is not compatible with type time.Time or NullableTime", v)}
 	}
 
 	s.sorted = SORTED_NONE

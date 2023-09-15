@@ -179,20 +179,25 @@ func (s SeriesInt64) GetString(i int) string {
 	return intToString(s.data[i])
 }
 
-// Set the element at index i. The value v can be of type int8, int16, int, int32, int64,
-// NullableInt8, NullableInt16, NullableInt32, NullableInt64.
+// Set the element at index i. The value v can be any belonging to types:
+// int8, int16, int, int32, int64 and their nullable versions.
 func (s SeriesInt64) Set(i int, v any) Series {
 	switch val := v.(type) {
 	case int8:
 		s.data[i] = int64(val)
+
 	case int16:
 		s.data[i] = int64(val)
+
 	case int:
 		s.data[i] = int64(val)
+
 	case int32:
 		s.data[i] = int64(val)
+
 	case int64:
 		s.data[i] = val
+
 	case NullableInt8:
 		if v.(NullableInt8).Valid {
 			s.data[i] = int64(val.Value)
@@ -200,6 +205,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	case NullableInt16:
 		if v.(NullableInt16).Valid {
 			s.data[i] = int64(val.Value)
@@ -207,6 +213,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	case NullableInt32:
 		if v.(NullableInt32).Valid {
 			s.data[i] = int64(val.Value)
@@ -214,6 +221,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	case NullableInt64:
 		if v.(NullableInt64).Valid {
 			s.data[i] = val.Value
@@ -221,8 +229,9 @@ func (s SeriesInt64) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt64.Set: provided value %t is not compatible with type int64 or NullableInt64", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt64.Set: provided value %T is not compatible with type int64 or NullableInt64", v)}
 	}
 
 	s.sorted = SORTED_NONE

@@ -185,12 +185,19 @@ func (s SeriesInt32) Set(i int, v any) Series {
 	switch val := v.(type) {
 	case int8:
 		s.data[i] = int32(val)
+
 	case int16:
 		s.data[i] = int32(val)
+
 	case int:
 		s.data[i] = int32(val)
+
 	case int32:
 		s.data[i] = int32(val)
+
+	case int64:
+		s.data[i] = int32(val)
+
 	case NullableInt8:
 		if v.(NullableInt8).Valid {
 			s.data[i] = int32(val.Value)
@@ -198,6 +205,7 @@ func (s SeriesInt32) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	case NullableInt16:
 		if v.(NullableInt16).Valid {
 			s.data[i] = int32(val.Value)
@@ -205,6 +213,7 @@ func (s SeriesInt32) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
 	case NullableInt32:
 		if v.(NullableInt32).Valid {
 			s.data[i] = int32(val.Value)
@@ -212,8 +221,17 @@ func (s SeriesInt32) Set(i int, v any) Series {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
+
+	case NullableInt64:
+		if v.(NullableInt64).Valid {
+			s.data[i] = int32(val.Value)
+		} else {
+			s.data[i] = 0
+			s.nullMask[i>>3] |= 1 << uint(i%8)
+		}
+
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt64.Set: provided value %t is not compatible with type int32 or NullableInt32", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Set: provided value %T is not compatible with type int32 or NullableInt32", v)}
 	}
 
 	s.sorted = SORTED_NONE

@@ -223,17 +223,20 @@ func (s SeriesString) GetString(i int) string {
 
 // Set the element at index i. The value v must be of type string or NullableString.
 func (s SeriesString) Set(i int, v any) Series {
-	if ss, ok := v.(string); ok {
-		s.data[i] = s.pool.Put(ss)
-	} else if ns, ok := v.(NullableString); ok {
-		if ns.Valid {
-			s.data[i] = s.pool.Put(ns.Value)
+	switch v := v.(type) {
+	case string:
+		s.data[i] = s.pool.Put(v)
+
+	case NullableString:
+		if v.Valid {
+			s.data[i] = s.pool.Put(v.Value)
 		} else {
 			s.data[i] = nil
 			s.nullMask[i/8] |= 1 << uint(i%8)
 		}
-	} else {
-		return SeriesError{fmt.Sprintf("SeriesString.Set: provided value %t is not of type string or NullableString", v)}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesString.Set: provided value %T is not compatible with type string or NullableString", v)}
 	}
 
 	s.sorted = SORTED_NONE
