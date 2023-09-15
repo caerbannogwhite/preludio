@@ -38,8 +38,6 @@ type Series interface {
 	HasNull() bool
 	// Returns the number of null values in the series.
 	NullCount() int
-	// Returns the number of non-null values in the series.
-	NonNullCount() int
 	// Returns if the element at index i is null.
 	IsNull(i int) bool
 	// Sets the element at index i to null.

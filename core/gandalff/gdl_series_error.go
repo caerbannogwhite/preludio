@@ -71,11 +71,6 @@ func (s SeriesError) NullCount() int {
 	return 0
 }
 
-// Returns the number of non-null values in the series.
-func (s SeriesError) NonNullCount() int {
-	return 0
-}
-
 // Returns if the element at index i is null.
 func (s SeriesError) IsNull(i int) bool {
 	return false

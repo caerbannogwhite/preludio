@@ -85,17 +85,11 @@ func (s SeriesInt32) HasNull() bool {
 func (s SeriesInt32) NullCount() int {
 	count := 0
 	for _, x := range s.nullMask {
-		for x != 0 {
+		for ; x != 0; x >>= 1 {
 			count += int(x & 1)
-			x >>= 1
 		}
 	}
 	return count
-}
-
-// Returns the number of non-null values in the series.
-func (s SeriesInt32) NonNullCount() int {
-	return s.Len() - s.NullCount()
 }
 
 // Returns if the element at index i is null.
