@@ -1,6 +1,9 @@
 package typesys
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type BOOL []bool
 type INT16 []int16
@@ -24,6 +27,7 @@ const (
 	Float32Type
 	Float64Type
 	StringType
+	TimeType
 	AnyType
 	ErrorType
 	NonBaseType
@@ -45,6 +49,8 @@ func (bt BaseType) ToString() string {
 		return "Float64"
 	case StringType:
 		return "String"
+	case TimeType:
+		return "Time"
 	case AnyType:
 		return "Any"
 	case ErrorType:
@@ -71,6 +77,8 @@ func (bt BaseType) ToGoType() string {
 		return "[]float64"
 	case StringType:
 		return "[]string"
+	case TimeType:
+		return "[]time.Time"
 	case AnyType:
 		return "interface{}"
 	case ErrorType:
@@ -158,6 +166,8 @@ func GoToPreludioTypeString(t interface{}) string {
 		return "Float64"
 	case []string:
 		return "String"
+	case []time.Time:
+		return "Time"
 	}
 	return "Unknown"
 }
