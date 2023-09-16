@@ -5,6 +5,7 @@ import (
 	"math"
 	"sort"
 	"sync"
+	"time"
 	"typesys"
 )
 
@@ -208,6 +209,24 @@ func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data [
 	}
 
 	return df.AddSeries(NewSeriesString(name, isNullable, data, df.pool))
+}
+
+func (df BaseDataFrame) AddSeriesFromTime(name string, isNullable, makeCopy bool, data []time.Time) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromTime: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromTime: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
+	return df.AddSeries(NewSeriesTime(name, isNullable, makeCopy, data))
 }
 
 func (df BaseDataFrame) Replace(name string, s Series) DataFrame {

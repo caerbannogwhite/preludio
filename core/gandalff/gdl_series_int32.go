@@ -179,8 +179,8 @@ func (s SeriesInt32) GetString(i int) string {
 	return intToString(int64(s.data[i]))
 }
 
-// Set the element at index i. The value v can be of type int8, int16, int, int32,
-// NullableInt8, NullableInt16, NullableInt32.
+// Set the element at index i. The value v can be any belonging to types:
+// int8, int16, int, int32, int64 and their nullable versions.
 func (s SeriesInt32) Set(i int, v any) Series {
 	switch val := v.(type) {
 	case int8:
