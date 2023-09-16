@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"text/template"
 	"typesys"
 )
 
@@ -475,7 +476,7 @@ func generateSwitchType(
 	for _, op2 := range operation.ApplyTo {
 		bigSwitch.Body.List = append(bigSwitch.Body.List,
 			&ast.CaseClause{
-				List: []ast.Expr{ast.NewIdent(op2.SeriesType)},
+				List: []ast.Expr{ast.NewIdent(op2.SeriesName)},
 				Body: []ast.Stmt{
 					generateSizeCheck(BuildInfo{
 						OpCode:        operation.OpCode,
@@ -483,8 +484,8 @@ func generateSwitchType(
 						Op1SeriesType: op1SeriesType,
 						Op1InnerType:  op1InnerType,
 						Op2VarName:    "o",
-						Op2SeriesType: op2.SeriesType,
-						Op2InnerType:  op2.InnerType,
+						Op2SeriesType: op2.SeriesName,
+						Op2InnerType:  op2.SeriesType,
 						MakeOperation: op2.MakeOperation,
 					}, defaultReturn),
 				},
@@ -527,7 +528,7 @@ func computeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) types
 }
 
 func generateOperations() {
-	for filename, info := range DATA {
+	for filename, info := range DATA_OPERATIONS {
 
 		src, err := os.ReadFile(filepath.Join("..", filename))
 		if err != nil {
@@ -547,7 +548,7 @@ func generateOperations() {
 				case "Mul":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Mul"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Mul"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
 							}),
@@ -556,7 +557,7 @@ func generateOperations() {
 				case "Div":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Div"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Div"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
 							}),
@@ -565,7 +566,7 @@ func generateOperations() {
 				case "Mod":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Mod"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Mod"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use modulo"))},
 							}),
@@ -574,7 +575,7 @@ func generateOperations() {
 				case "Pow":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Pow"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Pow"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use power"))},
 							}),
@@ -583,7 +584,7 @@ func generateOperations() {
 				case "Add":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Add"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Add"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
 							}),
@@ -592,7 +593,7 @@ func generateOperations() {
 				case "Sub":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Sub"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Sub"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
 							}),
@@ -601,7 +602,7 @@ func generateOperations() {
 				case "And":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["And"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["And"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "and"))},
 							}),
@@ -610,7 +611,7 @@ func generateOperations() {
 				case "Or":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Or"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Or"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "or"))},
 							}),
@@ -619,7 +620,7 @@ func generateOperations() {
 				case "Eq":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Eq"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Eq"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for equality"))},
 							}),
@@ -628,7 +629,7 @@ func generateOperations() {
 				case "Ne":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Ne"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Ne"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for inequality"))},
 							}),
@@ -637,7 +638,7 @@ func generateOperations() {
 				case "Lt":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Lt"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Lt"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than"))},
 							}),
@@ -646,7 +647,7 @@ func generateOperations() {
 				case "Le":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Le"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Le"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than or equal to"))},
 							}),
@@ -655,7 +656,7 @@ func generateOperations() {
 				case "Gt":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Gt"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Gt"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than"))},
 							}),
@@ -664,7 +665,7 @@ func generateOperations() {
 				case "Ge":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Ge"], info.SeriesType, info.InnerType, "s", "other",
+							info.Operations["Ge"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
 								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than or equal to"))},
 							}),
@@ -686,6 +687,41 @@ func generateOperations() {
 	}
 }
 
+func generateBase() {
+	type Vals struct {
+		SeriesName   string
+		SeriesType   string
+		SeriesGoType string
+		IsGoTypePtr  bool
+	}
+
+	for filename, info := range DATA_BASE_METHODS {
+		tmpl, err := template.New("base").Parse(TEMPLATE_BASIC_ACCESSORS)
+		if err != nil {
+			panic(err)
+		}
+
+		vals := Vals{
+			SeriesName:   info.SeriesName,
+			SeriesType:   info.SeriesTypeStr,
+			SeriesGoType: info.SeriesGoTypeStr,
+			IsGoTypePtr:  info.IsGoTypePtr,
+		}
+
+		f, err := os.Create(filepath.Join("..", filename))
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		err = tmpl.Execute(f, vals)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func main() {
+	generateBase()
 	generateOperations()
 }
