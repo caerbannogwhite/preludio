@@ -1776,4 +1776,49 @@ var DATA = map[string]SeriesFile{
 			},
 		},
 	},
+
+	"gdl_series_time_ops.go": {
+		SeriesType: "SeriesTime",
+		InnerType:  typesys.TimeType,
+		Operations: map[string]Operation{
+			"Mod": {
+				OpCode: typesys.OP_BINARY_MOD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesType: "SeriesTime",
+						InnerType:  typesys.TimeType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].AddDate(%s.data[%s].Year(), int(%s.data[%s].Month()), %s.data[%s].Day())", res, resIndex, op1, op1Index, op2, op2Index, op2, op2Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			// "Add": {
+			// 	OpCode: typesys.OP_BINARY_ADD,
+			// 	ApplyTo: []OperationApplyTo{
+			// 		{
+			// 			SeriesType: "SeriesTime",
+			// 			InnerType:  typesys.TimeType,
+			// 			MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+			// 				return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Add(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+			// 			},
+			// 		},
+			// 	},
+			// },
+
+			// "Sub": {
+			// 	OpCode: typesys.OP_BINARY_SUB,
+			// 	ApplyTo: []OperationApplyTo{
+			// 		{
+			// 			SeriesType: "SeriesTime",
+			// 			InnerType:  typesys.TimeType,
+			// 			MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+			// 				return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Sub(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+			// 			},
+			// 		},
+			// 	},
+			// },
+		},
+	},
 }

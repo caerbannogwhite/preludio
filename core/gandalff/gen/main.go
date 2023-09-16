@@ -7,7 +7,7 @@ import (
 	"go/format"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"typesys"
 )
@@ -514,6 +514,10 @@ func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) stri
 		return "SeriesFloat64"
 	case typesys.StringType:
 		return "SeriesString"
+	case typesys.TimeType:
+		return "SeriesTime"
+	case typesys.DurationType:
+		return "SeriesDuration"
 	}
 	return "SeriesError"
 }
@@ -525,7 +529,7 @@ func computeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) types
 func generateOperations() {
 	for filename, info := range DATA {
 
-		src, err := ioutil.ReadFile(filepath.Join("..", filename))
+		src, err := os.ReadFile(filepath.Join("..", filename))
 		if err != nil {
 			panic(err)
 		}
@@ -674,7 +678,7 @@ func generateOperations() {
 				panic(err)
 			}
 
-			err = ioutil.WriteFile(filepath.Join("..", filename), buf.Bytes(), 0644)
+			err = os.WriteFile(filepath.Join("..", filename), buf.Bytes(), 0644)
 			if err != nil {
 				panic(err)
 			}
