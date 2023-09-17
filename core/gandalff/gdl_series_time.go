@@ -33,6 +33,7 @@ func (s SeriesTime) Set(i int, v any) Series {
 		s.data[i] = v
 
 	case NullableTime:
+		s.MakeNullable()
 		if v.Valid {
 			s.data[i] = v.Value
 		} else {
@@ -41,7 +42,7 @@ func (s SeriesTime) Set(i int, v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.Set: provided value %T is not compatible with type time.Time or NullableTime", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -60,22 +61,6 @@ func (s SeriesTime) Take(params ...int) Series {
 // Append appends a value or a slice of values to the series.
 func (s SeriesTime) Append(v any) Series {
 	switch v := v.(type) {
-	case bool, []bool:
-		return s.appendRaw(v)
-	case NullableTime, []NullableTime:
-		return s.appendNullable(v)
-	case SeriesTime:
-		return s.appendSeries(v)
-	case SeriesError:
-		return v
-	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.Append: invalid type %T", v)}
-	}
-}
-
-// Append appends a value or a slice of values to the series.
-func (s SeriesTime) appendRaw(v any) Series {
-	switch v := v.(type) {
 	case time.Time:
 		s.data = append(s.data, v)
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
@@ -88,21 +73,9 @@ func (s SeriesTime) appendRaw(v any) Series {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 		}
 
-	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.Append: invalid type %T", v)}
-	}
-	return s
-}
-
-// AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesTime) appendNullable(v any) Series {
-	if !s.isNullable {
-		return SeriesError{"SeriesTime.AppendNullable: series is not nullable"}
-	}
-
-	switch v := v.(type) {
 	case NullableTime:
 		s.data = append(s.data, v.Value)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -113,6 +86,7 @@ func (s SeriesTime) appendNullable(v any) Series {
 	case []NullableTime:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]time.Time, len(v))...)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -123,69 +97,15 @@ func (s SeriesTime) appendNullable(v any) Series {
 			}
 		}
 
+	case SeriesTime:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
+
 	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Append: invalid type %T", v)}
 	}
 
-	return s
-}
-
-// AppendSeries appends a series to the series.
-func (s SeriesTime) appendSeries(other Series) Series {
-	var ok bool
-	var o SeriesTime
-	if o, ok = other.(SeriesTime); !ok {
-		return SeriesError{fmt.Sprintf("SeriesTime.AppendSeries: invalid type %T", other)}
-	}
-
-	if s.isNullable {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-		}
-	} else {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			s.nullMask = __binVecInit(len(s.data))
-			s.isNullable = true
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-		}
-	}
-
+	s.sorted = SORTED_NONE
 	return s
 }
 

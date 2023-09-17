@@ -42,10 +42,8 @@ func (s SeriesInt32) Set(i int, v any) Series {
 	case int32:
 		s.data[i] = int32(val)
 
-	case int64:
-		s.data[i] = int32(val)
-
 	case NullableInt8:
+		s.MakeNullable()
 		if v.(NullableInt8).Valid {
 			s.data[i] = int32(val.Value)
 		} else {
@@ -54,6 +52,7 @@ func (s SeriesInt32) Set(i int, v any) Series {
 		}
 
 	case NullableInt16:
+		s.MakeNullable()
 		if v.(NullableInt16).Valid {
 			s.data[i] = int32(val.Value)
 		} else {
@@ -62,6 +61,7 @@ func (s SeriesInt32) Set(i int, v any) Series {
 		}
 
 	case NullableInt32:
+		s.MakeNullable()
 		if v.(NullableInt32).Valid {
 			s.data[i] = int32(val.Value)
 		} else {
@@ -69,16 +69,8 @@ func (s SeriesInt32) Set(i int, v any) Series {
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
-	case NullableInt64:
-		if v.(NullableInt64).Valid {
-			s.data[i] = int32(val.Value)
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Set: provided value %T is not compatible with type int32 or NullableInt32", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -94,23 +86,8 @@ func (s SeriesInt32) Take(params ...int) Series {
 	return s.filterIntSlice(indeces, false)
 }
 
-func (s SeriesInt32) Append(v any) Series {
-	switch v := v.(type) {
-	case int32, []int32:
-		return s.appendRaw(v)
-	case NullableInt32, []NullableInt32:
-		return s.appendNullable(v)
-	case SeriesInt32:
-		return s.appendSeries(v)
-	case SeriesError:
-		return v
-	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Append: invalid type %T", v)}
-	}
-}
-
 // Append appends a value or a slice of values to the series.
-func (s SeriesInt32) appendRaw(v any) Series {
+func (s SeriesInt32) Append(v any) Series {
 	switch v := v.(type) {
 	case int32:
 		s.data = append(s.data, v)
@@ -124,21 +101,9 @@ func (s SeriesInt32) appendRaw(v any) Series {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 		}
 
-	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Append: invalid type %T", v)}
-	}
-	return s
-}
-
-// AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesInt32) appendNullable(v any) Series {
-	if !s.isNullable {
-		return SeriesError{"SeriesInt32.AppendNullable: series is not nullable"}
-	}
-
-	switch v := v.(type) {
 	case NullableInt32:
 		s.data = append(s.data, v.Value)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -149,6 +114,7 @@ func (s SeriesInt32) appendNullable(v any) Series {
 	case []NullableInt32:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]int32, len(v))...)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -159,69 +125,15 @@ func (s SeriesInt32) appendNullable(v any) Series {
 			}
 		}
 
+	case SeriesInt32:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
+
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Append: invalid type %T", v)}
 	}
 
-	return s
-}
-
-// AppendSeries appends a series to the series.
-func (s SeriesInt32) appendSeries(other Series) Series {
-	var ok bool
-	var o SeriesInt32
-	if o, ok = other.(SeriesInt32); !ok {
-		return SeriesError{fmt.Sprintf("SeriesInt32.AppendSeries: invalid type %T", other)}
-	}
-
-	if s.isNullable {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-		}
-	} else {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			s.nullMask = __binVecInit(len(s.data))
-			s.isNullable = true
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-		}
-	}
-
+	s.sorted = SORTED_NONE
 	return s
 }
 

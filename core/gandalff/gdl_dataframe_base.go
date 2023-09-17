@@ -802,27 +802,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			case typesys.BoolType:
 				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
 					SetNullMask(nullMask).(SeriesBool).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Int32Type:
 				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
 					SetNullMask(nullMask).(SeriesInt32).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Int64Type:
 				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
 					SetNullMask(nullMask).(SeriesInt64).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Float64Type:
 				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
 					SetNullMask(nullMask).(SeriesFloat64).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.StringType:
 				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesString).
-					appendSeries(ser_)
+					Append(ser_)
 			}
 
 			if commonCols[name] {
@@ -865,19 +865,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).appendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).appendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMask))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).appendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMask))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
 			}
 
 			if commonCols[name] {
@@ -949,19 +949,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).appendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).appendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).appendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMaskA))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
 			}
 
 			if commonCols[name] {
@@ -977,27 +977,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			case typesys.BoolType:
 				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
 					SetNullMask(nullMaskB).(SeriesBool).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Int32Type:
 				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
 					SetNullMask(nullMaskB).(SeriesInt32).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Int64Type:
 				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
 					SetNullMask(nullMaskB).(SeriesInt64).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.Float64Type:
 				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
 					SetNullMask(nullMaskB).(SeriesFloat64).
-					appendSeries(ser_)
+					Append(ser_)
 
 			case typesys.StringType:
 				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesString).
-					appendSeries(ser_)
+					Append(ser_)
 			}
 
 			if commonCols[name] {

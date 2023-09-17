@@ -52,6 +52,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		s.data[i] = val
 
 	case NullableInt8:
+		s.MakeNullable()
 		if v.(NullableInt8).Valid {
 			s.data[i] = float64(val.Value)
 		} else {
@@ -60,6 +61,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	case NullableInt16:
+		s.MakeNullable()
 		if v.(NullableInt16).Valid {
 			s.data[i] = float64(val.Value)
 		} else {
@@ -68,6 +70,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	case NullableInt32:
+		s.MakeNullable()
 		if v.(NullableInt32).Valid {
 			s.data[i] = float64(val.Value)
 		} else {
@@ -76,6 +79,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	case NullableInt64:
+		s.MakeNullable()
 		if v.(NullableInt64).Valid {
 			s.data[i] = float64(val.Value)
 		} else {
@@ -84,6 +88,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	case NullableFloat32:
+		s.MakeNullable()
 		if v.(NullableFloat32).Valid {
 			s.data[i] = float64(val.Value)
 		} else {
@@ -92,6 +97,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	case NullableFloat64:
+		s.MakeNullable()
 		if v.(NullableFloat64).Valid {
 			s.data[i] = val.Value
 		} else {
@@ -100,7 +106,7 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Set: provided value %T is not compatible with type float64 or NullableFloat64", v)}
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -116,23 +122,8 @@ func (s SeriesFloat64) Take(params ...int) Series {
 	return s.filterIntSlice(indeces, false)
 }
 
-func (s SeriesFloat64) Append(v any) Series {
-	switch v := v.(type) {
-	case float64, []float64:
-		return s.appendRaw(v)
-	case NullableFloat64, []NullableFloat64:
-		return s.appendNullable(v)
-	case SeriesFloat64:
-		return s.appendSeries(v)
-	case SeriesError:
-		return v
-	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Append: invalid type, %T", v)}
-	}
-}
-
 // Append appends a value or a slice of values to the series.
-func (s SeriesFloat64) appendRaw(v any) Series {
+func (s SeriesFloat64) Append(v any) Series {
 	switch v := v.(type) {
 	case float64:
 		s.data = append(s.data, v)
@@ -146,21 +137,9 @@ func (s SeriesFloat64) appendRaw(v any) Series {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 		}
 
-	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Append: invalid type %T", v)}
-	}
-	return s
-}
-
-// AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesFloat64) appendNullable(v any) Series {
-	if !s.isNullable {
-		return SeriesError{"SeriesFloat64.AppendNullable: series is not nullable"}
-	}
-
-	switch v := v.(type) {
 	case NullableFloat64:
 		s.data = append(s.data, v.Value)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -171,6 +150,7 @@ func (s SeriesFloat64) appendNullable(v any) Series {
 	case []NullableFloat64:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]float64, len(v))...)
+		s.isNullable = true
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -181,72 +161,15 @@ func (s SeriesFloat64) appendNullable(v any) Series {
 			}
 		}
 
+	case SeriesFloat64:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
+
 	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Append: invalid type %T", v)}
 	}
 
-	return s
-}
-
-func (s SeriesFloat64) appendSeries(other Series) Series {
-	var ok bool
-	var o SeriesFloat64
-	if o, ok = other.(SeriesFloat64); !ok {
-		return SeriesError{fmt.Sprintf("SeriesFloat64.AppendSeries: invalid type %T", other)}
-	}
-
-	if s.isNullable {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-		}
-	} else {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data)%8 == 0 {
-				s.nullMask = make([]uint8, (len(s.data) >> 3))
-			} else {
-				s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-			}
-			s.isNullable = true
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-		}
-	}
-
+	s.sorted = SORTED_NONE
 	return s
 }
 

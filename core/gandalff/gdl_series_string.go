@@ -45,6 +45,7 @@ func (s SeriesString) Set(i int, v any) Series {
 		s.data[i] = s.pool.Put(v)
 
 	case NullableString:
+		s.MakeNullable()
 		if v.Valid {
 			s.data[i] = s.pool.Put(v.Value)
 		} else {
@@ -53,7 +54,7 @@ func (s SeriesString) Set(i int, v any) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesString.Set: provided value %T is not compatible with type string or NullableString", v)}
+		return SeriesError{fmt.Sprintf("SeriesString.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -72,59 +73,23 @@ func (s SeriesString) Take(params ...int) Series {
 // Append appends a value or a slice of values to the series.
 func (s SeriesString) Append(v any) Series {
 	switch v := v.(type) {
-	case string, []string:
-		return s.appendRaw(v)
-	case NullableString, []NullableString:
-		return s.appendNullable(v)
-	case SeriesString:
-		return s.appendSeries(v)
-	case SeriesError:
-		return v
-	default:
-		return SeriesError{fmt.Sprintf("SeriesString.Append: invalid type, %T", v)}
-	}
-}
-
-// Append appends a value or a slice of values to the series.
-func (s SeriesString) appendRaw(v any) Series {
-	if s.isNullable {
-		if str, ok := v.(string); ok {
-			s.data = append(s.data, s.pool.Put(str))
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, 0)
-			}
-		} else if strv, ok := v.([]string); ok {
-			for _, str := range strv {
-				s.data = append(s.data, s.pool.Put(str))
-			}
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
-			}
-		} else {
-			return SeriesError{fmt.Sprintf("SeriesString.AppendRaw: invalid type %T", v)}
+	case string:
+		s.data = append(s.data, s.pool.Put(v))
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
 		}
-	} else {
-		if str, ok := v.(string); ok {
-			s.data = append(s.data, s.pool.Put(str))
-		} else if strv, ok := v.([]string); ok {
-			for _, str := range strv {
-				s.data = append(s.data, s.pool.Put(str))
-			}
-		} else {
-			return SeriesError{fmt.Sprintf("SeriesString.AppendRaw: invalid type %T", v)}
+
+	case []string:
+		s.data = append(s.data, make([]*string, len(v))...)
+		for i, str := range v {
+			s.data[len(s.data)-len(v)+i] = s.pool.Put(str)
 		}
-	}
-	return s
-}
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
+		}
 
-// AppendNullable appends a nullable value or a slice of nullable values to the series.
-func (s SeriesString) appendNullable(v any) Series {
-	if !s.isNullable {
-		return SeriesError{"SeriesString.AppendNullable: series is not nullable"}
-	}
-
-	switch v := v.(type) {
 	case NullableString:
+		s.isNullable = true
 		s.data = append(s.data, s.pool.Put(v.Value))
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
@@ -134,85 +99,32 @@ func (s SeriesString) appendNullable(v any) Series {
 		}
 
 	case []NullableString:
+		s.isNullable = true
 		ssize := len(s.data)
 		s.data = append(s.data, make([]*string, len(v))...)
+		for i, b := range v {
+			if !b.Valid {
+				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
+			} else {
+				s.data[ssize+i] = s.pool.Put(b.Value)
+			}
+		}
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
-		for i, b := range v {
-			s.data[ssize+i] = s.pool.Put(b.Value)
-			if !b.Valid {
-				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
-			}
+
+	case SeriesString:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, make([]*string, len(v.data))...)
+		for i := 0; i < len(v.data); i++ {
+			s.data[len(s.data)-len(v.data)+i] = s.pool.Put(*v.data[i])
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesString.AppendNullable: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesString.Append: invalid type %T", v)}
 	}
 
-	return s
-}
-
-// AppendSeries appends a series to the series.
-func (s SeriesString) appendSeries(other Series) Series {
-	var ok bool
-	var o SeriesString
-	if o, ok = other.(SeriesString); !ok {
-		return SeriesError{fmt.Sprintf("SeriesString.AppendSeries: invalid type %T", other)}
-	}
-
-	if s.isNullable {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-			if len(s.data) > len(s.nullMask)<<3 {
-				s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-			}
-		}
-	} else {
-		if o.isNullable {
-			s.data = append(s.data, o.data...)
-			if len(s.data)%8 == 0 {
-				s.nullMask = make([]uint8, (len(s.data) >> 3))
-			} else {
-				s.nullMask = make([]uint8, (len(s.data)>>3)+1)
-			}
-			s.isNullable = true
-
-			// merge null masks
-			sIdx := len(s.data) - len(o.data)
-			oIdx := 0
-			for _, v := range o.nullMask {
-				for j := 0; j < 8; j++ {
-					if v&(1<<uint(j)) != 0 {
-						s.nullMask[sIdx>>3] |= 1 << uint(sIdx%8)
-					}
-					sIdx++
-					oIdx++
-				}
-			}
-		} else {
-			s.data = append(s.data, o.data...)
-		}
-	}
-
+	s.sorted = SORTED_NONE
 	return s
 }
 
