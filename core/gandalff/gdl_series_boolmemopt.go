@@ -228,11 +228,11 @@ func (s SeriesBoolMemOpt) Set(i int, v any) Series {
 
 // Take the elements according to the given interval.
 func (s SeriesBoolMemOpt) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	indeces, err := seriesTakePreprocess("SeriesBoolMemOpt", s.Len(), params...)
 	if err != nil {
 		return SeriesError{err.Error()}
 	}
-	return s.filterIntSlice(indeces)
+	return s.filterIntSlice(indeces, false)
 }
 
 // Append appends a value or a slice of values to the series.
@@ -662,7 +662,7 @@ func (s SeriesBoolMemOpt) Filter(mask any) Series {
 	case []bool:
 		return s.filterBoolSlice(mask)
 	case []int:
-		return s.filterIntSlice(mask)
+		return s.filterIntSlice(mask, true)
 	default:
 		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Filter: invalid type %T", mask)}
 	}
@@ -789,7 +789,7 @@ func (s SeriesBoolMemOpt) filterBoolSlice(mask []bool) Series {
 	return s
 }
 
-func (s SeriesBoolMemOpt) filterIntSlice(indexes []int) Series {
+func (s SeriesBoolMemOpt) filterIntSlice(indexes []int, check bool) Series {
 	var data []uint8
 	var nullMask []uint8
 

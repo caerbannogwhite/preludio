@@ -150,7 +150,7 @@ func (s SeriesError) Filter(mask any) Series {
 	return s
 }
 
-func (s SeriesError) filterIntSlice(mask []int) Series {
+func (s SeriesError) filterIntSlice(mask []int, check bool) Series {
 	return s
 }
 

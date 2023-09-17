@@ -87,11 +87,11 @@ func (s SeriesInt32) Set(i int, v any) Series {
 
 // Take the elements according to the given interval.
 func (s SeriesInt32) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess(s.Len(), params...)
+	indeces, err := seriesTakePreprocess("SeriesInt32", s.Len(), params...)
 	if err != nil {
 		return SeriesError{err.Error()}
 	}
-	return s.filterIntSlice(indeces)
+	return s.filterIntSlice(indeces, false)
 }
 
 func (s SeriesInt32) Append(v any) Series {
@@ -357,154 +357,6 @@ func (s SeriesInt32) Copy() Series {
 
 func (s SeriesInt32) getDataPtr() *[]int32 {
 	return &s.data
-}
-
-////////////////////////			SERIES OPERATIONS
-
-// Filters out the elements by the given mask.
-// Mask can be a bool series, a slice of bools or a slice of ints.
-func (s SeriesInt32) Filter(mask any) Series {
-	switch mask := mask.(type) {
-	case SeriesBool:
-		return s.filterBool(mask)
-	case SeriesBoolMemOpt:
-		return s.filterBoolMemOpt(mask)
-	case []bool:
-		return s.filterBoolSlice(mask)
-	case []int:
-		return s.filterIntSlice(mask)
-	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Filter: invalid type %T", mask)}
-	}
-}
-
-func (s SeriesInt32) filterBool(mask SeriesBool) Series {
-	return s.filterBoolSlice(mask.data)
-}
-
-func (s SeriesInt32) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
-	if mask.size != s.Len() {
-		return SeriesError{fmt.Sprintf("SeriesInt32.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
-	}
-
-	if mask.isNullable {
-		return SeriesError{"SeriesInt32.Filter: mask series cannot be nullable for this operation"}
-	}
-
-	elementCount := mask.__trueCount()
-	var nullMask []uint8
-
-	data := make([]int32, elementCount)
-	if s.isNullable {
-
-		nullMask = __binVecInit(elementCount)
-
-		dstIdx := 0
-		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
-			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
-				data[dstIdx] = s.data[srcIdx]
-				if srcIdx%8 > dstIdx%8 {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
-				} else {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
-				}
-				dstIdx++
-			}
-		}
-	} else {
-		dstIdx := 0
-		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
-			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
-				data[dstIdx] = s.data[srcIdx]
-				dstIdx++
-			}
-		}
-	}
-
-	s.data = data
-	s.nullMask = nullMask
-
-	return s
-}
-
-func (s SeriesInt32) filterBoolSlice(mask []bool) Series {
-	if len(mask) != len(s.data) {
-		return SeriesError{fmt.Sprintf("SeriesInt32.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
-	}
-
-	elementCount := 0
-	for _, v := range mask {
-		if v {
-			elementCount++
-		}
-	}
-
-	var data []int32
-	var nullMask []uint8
-
-	data = make([]int32, elementCount)
-
-	if s.isNullable {
-
-		nullMask = __binVecInit(elementCount)
-
-		dstIdx := 0
-		for srcIdx, v := range mask {
-			if v {
-				data[dstIdx] = s.data[srcIdx]
-				if srcIdx%8 > dstIdx%8 {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
-				} else {
-					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
-				}
-				dstIdx++
-			}
-		}
-	} else {
-		dstIdx := 0
-		for srcIdx, v := range mask {
-			if v {
-				data[dstIdx] = s.data[srcIdx]
-				dstIdx++
-			}
-		}
-	}
-
-	s.data = data
-	s.nullMask = nullMask
-
-	return s
-}
-
-func (s SeriesInt32) filterIntSlice(indexes []int) Series {
-	var data []int32
-	var nullMask []uint8
-
-	size := len(indexes)
-	data = make([]int32, size)
-
-	if s.isNullable {
-
-		nullMask = __binVecInit(size)
-
-		for dstIdx, srcIdx := range indexes {
-			data[dstIdx] = s.data[srcIdx]
-			if srcIdx%8 > dstIdx%8 {
-				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
-			} else {
-				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
-			}
-		}
-	} else {
-		for dstIdx, srcIdx := range indexes {
-			data[dstIdx] = s.data[srcIdx]
-		}
-	}
-
-	s.data = data
-	s.nullMask = nullMask
-
-	return s
 }
 
 func (s SeriesInt32) Map(f GDLMapFunc, stringPool *StringPool) Series {

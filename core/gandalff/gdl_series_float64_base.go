@@ -1,7 +1,11 @@
 
 package gandalff
 
-import "typesys"
+import (
+	"fmt"
+	
+	"typesys"
+)
 
 ////////////////////////			BASIC ACCESSORS
 
@@ -154,4 +158,164 @@ func (s SeriesFloat64) MakeNullable() Series {
 // Get the element at index i.
 func (s SeriesFloat64) Get(i int) any {
 	return s.data[i]
+}
+
+////////////////////////			FILTER OPERATIONS
+
+// Filters out the elements by the given mask.
+// Mask can be SeriesBool, SeriesBoolMemOpt, bool slice or a int slice.
+func (s SeriesFloat64) Filter(mask any) Series {
+	switch mask := mask.(type) {
+	case SeriesBool:
+		return s.filterBool(mask)
+	case SeriesBoolMemOpt:
+		return s.filterBoolMemOpt(mask)
+	case []bool:
+		return s.filterBoolSlice(mask)
+	case []int:
+		return s.filterIntSlice(mask, true)
+	default:
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Filter: invalid type %T", mask)}
+	}
+}
+
+func (s SeriesFloat64) filterBool(mask SeriesBool) Series {
+	return s.filterBoolSlice(mask.data)
+}
+
+func (s SeriesFloat64) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
+	if mask.size != s.Len() {
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
+	}
+
+	if mask.isNullable {
+		return SeriesError{"SeriesFloat64.Filter: mask series cannot be nullable for this operation"}
+	}
+
+	elementCount := mask.__trueCount()
+	var nullMask []uint8
+
+	data := make([]float64, elementCount)
+	if s.isNullable {
+		nullMask = __binVecInit(elementCount)
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+				data[dstIdx] = s.data[srcIdx]
+				if srcIdx%8 > dstIdx%8 {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	} else {
+		nullMask = make([]uint8, 0)
+		dstIdx := 0
+		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
+			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
+				data[dstIdx] = s.data[srcIdx]
+				dstIdx++
+			}
+		}
+	}
+
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
+}
+
+func (s SeriesFloat64) filterBoolSlice(mask []bool) Series {
+	if len(mask) != len(s.data) {
+		return SeriesError{fmt.Sprintf("SeriesFloat64.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+	}
+
+	elementCount := 0
+	for _, v := range mask {
+		if v {
+			elementCount++
+		}
+	}
+
+	var data []float64
+	var nullMask []uint8
+
+	data = make([]float64, elementCount)
+
+	if s.isNullable {
+		nullMask = __binVecInit(elementCount)
+		dstIdx := 0
+		for srcIdx, v := range mask {
+			if v {
+				data[dstIdx] = s.data[srcIdx]
+				if srcIdx%8 > dstIdx%8 {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+				} else {
+					nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+				}
+				dstIdx++
+			}
+		}
+	} else {
+		nullMask = make([]uint8, 0)
+		dstIdx := 0
+		for srcIdx, v := range mask {
+			if v {
+				data[dstIdx] = s.data[srcIdx]
+				dstIdx++
+			}
+		}
+	}
+
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
+}
+
+func (s SeriesFloat64) filterIntSlice(indexes []int, check bool) Series {
+	if len(indexes) == 0 {
+		s.data = make([]float64, 0)
+		s.nullMask = make([]uint8, 0)
+		return s
+	}
+
+	// check if indexes are in range
+	if check {
+		for _, v := range indexes {
+			if v < 0 || v >= len(s.data) {
+				return SeriesError{fmt.Sprintf("SeriesFloat64.Filter: index %d is out of range", v)}
+			}
+		}
+	}
+
+	var data []float64
+	var nullMask []uint8
+
+	size := len(indexes)
+	data = make([]float64, size)
+
+	if s.isNullable {
+		nullMask = __binVecInit(size)
+		for dstIdx, srcIdx := range indexes {
+			data[dstIdx] = s.data[srcIdx]
+			if srcIdx%8 > dstIdx%8 {
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))
+			} else {
+				nullMask[dstIdx>>3] |= ((s.nullMask[srcIdx>>3] & (1 << uint(srcIdx%8))) << uint(dstIdx%8-srcIdx%8))
+			}
+		}
+	} else {
+		nullMask = make([]uint8, 0)
+		for dstIdx, srcIdx := range indexes {
+			data[dstIdx] = s.data[srcIdx]
+		}
+	}
+
+	s.data = data
+	s.nullMask = nullMask
+
+	return s
 }

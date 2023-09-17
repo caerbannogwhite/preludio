@@ -1015,7 +1015,7 @@ func (df BaseDataFrame) Take(params ...int) DataFrame {
 		return df
 	}
 
-	indeces, err := seriesTakePreprocess(df.NRows(), params...)
+	indeces, err := seriesTakePreprocess("BaseDataFrame", df.NRows(), params...)
 	if err != nil {
 		df.err = err
 		return df
@@ -1023,7 +1023,7 @@ func (df BaseDataFrame) Take(params ...int) DataFrame {
 
 	taken := NewBaseDataFrame()
 	for _, series := range df.series {
-		taken = taken.AddSeries(series.filterIntSlice(indeces))
+		taken = taken.AddSeries(series.filterIntSlice(indeces, false))
 	}
 
 	return taken
