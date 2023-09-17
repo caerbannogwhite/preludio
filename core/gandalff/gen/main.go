@@ -693,10 +693,16 @@ func generateBase() {
 		SeriesType   string
 		SeriesGoType string
 		IsGoTypePtr  bool
+		IsTimeType   bool
 	}
 
 	for filename, info := range DATA_BASE_METHODS {
-		tmpl, err := template.New("base").Parse(TEMPLATE_BASIC_ACCESSORS)
+		tmplBase, err := template.New("base").Parse(TEMPLATE_BASIC_ACCESSORS)
+		if err != nil {
+			panic(err)
+		}
+
+		tmplFilters, err := template.New("filters").Parse(TEMPLATE_FILTERS)
 		if err != nil {
 			panic(err)
 		}
@@ -706,6 +712,7 @@ func generateBase() {
 			SeriesType:   info.SeriesTypeStr,
 			SeriesGoType: info.SeriesGoTypeStr,
 			IsGoTypePtr:  info.IsGoTypePtr,
+			IsTimeType:   info.IsTimeType,
 		}
 
 		f, err := os.Create(filepath.Join("..", filename))
@@ -714,7 +721,12 @@ func generateBase() {
 		}
 		defer f.Close()
 
-		err = tmpl.Execute(f, vals)
+		err = tmplBase.Execute(f, vals)
+		if err != nil {
+			panic(err)
+		}
+
+		err = tmplFilters.Execute(f, vals)
 		if err != nil {
 			panic(err)
 		}

@@ -25,6 +25,7 @@ type SeriesFile struct {
 	SeriesTypeStr   string
 	SeriesGoTypeStr string
 	IsGoTypePtr     bool
+	IsTimeType      bool
 	Operations      map[string]Operation
 }
 
@@ -64,6 +65,7 @@ var DATA_BASE_METHODS = map[string]SeriesFile{
 		SeriesName:      "SeriesTime",
 		SeriesTypeStr:   "TimeType",
 		SeriesGoTypeStr: "time.Time",
+		IsTimeType:      true,
 	},
 }
 

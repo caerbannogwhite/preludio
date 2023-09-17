@@ -3,7 +3,11 @@ package main
 var TEMPLATE_BASIC_ACCESSORS = `
 package gandalff
 
-import "typesys"
+import (
+	"fmt"
+	{{if .IsTimeType}}"time"{{end}}
+	"typesys"
+)
 
 ////////////////////////			BASIC ACCESSORS
 
@@ -160,6 +164,8 @@ func (s {{.SeriesName}}) Get(i int) any {
 `
 
 var TEMPLATE_FILTERS = `
+////////////////////////			FILTER OPERATIONS
+
 // Filters out the elements by the given mask.
 // Mask can be SeriesBool, SeriesBoolMemOpt, bool slice or a int slice.
 func (s {{.SeriesName}}) Filter(mask any) Series {
@@ -171,7 +177,7 @@ func (s {{.SeriesName}}) Filter(mask any) Series {
 	case []bool:
 		return s.filterBoolSlice(mask)
 	case []int:
-		return s.filterIntSlice(mask)
+		return s.filterIntSlice(mask, true)
 	default:
 		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Filter: invalid type %T", mask)}
 	}
@@ -273,11 +279,20 @@ func (s {{.SeriesName}}) filterBoolSlice(mask []bool) Series {
 	return s
 }
 
-func (s {{.SeriesName}}) filterIntSlice(indexes []int) Series {
+func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 	if len(indexes) == 0 {
 		s.data = make([]{{.SeriesGoType}}, 0)
 		s.nullMask = make([]uint8, 0)
 		return s
+	}
+
+	// check if indexes are in range
+	if check {
+		for _, v := range indexes {
+			if v < 0 || v >= len(s.data) {
+				return SeriesError{fmt.Sprintf("{{.SeriesName}}.Filter: index %d is out of range", v)}
+			}
+		}
 	}
 
 	var data []{{.SeriesGoType}}
