@@ -103,10 +103,9 @@ func (s SeriesString) Append(v any) Series {
 		ssize := len(s.data)
 		s.data = append(s.data, make([]*string, len(v))...)
 		for i, b := range v {
+			s.data[ssize+i] = s.pool.Put(b.Value)
 			if !b.Valid {
 				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
-			} else {
-				s.data[ssize+i] = s.pool.Put(b.Value)
 			}
 		}
 		if len(s.data) > len(s.nullMask)<<3 {

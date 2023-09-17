@@ -10,7 +10,7 @@ func __mergeNullMasks(s1Len int, s1Nullable bool, s1Mask []uint8, s2Len int, s2N
 
 		if s2Nullable {
 
-			sIdx := s1Len - s2Len
+			sIdx := s1Len
 			oIdx := 0
 			for _, v := range s2Mask {
 				for j := 0; j < 8; j++ {
@@ -30,7 +30,7 @@ func __mergeNullMasks(s1Len int, s1Nullable bool, s1Mask []uint8, s2Len int, s2N
 		if s2Nullable {
 			s1Mask = make([]uint8, (dataLen>>3)+1)
 
-			sIdx := s1Len - s2Len
+			sIdx := s1Len
 			oIdx := 0
 			for _, v := range s2Mask {
 				for j := 0; j < 8; j++ {
