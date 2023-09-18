@@ -15,6 +15,7 @@ type SeriesBool struct {
 	name       string
 	data       []bool
 	nullMask   []uint8
+	pool       *StringPool
 	partition  *SeriesBoolPartition
 }
 
@@ -157,7 +158,7 @@ func (s SeriesBool) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
 		return s
@@ -177,6 +178,7 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -195,6 +197,7 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -213,11 +216,12 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
 	case typesys.StringType:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesBool.Cast: StringPool is nil"}
 		}
 
@@ -225,19 +229,19 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = stringPool.Put(NULL_STRING)
+					data[i] = s.pool.Put(NULL_STRING)
 				} else if v {
-					data[i] = stringPool.Put(BOOL_TRUE_STRING)
+					data[i] = s.pool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = stringPool.Put(BOOL_FALSE_STRING)
+					data[i] = s.pool.Put(BOOL_FALSE_STRING)
 				}
 			}
 		} else {
 			for i, v := range s.data {
 				if v {
-					data[i] = stringPool.Put(BOOL_TRUE_STRING)
+					data[i] = s.pool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = stringPool.Put(BOOL_FALSE_STRING)
+					data[i] = s.pool.Put(BOOL_FALSE_STRING)
 				}
 			}
 		}
@@ -249,11 +253,12 @@ func (s SeriesBool) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %T", t)}
 	}
 }
 
@@ -277,7 +282,7 @@ func (s SeriesBool) getDataPtr() *[]bool {
 	return &s.data
 }
 
-func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesBool) Map(f GDLMapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -297,6 +302,8 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int32:
@@ -312,6 +319,8 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int64:
@@ -327,6 +336,8 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case float64:
@@ -342,16 +353,18 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case string:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesBool.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Put(f(s.data[i]).(string))
+			data[i] = s.pool.Put(f(s.data[i]).(string))
 		}
 
 		return SeriesString{
@@ -361,7 +374,8 @@ func (s SeriesBool) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       stringPool,
+			pool:       s.pool,
+			partition:  nil,
 		}
 	}
 

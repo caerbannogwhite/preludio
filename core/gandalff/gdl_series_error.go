@@ -133,7 +133,7 @@ func (s SeriesError) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesError) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesError) Cast(t typesys.BaseType) Series {
 	return s
 }
 
@@ -154,7 +154,7 @@ func (s SeriesError) filterIntSlice(mask []int, check bool) Series {
 	return s
 }
 
-func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesError) Map(f GDLMapFunc) Series {
 	return s
 }
 

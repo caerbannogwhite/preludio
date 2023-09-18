@@ -136,7 +136,7 @@ func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable, makeCopy bool
 		return df
 	}
 
-	return df.AddSeries(NewSeriesBool(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesBool(name, isNullable, makeCopy, data, df.pool))
 }
 
 func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable, makeCopy bool, data []int32) DataFrame {
@@ -154,7 +154,7 @@ func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable, makeCopy boo
 		return df
 	}
 
-	return df.AddSeries(NewSeriesInt32(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesInt32(name, isNullable, makeCopy, data, df.pool))
 }
 
 func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable, makeCopy bool, data []int64) DataFrame {
@@ -172,7 +172,7 @@ func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable, makeCopy boo
 		return df
 	}
 
-	return df.AddSeries(NewSeriesInt64(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesInt64(name, isNullable, makeCopy, data, df.pool))
 }
 
 func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame {
@@ -190,10 +190,10 @@ func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable, makeCopy b
 		return df
 	}
 
-	return df.AddSeries(NewSeriesFloat64(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesFloat64(name, isNullable, makeCopy, data, df.pool))
 }
 
-func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data []string) DataFrame {
+func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, makeCopy bool, data []string) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -208,7 +208,7 @@ func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data [
 		return df
 	}
 
-	return df.AddSeries(NewSeriesString(name, isNullable, data, df.pool))
+	return df.AddSeries(NewSeriesString(name, isNullable, makeCopy, data, df.pool))
 }
 
 func (df BaseDataFrame) AddSeriesFromTime(name string, isNullable, makeCopy bool, data []time.Time) DataFrame {
@@ -226,7 +226,7 @@ func (df BaseDataFrame) AddSeriesFromTime(name string, isNullable, makeCopy bool
 		return df
 	}
 
-	return df.AddSeries(NewSeriesTime(name, isNullable, makeCopy, data))
+	return df.AddSeries(NewSeriesTime(name, isNullable, makeCopy, data, df.pool))
 }
 
 func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
@@ -800,27 +800,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
+				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesBool).
 					Append(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesInt32).
 					Append(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
+				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesInt64).
 					Append(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
+				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesFloat64).
 					Append(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
+				ser_ = NewSeriesString(ser_.Name(), true, false, make([]string, padBlen), df.pool).
 					SetNullMask(nullMask).(SeriesString).
 					Append(ser_)
 			}
@@ -865,19 +865,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen), df.pool).SetNullMask(nullMask))
 
 			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen), df.pool).SetNullMask(nullMask))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen), df.pool).SetNullMask(nullMask))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen), df.pool).SetNullMask(nullMask))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, false, make([]string, padAlen), df.pool).SetNullMask(nullMask))
 			}
 
 			if commonCols[name] {
@@ -949,19 +949,19 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen), df.pool).SetNullMask(nullMaskA))
 
 			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen), df.pool).SetNullMask(nullMaskA))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen), df.pool).SetNullMask(nullMaskA))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen), df.pool).SetNullMask(nullMaskA))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(ser_.Name(), true, false, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
 			}
 
 			if commonCols[name] {
@@ -975,27 +975,27 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
+				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesBool).
 					Append(ser_)
 
 			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
+				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesInt32).
 					Append(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
+				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesInt64).
 					Append(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
+				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesFloat64).
 					Append(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
+				ser_ = NewSeriesString(ser_.Name(), true, false, make([]string, padBlen), df.pool).
 					SetNullMask(nullMaskB).(SeriesString).
 					Append(ser_)
 			}
@@ -1129,25 +1129,25 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 					for i, group := range *indeces {
 						counts[i] = int64(len(group))
 					}
-					result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, counts))
+					result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, counts, df.pool))
 
 				case AGGREGATE_SUM:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MIN:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MAX:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MEAN:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MEDIAN:
 					// TODO: implement
 
 				case AGGREGATE_STD:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
+					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces), df.pool))
 				}
 			}
 		} else {
@@ -1164,7 +1164,7 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 				series := df.__series(agg.getSeriesName())
 
 				resultData := make([]float64, len(*indeces))
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, resultData))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, resultData, df.pool))
 				for gi, group := range *indeces {
 					buffer <- __stats_thread_data{
 						op:      agg.getAggregateType(),
@@ -1189,25 +1189,25 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 			switch agg.getAggregateType() {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, []int64{int64(df.NRows())}))
+				result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, []int64{int64(df.NRows())}, df.pool))
 
 			case AGGREGATE_SUM:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}, df.pool))
 
 			case AGGREGATE_MIN:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}, df.pool))
 
 			case AGGREGATE_MAX:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}, df.pool))
 
 			case AGGREGATE_MEAN:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}, df.pool))
 
 			case AGGREGATE_MEDIAN:
 				// TODO: implement
 
 			case AGGREGATE_STD:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
+				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}, df.pool))
 			}
 		}
 	}

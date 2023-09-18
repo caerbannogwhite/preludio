@@ -172,7 +172,7 @@ func (s SeriesString) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesString) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
 		data := make([]bool, len(s.data))
@@ -209,6 +209,8 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case typesys.Int32Type:
@@ -247,6 +249,8 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case typesys.Int64Type:
@@ -285,6 +289,8 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case typesys.Float64Type:
@@ -323,13 +329,15 @@ func (s SeriesString) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case typesys.StringType:
 		return s
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesString.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesString.Cast: invalid type %T", t)}
 	}
 }
 
@@ -338,14 +346,14 @@ func (s SeriesString) Copy() Series {
 	for i, v := range s.data {
 		data[i] = *v
 	}
-	return NewSeriesString(s.name, s.isNullable, data, s.pool)
+	return NewSeriesString(s.name, s.isNullable, false, data, s.pool)
 }
 
 func (s SeriesString) getDataPtr() *[]*string {
 	return &s.data
 }
 
-func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesString) Map(f GDLMapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -436,18 +444,19 @@ func (s SeriesString) Map(f GDLMapFunc, stringPool *StringPool) Series {
 		}
 
 	case string:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesString.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Put(f((*s.data[i])).(string))
+			data[i] = s.pool.Put(f((*s.data[i])).(string))
 		}
 
 		s.isGrouped = false
 		s.sorted = SORTED_NONE
 		s.data = data
+		s.partition = nil
 
 		return s
 	}

@@ -316,20 +316,15 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewSeriesBool(name, isNullable, false, values[i].([]bool))
+			series[i] = NewSeriesBool(name, isNullable, false, values[i].([]bool), stringPool)
 		case typesys.Int32Type:
-			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32))
+			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32), stringPool)
 		case typesys.Int64Type:
-			series[i] = NewSeriesInt64(name, isNullable, false, values[i].([]int64))
+			series[i] = NewSeriesInt64(name, isNullable, false, values[i].([]int64), stringPool)
 		case typesys.Float64Type:
-			series[i] = NewSeriesFloat64(name, isNullable, false, values[i].([]float64))
+			series[i] = NewSeriesFloat64(name, isNullable, false, values[i].([]float64), stringPool)
 		case typesys.StringType:
-			series[i] = SeriesString{
-				name:       name,
-				isNullable: isNullable,
-				data:       values[i].([]*string),
-				pool:       stringPool,
-			}
+			series[i] = NewSeriesString(name, isNullable, false, values[i].([]string), stringPool)
 		}
 	}
 

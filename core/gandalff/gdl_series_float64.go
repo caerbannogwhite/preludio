@@ -15,6 +15,7 @@ type SeriesFloat64 struct {
 	name       string
 	data       []float64
 	nullMask   []uint8
+	pool       *StringPool
 	partition  *SeriesFloat64Partition
 }
 
@@ -210,7 +211,7 @@ func (s SeriesFloat64) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
 		data := make([]bool, len(s.data))
@@ -225,6 +226,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -241,6 +243,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -257,6 +260,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -264,7 +268,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		return s
 
 	case typesys.StringType:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesFloat64.Cast: StringPool is nil"}
 		}
 
@@ -272,14 +276,14 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = stringPool.Put(NULL_STRING)
+					data[i] = s.pool.Put(NULL_STRING)
 				} else {
-					data[i] = stringPool.Put(floatToString(v))
+					data[i] = s.pool.Put(floatToString(v))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = stringPool.Put(floatToString(v))
+				data[i] = s.pool.Put(floatToString(v))
 			}
 		}
 
@@ -290,12 +294,12 @@ func (s SeriesFloat64) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       stringPool,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesFloat64.Cast: invalid type %T", t)}
 	}
 }
 
@@ -313,7 +317,7 @@ func (s SeriesFloat64) getDataPtr() *[]float64 {
 	return &s.data
 }
 
-func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesFloat64) Map(f GDLMapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -333,6 +337,8 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int32:
@@ -348,6 +354,8 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int64:
@@ -363,6 +371,8 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case float64:
@@ -378,13 +388,13 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 		return s
 
 	case string:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesFloat64.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Put(f(s.data[i]).(string))
+			data[i] = s.pool.Put(f(s.data[i]).(string))
 		}
 
 		return SeriesString{
@@ -394,7 +404,8 @@ func (s SeriesFloat64) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       stringPool,
+			pool:       s.pool,
+			partition:  nil,
 		}
 	}
 

@@ -48,7 +48,7 @@ type DataFrame interface {
 	// AddSeriesFromFloat adds a series of floats to the dataframe.
 	AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame
 	// AddSeriesFromString adds a series of strings to the dataframe.
-	AddSeriesFromString(name string, isNullable bool, data []string) DataFrame
+	AddSeriesFromString(name string, isNullable bool, makeCopy bool, data []string) DataFrame
 
 	// Replace the series with the given name.
 	Replace(name string, s Series) DataFrame

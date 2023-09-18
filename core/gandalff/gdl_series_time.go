@@ -15,6 +15,7 @@ type SeriesTime struct {
 	name       string
 	data       []time.Time
 	nullMask   []uint8
+	pool       *StringPool
 	partition  *SeriesTimePartition
 }
 
@@ -148,11 +149,11 @@ func (s SeriesTime) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesTime) Cast(t typesys.BaseType) Series {
 
 	switch t {
 	case typesys.BoolType:
-		return SeriesError{"SeriesTime.Cast: cannot cast to bool"}
+		return SeriesError{fmt.Sprintf("SeriesTime.Cast: cannot cast to %s", t.ToString())}
 
 	case typesys.Int32Type:
 		data := make([]int32, len(s.data))
@@ -167,6 +168,7 @@ func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -183,6 +185,7 @@ func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
@@ -199,11 +202,12 @@ func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
 	case typesys.StringType:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesTime.Cast: StringPool is nil"}
 		}
 
@@ -211,14 +215,14 @@ func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = stringPool.Put(NULL_STRING)
+					data[i] = s.pool.Put(NULL_STRING)
 				} else {
-					data[i] = stringPool.Put(v.String())
+					data[i] = s.pool.Put(v.String())
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = stringPool.Put(v.String())
+				data[i] = s.pool.Put(v.String())
 			}
 		}
 
@@ -229,11 +233,12 @@ func (s SeriesTime) Cast(t typesys.BaseType, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
 			partition:  nil,
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %T", t)}
 	}
 }
 
@@ -257,7 +262,7 @@ func (s SeriesTime) getDataPtr() *[]time.Time {
 	return &s.data
 }
 
-func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesTime) Map(f GDLMapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -277,6 +282,8 @@ func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int32:
@@ -292,6 +299,8 @@ func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case int64:
@@ -307,6 +316,8 @@ func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case float64:
@@ -322,16 +333,18 @@ func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
 		}
 
 	case string:
-		if stringPool == nil {
+		if s.pool == nil {
 			return SeriesError{"SeriesTime.Map: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = stringPool.Put(f(s.data[i]).(string))
+			data[i] = s.pool.Put(f(s.data[i]).(string))
 		}
 
 		return SeriesString{
@@ -341,7 +354,8 @@ func (s SeriesTime) Map(f GDLMapFunc, stringPool *StringPool) Series {
 			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       stringPool,
+			pool:       s.pool,
+			partition:  nil,
 		}
 	}
 

@@ -1,8 +1,6 @@
 package gandalff
 
 import (
-	"fmt"
-	"time"
 	"typesys"
 )
 
@@ -74,7 +72,7 @@ type Series interface {
 	DataAsString() []string
 
 	// Casts the series to a given type.
-	Cast(t typesys.BaseType, stringPool *StringPool) Series
+	Cast(t typesys.BaseType) Series
 	// Copies the series.
 	Copy() Series
 
@@ -86,7 +84,7 @@ type Series interface {
 	filterIntSlice(mask []int, check bool) Series
 
 	// Maps the elements of the series.
-	Map(f GDLMapFunc, stringPool *StringPool) Series
+	Map(f GDLMapFunc) Series
 
 	// Group the elements in the series.
 	group() Series
@@ -120,25 +118,6 @@ type Series interface {
 	Ge(other Series) Series
 	Lt(other Series) Series
 	Le(other Series) Series
-}
-
-func NewSeries(name string, t typesys.BaseType, nullable bool, makeCopy bool, data any, pool *StringPool) Series {
-	switch t {
-	case typesys.BoolType:
-		return NewSeriesBool(name, nullable, makeCopy, data.([]bool))
-	case typesys.Int32Type:
-		return NewSeriesInt32(name, nullable, makeCopy, data.([]int32))
-	case typesys.Int64Type:
-		return NewSeriesInt64(name, nullable, makeCopy, data.([]int64))
-	case typesys.Float64Type:
-		return NewSeriesFloat64(name, nullable, makeCopy, data.([]float64))
-	case typesys.StringType:
-		return NewSeriesString(name, nullable, data.([]string), pool)
-	case typesys.TimeType:
-		return NewSeriesTime(name, nullable, makeCopy, data.([]time.Time))
-	default:
-		return SeriesError{fmt.Sprintf("NewSeries: unknown type: %v", t)}
-	}
 }
 
 type SeriesPartition interface {
