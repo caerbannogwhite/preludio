@@ -347,7 +347,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data, nil)
+	s := NewSeriesInt32("test", true, true, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -597,7 +597,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data, nil)
+	s := NewSeriesInt32("test", true, true, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)

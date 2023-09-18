@@ -258,7 +258,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %T", t)}
+		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %s", t.ToString())}
 	}
 }
 

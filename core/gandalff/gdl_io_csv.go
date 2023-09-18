@@ -324,7 +324,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		case typesys.Float64Type:
 			series[i] = NewSeriesFloat64(name, isNullable, false, values[i].([]float64), stringPool)
 		case typesys.StringType:
-			series[i] = NewSeriesString(name, isNullable, false, values[i].([]string), stringPool)
+			series[i] = SeriesString{
+				name:       name,
+				isNullable: isNullable,
+				data:       values[i].([]*string),
+				pool:       stringPool,
+			}
 		}
 	}
 

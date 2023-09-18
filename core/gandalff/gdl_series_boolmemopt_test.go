@@ -261,7 +261,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
+	s := NewSeriesBoolMemOpt("test", true, false, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -606,7 +606,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
+	s := NewSeriesBoolMemOpt("test", true, false, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(mask)

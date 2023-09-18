@@ -263,7 +263,7 @@ func (s SeriesInt32) Cast(t typesys.BaseType) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Cast: invalid type %T", t)}
+		return SeriesError{fmt.Sprintf("SeriesInt32.Cast: invalid type %s", t.ToString())}
 	}
 }
 
