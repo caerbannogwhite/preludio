@@ -2,12 +2,11 @@ package gandalff
 
 import (
 	"testing"
-	"typesys"
 )
 
 func Test_Series(t *testing.T) {
 
-	s := NewSeries("test", typesys.BoolType, true, false, []bool{true, false, true, false, true, false, true, false, true, false}, nil)
+	s := NewSeries("test", true, false, false, []bool{true, false, true, false, true, false, true, false, true, false}, nil)
 
 	r := s.Append(true).
 		Append([]NullableBool{{true, true}, {true, false}}).

@@ -13,7 +13,7 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt32.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -106,7 +106,7 @@ func Test_SeriesInt32_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesInt32("test", false, true, data)
+	p := NewSeriesInt32("test", false, true, data, nil)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -152,7 +152,7 @@ func Test_SeriesInt32_Take(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt32.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -256,9 +256,9 @@ func Test_SeriesInt32_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesInt32("testA", true, true, dataA)
-	sB := NewSeriesInt32("testB", true, true, dataB)
-	sC := NewSeriesInt32("testC", true, true, dataC)
+	sA := NewSeriesInt32("testA", true, true, dataA, nil)
+	sB := NewSeriesInt32("testB", true, true, dataB, nil)
+	sC := NewSeriesInt32("testC", true, true, dataC, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -314,7 +314,7 @@ func Test_SeriesInt32_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	sD := NewSeriesInt32("testD", true, true, dataD)
+	sD := NewSeriesInt32("testD", true, true, dataD, nil)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]int32) {
@@ -347,13 +347,13 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
 
 	// Cast to bool.
-	result := s.Cast(typesys.BoolType, nil)
+	result := s.Cast(typesys.BoolType)
 
 	// Check the data.
 	expected := []bool{false, true, false, true, true, true, true, true, true, true}
@@ -371,7 +371,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	}
 
 	// Cast to int64.
-	result = s.Cast(typesys.Int64Type, nil)
+	result = s.Cast(typesys.Int64Type)
 
 	// Check the data.
 	expectedInt := []int64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
@@ -389,7 +389,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	}
 
 	// Cast to float64.
-	result = s.Cast(typesys.Float64Type, nil)
+	result = s.Cast(typesys.Float64Type)
 
 	// Check the data.
 	expectedFloat := []float64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
@@ -407,7 +407,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	result = s.Cast(typesys.StringType, NewStringPool())
+	result = s.Cast(typesys.StringType)
 
 	// Check the data.
 	expectedString := []string{"0", "1", NULL_STRING, "3", "4", NULL_STRING, "6", "7", NULL_STRING, "9"}
@@ -426,7 +426,7 @@ func Test_SeriesInt32_Cast(t *testing.T) {
 	}
 
 	// Cast to error.
-	castError := s.Cast(typesys.ErrorType, nil)
+	castError := s.Cast(typesys.ErrorType)
 
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesInt32.Cast: invalid type Error" {
@@ -439,7 +439,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -453,7 +453,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("filter", false, true, filterMask).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool("filter", false, true, filterMask, nil).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -534,7 +534,7 @@ func Test_SeriesInt32_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesInt32("test", true, true, data)
+	s = NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -597,7 +597,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", true, true, data)
+	s := NewSeriesInt32("test", true, true, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)
@@ -608,7 +608,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 			return true
 		}
 		return false
-	}, nil)
+	})
 
 	expectedBool := []bool{false, false, false, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true}
 	for i, v := range resBool.Data().([]bool) {
@@ -623,7 +623,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 			return -(v.(int32)) % 7
 		}
 		return v.(int32) % 7
-	}, nil)
+	})
 
 	expectedInt32 := []int32{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
 	for i, v := range resInt.Data().([]int32) {
@@ -638,7 +638,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 			return int64(v.(int32) % 7)
 		}
 		return int64(-v.(int32) % 7)
-	}, nil)
+	})
 
 	expectedInt64 := []int64{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
 	for i, v := range resInt64.Data().([]int64) {
@@ -653,7 +653,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 			return float64(-v.(int32))
 		}
 		return float64(v.(int32))
-	}, nil)
+	})
 
 	expectedFloat64 := []float64{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -2, -323, -24, -23, -4, -42, -5, -6, -7}
 	for i, v := range resFloat64.Data().([]float64) {
@@ -668,7 +668,7 @@ func Test_SeriesInt32_Map(t *testing.T) {
 			return "pos"
 		}
 		return "neg"
-	}, NewStringPool())
+	})
 
 	expectedString := []string{"pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "neg", "pos", "pos", "neg", "pos", "pos", "pos", "neg", "pos"}
 	for i, v := range resString.Data().([]string) {
@@ -689,7 +689,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
 
 	// Test 1
-	s1 := NewSeriesInt32("s1", true, true, data1).
+	s1 := NewSeriesInt32("s1", true, true, data1, nil).
 		SetNullMask(data1Mask).
 		group()
 
@@ -707,7 +707,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 	}
 
 	// Test 2
-	s2 := NewSeriesInt32("s2", true, true, data2).
+	s2 := NewSeriesInt32("s2", true, true, data2, nil).
 		SetNullMask(data2Mask).
 		GroupBy(s1.GetPartition())
 
@@ -729,7 +729,7 @@ func Test_SeriesInt32_Group(t *testing.T) {
 	}
 
 	// Test 3
-	s3 := NewSeriesInt32("test", true, true, data3).
+	s3 := NewSeriesInt32("test", true, true, data3, nil).
 		SetNullMask(data3Mask).
 		GroupBy(s2.GetPartition())
 
@@ -764,7 +764,7 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt32("test", false, true, data)
+	s := NewSeriesInt32("test", false, true, data, nil)
 
 	// Sort the series.
 	sorted := s.Sort()
@@ -776,7 +776,7 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 	}
 
 	// Create a new series.
-	s = NewSeriesInt32("test", true, true, data).
+	s = NewSeriesInt32("test", true, true, data, nil).
 		SetNullMask(mask)
 
 	// Sort the series.
@@ -796,28 +796,28 @@ func Test_SeriesInt32_Sort(t *testing.T) {
 }
 
 func Test_SeriesInt32_Arithmetic_Mul(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | bool
@@ -934,28 +934,28 @@ func Test_SeriesInt32_Arithmetic_Mul(t *testing.T) {
 }
 
 func Test_SeriesInt32_Arithmetic_Div(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | bool
@@ -1072,28 +1072,28 @@ func Test_SeriesInt32_Arithmetic_Div(t *testing.T) {
 }
 
 func Test_SeriesInt32_Arithmetic_Mod(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | bool
@@ -1210,28 +1210,28 @@ func Test_SeriesInt32_Arithmetic_Mod(t *testing.T) {
 }
 
 func Test_SeriesInt32_Arithmetic_Pow(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | bool
@@ -1350,34 +1350,34 @@ func Test_SeriesInt32_Arithmetic_Pow(t *testing.T) {
 func Test_SeriesInt32_Arithmetic_Add(t *testing.T) {
 	pool := NewStringPool()
 
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
-	ss := NewSeriesString("test", true, []string{"2"}, pool).(SeriesString)
-	sv := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv_ := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
+	ss := NewSeriesString("test", true, false, []string{"2"}, pool).(SeriesString)
+	sv := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
+	ss_ := NewSeriesString("test", true, false, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv_ := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
 
 	// scalar | bool
@@ -1522,28 +1522,28 @@ func Test_SeriesInt32_Arithmetic_Add(t *testing.T) {
 }
 
 func Test_SeriesInt32_Arithmetic_Sub(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
+	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
+	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
 	// scalar | bool
@@ -1662,20 +1662,20 @@ func Test_SeriesInt32_Arithmetic_Sub(t *testing.T) {
 func Test_SeriesInt32_Logical_Eq(t *testing.T) {
 	var res Series
 
-	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+	i32s := NewSeriesInt32("test", true, false, []int32{1}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{1}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}, nil).SetNullMask([]bool{true, true, false}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+	i64s := NewSeriesInt64("test", true, false, []int64{1}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{1}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}, nil).SetNullMask([]bool{true, true, false}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}, nil).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
 
 	// scalar | int32
 	res = i32s.Eq(i32s)
@@ -1807,20 +1807,20 @@ func Test_SeriesInt32_Logical_Eq(t *testing.T) {
 func Test_SeriesInt32_Logical_Ne(t *testing.T) {
 	var res Series
 
-	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+	i32s := NewSeriesInt32("test", true, false, []int32{1}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32("test", true, false, []int32{1}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}, nil).SetNullMask([]bool{true, true, false}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+	i64s := NewSeriesInt64("test", true, false, []int64{1}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64("test", true, false, []int64{1}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}, nil).SetNullMask([]bool{true, true, false}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}, nil).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
 
 	// scalar | int32
 	res = i32s.Ne(i32s)

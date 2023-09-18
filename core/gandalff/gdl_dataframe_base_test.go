@@ -54,11 +54,11 @@ func Test_BaseDataFrame_Filter(t *testing.T) {
 	mask := df.Series("department").
 		Map(func(v any) any {
 			return v.(string) == "IT"
-		}, nil).(SeriesBool).
+		}).(SeriesBool).
 		And(
 			df.Series("age").Map(func(v any) any {
 				return v.(int64) >= 30
-			}, nil).(SeriesBool),
+			}).(SeriesBool),
 		)
 
 	res := df.Filter(mask.(SeriesBool))
@@ -100,11 +100,11 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		df.Filter(
-			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }, nil).(SeriesBool).
+			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }).(SeriesBool).
 				And(
-					df.Series("Founded").Map(func(v any) any { return v.(int64) >= 2000 }, nil)).(SeriesBool).
+					df.Series("Founded").Map(func(v any) any { return v.(int64) >= 2000 })).(SeriesBool).
 				And(
-					df.Series("Number of employees").Map(func(v any) any { return v.(int64) < 1000 }, nil)).(SeriesBool),
+					df.Series("Number of employees").Map(func(v any) any { return v.(int64) < 1000 })).(SeriesBool),
 		)
 	}
 	b.StopTimer()
@@ -629,11 +629,11 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 func Test_BaseDataFrame_Join(t *testing.T) {
 	dfx := NewBaseDataFrame().
 		AddSeriesFromInt64("A", false, false, []int64{1, 1, 2, 3, 4, 5, 5}).
-		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g"})
+		AddSeriesFromString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g"})
 
 	dfy := NewBaseDataFrame().
 		AddSeriesFromInt64("A", false, false, []int64{4, 5, 6, 6}).
-		AddSeriesFromString("C", false, []string{"h", "i", "j", "k"})
+		AddSeriesFromString("C", false, false, []string{"h", "i", "j", "k"})
 
 	///////////////////			INNER JOIN
 
@@ -737,7 +737,7 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 
 	df := NewBaseDataFrame().
 		AddSeriesFromInt64("A", false, false, []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}).
-		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
+		AddSeriesFromString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
 		AddSeriesFromFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
 		AddSeriesFromBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false})
 
@@ -913,13 +913,13 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	var res DataFrame
 
-	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}).
+	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	b := NewSeriesString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
+	b := NewSeriesString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
 		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
-	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
+	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}).
+	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 
 	df := NewBaseDataFrame().

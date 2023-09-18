@@ -11,7 +11,7 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesBoolMemOpt.
-	s := NewSeriesBoolMemOpt("test", true, data)
+	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -104,7 +104,7 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesBoolMemOpt("test", false, data)
+	p := NewSeriesBoolMemOpt("test", false, false, data, nil)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -154,9 +154,9 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesBoolMemOpt("testA", true, dataA)
-	sB := NewSeriesBoolMemOpt("testB", true, dataB)
-	sC := NewSeriesBoolMemOpt("testC", true, dataC)
+	sA := NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
+	sB := NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
+	sC := NewSeriesBoolMemOpt("testC", true, false, dataC, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -212,7 +212,7 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewSeriesBoolMemOpt("testD", true, dataD)
+	sD := NewSeriesBoolMemOpt("testD", true, false, dataD, nil)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]bool) {
@@ -261,13 +261,13 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, data)
+	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
 
 	// Cast to int32.
-	castInt32 := s.Cast(typesys.Int32Type, nil)
+	castInt32 := s.Cast(typesys.Int32Type)
 
 	// Check the data.
 	for i, v := range castInt32.Data().([]int32) {
@@ -286,7 +286,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	}
 
 	// Cast to int64.
-	castInt64 := s.Cast(typesys.Int64Type, nil)
+	castInt64 := s.Cast(typesys.Int64Type)
 
 	// Check the data.
 	for i, v := range castInt64.Data().([]int64) {
@@ -298,7 +298,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	}
 
 	// Cast to float64.
-	castFloat64 := s.Cast(typesys.Float64Type, nil)
+	castFloat64 := s.Cast(typesys.Float64Type)
 
 	// Check the data.
 	for i, v := range castFloat64.Data().([]float64) {
@@ -317,7 +317,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	castString := s.Cast(typesys.StringType, NewStringPool())
+	castString := s.Cast(typesys.StringType)
 
 	// Check the data.
 	for i, v := range castString.Data().([]string) {
@@ -328,7 +328,6 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 		} else if !mask[i] && !data[i] && v != "false" {
 			t.Errorf("Expected %s, got %s at index %d", "false", v, i)
 		}
-
 	}
 
 	// Check the null mask.
@@ -339,7 +338,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	}
 
 	// Cast to error.
-	castError := s.Cast(typesys.ErrorType, nil)
+	castError := s.Cast(typesys.ErrorType)
 
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesBoolMemOpt.Cast: invalid type Error" {
@@ -355,8 +354,8 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewSeriesBoolMemOpt("testA", true, dataA)
-	sB := NewSeriesBoolMemOpt("testB", true, dataB)
+	sA := NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
+	sB := NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -389,8 +388,8 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 
 	// Check the Or() method.
 	// Create two new series.
-	sA = NewSeriesBoolMemOpt("testA", true, dataA)
-	sB = NewSeriesBoolMemOpt("testB", true, dataB)
+	sA = NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
+	sB = NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -420,7 +419,7 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := NewSeriesBoolMemOpt("test", true, dataA).
+	not := NewSeriesBoolMemOpt("test", true, false, dataA, nil).
 		SetNullMask(maskA).(SeriesBoolMemOpt).
 		Not()
 
@@ -449,7 +448,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, data)
+	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -463,7 +462,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBoolMemOpt("mask", false, filterMask).(SeriesBoolMemOpt))
+	filtered := s.Filter(NewSeriesBoolMemOpt("mask", false, false, filterMask, nil).(SeriesBoolMemOpt))
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -544,7 +543,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesBoolMemOpt("test", true, data)
+	s = NewSeriesBoolMemOpt("test", true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -607,7 +606,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, data)
+	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -616,7 +615,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 
 	mappedBool := s.Map(func(v any) any {
 		return !v.(bool)
-	}, nil)
+	})
 
 	resultBool := []bool{false, true, false, true, false, true, false, true, false, true, true, false, false}
 
@@ -633,7 +632,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 			return int32(1)
 		}
 		return int32(0)
-	}, nil)
+	})
 
 	resultInt := []int32{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
@@ -650,7 +649,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 			return int64(1)
 		}
 		return int64(0)
-	}, nil)
+	})
 
 	resultInt64 := []int64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
@@ -667,7 +666,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 			return 1.0
 		}
 		return 0.0
-	}, nil)
+	})
 
 	resultFloat := []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
@@ -679,13 +678,12 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 	}
 
 	// Map the series to string.
-	pool := NewStringPool()
 	mappedString := s.Map(func(v any) any {
 		if v.(bool) {
 			return "true"
 		}
 		return "false"
-	}, pool)
+	})
 
 	resultString := []string{"true", "false", "true", "false", "true", "false", "true", "false", "true", "false", "false", "true", "true"}
 

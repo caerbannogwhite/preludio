@@ -1,29 +1,30 @@
 package gandalff
 
 import (
+	"fmt"
 	"time"
 )
 
 func NewSeries(name string, isNullable, makeCopy bool, memOpt bool, data interface{}, pool *StringPool) Series {
-	switch data.(type) {
+	switch data := data.(type) {
 	case []bool:
-		if memOpt {
-			return NewSeriesBoolMemOpt(name, isNullable, makeCopy, data.([]bool), pool)
-		} else {
-			return NewSeriesBool(name, isNullable, makeCopy, data.([]bool), pool)
-		}
+		// if memOpt {
+		// 	return NewSeriesBoolMemOpt(name, isNullable, makeCopy, data, pool)
+		// } else {
+		return NewSeriesBool(name, isNullable, makeCopy, data, pool)
+		// }
 	case []int32:
-		return NewSeriesInt32(name, isNullable, makeCopy, data.([]int32), pool)
+		return NewSeriesInt32(name, isNullable, makeCopy, data, pool)
 	case []int64:
-		return NewSeriesInt64(name, isNullable, makeCopy, data.([]int64), pool)
+		return NewSeriesInt64(name, isNullable, makeCopy, data, pool)
 	case []float64:
-		return NewSeriesFloat64(name, isNullable, makeCopy, data.([]float64), pool)
+		return NewSeriesFloat64(name, isNullable, makeCopy, data, pool)
 	case []string:
-		return NewSeriesString(name, isNullable, makeCopy, data.([]string), pool)
+		return NewSeriesString(name, isNullable, makeCopy, data, pool)
 	case []time.Time:
-		return NewSeriesTime(name, isNullable, makeCopy, data.([]time.Time), pool)
+		return NewSeriesTime(name, isNullable, makeCopy, data, pool)
 	default:
-		return SeriesError{msg: "NewSeries: unknown type"}
+		return SeriesError{fmt.Sprintf("NewSeries: unsupported type %T", data)}
 	}
 }
 
