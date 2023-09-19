@@ -47,6 +47,16 @@ func (s SeriesBoolMemOpt) SetName(name string) Series {
 	return s
 }
 
+// Return the StringPool of the series.
+func (s SeriesBoolMemOpt) StringPool() *StringPool {
+	return s.pool
+}
+
+// Set the StringPool for this series.
+func (s SeriesBoolMemOpt) SetStringPool(pool *StringPool) Series {
+	return s
+}
+
 // Returns the type of the series.
 func (s SeriesBoolMemOpt) Type() typesys.BaseType {
 	return typesys.BoolType

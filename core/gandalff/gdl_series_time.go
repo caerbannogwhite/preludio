@@ -50,15 +50,6 @@ func (s SeriesTime) Set(i int, v any) Series {
 	return s
 }
 
-// Take the elements according to the given interval.
-func (s SeriesTime) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess("SeriesTime", s.Len(), params...)
-	if err != nil {
-		return SeriesError{err.Error()}
-	}
-	return s.filterIntSlice(indeces, false)
-}
-
 // Append appends a value or a slice of values to the series.
 func (s SeriesTime) Append(v any) Series {
 	switch v := v.(type) {
@@ -113,10 +104,6 @@ func (s SeriesTime) Append(v any) Series {
 ////////////////////////			ALL DATA ACCESSORS
 
 func (s SeriesTime) Times() []time.Time {
-	return s.data
-}
-
-func (s SeriesTime) Data() any {
 	return s.data
 }
 
@@ -240,26 +227,6 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 	default:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %T", t)}
 	}
-}
-
-// Copy returns a copy of the series.
-func (s SeriesTime) Copy() Series {
-	data := make([]time.Time, len(s.data))
-	copy(data, s.data)
-	nullMask := make([]uint8, len(s.nullMask))
-	copy(nullMask, s.nullMask)
-
-	return SeriesTime{
-		isGrouped:  s.isGrouped,
-		isNullable: s.isNullable,
-		data:       data,
-		nullMask:   nullMask,
-		partition:  s.partition,
-	}
-}
-
-func (s SeriesTime) getDataPtr() *[]time.Time {
-	return &s.data
 }
 
 func (s SeriesTime) Map(f GDLMapFunc) Series {

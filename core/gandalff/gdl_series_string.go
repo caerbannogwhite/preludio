@@ -22,14 +22,6 @@ type SeriesString struct {
 	partition  *SeriesStringPartition
 }
 
-func (s SeriesString) SetStringPool(pool *StringPool) Series {
-	for i, v := range s.data {
-		s.data[i] = pool.Put(*v)
-	}
-	s.pool = pool
-	return s
-}
-
 // Get the element at index i as a string.
 func (s SeriesString) GetString(i int) string {
 	if s.isNullable && s.IsNull(i) {
@@ -59,15 +51,6 @@ func (s SeriesString) Set(i int, v any) Series {
 
 	s.sorted = SORTED_NONE
 	return s
-}
-
-// Take the elements according to the given interval.
-func (s SeriesString) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess("SeriesString", s.Len(), params...)
-	if err != nil {
-		return SeriesError{err.Error()}
-	}
-	return s.filterIntSlice(indeces, false)
 }
 
 // Append appends a value or a slice of values to the series.
@@ -130,14 +113,6 @@ func (s SeriesString) Append(v any) Series {
 ////////////////////////			ALL DATA ACCESSORS
 
 func (s SeriesString) Strings() []string {
-	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		data[i] = *v
-	}
-	return data
-}
-
-func (s SeriesString) Data() any {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
 		data[i] = *v
@@ -339,18 +314,6 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 	default:
 		return SeriesError{fmt.Sprintf("SeriesString.Cast: invalid type %s", t.ToString())}
 	}
-}
-
-func (s SeriesString) Copy() Series {
-	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		data[i] = *v
-	}
-	return NewSeriesString(s.name, s.isNullable, false, data, s.pool)
-}
-
-func (s SeriesString) getDataPtr() *[]*string {
-	return &s.data
 }
 
 func (s SeriesString) Map(f GDLMapFunc) Series {

@@ -114,15 +114,6 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 	return s
 }
 
-// Take the elements according to the given interval.
-func (s SeriesFloat64) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess("SeriesFloat64", s.Len(), params...)
-	if err != nil {
-		return SeriesError{err.Error()}
-	}
-	return s.filterIntSlice(indeces, false)
-}
-
 // Append appends a value or a slice of values to the series.
 func (s SeriesFloat64) Append(v any) Series {
 	switch v := v.(type) {
@@ -177,10 +168,6 @@ func (s SeriesFloat64) Append(v any) Series {
 ////////////////////////			ALL DATA ACCESSORS
 
 func (s SeriesFloat64) Float64s() []float64 {
-	return s.data
-}
-
-func (s SeriesFloat64) Data() any {
 	return s.data
 }
 
@@ -301,20 +288,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 	default:
 		return SeriesError{fmt.Sprintf("SeriesFloat64.Cast: invalid type %s", t.ToString())}
 	}
-}
-
-func (s SeriesFloat64) Copy() Series {
-	data := make([]float64, len(s.data))
-	copy(data, s.data)
-	nullMask := make([]uint8, len(s.nullMask))
-	copy(nullMask, s.nullMask)
-
-	return SeriesFloat64{
-		isGrouped: s.isGrouped, sorted: s.sorted, isNullable: s.isNullable, name: s.name, data: data, nullMask: nullMask}
-}
-
-func (s SeriesFloat64) getDataPtr() *[]float64 {
-	return &s.data
 }
 
 func (s SeriesFloat64) Map(f GDLMapFunc) Series {

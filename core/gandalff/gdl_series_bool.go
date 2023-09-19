@@ -53,15 +53,6 @@ func (s SeriesBool) Set(i int, v any) Series {
 	return s
 }
 
-// Take the elements according to the given interval.
-func (s SeriesBool) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess("SeriesBool", s.Len(), params...)
-	if err != nil {
-		return SeriesError{err.Error()}
-	}
-	return s.filterIntSlice(indeces, false)
-}
-
 // Append appends a value or a slice of values to the series.
 func (s SeriesBool) Append(v any) Series {
 	switch v := v.(type) {
@@ -116,10 +107,6 @@ func (s SeriesBool) Append(v any) Series {
 ////////////////////////			ALL DATA ACCESSORS
 
 func (s SeriesBool) Bools() []bool {
-	return s.data
-}
-
-func (s SeriesBool) Data() any {
 	return s.data
 }
 
@@ -260,26 +247,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	default:
 		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %s", t.ToString())}
 	}
-}
-
-// Copy returns a copy of the series.
-func (s SeriesBool) Copy() Series {
-	data := make([]bool, len(s.data))
-	copy(data, s.data)
-	nullMask := make([]uint8, len(s.nullMask))
-	copy(nullMask, s.nullMask)
-
-	return SeriesBool{
-		isGrouped:  s.isGrouped,
-		isNullable: s.isNullable,
-		data:       data,
-		nullMask:   nullMask,
-		partition:  s.partition,
-	}
-}
-
-func (s SeriesBool) getDataPtr() *[]bool {
-	return &s.data
 }
 
 func (s SeriesBool) Map(f GDLMapFunc) Series {

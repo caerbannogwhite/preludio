@@ -9,58 +9,69 @@ import (
 
 ////////////////////////			BASIC ACCESSORS
 
-// Returns the number of elements in the series.
+// Return the number of elements in the series.
 func (s SeriesBool) Len() int {
 	return len(s.data)
 }
 
-// Returns the name of the series.
+// Return the name of the series.
 func (s SeriesBool) Name() string {
 	return s.name
 }
 
-// Sets the name of the series.
+// Set the name of the series.
 func (s SeriesBool) SetName(name string) Series {
 	s.name = name
 	return s
 }
 
-// Returns the type of the series.
+// Return the StringPool of the series.
+func (s SeriesBool) StringPool() *StringPool {
+	return s.pool
+}
+
+// Set the StringPool for this series.
+func (s SeriesBool) SetStringPool(pool *StringPool) Series {
+	s.pool = pool
+	return s
+}
+
+// Return the type of the series.
 func (s SeriesBool) Type() typesys.BaseType {
 	return typesys.BoolType
 }
 
-// Returns the type and cardinality of the series.
+// Return the type and cardinality of the series.
 func (s SeriesBool) TypeCard() typesys.BaseTypeCard {
 	return typesys.BaseTypeCard{Base: typesys.BoolType, Card: s.Len()}
 }
 
-// Returns if the series is grouped.
+// Return if the series is grouped.
 func (s SeriesBool) IsGrouped() bool {
 	return s.isGrouped
 }
 
-// Returns if the series admits null values.
+// Return if the series admits null values.
 func (s SeriesBool) IsNullable() bool {
 	return s.isNullable
 }
 
-// Returns if the series is sorted.
+// Return if the series is sorted.
 func (s SeriesBool) IsSorted() SeriesSortOrder {
 	return s.sorted
 }
 
-// Returns if the series is error.
+// Return if the series is error.
 func (s SeriesBool) IsError() bool {
 	return false
 }
 
-// Returns the error message of the series.
+// Return the error message of the series.
 func (s SeriesBool) GetError() string {
 	return ""
 }
 
-// Returns if the series has null values.
+// Return if the series has null values.
 func (s SeriesBool) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
@@ -70,7 +81,7 @@ func (s SeriesBool) HasNull() bool {
 	return false
 }
 
-// Returns the number of null values in the series.
+// Return the number of null values in the series.
 func (s SeriesBool) NullCount() int {
 	count := 0
 	for _, x := range s.nullMask {
@@ -81,7 +92,7 @@ func (s SeriesBool) NullCount() int {
 	return count
 }
 
-// Returns if the element at index i is null.
+// Return if the element at index i is null.
 func (s SeriesBool) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
@@ -89,7 +100,7 @@ func (s SeriesBool) IsNull(i int) bool {
 	return false
 }
 
-// Sets the element at index i to null.
+// Set the element at index i to null.
 func (s SeriesBool) SetNull(i int) Series {
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
@@ -105,7 +116,7 @@ func (s SeriesBool) SetNull(i int) Series {
 	}
 }
 
-// Returns the null mask of the series.
+// Return the null mask of the series.
 func (s SeriesBool) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
@@ -118,7 +129,7 @@ func (s SeriesBool) GetNullMask() []bool {
 	return mask
 }
 
-// Sets the null mask of the series.
+// Set the null mask of the series.
 func (s SeriesBool) SetNullMask(mask []bool) Series {
 	if s.isNullable {
 		for k, v := range mask {
@@ -146,7 +157,7 @@ func (s SeriesBool) SetNullMask(mask []bool) Series {
 	}
 }
 
-// Makes the series nullable.
+// Make the series nullable.
 func (s SeriesBool) MakeNullable() Series {
 	if !s.isNullable {
 		s.isNullable = true
@@ -158,6 +169,43 @@ func (s SeriesBool) MakeNullable() Series {
 // Get the element at index i.
 func (s SeriesBool) Get(i int) any {
 	return s.data[i]
+}
+
+// Take the elements according to the given interval.
+func (s SeriesBool) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess("SeriesBool", s.Len(), params...)
+	if err != nil {
+		return SeriesError{err.Error()}
+	}
+	return s.filterIntSlice(indeces, false)
+}
+
+// Return the elements of the series as a slice.
+func (s SeriesBool) Data() any {
+	return s.data
+}
+
+// Copy the series.
+func (s SeriesBool) Copy() Series {
+	data := make([]bool, len(s.data))
+	copy(data, s.data)
+	nullMask := make([]uint8, len(s.nullMask))
+	copy(nullMask, s.nullMask)
+
+	return SeriesBool{
+		isGrouped:  s.isGrouped,
+		isNullable: s.isNullable,
+		sorted:     s.sorted,
+		name:       s.name,
+		data:       data,
+		nullMask:   nullMask,
+		pool:       s.pool,
+		partition:  s.partition,
+	}
+}
+
+func (s SeriesBool) getDataPtr() *[]bool {
+	return &s.data
 }
 
 ////////////////////////			FILTER OPERATIONS

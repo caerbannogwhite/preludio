@@ -8,44 +8,49 @@ type Series interface {
 
 	// Basic accessors.
 
-	// Returns the number of elements in the series.
+	// Return the number of elements in the series.
 	Len() int
-	// Returns the name of the series.
+	// Return the name of the series.
 	Name() string
-	// Sets the name of the series.
+	// Set the name of the series.
 	SetName(name string) Series
 
-	// Returns the type of the series.
+	// Return the StringPool of the series.
+	StringPool() *StringPool
+	// Set the StringPool for this series.
+	SetStringPool(pool *StringPool) Series
+
+	// Return the type of the series.
 	Type() typesys.BaseType
-	// Returns the type and cardinality of the series.
+	// Return the type and cardinality of the series.
 	TypeCard() typesys.BaseTypeCard
 
-	// Returns if the series is grouped.
+	// Return if the series is grouped.
 	IsGrouped() bool
-	// Returns if the series admits null values.
+	// Return if the series admits null values.
 	IsNullable() bool
-	// Returns if the series is sorted.
+	// Return if the series is sorted.
 	IsSorted() SeriesSortOrder
-	// Returns if the series is error.
+	// Return if the series is error.
 	IsError() bool
-	// Returns the error message of the series.
+	// Return the error message of the series.
 	GetError() string
 
 	// Nullability operations.
 
-	// Returns if the series has null values.
+	// Return if the series has null values.
 	HasNull() bool
-	// Returns the number of null values in the series.
+	// Return the number of null values in the series.
 	NullCount() int
-	// Returns if the element at index i is null.
+	// Return if the element at index i is null.
 	IsNull(i int) bool
-	// Sets the element at index i to null.
+	// Set the element at index i to null.
 	SetNull(i int) Series
-	// Returns the null mask of the series.
+	// Return the null mask of the series.
 	GetNullMask() []bool
-	// Sets the null mask of the series.
+	// Set the null mask of the series.
 	SetNullMask(mask []bool) Series
-	// Makes the series nullable.
+	// Make the series nullable.
 	MakeNullable() Series
 
 	// Get the element at index i.
@@ -64,26 +69,26 @@ type Series interface {
 
 	// All-data accessors.
 
-	// Returns the actual data of the series.
+	// Return the actual data of the series.
 	Data() any
-	// Returns the nullable data of the series.
+	// Return the nullable data of the series.
 	DataAsNullable() any
-	// Returns the data of the series as a slice of strings.
+	// Return the data of the series as a slice of strings.
 	DataAsString() []string
 
-	// Casts the series to a given type.
+	// Cast the series to a given type.
 	Cast(t typesys.BaseType) Series
-	// Copies the series.
+	// Copie the series.
 	Copy() Series
 
 	// Series operations.
 
-	// Filters out the elements by the given mask.
+	// Filter out the elements by the given mask.
 	// Mask can be a bool series, a slice of bools or a slice of ints.
 	Filter(mask any) Series
 	filterIntSlice(mask []int, check bool) Series
 
-	// Maps the elements of the series.
+	// Map the elements of the series.
 	Map(f GDLMapFunc) Series
 
 	// Group the elements in the series.
@@ -99,7 +104,7 @@ type Series interface {
 	equal(i, j int) bool
 	Swap(i, j int)
 
-	// Sorts the elements of the series.
+	// Sort the elements of the series.
 	Sort() Series
 	SortRev() Series
 
@@ -121,9 +126,9 @@ type Series interface {
 }
 
 type SeriesPartition interface {
-	// Returns the number partitions.
+	// Return the number partitions.
 	getSize() int
 
-	// Returns the indices of the groups.
+	// Return the indices of the groups.
 	getMap() map[int64][]int
 }
