@@ -23,21 +23,21 @@ func (vm *ByteEater) newPInternTerm(val interface{}) *__p_intern__ {
 
 	switch v := val.(type) {
 	case bool:
-		e[0] = gandalff.NewSeriesBool("", true, false, []bool{v})
+		e[0] = gandalff.NewSeriesBool("", true, false, []bool{v}, vm.__stringPool)
 	case []bool:
-		e[0] = gandalff.NewSeriesBool("", true, false, v)
+		e[0] = gandalff.NewSeriesBool("", true, false, v, vm.__stringPool)
 	case int64:
-		e[0] = gandalff.NewSeriesInt64("", true, false, []int64{v})
+		e[0] = gandalff.NewSeriesInt64("", true, false, []int64{v}, vm.__stringPool)
 	case []int64:
-		e[0] = gandalff.NewSeriesInt64("", true, false, v)
+		e[0] = gandalff.NewSeriesInt64("", true, false, v, vm.__stringPool)
 	case float64:
-		e[0] = gandalff.NewSeriesFloat64("", true, false, []float64{v})
+		e[0] = gandalff.NewSeriesFloat64("", true, false, []float64{v}, vm.__stringPool)
 	case []float64:
-		e[0] = gandalff.NewSeriesFloat64("", true, false, v)
+		e[0] = gandalff.NewSeriesFloat64("", true, false, v, vm.__stringPool)
 	case string:
-		e[0] = gandalff.NewSeriesString("", true, []string{v}, vm.__stringPool)
+		e[0] = gandalff.NewSeriesString("", true, false, []string{v}, vm.__stringPool)
 	case []string:
-		e[0] = gandalff.NewSeriesString("", true, v, vm.__stringPool)
+		e[0] = gandalff.NewSeriesString("", true, false, v, vm.__stringPool)
 	default:
 		e[0] = v
 	}
@@ -266,7 +266,7 @@ func (i *__p_intern__) listToSeriesBool() (gandalff.Series, error) {
 				return nil, fmt.Errorf("expecting list of bools, got %T", e.getValue())
 			}
 		}
-		return gandalff.NewSeriesBool("", true, false, res), nil
+		return gandalff.NewSeriesBool("", true, false, res, i.vm.__stringPool), nil
 
 	default:
 		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
@@ -285,7 +285,7 @@ func (i *__p_intern__) listToSeriesInt64() (gandalff.Series, error) {
 				return nil, fmt.Errorf("expecting list of ints, got %T", e.getValue())
 			}
 		}
-		return gandalff.NewSeriesInt64("", true, false, res), nil
+		return gandalff.NewSeriesInt64("", true, false, res, i.vm.__stringPool), nil
 
 	default:
 		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
@@ -304,7 +304,7 @@ func (i *__p_intern__) listToSeriesFloat64() (gandalff.Series, error) {
 				return nil, fmt.Errorf("expecting list of floats, got %T", e.getValue())
 			}
 		}
-		return gandalff.NewSeriesFloat64("", true, false, res), nil
+		return gandalff.NewSeriesFloat64("", true, false, res, i.vm.__stringPool), nil
 
 	default:
 		return nil, fmt.Errorf("expecting list, got %T", i.expr[0])
@@ -343,7 +343,7 @@ func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
 			}
 			res[j] = v
 		}
-		return gandalff.NewSeriesString("", true, res, i.vm.__stringPool), nil
+		return gandalff.NewSeriesString("", true, false, res, i.vm.__stringPool), nil
 
 	default:
 		return nil, fmt.Errorf("expecting list of strings")

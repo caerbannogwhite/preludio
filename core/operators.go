@@ -30,9 +30,9 @@ func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
-				series = series.Cast(v.Type(), vm.__stringPool).Append(v)
+				series = series.Cast(v.Type()).Append(v)
 			} else if v.Type().CanCoerceTo(series.Type()) {
-				series = series.Append(v.Cast(series.Type(), vm.__stringPool))
+				series = series.Append(v.Cast(series.Type()))
 			} else {
 				return list, fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
 			}

@@ -722,26 +722,26 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 
 		// BASE TYPES
 		case []bool:
-			series_[positional[0].name] = gandalff.NewSeriesBool(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesBool(positional[0].name, true, false, v, vm.__stringPool)
 		case []int64:
-			series_[positional[0].name] = gandalff.NewSeriesInt64(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesInt64(positional[0].name, true, false, v, vm.__stringPool)
 		case []float64:
-			series_[positional[0].name] = gandalff.NewSeriesFloat64(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesFloat64(positional[0].name, true, false, v, vm.__stringPool)
 		case []string:
-			series_[positional[0].name] = gandalff.NewSeriesString(positional[0].name, true, v, vm.__stringPool)
+			series_[positional[0].name] = gandalff.NewSeriesString(positional[0].name, true, false, v, vm.__stringPool)
 
 		// LIST
 		case __p_list__:
 			for _, e := range v {
 				switch t := e.getValue().(type) {
 				case []bool:
-					series_[e.name] = gandalff.NewSeriesBool(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesBool(e.name, true, false, t, vm.__stringPool)
 				case []int64:
-					series_[e.name] = gandalff.NewSeriesInt64(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesInt64(e.name, true, false, t, vm.__stringPool)
 				case []float64:
-					series_[e.name] = gandalff.NewSeriesFloat64(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesFloat64(e.name, true, false, t, vm.__stringPool)
 				case []string:
-					series_[e.name] = gandalff.NewSeriesString(e.name, true, t, vm.__stringPool)
+					series_[e.name] = gandalff.NewSeriesString(e.name, true, false, t, vm.__stringPool)
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
 					return
@@ -821,7 +821,7 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 			}
 
 			for _, s := range series {
-				v = v.Replace(s.Name(), s.Cast(coerceType, vm.__stringPool))
+				v = v.Replace(s.Name(), s.Cast(coerceType))
 			}
 
 			vm.stackPush(vm.newPInternTerm(v))
