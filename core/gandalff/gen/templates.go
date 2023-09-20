@@ -78,6 +78,11 @@ func (s {{.SeriesName}}) GetError() string {
 	return ""
 }
 
+// Return the partition of the series.
+func (s {{.SeriesName}}) GetPartition() SeriesPartition {
+	return s.partition
+}
+
 // Return if the series has null values.
 func (s {{.SeriesName}}) HasNull() bool {
 	for _, v := range s.nullMask {
@@ -221,6 +226,13 @@ func (s {{.SeriesName}}) Copy() Series {
 
 func (s {{.SeriesName}}) getDataPtr() *[]{{.SeriesGoType}} {
 	return &s.data
+}
+
+// Ungroup the series.
+func (s {{.SeriesName}}) UnGroup() Series {
+	s.isGrouped = false
+	s.partition = nil
+	return s
 }
 `
 
@@ -383,5 +395,273 @@ func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 	s.nullMask = nullMask
 
 	return s
+}
+`
+
+var TEMPLATE_MAPS = `
+func (s SeriesTime) Map(f MapFunc) Series {
+	if len(s.data) == 0 {
+		return s
+	}
+
+	v := f(s.Get(0))
+	switch v.(type) {
+	case bool:
+		data := make([]bool, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(bool)
+		}
+
+		return SeriesBool{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case int32:
+		data := make([]int32, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(int32)
+		}
+
+		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case int64:
+		data := make([]int64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(int64)
+		}
+
+		return SeriesInt64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case float64:
+		data := make([]float64, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(float64)
+		}
+
+		return SeriesFloat64{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case string:
+		if s.pool == nil {
+			return SeriesError{"SeriesTime.Map: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = s.pool.Put(f(s.data[i]).(string))
+		}
+
+		return SeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case time.Time:
+		data := make([]time.Time, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(time.Time)
+		}
+
+		return SeriesTime{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesTime.Map: Unsupported type %T", v)}
+	}
+}
+
+func (s SeriesTime) MapNull(f MapFuncNull) Series {
+	if len(s.data) == 0 {
+		return s
+	}
+
+	v, isNull := f(s.Get(0), s.IsNull(0))
+	switch v.(type) {
+	case bool:
+		data := make([]bool, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(bool)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesBool{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case int32:
+		data := make([]int32, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(int32)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesInt32{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case int64:
+		data := make([]int64, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(int64)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesInt64{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case float64:
+		data := make([]float64, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(float64)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesFloat64{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case string:
+		if s.pool == nil {
+			return SeriesError{"SeriesTime.MapNull: StringPool is nil"}
+		}
+
+		data := make([]*string, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = s.pool.Put(v.(string))
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesString{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case time.Time:
+		data := make([]time.Time, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(time.Time)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesTime{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesTime.MapNull: Unsupported type %T", v)}
+	}
 }
 `
