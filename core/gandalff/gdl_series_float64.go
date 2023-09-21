@@ -290,101 +290,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 	}
 }
 
-func (s SeriesFloat64) Map(f GDLMapFunc) Series {
-	if len(s.data) == 0 {
-		return s
-	}
-
-	v := f(s.Get(0))
-	switch v.(type) {
-	case bool:
-		data := make([]bool, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(bool)
-		}
-
-		return SeriesBool{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int32:
-		data := make([]int32, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
-		}
-
-		return SeriesInt32{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int64:
-		data := make([]int64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int64)
-		}
-
-		return SeriesInt64{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case float64:
-		data := make([]float64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(float64)
-		}
-
-		s.isGrouped = false
-		s.sorted = SORTED_NONE
-		s.data = data
-
-		return s
-
-	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesFloat64.Map: StringPool is nil"}
-		}
-
-		data := make([]*string, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = s.pool.Put(f(s.data[i]).(string))
-		}
-
-		return SeriesString{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-	}
-
-	return SeriesError{fmt.Sprintf("SeriesFloat64.Map: Unsupported type %T", v)}
-}
-
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesFloat64Partition struct {
@@ -478,16 +383,6 @@ func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
 	s.partition = &newPartition
 
 	return s
-}
-
-func (s SeriesFloat64) UnGroup() Series {
-	s.isGrouped = false
-	s.partition = nil
-	return s
-}
-
-func (s SeriesFloat64) GetPartition() SeriesPartition {
-	return s.partition
 }
 
 ////////////////////////			SORTING OPERATIONS

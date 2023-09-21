@@ -3,7 +3,6 @@ package gandalff
 import (
 	"fmt"
 	"sort"
-	"sync"
 	"typesys"
 )
 
@@ -266,127 +265,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 	}
 }
 
-////////////////////////			SERIES OPERATIONS
-
-func (s SeriesInt64) Map(f GDLMapFunc) Series {
-	if len(s.data) == 0 {
-		return s
-	}
-
-	v := f(s.Get(0))
-	switch v.(type) {
-	case bool:
-		data := make([]bool, len(s.data))
-		chunkLen := len(s.data) / THREADS_NUMBER
-		if chunkLen < MINIMUM_PARALLEL_SIZE_2 {
-			for i := 0; i < len(s.data); i++ {
-				data[i] = f(s.data[i]).(bool)
-			}
-		} else {
-			var wg sync.WaitGroup
-			wg.Add(THREADS_NUMBER)
-
-			for n := 0; n < THREADS_NUMBER; n++ {
-				start := n * chunkLen
-				end := (n + 1) * chunkLen
-				if n == THREADS_NUMBER-1 {
-					end = len(s.data)
-				}
-
-				go func() {
-					for i := start; i < end; i++ {
-						data[i] = f(s.data[i]).(bool)
-					}
-					wg.Done()
-				}()
-			}
-
-			wg.Wait()
-		}
-
-		return SeriesBool{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int32:
-		data := make([]int32, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
-		}
-
-		return SeriesInt32{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int64:
-		data := make([]int64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int64)
-		}
-
-		s.isGrouped = false
-		s.sorted = SORTED_NONE
-		s.data = data
-		s.partition = nil
-
-		return s
-
-	case float64:
-		data := make([]float64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(float64)
-		}
-
-		return SeriesFloat64{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesInt64.Map: StringPool is nil"}
-		}
-
-		data := make([]*string, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = s.pool.Put(f(s.data[i]).(string))
-		}
-
-		return SeriesString{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-	}
-
-	return SeriesError{fmt.Sprintf("SeriesInt64.Map: Unsupported type %T", v)}
-}
-
 ////////////////////////			GROUPING OPERATIONS
 
 type SeriesInt64Partition struct {
@@ -588,16 +466,6 @@ func (s SeriesInt64) GroupBy(partition SeriesPartition) Series {
 	s.partition = &newPartition
 
 	return s
-}
-
-func (s SeriesInt64) UnGroup() Series {
-	s.isGrouped = false
-	s.partition = nil
-	return s
-}
-
-func (s SeriesInt64) GetPartition() SeriesPartition {
-	return s.partition
 }
 
 ////////////////////////			SORTING OPERATIONS

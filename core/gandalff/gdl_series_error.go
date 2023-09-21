@@ -164,7 +164,11 @@ func (s SeriesError) filterIntSlice(mask []int, check bool) Series {
 	return s
 }
 
-func (s SeriesError) Map(f GDLMapFunc) Series {
+func (s SeriesError) Map(f MapFunc) Series {
+	return s
+}
+
+func (s SeriesError) MapNull(f MapFuncNull) Series {
 	return s
 }
 

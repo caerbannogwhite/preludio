@@ -40,6 +40,11 @@ const (
 	SORTED_DESC
 )
 
+type any interface{}
+
+type MapFunc func(v any) any
+type MapFuncNull func(v any, isNull bool) (any, bool)
+
 ////////////////////////////////			ERRORS
 
 ////////////////////////////////			TO STRING
@@ -63,8 +68,6 @@ func intToString(i int64) string {
 func floatToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
-
-type any interface{}
 
 ////////////////////////////////			NULLABLE TYPES
 
@@ -113,4 +116,7 @@ type NullableTime struct {
 	Value time.Time
 }
 
-type GDLMapFunc func(any) any
+type NullableDuration struct {
+	Valid bool
+	Value time.Duration
+}

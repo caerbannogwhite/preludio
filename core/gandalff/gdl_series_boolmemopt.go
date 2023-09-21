@@ -2,6 +2,7 @@ package gandalff
 
 import (
 	"fmt"
+	"time"
 	"typesys"
 )
 
@@ -839,7 +840,7 @@ func (s SeriesBoolMemOpt) filterIntSlice(indexes []int, check bool) Series {
 	return s
 }
 
-func (s SeriesBoolMemOpt) Map(f GDLMapFunc) Series {
+func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 	if s.size == 0 {
 		return s
 	}
@@ -854,11 +855,17 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc) Series {
 			}
 		}
 
-		s.isGrouped = false
-		s.sorted = SORTED_NONE
-		s.data = data
-
-		return s
+		return SeriesBoolMemOpt{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			size:       s.size,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
 
 	case int32:
 		data := make([]int32, s.size)
@@ -931,9 +938,31 @@ func (s SeriesBoolMemOpt) Map(f GDLMapFunc) Series {
 			pool:       s.pool,
 			partition:  nil,
 		}
+
+	case time.Time:
+		data := make([]time.Time, s.size)
+		for i := 0; i < s.size; i++ {
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(time.Time)
+		}
+
+		return SeriesTime{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
 	}
 
 	return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Map: Unsupported type %T", v)}
+}
+
+func (s SeriesBoolMemOpt) MapNull(f MapFuncNull) Series {
+	// TODO
+	return s
 }
 
 ////////////////////////			GROUPING OPERATIONS

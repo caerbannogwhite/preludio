@@ -89,7 +89,8 @@ type Series interface {
 	filterIntSlice(mask []int, check bool) Series
 
 	// Map the elements of the series.
-	Map(f GDLMapFunc) Series
+	Map(f MapFunc) Series
+	MapNull(f MapFuncNull) Series
 
 	// Group the elements in the series.
 	group() Series

@@ -249,106 +249,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	}
 }
 
-func (s SeriesBool) Map(f GDLMapFunc) Series {
-	if len(s.data) == 0 {
-		return s
-	}
-
-	v := f(s.Get(0))
-	switch v.(type) {
-	case bool:
-		data := make([]bool, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(bool)
-		}
-
-		return SeriesBool{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int32:
-		data := make([]int32, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
-		}
-
-		return SeriesInt32{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case int64:
-		data := make([]int64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int64)
-		}
-
-		return SeriesInt64{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case float64:
-		data := make([]float64, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(float64)
-		}
-
-		return SeriesFloat64{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-
-	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesBool.Map: StringPool is nil"}
-		}
-
-		data := make([]*string, len(s.data))
-		for i := 0; i < len(s.data); i++ {
-			data[i] = s.pool.Put(f(s.data[i]).(string))
-		}
-
-		return SeriesString{
-			isGrouped:  false,
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			name:       s.name,
-			data:       data,
-			nullMask:   s.nullMask,
-			pool:       s.pool,
-			partition:  nil,
-		}
-	}
-
-	return SeriesError{fmt.Sprintf("SeriesBool.Map: Unsupported type %T", v)}
-}
-
 ////////////////////////			GROUPING OPERATIONS
 
 // A partition is trivially a vector of maps (or boolIndices in this case)
@@ -458,16 +358,6 @@ func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 	s.partition = &newPartition
 
 	return s
-}
-
-func (s SeriesBool) UnGroup() Series {
-	s.isGrouped = false
-	s.partition = nil
-	return s
-}
-
-func (s SeriesBool) GetPartition() SeriesPartition {
-	return s.partition
 }
 
 ////////////////////////			SORTING OPERATIONS
