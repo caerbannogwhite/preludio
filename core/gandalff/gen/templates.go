@@ -5,7 +5,7 @@ package gandalff
 
 import (
 	"fmt"
-	{{if .IsTimeType}}"time"{{end}}
+	"time"
 	"typesys"
 )
 
@@ -399,7 +399,7 @@ func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 `
 
 var TEMPLATE_MAPS = `
-func (s SeriesTime) Map(f MapFunc) Series {
+func (s {{.SeriesName}}) Map(f MapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -409,7 +409,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 	case bool:
 		data := make([]bool, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(bool)
+			data[i] = f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(bool)
 		}
 
 		return SeriesBool{
@@ -426,7 +426,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 	case int32:
 		data := make([]int32, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
+			data[i] = f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(int32)
 		}
 
 		return SeriesInt32{
@@ -443,7 +443,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 	case int64:
 		data := make([]int64, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int64)
+			data[i] = f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(int64)
 		}
 
 		return SeriesInt64{
@@ -460,7 +460,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 	case float64:
 		data := make([]float64, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(float64)
+			data[i] = f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(float64)
 		}
 
 		return SeriesFloat64{
@@ -481,7 +481,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = s.pool.Put(f(s.data[i]).(string))
+			data[i] = s.pool.Put(f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(string))
 		}
 
 		return SeriesString{
@@ -498,7 +498,7 @@ func (s SeriesTime) Map(f MapFunc) Series {
 	case time.Time:
 		data := make([]time.Time, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(time.Time)
+			data[i] = f({{if .IsGoTypePtr}}*{{end}}s.data[i]).(time.Time)
 		}
 
 		return SeriesTime{
@@ -513,11 +513,11 @@ func (s SeriesTime) Map(f MapFunc) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.Map: Unsupported type %T", v)}
+		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Map: Unsupported type %T", v)}
 	}
 }
 
-func (s SeriesTime) MapNull(f MapFuncNull) Series {
+func (s {{.SeriesName}}) MapNull(f MapFuncNull) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -528,7 +528,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]bool, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = v.(bool)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -550,7 +550,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]int32, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = v.(int32)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -572,7 +572,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]int64, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = v.(int64)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -594,7 +594,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]float64, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = v.(float64)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -620,7 +620,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]*string, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = s.pool.Put(v.(string))
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -642,7 +642,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		data := make([]time.Time, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
-			v, isNull = f(s.data[i], s.IsNull(i))
+			v, isNull = f({{if .IsGoTypePtr}}*{{end}}s.data[i], s.IsNull(i))
 			data[i] = v.(time.Time)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
@@ -661,7 +661,7 @@ func (s SeriesTime) MapNull(f MapFuncNull) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesTime.MapNull: Unsupported type %T", v)}
+		return SeriesError{fmt.Sprintf("{{.SeriesName}}.MapNull: Unsupported type %T", v)}
 	}
 }
 `

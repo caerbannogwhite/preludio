@@ -707,6 +707,11 @@ func generateBase() {
 			panic(err)
 		}
 
+		tmplMaps, err := template.New("maps").Parse(TEMPLATE_MAPS)
+		if err != nil {
+			panic(err)
+		}
+
 		vals := Vals{
 			SeriesName:   info.SeriesName,
 			SeriesType:   info.SeriesTypeStr,
@@ -727,6 +732,11 @@ func generateBase() {
 		}
 
 		err = tmplFilters.Execute(f, vals)
+		if err != nil {
+			panic(err)
+		}
+
+		err = tmplMaps.Execute(f, vals)
 		if err != nil {
 			panic(err)
 		}
