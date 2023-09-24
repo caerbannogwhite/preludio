@@ -338,6 +338,7 @@ func (s SeriesDuration) Less(i, j int) bool {
 			return true
 		}
 	}
+
 	return s.data[i] < s.data[j]
 }
 
