@@ -88,7 +88,7 @@ type Series interface {
 	Filter(mask any) Series
 	filterIntSlice(mask []int, check bool) Series
 
-	// Map the elements of the series.
+	// Apply the given function to each element of the series.
 	Map(f MapFunc) Series
 	MapNull(f MapFuncNull) Series
 

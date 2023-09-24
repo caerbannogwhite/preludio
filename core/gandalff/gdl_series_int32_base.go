@@ -503,6 +503,10 @@ func (s SeriesInt32) MapNull(f MapFuncNull) Series {
 		return s
 	}
 
+	if !s.isNullable {
+		return SeriesError{"SeriesInt32.MapNull: series is not nullable"}
+	}
+
 	v, isNull := f(s.Get(0), s.IsNull(0))
 	switch v.(type) {
 	case bool:
