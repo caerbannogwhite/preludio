@@ -23,6 +23,8 @@ func NewSeries(name string, isNullable, makeCopy bool, memOpt bool, data interfa
 		return NewSeriesString(name, isNullable, makeCopy, data, pool)
 	case []time.Time:
 		return NewSeriesTime(name, isNullable, makeCopy, data, pool)
+	case []time.Duration:
+		return NewSeriesDuration(name, isNullable, makeCopy, data, pool)
 	default:
 		return SeriesError{fmt.Sprintf("NewSeries: unsupported type %T", data)}
 	}
@@ -150,4 +152,21 @@ func NewSeriesTime(name string, isNullable, makeCopy bool, data []time.Time, poo
 	}
 
 	return SeriesTime{isNullable: isNullable, name: name, data: data, nullMask: nullMask, pool: pool}
+}
+
+func NewSeriesDuration(name string, isNullable, makeCopy bool, data []time.Duration, pool *StringPool) Series {
+	var nullMask []uint8
+	if isNullable {
+		nullMask = __binVecInit(len(data))
+	} else {
+		nullMask = make([]uint8, 0)
+	}
+
+	if makeCopy {
+		actualData := make([]time.Duration, len(data))
+		copy(actualData, data)
+		data = actualData
+	}
+
+	return SeriesDuration{isNullable: isNullable, name: name, data: data, nullMask: nullMask, pool: pool}
 }

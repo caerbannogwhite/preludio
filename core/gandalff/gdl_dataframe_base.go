@@ -229,6 +229,24 @@ func (df BaseDataFrame) AddSeriesFromTime(name string, isNullable, makeCopy bool
 	return df.AddSeries(NewSeriesTime(name, isNullable, makeCopy, data, df.pool))
 }
 
+func (df BaseDataFrame) AddSeriesFromDuration(name string, isNullable, makeCopy bool, data []time.Duration) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromDuration: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromDuration: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
+	return df.AddSeries(NewSeriesDuration(name, isNullable, makeCopy, data, df.pool))
+}
+
 func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
 	if df.err != nil {
 		return df

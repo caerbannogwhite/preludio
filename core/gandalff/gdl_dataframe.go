@@ -1,6 +1,9 @@
 package gandalff
 
-import "typesys"
+import (
+	"time"
+	"typesys"
+)
 
 type DataFrameJoinType int8
 
@@ -49,6 +52,10 @@ type DataFrame interface {
 	AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame
 	// AddSeriesFromString adds a series of strings to the dataframe.
 	AddSeriesFromString(name string, isNullable bool, makeCopy bool, data []string) DataFrame
+	// AddSeriesFromTime adds a series of times to the dataframe.
+	AddSeriesFromTime(name string, isNullable, makeCopy bool, data []time.Time) DataFrame
+	// AddSeriesFromDuration adds a series of durations to the dataframe.
+	AddSeriesFromDuration(name string, isNullable, makeCopy bool, data []time.Duration) DataFrame
 
 	// Replace the series with the given name.
 	Replace(name string, s Series) DataFrame
