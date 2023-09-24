@@ -591,7 +591,15 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 
 		case TimeType:
 			switch rop.Base {
-			case TimeType:
+			case DurationType:
+				return Primitive{Base: TimeType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case DurationType:
+			switch rop.Base {
+			case DurationType:
 				return Primitive{Base: DurationType, Size: size}
 			default:
 				return Primitive{Base: ErrorType}
@@ -667,6 +675,14 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 		case TimeType:
 			switch rop.Base {
 			case TimeType:
+				return Primitive{Base: DurationType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
+
+		case DurationType:
+			switch rop.Base {
+			case DurationType:
 				return Primitive{Base: DurationType, Size: size}
 			default:
 				return Primitive{Base: ErrorType}
