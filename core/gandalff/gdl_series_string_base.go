@@ -387,6 +387,7 @@ func (s SeriesString) filterIntSlice(indexes []int, check bool) Series {
 	return s
 }
 
+// Apply the given function to each element of the series.
 func (s SeriesString) Map(f MapFunc) Series {
 	if len(s.data) == 0 {
 		return s
@@ -505,6 +506,7 @@ func (s SeriesString) Map(f MapFunc) Series {
 	}
 }
 
+// Apply the given function to each element of the series.
 func (s SeriesString) MapNull(f MapFuncNull) Series {
 	if len(s.data) == 0 {
 		return s

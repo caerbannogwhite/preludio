@@ -399,6 +399,7 @@ func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 `
 
 var TEMPLATE_MAPS = `
+// Apply the given function to each element of the series.
 func (s {{.SeriesName}}) Map(f MapFunc) Series {
 	if len(s.data) == 0 {
 		return s
@@ -517,6 +518,7 @@ func (s {{.SeriesName}}) Map(f MapFunc) Series {
 	}
 }
 
+// Apply the given function to each element of the series.
 func (s {{.SeriesName}}) MapNull(f MapFuncNull) Series {
 	if len(s.data) == 0 {
 		return s
