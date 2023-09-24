@@ -67,6 +67,12 @@ var DATA_BASE_METHODS = map[string]SeriesFile{
 		SeriesGoTypeStr: "time.Time",
 		IsTimeType:      true,
 	},
+
+	"gdl_series_duration_base.go": {
+		SeriesName:      "SeriesDuration",
+		SeriesTypeStr:   "DurationType",
+		SeriesGoTypeStr: "time.Duration",
+	},
 }
 
 var DATA_OPERATIONS = map[string]SeriesFile{
@@ -1838,31 +1844,63 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				},
 			},
 
-			// "Add": {
-			// 	OpCode: typesys.OP_BINARY_ADD,
-			// 	ApplyTo: []OperationApplyTo{
-			// 		{
-			// 			SeriesName: "SeriesTime",
-			// 			SeriesType:  typesys.TimeType,
-			// 			MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-			// 				return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Add(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
-			// 			},
-			// 		},
-			// 	},
-			// },
+			"Add": {
+				OpCode: typesys.OP_BINARY_ADD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Add(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
 
-			// "Sub": {
-			// 	OpCode: typesys.OP_BINARY_SUB,
-			// 	ApplyTo: []OperationApplyTo{
-			// 		{
-			// 			SeriesName: "SeriesTime",
-			// 			SeriesType:  typesys.TimeType,
-			// 			MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-			// 				return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Sub(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
-			// 			},
-			// 		},
-			// 	},
-			// },
+			"Sub": {
+				OpCode: typesys.OP_BINARY_SUB,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesTime",
+						SeriesType: typesys.TimeType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Sub(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+		},
+	},
+
+	"gdl_series_duration_ops.go": {
+		SeriesName: "SeriesDuration",
+		SeriesType: typesys.DurationType,
+		Operations: map[string]Operation{
+			"Add": {
+				OpCode: typesys.OP_BINARY_ADD,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] + %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Sub": {
+				OpCode: typesys.OP_BINARY_SUB,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] - %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
 		},
 	},
 }
