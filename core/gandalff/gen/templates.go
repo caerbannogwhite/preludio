@@ -513,6 +513,23 @@ func (s {{.SeriesName}}) Map(f MapFunc) Series {
 			partition:  nil,
 		}
 
+	case time.Duration:
+		data := make([]time.Duration, len(s.data))
+		for i := 0; i < len(s.data); i++ {
+			data[i] = f(s.data[i]).(time.Duration)
+		}
+
+		return SeriesDuration{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
 	default:
 		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Map: Unsupported type %T", v)}
 	}
@@ -656,6 +673,28 @@ func (s {{.SeriesName}}) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesTime{
+			isGrouped:  false,
+			isNullable: true,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case time.Duration:
+		data := make([]time.Duration, len(s.data))
+		nullMask := make([]uint8, len(s.nullMask))
+		for i := 0; i < len(s.data); i++ {
+			v, isNull = f(s.data[i], s.IsNull(i))
+			data[i] = v.(time.Duration)
+			if isNull {
+				nullMask[i>>3] |= 1 << uint(i%8)
+			}
+		}
+
+		return SeriesDuration{
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
