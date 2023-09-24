@@ -3,6 +3,7 @@ package gandalff
 import (
 	"fmt"
 	"sort"
+	"time"
 	"typesys"
 	"unsafe"
 )
@@ -275,6 +276,40 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesString{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case typesys.TimeType:
+		data := make([]time.Time, len(s.data))
+		for i, v := range s.data {
+			data[i] = time.Unix(0, int64(v))
+		}
+
+		return SeriesTime{
+			isGrouped:  false,
+			isNullable: s.isNullable,
+			sorted:     SORTED_NONE,
+			name:       s.name,
+			data:       data,
+			nullMask:   s.nullMask,
+			pool:       s.pool,
+			partition:  nil,
+		}
+
+	case typesys.DurationType:
+		data := make([]time.Duration, len(s.data))
+		for i, v := range s.data {
+			data[i] = time.Duration(v)
+		}
+
+		return SeriesDuration{
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,

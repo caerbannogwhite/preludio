@@ -224,6 +224,9 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			partition:  nil,
 		}
 
+	case typesys.TimeType:
+		return s
+
 	default:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %T", t)}
 	}
