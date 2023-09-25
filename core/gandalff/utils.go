@@ -5,6 +5,7 @@ import (
 	"math"
 	"sort"
 	"testing"
+	"time"
 )
 
 func checkEqSlice(a, b interface{}, t *testing.T, msg string) bool {
@@ -19,6 +20,10 @@ func checkEqSlice(a, b interface{}, t *testing.T, msg string) bool {
 		return checkEqSliceFloat64(a.([]float64), b.([]float64), t, msg)
 	case []string:
 		return checkEqSliceString(a.([]string), b.([]string), t, msg)
+	case []time.Time:
+		return checkEqSliceTime(a.([]time.Time), b.([]time.Time), t, msg)
+	case []time.Duration:
+		return checkEqSliceDuration(a.([]time.Duration), b.([]time.Duration), t, msg)
 	default:
 		fmt.Printf("checkEqSlice: type %T not supported\n", a)
 		return false
@@ -165,6 +170,60 @@ func checkEqSliceString(a, b []string, t *testing.T, msg string) bool {
 					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
 				} else {
 					fmt.Printf("    checkEqSliceString: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
+				return false
+			}
+		}
+	} else {
+		for i, x := range a {
+			if x != b[i] {
+				t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func checkEqSliceTime(a, b []time.Time, t *testing.T, msg string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	if t == nil {
+		for i, x := range a {
+			if x != b[i] {
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceTime: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
+				return false
+			}
+		}
+	} else {
+		for i, x := range a {
+			if x != b[i] {
+				t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func checkEqSliceDuration(a, b []time.Duration, t *testing.T, msg string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	if t == nil {
+		for i, x := range a {
+			if x != b[i] {
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceDuration: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
 				}
 				return false
 			}
