@@ -1744,6 +1744,20 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + *%s.data[%s])", res, resIndex, op1, op1, op1Index, op2, op2Index)}
 						},
 					},
+					{
+						SeriesName: "SeriesTime",
+						SeriesType: typesys.TimeType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + %s.data[%s].String())", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + %s.data[%s].String())", res, resIndex, op1, op1, op1Index, op2, op2Index)}
+						},
+					},
 				},
 			},
 
@@ -1831,9 +1845,16 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 		SeriesName: "SeriesTime",
 		SeriesType: typesys.TimeType,
 		Operations: map[string]Operation{
-			"Mod": {
-				OpCode: typesys.OP_BINARY_MOD,
+			"Add": {
+				OpCode: typesys.OP_BINARY_ADD,
 				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesString",
+						SeriesType: typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.data[%s].String() + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+						},
+					},
 					{
 						SeriesName: "SeriesTime",
 						SeriesType: typesys.TimeType,
@@ -1841,12 +1862,6 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].AddDate(%s.data[%s].Year(), int(%s.data[%s].Month()), %s.data[%s].Day())", res, resIndex, op1, op1Index, op2, op2Index, op2, op2Index, op2, op2Index)}
 						},
 					},
-				},
-			},
-
-			"Add": {
-				OpCode: typesys.OP_BINARY_ADD,
-				ApplyTo: []OperationApplyTo{
 					{
 						SeriesName: "SeriesDuration",
 						SeriesType: typesys.DurationType,
@@ -1879,6 +1894,13 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 			"Add": {
 				OpCode: typesys.OP_BINARY_ADD,
 				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesString",
+						SeriesType: typesys.StringType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(%s.data[%s].String() + *%s.data[%s])", res, resIndex, op2, op1, op1Index, op2, op2Index)}
+						},
+					},
 					{
 						SeriesName: "SeriesDuration",
 						SeriesType: typesys.DurationType,
