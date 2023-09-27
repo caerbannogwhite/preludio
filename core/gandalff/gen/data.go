@@ -1909,6 +1909,13 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
+						SeriesName: "SeriesTime",
+						SeriesType: typesys.TimeType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s].Add(%s.data[%s])", res, resIndex, op2, op2Index, op1, op1Index)}
+						},
+					},
+					{
 						SeriesName: "SeriesDuration",
 						SeriesType: typesys.DurationType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
