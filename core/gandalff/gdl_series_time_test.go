@@ -176,3 +176,76 @@ func Test_SeriesTime_Arithmetic_Add(t *testing.T) {
 		t.Errorf("SeriesTime.Add: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Add(sv_).GetNullMask())
 	}
 }
+
+func TestSeriesTime_Sub(t *testing.T) {
+	dayNano := int64(24 * time.Hour.Nanoseconds())
+	pool := NewStringPool()
+
+	times := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	timev := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	times_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
+	timev_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
+		SetNullMask([]bool{true, false, true, false, true, false, true, false, true, false}).(SeriesTime)
+
+	durations := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).(SeriesDuration)
+	durationv := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).(SeriesDuration)
+	durations_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).SetNullMask([]bool{true}).(SeriesDuration)
+	durationv_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesDuration)
+
+	// scalar | time
+	if !checkEqSlice(times.Sub(times).Data().([]time.Duration), []time.Duration{0}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Duration{0}, times.Sub(times).Data())
+	}
+	if !checkEqSlice(times.Sub(timev).Data().([]time.Duration), []time.Duration{time.Duration(0), time.Duration(-1 * dayNano), time.Duration(-2 * dayNano), time.Duration(-3 * dayNano), time.Duration(-4 * dayNano), time.Duration(-5 * dayNano), time.Duration(-6 * dayNano), time.Duration(-7 * dayNano), time.Duration(-8 * dayNano), time.Duration(-9 * dayNano)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Duration{time.Duration(0), time.Duration(-1 * dayNano), time.Duration(-2 * dayNano), time.Duration(-3 * dayNano), time.Duration(-4 * dayNano), time.Duration(-5 * dayNano), time.Duration(-6 * dayNano), time.Duration(-7 * dayNano), time.Duration(-8 * dayNano), time.Duration(-9 * dayNano)}, times.Sub(timev).Data())
+	}
+	if !checkEqSlice(times_.Sub(times_).GetNullMask(), []bool{true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true}, times_.Sub(times_).GetNullMask())
+	}
+	if !checkEqSlice(times_.Sub(timev_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, times_.Sub(timev_).GetNullMask())
+	}
+
+	// scalar | duration
+	if !checkEqSlice(times.Sub(durations).Data().([]time.Time), []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC)}, times.Sub(durations).Data())
+	}
+	if !checkEqSlice(times.Sub(durationv).Data().([]time.Time), []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 30, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 29, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 28, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 27, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 26, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 25, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 24, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 23, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 22, 0, 0, 0, 0, time.UTC)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 30, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 29, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 28, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 27, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 26, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 25, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 24, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 23, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 22, 0, 0, 0, 0, time.UTC)}, times.Sub(durationv).Data())
+	}
+	if !checkEqSlice(times_.Sub(durations_).GetNullMask(), []bool{true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true}, times_.Sub(durations_).GetNullMask())
+	}
+	if !checkEqSlice(times_.Sub(durationv_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, times_.Sub(durationv_).GetNullMask())
+	}
+
+	// vector | time
+	if !checkEqSlice(timev.Sub(times).Data().([]time.Duration), []time.Duration{0, time.Duration(dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Duration{0, time.Duration(dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano)}, timev.Sub(times).Data())
+	}
+	if !checkEqSlice(timev.Sub(timev).Data().([]time.Duration), []time.Duration{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Duration{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, timev.Sub(timev).Data())
+	}
+	if !checkEqSlice(timev_.Sub(times_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Sub(times_).GetNullMask())
+	}
+	if !checkEqSlice(timev_.Sub(timev_).GetNullMask(), []bool{true, false, true, false, true, false, true, false, true, false}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, false, true, false, true, false, true, false, true, false}, timev_.Sub(timev_).GetNullMask())
+	}
+
+	// vector | duration
+	if !checkEqSlice(timev.Sub(durations).Data().([]time.Time), []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC)}, timev.Sub(durations).Data())
+	}
+	if !checkEqSlice(timev.Sub(durationv).Data().([]time.Time), []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC)}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []time.Time{time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC), time.Date(2019, 12, 31, 0, 0, 0, 0, time.UTC)}, timev.Sub(durationv).Data())
+	}
+	if !checkEqSlice(timev_.Sub(durations_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Sub(durations_).GetNullMask())
+	}
+	if !checkEqSlice(timev_.Sub(durationv_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Sub(durationv_).GetNullMask())
+	}
+}
