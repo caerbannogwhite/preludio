@@ -4,7 +4,7 @@ let myList = [
     [A = [true, false], B = [1, 2, 3]],
     B = [1.3, 2.4, 3.5], # comment
     # comment
-    C = ["hello", "world"],
+    C = ['hello', 'world'],
 ]
 
 let n = 1
@@ -14,10 +14,10 @@ myList[0]
 myList[1..2]
 myList[1..2:2]
 myList[n..3:n]
-myList[r/A/]
-myList[[1..2, r/A/]]
+myList[x'A']
+myList[[1..2, x'A']]
 
 # regex
-let regex = r/[a-z]+{2,4}/
+let regex = x'[a-z]+{2,4}'
 
-(from x | select r/.*/)
+(from x | select x'.*')

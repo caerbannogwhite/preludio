@@ -1,9 +1,9 @@
 
-let cars = (rcsv "cars.csv")
+let cars = (rcsv 'cars.csv')
 
 (
     new [
         A = (from cars | names),
-        B = (from cars | names | strReplace old:" " new:""),
+        B = (from cars | names | strReplace old:' ' new:''),
     ]
 )

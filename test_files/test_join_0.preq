@@ -1,14 +1,14 @@
 let clean = (
-  rcsv "test_files\\Cars.csv" del:";" head:true
-  strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+  rcsv 'test_files\\Cars.csv' del:';' head:true
+  strReplace [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
   asFlt [MPG, Displacement, Horsepower, Acceleration]
   sort [-Origin, Cylinders, -MPG]
 )
 
 let continents = (
   new [
-    Continent = ["Asia", "America", "Europe"],
-    Origin = ["Japan", "US", "Europe"]
+    Continent = ['Asia', 'America', 'Europe'],
+    Origin = ['Japan', 'US', 'Europe']
   ]
 )
 
