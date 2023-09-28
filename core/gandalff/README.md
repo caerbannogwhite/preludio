@@ -256,7 +256,6 @@ type Series interface {
 
 - [ ] SetNulls(i []int) Series, Set(i []int, v []any) Series
 - [ ] Slice(i []int) Series (use filter)
-- [ ] Implement logical operations for time and duration.
 - [ ] Implement memory optimized Bool series with uint64.
 - [ ] Using uint64 for null mask.
 - [ ] Implement chunked series.
