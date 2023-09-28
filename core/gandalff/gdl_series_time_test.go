@@ -177,7 +177,7 @@ func Test_SeriesTime_Arithmetic_Add(t *testing.T) {
 	}
 }
 
-func TestSeriesTime_Sub(t *testing.T) {
+func Test_SeriesTime_Sub(t *testing.T) {
 	dayNano := int64(24 * time.Hour.Nanoseconds())
 	pool := NewStringPool()
 
@@ -248,4 +248,62 @@ func TestSeriesTime_Sub(t *testing.T) {
 	if !checkEqSlice(timev_.Sub(durationv_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
 		t.Errorf("SeriesTime.Sub: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Sub(durationv_).GetNullMask())
 	}
+}
+
+func Test_SeriesTime_Eq(t *testing.T) {
+	// TODO: implement
+}
+
+func Test_SeriesTime_Ne(t *testing.T) {
+	pool := NewStringPool()
+
+	times := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	timev := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	times_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
+	timev_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
+		SetNullMask([]bool{true, false, true, false, true, false, true, false, true, false}).(SeriesTime)
+
+	// scalar | time
+	if !checkEqSlice(times.Ne(times).Data().([]bool), []bool{false}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{false}, times.Ne(times).Data())
+	}
+	if !checkEqSlice(times.Ne(timev).Data().([]bool), []bool{false, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{false, true, true, true, true, true, true, true, true, true}, times.Ne(timev).Data())
+	}
+	if !checkEqSlice(times_.Ne(times_).GetNullMask(), []bool{true}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{true}, times_.Ne(times_).GetNullMask())
+	}
+	if !checkEqSlice(times_.Ne(timev_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, times_.Ne(timev_).GetNullMask())
+	}
+
+	// vector | time
+	if !checkEqSlice(timev.Ne(times).Data().([]bool), []bool{false, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{false, true, true, true, true, true, true, true, true, true}, timev.Ne(times).Data())
+	}
+	if !checkEqSlice(timev.Ne(timev).Data().([]bool), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, timev.Ne(timev).Data())
+	}
+	if !checkEqSlice(timev_.Ne(times_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, timev_.Ne(times_).GetNullMask())
+	}
+	if !checkEqSlice(timev_.Ne(timev_).GetNullMask(), []bool{true, false, true, false, true, false, true, false, true, false}, nil, "") {
+		t.Errorf("SeriesTime.Eq: expected %v, got %v", []bool{true, false, true, false, true, false, true, false, true, false}, timev_.Ne(timev_).GetNullMask())
+	}
+}
+
+func Test_SeriesTime_Lt(t *testing.T) {
+	// TODO: implement
+}
+
+func Test_SeriesTime_Le(t *testing.T) {
+	// TODO: implement
+}
+
+func Test_SeriesTime_Gt(t *testing.T) {
+	// TODO: implement
+}
+
+func Test_SeriesTime_Ge(t *testing.T) {
+	// TODO: implement
 }
