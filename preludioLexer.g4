@@ -1,9 +1,5 @@
 lexer grammar preludioLexer;
 
-SINGLE_LINE_COMMENT:
-	'#' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
-REGEXP_LITERAL: 'r/' REGEXP_FIRST_CHAR REGEXP_CHAR* '/';
-
 FUNC: 'func';
 PRQL: 'prql';
 LET: 'let';
@@ -49,11 +45,8 @@ AND: 'and';
 OR: 'or';
 NOT: 'not';
 COALESCE: '??';
-NULL_: 'null';
+NULL_: 'NA';
 BOOLEAN: 'true' | 'false';
-
-INTEGER: DIGIT+;
-FLOAT: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
 
 // Either a normal ident (starting with a letter, `$` or `_`), or any string surrounded by
 // backticks. We allow `e.*`, but not just `*`, since it might conflict with multiply in some cases.
@@ -69,9 +62,28 @@ WHITESPACE: (' ' | '\t') -> skip;
 NEWLINE: '\r'? '\n';
 
 // Need to exclude # in strings (and maybe confirm whether this the syntax we want)
-COMMENT: '#' ~('\r' | '\n')* NEWLINE;
 
-INTERVAL_KIND:
+// COMMENT: '#' ~('\r' | '\n')* NEWLINE;
+SINGLE_LINE_COMMENT:
+	'#' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
+
+INTEGER: DIGIT+;
+FLOAT: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
+
+STRING: SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
+
+STRING_RAW: 'r' SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
+
+REGEXP_LITERAL:
+	'x' SINGLE_QUOTE REGEXP_FIRST_CHAR REGEXP_CHAR* SINGLE_QUOTE;
+
+RANGE_LITERAL: (INTEGER | IDENT) RANGE (INTEGER | IDENT) (
+		COLON (INTEGER | IDENT)
+	)?;
+
+DATE_LITERAL: 'd' SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
+
+DURATION_KIND:
 	'microseconds'
 	| 'milliseconds'
 	| 'seconds'
@@ -80,13 +92,18 @@ INTERVAL_KIND:
 	| 'days'
 	| 'weeks'
 	| 'months'
-	| 'years';
+	| 'years'
+	| 'us'
+	| 'ms'
+	| 's'
+	| 'm'
+	| 'h'
+	| 'd'
+	| 'w'
+	| 'M'
+	| 'y';
 
-RANGELIT: (INTEGER | IDENT) RANGE (INTEGER | IDENT) (
-		COLON (INTEGER | IDENT)
-	)?;
-
-STRING: '"' (ESC | ~[\\"])*? '"' | '\'' (ESC | ~[\\'])*? '\'';
+DURATION_LITERAL: INTEGER COLON DURATION_KIND;
 
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
@@ -127,16 +144,3 @@ fragment REGEXP_CLASS_CHAR:
 
 fragment REGEXP_BACK_SEQ: '\\' ~[\r\n\u2028\u2029];
 
-// date: '@' date_inner end_expr; time: '@' time_inner end_expr; timestamp: '@' timestamp_inner
-// end_expr;
-
-// We use the `inner` types as containing the data that we want to retain in the AST. date_inner =
-// ${ ASCII_DIGIT{4} ~ "-" ~ ASCII_DIGIT{2} ~ "-" ~ ASCII_DIGIT{2} } Times are liberally defined
-// atm, we could make this more robust. time_inner = ${ ASCII_DIGIT{2} ~ (( ":" | "." ) ~
-// ASCII_DIGIT* )* ~ ((( "+" | "-" ) ~ (ASCII_DIGIT | ":" )*) | "Z")? } timestamp_inner = ${
-// date_inner ~ "T" ~ time_inner }
-
-// We can use this when want to ensure something is ending, like a date, so `@20-01-0` isn't treated
-// like a time `@20-01` `-` (minus) `0`. (Not sure whether `..` should be here or in the items that
-// allow it; feel free to demote it to those items if `end_expr` is used somewhere where it's not
-// supported) end_expr: ',' | ')' | ']' | nl | '..';

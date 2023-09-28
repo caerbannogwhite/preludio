@@ -10,7 +10,7 @@ options {
 	tokenVocab = preludioLexer;
 }
 
-nl: NEWLINE | COMMENT;
+nl: NEWLINE;
 
 program:
 	nl* programIntro? nl* ((funcDef | stmt | nestedPipeline) nl*)* EOF;
@@ -85,7 +85,6 @@ term:
 	| list
 	| nestedPipeline;
 
-// exprUnary is for sorting.
 exprUnary: (MINUS | PLUS | NOT) (
 		nestedPipeline
 		| literal
@@ -96,12 +95,14 @@ literal:
 	IDENT
 	| NULL_
 	| BOOLEAN
-	| STRING // | timestamp | date | time | s_string | f_string |
+	| STRING
+	| STRING_RAW
 	| REGEXP_LITERAL
 	| INTEGER
 	| FLOAT
-	| (INTEGER | FLOAT) INTERVAL_KIND
-	| RANGELIT;
+	| RANGE_LITERAL
+	| DATE_LITERAL
+	| DURATION_LITERAL;
 
 list:
 	LBRACKET (
