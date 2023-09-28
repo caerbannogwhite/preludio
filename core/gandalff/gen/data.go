@@ -2015,6 +2015,84 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 					},
 				},
 			},
+
+			"Eq": {
+				OpCode: typesys.OP_BINARY_EQ,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] == %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Ne": {
+				OpCode: typesys.OP_BINARY_NE,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] != %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Lt": {
+				OpCode: typesys.OP_BINARY_LT,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] < %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Le": {
+				OpCode: typesys.OP_BINARY_LE,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] <= %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Gt": {
+				OpCode: typesys.OP_BINARY_GT,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] > %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
+
+			"Ge": {
+				OpCode: typesys.OP_BINARY_GE,
+				ApplyTo: []OperationApplyTo{
+					{
+						SeriesName: "SeriesDuration",
+						SeriesType: typesys.DurationType,
+						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
+							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] >= %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
+						},
+					},
+				},
+			},
 		},
 	},
 }
