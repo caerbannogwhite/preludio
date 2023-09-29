@@ -1,0 +1,9 @@
+
+let bools = not [true, false] or [false, true] and NA
+let ints = [1, 2, 3, 4, NA] * -1
+let floats = [1e-1, 2E2, 3.4567e-8, 9, NA] * -1.4
+let strings = ['a', 'b', 'c', 'd', NA] + 'f'
+let raw_strings = [r'\a', r'\b', 'c', r'd', NA] + 'f'
+let regexes = [x'^[a-z]+{2,4}$', x'^[A-z]?.+$', x'^[\d]', NA]
+let ranges = [1..10:1, 2..20:2, 3..30:3, NA]
+let dates = [d'2023-09-29', d'2023-09-30', d'2023-10-01', NA]
