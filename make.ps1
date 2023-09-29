@@ -1,5 +1,5 @@
-antlr.bat -listener -no-visitor -Dlanguage=Go -package bytefeeder preludio.g4
+antlr.bat -listener -no-visitor -Dlanguage=Go -package bytefeeder preludioLexer.g4 preludioParser.g4
 
-Move-Item -force .\preludio_* .\core\compiler\
-Move-Item -force .\preludio*.interp .\core\compiler\
-Move-Item -force .\preludio*.tokens .\core\compiler\
+Move-Item -force .\preludio*.go .\core\bytefeeder\
+Move-Item -force .\preludio*.interp .\core\bytefeeder\
+Move-Item -force .\preludio*.tokens .\core\bytefeeder\
