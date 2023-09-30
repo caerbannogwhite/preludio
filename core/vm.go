@@ -635,11 +635,11 @@ MAIN_LOOP:
 			op2 := vm.stackPop()
 			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_SUB, op2)
 
-		case typesys.OP_BINARY_POW:
-			vm.printDebug(10, "OP_BINARY_POW", "", "")
+		case typesys.OP_BINARY_EXP:
+			vm.printDebug(10, "OP_BINARY_EXP", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_POW, op2)
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EXP, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS

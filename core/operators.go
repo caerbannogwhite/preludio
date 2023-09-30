@@ -144,7 +144,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			case typesys.OP_BINARY_MOD:
 				result = s1.Mod(s2)
 
-			case typesys.OP_BINARY_POW:
+			case typesys.OP_BINARY_EXP:
 				result = s1.Pow(s2)
 
 			case typesys.OP_BINARY_ADD:

@@ -22,8 +22,8 @@ func operatorToString(op typesys.OPCODE) string {
 		return "/"
 	case typesys.OP_BINARY_MOD:
 		return "%"
-	case typesys.OP_BINARY_POW:
-		return "**"
+	case typesys.OP_BINARY_EXP:
+		return "^"
 	case typesys.OP_BINARY_ADD:
 		return "+"
 	case typesys.OP_BINARY_SUB:
@@ -50,7 +50,7 @@ func operatorToString(op typesys.OPCODE) string {
 	case typesys.OP_UNARY_SUB:
 		return "-"
 	case typesys.OP_UNARY_NOT:
-		return "not"
+		return "!"
 
 	default:
 		return "UNKNOWN OPERATOR"
@@ -66,8 +66,8 @@ func operatorToCode(op typesys.OPCODE) string {
 		return "  / <BINARY_DIV>"
 	case typesys.OP_BINARY_MOD:
 		return "  % <BINARY_MOD>"
-	case typesys.OP_BINARY_POW:
-		return " ** <BINARY_POW>"
+	case typesys.OP_BINARY_EXP:
+		return "  ^ <BINARY_EXP>"
 	case typesys.OP_BINARY_ADD:
 		return "  + <BINARY_ADD>"
 	case typesys.OP_BINARY_SUB:
@@ -94,7 +94,7 @@ func operatorToCode(op typesys.OPCODE) string {
 	case typesys.OP_UNARY_SUB:
 		return "  - <UNARY_SUB>"
 	case typesys.OP_UNARY_NOT:
-		return "not <UNARY_NOT>"
+		return "  ! <UNARY_NOT>"
 
 	default:
 		return "UNKNOWN OPERATOR"

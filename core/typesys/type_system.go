@@ -216,7 +216,7 @@ func (op OPCODE) IsCommutative() bool {
 
 func (op OPCODE) IsBinaryOp() bool {
 	switch op {
-	case OP_BINARY_ADD, OP_BINARY_SUB, OP_BINARY_MUL, OP_BINARY_DIV, OP_BINARY_MOD, OP_BINARY_POW,
+	case OP_BINARY_ADD, OP_BINARY_SUB, OP_BINARY_MUL, OP_BINARY_DIV, OP_BINARY_MOD, OP_BINARY_EXP,
 		OP_BINARY_AND, OP_BINARY_OR, OP_BINARY_XOR, OP_BINARY_LSHIFT, OP_BINARY_RSHIFT,
 		OP_BINARY_EQ, OP_BINARY_NE, OP_BINARY_LT, OP_BINARY_LE, OP_BINARY_GT, OP_BINARY_GE:
 		return true
@@ -427,7 +427,7 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	///////////////////				BINARY POWER
-	case OP_BINARY_POW:
+	case OP_BINARY_EXP:
 		switch lop.Base {
 		case BoolType:
 			switch rop.Base {
