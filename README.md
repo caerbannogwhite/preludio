@@ -14,56 +14,89 @@ No libraries or external dependencies are required to run the language.
 Read and clean up a CSV file, then store the result in a variable called `clean`:
 
 ```
-let clean = (
-  rcsv "test_files\\Cars.csv" del:";" head:true
-  strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+clean := (
+  rcsv p'test_files/Cars.csv' del:';' head:true
+  strRepl [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
   asFlt [MPG, Displacement, Horsepower, Acceleration]
   sort [-Origin, Cylinders, -MPG]
 )
 ```
 
 ```
-let europe5Cylinders = (
+europe5Cylinders := (
   from clean
-  filter Cylinders == 5 and Origin == "Europe"
+  filter Cylinders == 5 and Origin == 'Europe'
 )
 ```
 
 Derive new columns and write the result to a CSV file:
 
 ```
-(
-  from clean
-  derive [
-    Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
-    CarOrigin = Car + " - " + Origin
-  ]
-  filter Stat > 1.3
-  select [Car, Origin, Stat]
-  wcsv "test_files\\Cars1.csv" del: "\t"
-)
-
+from clean
+derive [
+  Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
+  CarOrigin = Car + ' - ' + Origin
+]
+filter Stat > 1.3
+select [Car, Origin, Stat]
+wcsv p'test_files/Cars1.csv' del: '\t'
 ```
 
 Create a new table by joining two tables:
 
 ```
-let continents = (
+continents := (
   new [
-    Continent = ["Asia", "America", "Europe"],
-    Origin = ["Japan", "US", "Europe"]
+    Continent = ['Asia', 'America', 'Europe'],
+    Origin = ['Japan', 'US', 'Europe']
   ]
 )
 
-let joined = (
+joined := (
   from clean
-  join left continents on: [Origin]
+  leftj continents on: [Origin]
   select [Car, Origin, Continent]
   sort [Continent, Origin]
 )
 ```
 
 ![](media/repl_example.gif)
+
+### Data Types
+
+The language supports the following data types:
+
+- `bool` (boolean) ie: `true`/`false`
+- `int` (integer) ie: `1`, `2`, `3`, etc.
+- `rng` (range) ie: `1..10`, `1..10:2` etc.
+- `flt` (float) ie: `1.0`, `2e-3`, etc.
+- `str` (string) which has some variants:
+  - plain `'hello world'`
+  - raw `r'\d'`
+  - path `p'c:\temp'`
+- `rgx` (regex) ie: `x'he(l){2}o'`
+- `dat` (date) ie: `d'2021-08-20'`
+- `dur` (duration) ie: `1:h`
+
+### Operators
+
+The language supports the following operators:
+
+- `+` (addition)
+- `-` (subtraction)
+- `*` (multiplication)
+- `/` (division)
+- `%` (modulo)
+- `^` (exponentiation)
+- `and` (logical and)
+- `or` (logical or)
+- `not` (logical not)
+- `==` (equality)
+- `!=` (inequality)
+- `>` (greater than)
+- `>=` (greater than or equal to)
+- `<` (less than)
+- `<=` (less than or equal to)
 
 ### Features
 
