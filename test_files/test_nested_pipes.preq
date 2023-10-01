@@ -7,39 +7,33 @@ string_interpolation := f'The year is {cars$year} and the time is {time + 1}'
 names_ := (from cars | names)
 names_ = (names cars)
 
-(
-  new [
-    A = names_,
-    B = (names_ | strRepl old:' ' new:''),
-    C = (names cars),
-    D = (from cars | names),
-    E = (from cars | names | strRepl old:' ' new:''),
-  ]
-)
+from cars | names
+from cars | names | strRepl old:' ' new:''
 
-(
-  from cars
-  filter year >= (mean cars$x'year' | asInt) and Origin != na
-)
+new [
+  A = names_,
+  B = (names_ | strRepl old:' ' new:''),
+  C = (names cars),
+  D = (from cars | names),
+  E = (from cars | names | strRepl old:' ' new:''),
+]
 
-(
-  from cars
-  filter year >= (mean cars$2..4:1 | asInt) and Origin != na
-)
+from cars
+filter year >= (mean cars$x'year' | asInt) and Origin != na
 
-(
-  from cars
-  filter year >= (mean cars$[2,4] | asInt) and Origin != na
-)
+from cars
+filter year >= (mean cars$2..4:1 | asInt) and Origin != na
 
-(
-  from cars
-  group Origin
-  agg [
-    count = count,
-    avg_mpg = mean MPG,
-    min_hp = min Horsepower,
-    max_hp = max Horsepower,
-    std_weight = std Weight,
-  ]
-)
+from cars
+filter year >= (mean cars$[2,4] | asInt) and Origin != na
+
+from cars
+group Origin
+agg [
+  count = count,
+  avg_mpg = mean MPG,
+  min_hp = min Horsepower,
+  max_hp = max Horsepower,
+  std_weight = std Weight,
+]
+

@@ -15,7 +15,6 @@ aFunction [
 ]
 
 
-importCSV "hello.csv"
 derive [
     a = (
         from b | take 2 | sort -c | merge (
