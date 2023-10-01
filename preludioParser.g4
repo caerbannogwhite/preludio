@@ -7,7 +7,9 @@ options {
 nl: NEWLINE;
 
 program:
-	nl* programIntro? nl* ((funcDef | stmt | nestedPipeline) nl*)* EOF;
+	nl* programIntro? nl* (
+		(funcDef | pipeline | inlinePipeline | stmt) nl*
+	)* EOF;
 
 programIntro: PRQL namedArg* nl;
 
@@ -16,6 +18,7 @@ funcDef: FUNC funcDefName funcDefParams ARROW expr;
 funcDefName: IDENT typeDef?;
 funcDefParams: funcDefParam*;
 funcDefParam: (namedArg | IDENT) typeDef?;
+
 typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
@@ -26,6 +29,8 @@ retStmt: RET exprCall;
 
 pipeline: exprCall (nl funcCall)* (nl | EOF);
 inlinePipeline: exprCall (BAR funcCall)*;
+nestedPipeline:
+	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
 
 identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
@@ -39,7 +44,7 @@ multiAssign: list ASSIGN exprCall;
 exprCall: funcCall | expr;
 
 expr:
-	expr DOLLAR expr 
+	expr DOLLAR expr
 	| expr EXP expr
 	| expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
@@ -62,17 +67,17 @@ exprUnary: (MINUS | PLUS | NOT) term;
 literal:
 	IDENT
 	| NULL_
-	| BOOLEAN
-	| INTEGER
-	| FLOAT
-	| STRING
-	| STRING_INTERP
-	| STRING_RAW
-	| STRING_PATH
-	| REGEXP_LITERAL
-	| RANGE_LITERAL
-	| DATE_LITERAL
-	| DURATION_LITERAL;
+	| BOOL_LIT
+	| INT_LIT
+	| RNG_LIT
+	| FLT_LIT
+	| STR_LIT
+	| STR_INTERP
+	| STR_RAW
+	| STR_PATH
+	| RXP_LIT
+	| DAT_LIT
+	| DUR_LIT;
 
 list:
 	LBRACKET (
@@ -80,7 +85,3 @@ list:
 			COMMA nl* (assign | multiAssign | exprCall)
 		)* COMMA? nl?
 	)? RBRACKET;
-
-nestedPipeline:
-	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
-

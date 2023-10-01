@@ -48,7 +48,6 @@ OR: 'or';
 NOT: 'not';
 COALESCE: '??';
 NULL_: 'na';
-BOOLEAN: 'true' | 'false';
 
 IDENT: IDENT_START (DOT IDENT_NEXT)*;
 IDENT_START: (LETTER | UNDERSCORE) (LETTER | DIGIT | UNDERSCORE)*;
@@ -60,53 +59,38 @@ NEWLINE: '\r'? '\n';
 SINGLE_LINE_COMMENT:
 	'#' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
-INTEGER: DIGIT+;
-FLOAT:
+// Literals
+BOOL_LIT: 'true' | 'false';
+
+INT_LIT: DIGIT+;
+
+RNG_LIT: (INT_LIT | IDENT) RANGE (INT_LIT | IDENT) (
+		COLON (INT_LIT | IDENT)
+	)?;
+
+FLT_LIT:
 	DIGIT+ DOT DIGIT* EXPONENT?
 	| DIGIT+ EXPONENT?
 	| DOT DIGIT+ EXPONENT?;
 
-STRING_CHAR: (ESC | ~[\\'\r\n\u2028\u2029]);
+STR_CHAR: (ESC | ~[\\'\r\n\u2028\u2029]);
+STR_RAW_CHAR: ~[\\'\r\n\u2028\u2029];
 
-STRING: SINGLE_QUOTE STRING_CHAR*? SINGLE_QUOTE;
-STRING_INTERP: STRING_INTERP_START STRING_CHAR*? SINGLE_QUOTE;
-STRING_RAW: STRING_RAW_START STRING_CHAR*? SINGLE_QUOTE;
-STRING_PATH: STRING_PATH_START STRING_CHAR*? SINGLE_QUOTE;
+STR_LIT: SINGLE_QUOTE STR_CHAR*? SINGLE_QUOTE;
+STR_INTERP: STR_INTERP_START STR_CHAR*? SINGLE_QUOTE;
+STR_RAW: STR_RAW_START STR_RAW_CHAR*? SINGLE_QUOTE;
+STR_PATH: STR_PATH_START STR_CHAR*? SINGLE_QUOTE;
 
-REGEXP_LITERAL:
-	REGEXP_START REGEXP_FIRST_CHAR (REGEXP_CHAR | ~[\\'])*? SINGLE_QUOTE;
+RXP_LIT:
+	RXP_START RXP_FIRST_CHAR (RXP_CHAR | ~[\\'])*? SINGLE_QUOTE;
 
-RANGE_LITERAL: (INTEGER | IDENT) RANGE (INTEGER | IDENT) (
-		COLON (INTEGER | IDENT)
-	)?;
+DAT_LIT: DATE_START STR_CHAR*? SINGLE_QUOTE;
 
-DATE_LITERAL: DATE_START STRING_CHAR*? SINGLE_QUOTE;
-
-DURATION_KIND:
-	'microseconds'
-	| 'milliseconds'
-	| 'seconds'
-	| 'minutes'
-	| 'hours'
-	| 'days'
-	| 'weeks'
-	| 'months'
-	| 'years'
-	| 'us'
-	| 'ms'
-	| 's'
-	| 'm'
-	| 'h'
-	| 'd'
-	| 'w'
-	| 'M'
-	| 'y';
-
-DURATION_LITERAL: INTEGER COLON DURATION_KIND;
+DUR_LIT: INT_LIT COLON DUR_KIND;
 
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
-fragment EXPONENT: ('E' | 'e') ('+' | '-')? INTEGER;
+fragment EXPONENT: ('E' | 'e') ('+' | '-')? INT_LIT;
 
 fragment ESC:
 	'\\' [abtnfrv"'\\]
@@ -127,25 +111,42 @@ fragment HEX_ESCAPE: '\\' HEXDIGIT HEXDIGIT?;
 
 fragment HEXDIGIT: ('0' ..'9' | 'a' ..'f' | 'A' ..'F');
 
-fragment STRING_INTERP_START: 'f\'';
-fragment STRING_RAW_START: 'r\'';
-fragment STRING_PATH_START: 'p\'';
-fragment REGEXP_START: 'x\'';
+fragment STR_INTERP_START: 'f\'';
+fragment STR_RAW_START: 'r\'';
+fragment STR_PATH_START: 'p\'';
+fragment RXP_START: 'x\'';
 fragment DATE_START: 'd\'';
 
-fragment REGEXP_FIRST_CHAR:
+fragment RXP_FIRST_CHAR:
 	~[*\r\n\u2028\u2029\\/[]
-	| REGEXP_BACK_SEQ
-	| '[' REGEXP_CLASS_CHAR* ']';
+	| RXP_BACK_SEQ
+	| '[' RXP_CLASS_CHAR* ']';
 
-fragment REGEXP_CHAR:
+fragment RXP_CHAR:
 	~[\r\n\u2028\u2029\\/[]
-	| REGEXP_BACK_SEQ
-	| '[' REGEXP_CLASS_CHAR* ']';
+	| RXP_BACK_SEQ
+	| '[' RXP_CLASS_CHAR* ']';
 
-fragment REGEXP_CLASS_CHAR:
-	~[\r\n\u2028\u2029\]\\]
-	| REGEXP_BACK_SEQ;
+fragment RXP_CLASS_CHAR: ~[\r\n\u2028\u2029\]\\] | RXP_BACK_SEQ;
 
-fragment REGEXP_BACK_SEQ: '\\' ~[\r\n\u2028\u2029];
+fragment RXP_BACK_SEQ: '\\' ~[\r\n\u2028\u2029];
 
+fragment DUR_KIND:
+	'microseconds'
+	| 'milliseconds'
+	| 'seconds'
+	| 'minutes'
+	| 'hours'
+	| 'days'
+	| 'weeks'
+	| 'months'
+	| 'years'
+	| 'us'
+	| 'ms'
+	| 's'
+	| 'm'
+	| 'h'
+	| 'd'
+	| 'w'
+	| 'M'
+	| 'y';
