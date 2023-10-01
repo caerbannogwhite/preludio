@@ -110,6 +110,12 @@ func (s *BasepreludioParserListener) EnterInlinePipeline(ctx *InlinePipelineCont
 // ExitInlinePipeline is called when production inlinePipeline is exited.
 func (s *BasepreludioParserListener) ExitInlinePipeline(ctx *InlinePipelineContext) {}
 
+// EnterNestedPipeline is called when production nestedPipeline is entered.
+func (s *BasepreludioParserListener) EnterNestedPipeline(ctx *NestedPipelineContext) {}
+
+// ExitNestedPipeline is called when production nestedPipeline is exited.
+func (s *BasepreludioParserListener) ExitNestedPipeline(ctx *NestedPipelineContext) {}
+
 // EnterIdentBacktick is called when production identBacktick is entered.
 func (s *BasepreludioParserListener) EnterIdentBacktick(ctx *IdentBacktickContext) {}
 
@@ -181,9 +187,3 @@ func (s *BasepreludioParserListener) EnterList(ctx *ListContext) {}
 
 // ExitList is called when production list is exited.
 func (s *BasepreludioParserListener) ExitList(ctx *ListContext) {}
-
-// EnterNestedPipeline is called when production nestedPipeline is entered.
-func (s *BasepreludioParserListener) EnterNestedPipeline(ctx *NestedPipelineContext) {}
-
-// ExitNestedPipeline is called when production nestedPipeline is exited.
-func (s *BasepreludioParserListener) ExitNestedPipeline(ctx *NestedPipelineContext) {}

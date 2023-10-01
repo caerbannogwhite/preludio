@@ -67,7 +67,7 @@ func (t *SymbolTable) IndexOf(symbol string) int {
 }
 
 type ByteFeeder struct {
-	*BasepreludioListener
+	*BasepreludioParserListener
 
 	symbolTable  SymbolTable
 	instructions []byte
@@ -304,55 +304,58 @@ func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
 func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// operation or nested expression
 	if ctx.GetChildCount() == 3 {
-		if cmt, ok := ctx.GetChild(0).GetPayload().(*antlr.CommonToken); ok && cmt.GetText() == "(" {
-			// console.log(ctx.children[0].symbol.text);
-		} else {
+		if cmt, ok := ctx.GetChild(0).GetPayload().(*antlr.CommonToken); ok && cmt.GetText() != "(" {
 			switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
-			case "*":
+			case typesys.SYMBOL_INDEXING:
+				bf.AppendInstruction(typesys.OP_INDEXING, 0, 0)
+
+			case typesys.SYMBOL_BINARY_MUL:
 				bf.AppendInstruction(typesys.OP_BINARY_MUL, 0, 0)
 
-			case "/":
+			case typesys.SYMBOL_BINARY_DIV:
 				bf.AppendInstruction(typesys.OP_BINARY_DIV, 0, 0)
 
-			case "%":
+			case typesys.SYMBOL_BINARY_MOD:
 				bf.AppendInstruction(typesys.OP_BINARY_MOD, 0, 0)
 
-			case "+":
+			case typesys.SYMBOL_BINARY_EXP:
+				bf.AppendInstruction(typesys.OP_BINARY_EXP, 0, 0)
+
+			case typesys.SYMBOL_BINARY_ADD:
 				bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
 
-			case "-":
+			case typesys.SYMBOL_BINARY_SUB:
 				bf.AppendInstruction(typesys.OP_BINARY_SUB, 0, 0)
 
-			case "==":
+			case typesys.SYMBOL_BINARY_EQ:
 				bf.AppendInstruction(typesys.OP_BINARY_EQ, 0, 0)
 
-			case "!=":
+			case typesys.SYMBOL_BINARY_NE:
 				bf.AppendInstruction(typesys.OP_BINARY_NE, 0, 0)
 
-			case ">=":
+			case typesys.SYMBOL_BINARY_GE:
 				bf.AppendInstruction(typesys.OP_BINARY_GE, 0, 0)
 
-			case "<=":
+			case typesys.SYMBOL_BINARY_LE:
 				bf.AppendInstruction(typesys.OP_BINARY_LE, 0, 0)
 
-			case ">":
+			case typesys.SYMBOL_BINARY_GT:
 				bf.AppendInstruction(typesys.OP_BINARY_GT, 0, 0)
 
-			case "<":
+			case typesys.SYMBOL_BINARY_LT:
 				bf.AppendInstruction(typesys.OP_BINARY_LT, 0, 0)
 
-			case "**":
-				bf.AppendInstruction(typesys.OP_BINARY_POW, 0, 0)
-
-			case "~":
-				bf.AppendInstruction(typesys.OP_BINARY_MODEL, 0, 0)
-
-			case "and":
+			case typesys.SYMBOL_BINARY_AND:
 				bf.AppendInstruction(typesys.OP_BINARY_AND, 0, 0)
 
-			case "or":
+			case typesys.SYMBOL_BINARY_OR:
 				bf.AppendInstruction(typesys.OP_BINARY_OR, 0, 0)
 
+			case typesys.SYMBOL_BINARY_MODEL:
+				bf.AppendInstruction(typesys.OP_BINARY_MODEL, 0, 0)
+
+			case typesys.SYMBOL_BINARY_COALESCE:
+				bf.AppendInstruction(typesys.OP_BINARY_COALESCE, 0, 0)
 			}
 		}
 	}
@@ -396,8 +399,8 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		} else
 
 		// BOOLEAN
-		if ctx.BOOLEAN() != nil {
-			if ctx.BOOLEAN().GetSymbol().GetText() == "true" {
+		if ctx.BOOL_LIT() != nil {
+			if ctx.BOOL_LIT().GetSymbol().GetText() == "true" {
 				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOL, 1)
 			} else {
 				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOL, 0)
@@ -405,30 +408,30 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		} else
 
 		// INTEGER
-		if ctx.INTEGER(0) != nil {
-			num := ctx.INTEGER(0).GetSymbol().GetText()
+		if ctx.INT_LIT() != nil {
+			num := ctx.INT_LIT().GetSymbol().GetText()
 			pos := bf.symbolTable.Add(num)
 			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_INTEGER, pos)
 		} else
 
 		// // FLOAT
-		if ctx.FLOAT(0) != nil {
-			num := ctx.FLOAT(0).GetSymbol().GetText()
+		if ctx.FLT_LIT() != nil {
+			num := ctx.FLT_LIT().GetSymbol().GetText()
 			pos := bf.symbolTable.Add(num)
 			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_FLOAT, pos)
 		} else
 
 		// STRING
-		if ctx.STRING() != nil {
+		if ctx.STR_LIT() != nil {
 			replacer := strings.NewReplacer("\"", "", "'", "")
-			str := replacer.Replace(ctx.STRING().GetText())
+			str := replacer.Replace(ctx.STR_LIT().GetText())
 			pos := bf.symbolTable.Add(str)
 			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING, pos)
 		}
 
 		// IDENT
-		if ctx.IDENT(0) != nil {
-			id := ctx.IDENT(0).GetSymbol().GetText()
+		if ctx.IDENT() != nil {
+			id := ctx.IDENT().GetSymbol().GetText()
 			pos := bf.symbolTable.Add(id)
 			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL, pos)
 		}

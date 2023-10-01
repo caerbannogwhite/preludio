@@ -52,6 +52,9 @@ type preludioParserListener interface {
 	// EnterInlinePipeline is called when entering the inlinePipeline production.
 	EnterInlinePipeline(c *InlinePipelineContext)
 
+	// EnterNestedPipeline is called when entering the nestedPipeline production.
+	EnterNestedPipeline(c *NestedPipelineContext)
+
 	// EnterIdentBacktick is called when entering the identBacktick production.
 	EnterIdentBacktick(c *IdentBacktickContext)
 
@@ -87,9 +90,6 @@ type preludioParserListener interface {
 
 	// EnterList is called when entering the list production.
 	EnterList(c *ListContext)
-
-	// EnterNestedPipeline is called when entering the nestedPipeline production.
-	EnterNestedPipeline(c *NestedPipelineContext)
 
 	// ExitNl is called when exiting the nl production.
 	ExitNl(c *NlContext)
@@ -136,6 +136,9 @@ type preludioParserListener interface {
 	// ExitInlinePipeline is called when exiting the inlinePipeline production.
 	ExitInlinePipeline(c *InlinePipelineContext)
 
+	// ExitNestedPipeline is called when exiting the nestedPipeline production.
+	ExitNestedPipeline(c *NestedPipelineContext)
+
 	// ExitIdentBacktick is called when exiting the identBacktick production.
 	ExitIdentBacktick(c *IdentBacktickContext)
 
@@ -171,7 +174,4 @@ type preludioParserListener interface {
 
 	// ExitList is called when exiting the list production.
 	ExitList(c *ListContext)
-
-	// ExitNestedPipeline is called when exiting the nestedPipeline production.
-	ExitNestedPipeline(c *NestedPipelineContext)
 }
