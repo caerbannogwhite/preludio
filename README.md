@@ -78,6 +78,10 @@ The language supports the following data types:
 - `dat` (date) ie: `d'2021-08-20'`
 - `dur` (duration) ie: `1:h`
 
+In addition, the language supports the following data structures:
+
+- `list` ie: `a := [1, 2, 3]`, `b := [i = [1, 2], f = [3.0, 4.0]]`
+
 ### Operators
 
 The language supports the following operators:
