@@ -2,15 +2,15 @@ lexer grammar preludioLexer;
 
 FUNC: 'func';
 PRQL: 'prql';
-LET: 'let';
 RET: 'ret';
 ARROW: '->';
 ASSIGN: '=';
+DECLARE: ':=';
 
 PLUS: '+';
 MINUS: '-';
 STAR: '*';
-POW: '**';
+EXP: '^';
 DIV: '/';
 MOD: '%';
 MODEL: '~';
@@ -45,11 +45,9 @@ AND: 'and';
 OR: 'or';
 NOT: 'not';
 COALESCE: '??';
-NULL_: 'NA';
+NULL_: 'na';
 BOOLEAN: 'true' | 'false';
 
-// Either a normal ident (starting with a letter, `$` or `_`), or any string surrounded by
-// backticks. We allow `e.*`, but not just `*`, since it might conflict with multiply in some cases.
 IDENT: IDENT_START (DOT IDENT_NEXT)*;
 IDENT_START: (LETTER | DOLLAR | UNDERSCORE) (
 		LETTER
@@ -68,14 +66,17 @@ SINGLE_LINE_COMMENT:
 	'#' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
 INTEGER: DIGIT+;
-FLOAT: DIGIT+ DOT DIGIT* EXP? | DIGIT+ EXP? | DOT DIGIT+ EXP?;
+FLOAT:
+	DIGIT+ DOT DIGIT* EXPONENT?
+	| DIGIT+ EXPONENT?
+	| DOT DIGIT+ EXPONENT?;
 
 STRING: SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
-
 STRING_RAW: 'r' SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
+STRING_PATH: 'p' SINGLE_QUOTE (ESC | ~[\\'])*? SINGLE_QUOTE;
 
 REGEXP_LITERAL:
-	'x' SINGLE_QUOTE REGEXP_FIRST_CHAR REGEXP_CHAR* SINGLE_QUOTE;
+	'x' SINGLE_QUOTE REGEXP_FIRST_CHAR (REGEXP_CHAR | ~[\\'])*? SINGLE_QUOTE;
 
 RANGE_LITERAL: (INTEGER | IDENT) RANGE (INTEGER | IDENT) (
 		COLON (INTEGER | IDENT)
@@ -107,7 +108,7 @@ DURATION_LITERAL: INTEGER COLON DURATION_KIND;
 
 fragment DIGIT: [0-9];
 fragment LETTER: [a-zA-Z];
-fragment EXP: ('E' | 'e') ('+' | '-')? INTEGER;
+fragment EXPONENT: ('E' | 'e') ('+' | '-')? INTEGER;
 
 fragment ESC:
 	'\\' [abtnfrv"'\\]
