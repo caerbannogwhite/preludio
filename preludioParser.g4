@@ -39,7 +39,7 @@ multiAssign: list ASSIGN exprCall;
 exprCall: funcCall | expr;
 
 expr:
-	expr LBRACKET expr RBRACKET
+	expr DOLLAR expr 
 	| expr EXP expr
 	| expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
