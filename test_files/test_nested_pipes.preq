@@ -1,5 +1,8 @@
 
-cars := (rcsv p'cars.csv')
+cars := rcsv p'cars.csv'
+year := cars$'year'
+time := 34:s
+string_interpolation := f'The year is {cars$year} and the time is {time + 1}'
 
 names_ := (from cars | names)
 names_ = (names cars)
@@ -7,15 +10,30 @@ names_ = (names cars)
 (
   new [
     A = names_,
-    B = (names cars),
-    C = (from cars | names),
-    D = (from cars | names | strReplace old:' ' new:''),
+    B = (names_ | strRepl old:' ' new:''),
+    C = (names cars),
+    D = (from cars | names),
+    E = (from cars | names | strRepl old:' ' new:''),
   ]
 )
 
 (
   from cars
-  filter year > 2000 and Origin != na
+  filter year >= (mean cars$x'year' | asInt) and Origin != na
+)
+
+(
+  from cars
+  filter year >= (mean cars$2..4:1 | asInt) and Origin != na
+)
+
+(
+  from cars
+  filter year >= (mean cars$[2,4] | asInt) and Origin != na
+)
+
+(
+  from cars
   group Origin
   agg [
     count = count,
