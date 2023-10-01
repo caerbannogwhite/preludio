@@ -1,13 +1,13 @@
 
 # comment
-let myList = [
-    [A = [true, false], B = [1, 2, 3]],
-    B = [1.3, 2.4, 3.5], # comment
-    # comment
-    C = ['hello', 'world'],
+myList := [
+  [A = [true, false], B = [1, 2, 3]],
+  B = [1.3, 2.4, 3.5], # comment
+  # comment
+  C = ['hello', 'world'],
 ]
 
-let n = 1
+n := 1
 
 # indexing
 myList[0]
@@ -15,9 +15,9 @@ myList[1..2]
 myList[1..2:2]
 myList[n..3:n]
 myList[x'A']
-myList[[1..2, x'A']]
+myList[[1..2, x'A']] # not valid
 
 # regex
-let regex = x'[a-z]+{2,4}'
+regex := x'[a-z]+{2,4}'
 
 (from x | select x'.*')

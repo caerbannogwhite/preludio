@@ -1,9 +1,27 @@
 
-let cars = (rcsv 'cars.csv')
+cars := (rcsv p'cars.csv')
+
+names_ := (from cars | names)
+names_ = (names cars)
 
 (
-    new [
-        A = (from cars | names),
-        B = (from cars | names | strReplace old:' ' new:''),
-    ]
+  new [
+    A = names_,
+    B = (names cars),
+    C = (from cars | names),
+    D = (from cars | names | strReplace old:' ' new:''),
+  ]
+)
+
+(
+  from cars
+  filter year > 2000 and Origin != na
+  group Origin
+  agg [
+    count = count,
+    avg_mpg = mean MPG,
+    min_hp = min Horsepower,
+    max_hp = max Horsepower,
+    std_weight = std Weight,
+  ]
 )

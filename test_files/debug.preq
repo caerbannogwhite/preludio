@@ -1,5 +1,5 @@
-let clean = (
-  rcsv 'test_files\\Cars.csv' del:';' head:true
+clean := (
+  rcsv p'test_files/Cars.csv' del:';' head:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
   asFlt [MPG, Displacement, Horsepower, Acceleration]
   sort [-Origin, Cylinders, -MPG]

@@ -1,20 +1,20 @@
-let clean = (
-  rcsv 'test_files\\Cars.csv' del:';' head:true
+clean := (
+  rcsv p'test_files/Cars.csv' del:';' head:true
   strReplace [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
   asFlt [MPG, Displacement, Horsepower, Acceleration]
   sort [-Origin, Cylinders, -MPG]
 )
 
-let continents = (
+continents := (
   new [
     Continent = ['Asia', 'America', 'Europe'],
     Origin = ['Japan', 'US', 'Europe']
   ]
 )
 
-let joined = (
+joined := (
   from clean
-  join left continents on: [Origin]
+  leftj continents on: [Origin]
   select [Car, Origin, Continent]
   sort [Continent, Origin]
 )
