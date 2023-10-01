@@ -20,24 +20,23 @@ typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
 stmt: varAssignStmt | varDeclStmt | retStmt | expr;
-varAssignStmt: IDENT ASSIGN expr;
-varDeclStmt: IDENT DECLARE expr;
-retStmt: RET expr;
+varAssignStmt: IDENT ASSIGN exprCall;
+varDeclStmt: IDENT DECLARE exprCall;
+retStmt: RET exprCall;
 
 pipeline: exprCall (nl funcCall)* (nl | EOF);
 inlinePipeline: exprCall (BAR funcCall)*;
 
 identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
 
-funcCall: IDENT WHITESPACE funcCallParam*;
+funcCall: IDENT funcCallParam*;
 
 funcCallParam: namedArg | assign | multiAssign | expr;
 namedArg: IDENT COLON (assign | expr);
 assign: IDENT ASSIGN exprCall;
 multiAssign: list ASSIGN exprCall;
-// assignCall: IDENT ASSIGN exprCall;
 
-exprCall: expr | funcCall;
+exprCall: funcCall | expr;
 
 expr:
 	expr LBRACKET expr RBRACKET
@@ -68,6 +67,7 @@ literal:
 	| FLOAT				# float
 	| STRING			# string
 	| STRING_RAW		# stringRaw
+	| STRING_PATH		# stringPath
 	| REGEXP_LITERAL	# regexp
 	| RANGE_LITERAL		# range
 	| DATE_LITERAL		# date
