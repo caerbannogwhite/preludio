@@ -60,18 +60,19 @@ term:
 exprUnary: (MINUS | PLUS | NOT) term;
 
 literal:
-	IDENT				# ident
-	| NULL_				# null
-	| BOOLEAN			# boolean
-	| INTEGER			# integer
-	| FLOAT				# float
-	| STRING			# string
-	| STRING_RAW		# stringRaw
-	| STRING_PATH		# stringPath
-	| REGEXP_LITERAL	# regexp
-	| RANGE_LITERAL		# range
-	| DATE_LITERAL		# date
-	| DURATION_LITERAL	# duration;
+	IDENT
+	| NULL_
+	| BOOLEAN
+	| INTEGER
+	| FLOAT
+	| STRING
+	| STRING_INTERP
+	| STRING_RAW
+	| STRING_PATH
+	| REGEXP_LITERAL
+	| RANGE_LITERAL
+	| DATE_LITERAL
+	| DURATION_LITERAL;
 
 list:
 	LBRACKET (
