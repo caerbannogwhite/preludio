@@ -3,6 +3,7 @@ package bytefeeder
 import (
 	"encoding/binary"
 	"fmt"
+	"strings"
 	"typesys"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
@@ -476,40 +477,41 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 
 		// DURATION
 		if ctx.DURATION_LIT() != nil {
-			pos := bf.symbolTable.Add(ctx.DURATION_LIT().GetText())
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION, pos)
+			val := strings.Split(ctx.DURATION_LIT().GetText(), ":")
+			switch val[1] {
+			case typesys.SYMBOL_DURATION_MICROSECOND, typesys.SYMBOL_DURATION_MICROSECOND_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MICROSECOND,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_MILLISECOND, typesys.SYMBOL_DURATION_MILLISECOND_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MILLISECOND,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_SECOND, typesys.SYMBOL_DURATION_SECOND_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_SECOND,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_MINUTE, typesys.SYMBOL_DURATION_MINUTE_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MINUTE,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_HOUR, typesys.SYMBOL_DURATION_HOUR_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_HOUR,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_DAY, typesys.SYMBOL_DURATION_DAY_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_DAY,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_MONTH, typesys.SYMBOL_DURATION_MONTH_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MONTH,
+					bf.symbolTable.Add(val[0]))
+
+			case typesys.SYMBOL_DURATION_YEAR, typesys.SYMBOL_DURATION_YEAR_SHORT:
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_YEAR,
+					bf.symbolTable.Add(val[0]))
+			}
 		}
-
-	// time interval
-	case 2:
-		// this.term = {
-		//   type: typesys.TERM_INTERVAL,
-		//   num: parseFloat(ctx.children[0].getText()),
-		//   kind: ctx.children[1].getText(),
-		// };
-
-	// range
-	case 3:
-		// const s = ctx.children[0].getText();
-		// if (s === NaN) {
-		//   const start = { type: typesys.TERM_SYMBOL, value: ctx.children[0].getText() };
-		// } else {
-		//   const start = { type: typesys.TERM_FLOAT, value: s };
-		// }
-
-		// const e = ctx.children[2].getText();
-		// if (end === NaN) {
-		//   const end = { type: typesys.TERM_SYMBOL, value: ctx.children[2].getText() };
-		// } else {
-		//   const end = { type: typesys.TERM_FLOAT, value: e };
-		// }
-
-		// this.term = {
-		//   type: typesys.TERM_RANGE,
-		//   start: start,
-		//   end: end,
-		// };
-
 	}
 }
 

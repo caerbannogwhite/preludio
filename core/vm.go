@@ -551,16 +551,16 @@ MAIN_LOOP:
 			termVal := ""
 
 			switch param1 {
-			// case typesys.TERM_NULL:
-			// 	termType = "NULL"
+			case typesys.TERM_NULL:
+				termType = "NULL"
 
-			case typesys.TERM_BOOL:
+			case typesys.TERM_BOOLEAN:
 				termType = "BOOL"
-				termVal = "true"
+				termVal = typesys.SYMBOL_TRUE
 				val := true
 				if binary.BigEndian.Uint32(param2) == 0 {
 					val = false
-					termVal = "false"
+					termVal = typesys.SYMBOL_FALSE
 				}
 				vm.stackPush(vm.newPInternTerm(val))
 
@@ -569,6 +569,9 @@ MAIN_LOOP:
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_RANGE:
+				termType = "RANGE"
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
@@ -580,6 +583,68 @@ MAIN_LOOP:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
+
+			case typesys.TERM_STRING_RAW:
+				termType = "STRING_RAW"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				vm.stackPush(vm.newPInternTerm(termVal))
+
+			case typesys.TERM_STRING_PATH:
+				termType = "STRING_PATH"
+
+			case typesys.TERM_REGEX:
+				termType = "REGEX"
+
+			case typesys.TERM_DATE:
+				termType = "DATE"
+
+			case typesys.TERM_DURATION_MICROSECOND:
+				termType = "DURATION MICROSECOND"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_MILLISECOND:
+				termType = "DURATION MILLISECOND"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_SECOND:
+				termType = "DURATION SECOND"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_MINUTE:
+				termType = "DURATION MINUTE"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_HOUR:
+				termType = "DURATION HOUR"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_DAY:
+				termType = "DURATION DAY"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_MONTH:
+				termType = "DURATION MONTH"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case typesys.TERM_DURATION_YEAR:
+				termType = "DURATION YEAR"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
 
 			case typesys.TERM_SYMBOL:
 				termType = "SYMBOL"
@@ -623,6 +688,12 @@ MAIN_LOOP:
 			op2 := vm.stackPop()
 			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_MOD, op2)
 
+		case typesys.OP_BINARY_EXP:
+			vm.printDebug(10, "OP_BINARY_EXP", "", "")
+
+			op2 := vm.stackPop()
+			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EXP, op2)
+
 		case typesys.OP_BINARY_ADD:
 			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
@@ -634,12 +705,6 @@ MAIN_LOOP:
 
 			op2 := vm.stackPop()
 			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_SUB, op2)
-
-		case typesys.OP_BINARY_EXP:
-			vm.printDebug(10, "OP_BINARY_EXP", "", "")
-
-			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EXP, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
