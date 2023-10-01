@@ -57,9 +57,10 @@ func preludiolexerLexerInit() {
 		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "UNDERSCORE", "BACKTICK",
 		"DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE",
 		"AND", "OR", "NOT", "COALESCE", "NULL_", "IDENT", "IDENT_START", "IDENT_NEXT",
-		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOL_LIT", "INT_LIT",
-		"RNG_LIT", "FLT_LIT", "STR_CHAR", "STR_RAW_CHAR", "STR_LIT", "STR_INTERP",
-		"STR_RAW", "STR_PATH", "RXP_LIT", "DAT_LIT", "DUR_LIT",
+		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOLEAN_LIT", "INTEGER_LIT",
+		"RANGE_LIT", "FLOAT_LIT", "STRING_CHAR", "STRING_RAW_CHAR", "STRING_LIT",
+		"STRING_INTERP_LIT", "STRING_RAW_LIT", "STRING_PATH_LIT", "REGEX_LIT",
+		"DATE_LIT", "DURATION_LIT",
 	}
 	staticData.ruleNames = []string{
 		"FUNC", "PRQL", "RET", "ARROW", "ASSIGN", "DECLARE", "PLUS", "MINUS",
@@ -68,13 +69,13 @@ func preludiolexerLexerInit() {
 		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "UNDERSCORE", "BACKTICK",
 		"DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE",
 		"AND", "OR", "NOT", "COALESCE", "NULL_", "IDENT", "IDENT_START", "IDENT_NEXT",
-		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOL_LIT", "INT_LIT",
-		"RNG_LIT", "FLT_LIT", "STR_CHAR", "STR_RAW_CHAR", "STR_LIT", "STR_INTERP",
-		"STR_RAW", "STR_PATH", "RXP_LIT", "DAT_LIT", "DUR_LIT", "DIGIT", "LETTER",
-		"EXPONENT", "ESC", "UNICODE_ESCAPE", "OCTAL_ESCAPE", "HEX_ESCAPE", "HEXDIGIT",
-		"STR_INTERP_START", "STR_RAW_START", "STR_PATH_START", "RXP_START",
-		"DATE_START", "RXP_FIRST_CHAR", "RXP_CHAR", "RXP_CLASS_CHAR", "RXP_BACK_SEQ",
-		"DUR_KIND",
+		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOLEAN_LIT", "INTEGER_LIT",
+		"RANGE_LIT", "FLOAT_LIT", "STRING_CHAR", "STRING_RAW_CHAR", "STRING_LIT",
+		"STRING_INTERP_LIT", "STRING_RAW_LIT", "STRING_PATH_LIT", "REGEX_LIT",
+		"DATE_LIT", "DURATION_LIT", "DIGIT", "LETTER", "EXPONENT", "ESC", "UNICODE_ESCAPE",
+		"OCTAL_ESCAPE", "HEX_ESCAPE", "HEXDIGIT", "STRING_INTERP_START", "STRING_RAW_START",
+		"STRING_PATH_START", "REGEX_START", "DATE_START", "REGEX_FIRST_CHAR",
+		"REGEX_CHAR", "REGEX_CLASS_CHAR", "REGEX_BACK_SEQ", "DURATION_KIND",
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
@@ -453,17 +454,17 @@ const (
 	preludioLexerWHITESPACE          = 47
 	preludioLexerNEWLINE             = 48
 	preludioLexerSINGLE_LINE_COMMENT = 49
-	preludioLexerBOOL_LIT            = 50
-	preludioLexerINT_LIT             = 51
-	preludioLexerRNG_LIT             = 52
-	preludioLexerFLT_LIT             = 53
-	preludioLexerSTR_CHAR            = 54
-	preludioLexerSTR_RAW_CHAR        = 55
-	preludioLexerSTR_LIT             = 56
-	preludioLexerSTR_INTERP          = 57
-	preludioLexerSTR_RAW             = 58
-	preludioLexerSTR_PATH            = 59
-	preludioLexerRXP_LIT             = 60
-	preludioLexerDAT_LIT             = 61
-	preludioLexerDUR_LIT             = 62
+	preludioLexerBOOLEAN_LIT         = 50
+	preludioLexerINTEGER_LIT         = 51
+	preludioLexerRANGE_LIT           = 52
+	preludioLexerFLOAT_LIT           = 53
+	preludioLexerSTRING_CHAR         = 54
+	preludioLexerSTRING_RAW_CHAR     = 55
+	preludioLexerSTRING_LIT          = 56
+	preludioLexerSTRING_INTERP_LIT   = 57
+	preludioLexerSTRING_RAW_LIT      = 58
+	preludioLexerSTRING_PATH_LIT     = 59
+	preludioLexerREGEX_LIT           = 60
+	preludioLexerDATE_LIT            = 61
+	preludioLexerDURATION_LIT        = 62
 )

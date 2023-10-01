@@ -45,9 +45,10 @@ func preludioparserParserInit() {
 		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "UNDERSCORE", "BACKTICK",
 		"DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE",
 		"AND", "OR", "NOT", "COALESCE", "NULL_", "IDENT", "IDENT_START", "IDENT_NEXT",
-		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOL_LIT", "INT_LIT",
-		"RNG_LIT", "FLT_LIT", "STR_CHAR", "STR_RAW_CHAR", "STR_LIT", "STR_INTERP",
-		"STR_RAW", "STR_PATH", "RXP_LIT", "DAT_LIT", "DUR_LIT",
+		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOLEAN_LIT", "INTEGER_LIT",
+		"RANGE_LIT", "FLOAT_LIT", "STRING_CHAR", "STRING_RAW_CHAR", "STRING_LIT",
+		"STRING_INTERP_LIT", "STRING_RAW_LIT", "STRING_PATH_LIT", "REGEX_LIT",
+		"DATE_LIT", "DURATION_LIT",
 	}
 	staticData.ruleNames = []string{
 		"nl", "program", "programIntro", "funcDef", "funcDefName", "funcDefParams",
@@ -292,19 +293,19 @@ const (
 	preludioParserWHITESPACE          = 47
 	preludioParserNEWLINE             = 48
 	preludioParserSINGLE_LINE_COMMENT = 49
-	preludioParserBOOL_LIT            = 50
-	preludioParserINT_LIT             = 51
-	preludioParserRNG_LIT             = 52
-	preludioParserFLT_LIT             = 53
-	preludioParserSTR_CHAR            = 54
-	preludioParserSTR_RAW_CHAR        = 55
-	preludioParserSTR_LIT             = 56
-	preludioParserSTR_INTERP          = 57
-	preludioParserSTR_RAW             = 58
-	preludioParserSTR_PATH            = 59
-	preludioParserRXP_LIT             = 60
-	preludioParserDAT_LIT             = 61
-	preludioParserDUR_LIT             = 62
+	preludioParserBOOLEAN_LIT         = 50
+	preludioParserINTEGER_LIT         = 51
+	preludioParserRANGE_LIT           = 52
+	preludioParserFLOAT_LIT           = 53
+	preludioParserSTRING_CHAR         = 54
+	preludioParserSTRING_RAW_CHAR     = 55
+	preludioParserSTRING_LIT          = 56
+	preludioParserSTRING_INTERP_LIT   = 57
+	preludioParserSTRING_RAW_LIT      = 58
+	preludioParserSTRING_PATH_LIT     = 59
+	preludioParserREGEX_LIT           = 60
+	preludioParserDATE_LIT            = 61
+	preludioParserDURATION_LIT        = 62
 )
 
 // preludioParser rules.
@@ -4660,7 +4661,7 @@ func (p *preludioParser) Term() (localctx ITermContext) {
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case preludioParserNULL_, preludioParserIDENT, preludioParserBOOL_LIT, preludioParserINT_LIT, preludioParserRNG_LIT, preludioParserFLT_LIT, preludioParserSTR_LIT, preludioParserSTR_INTERP, preludioParserSTR_RAW, preludioParserSTR_PATH, preludioParserRXP_LIT, preludioParserDAT_LIT, preludioParserDUR_LIT:
+	case preludioParserNULL_, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
 		p.EnterOuterAlt(localctx, 1)
 		{
 			p.SetState(273)
@@ -4878,48 +4879,48 @@ func (s *LiteralContext) NULL_() antlr.TerminalNode {
 	return s.GetToken(preludioParserNULL_, 0)
 }
 
-func (s *LiteralContext) BOOL_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserBOOL_LIT, 0)
+func (s *LiteralContext) BOOLEAN_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserBOOLEAN_LIT, 0)
 }
 
-func (s *LiteralContext) INT_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserINT_LIT, 0)
+func (s *LiteralContext) INTEGER_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserINTEGER_LIT, 0)
 }
 
-func (s *LiteralContext) RNG_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserRNG_LIT, 0)
+func (s *LiteralContext) RANGE_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserRANGE_LIT, 0)
 }
 
-func (s *LiteralContext) FLT_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserFLT_LIT, 0)
+func (s *LiteralContext) FLOAT_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserFLOAT_LIT, 0)
 }
 
-func (s *LiteralContext) STR_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserSTR_LIT, 0)
+func (s *LiteralContext) STRING_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserSTRING_LIT, 0)
 }
 
-func (s *LiteralContext) STR_INTERP() antlr.TerminalNode {
-	return s.GetToken(preludioParserSTR_INTERP, 0)
+func (s *LiteralContext) STRING_INTERP_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserSTRING_INTERP_LIT, 0)
 }
 
-func (s *LiteralContext) STR_RAW() antlr.TerminalNode {
-	return s.GetToken(preludioParserSTR_RAW, 0)
+func (s *LiteralContext) STRING_RAW_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserSTRING_RAW_LIT, 0)
 }
 
-func (s *LiteralContext) STR_PATH() antlr.TerminalNode {
-	return s.GetToken(preludioParserSTR_PATH, 0)
+func (s *LiteralContext) STRING_PATH_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserSTRING_PATH_LIT, 0)
 }
 
-func (s *LiteralContext) RXP_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserRXP_LIT, 0)
+func (s *LiteralContext) REGEX_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserREGEX_LIT, 0)
 }
 
-func (s *LiteralContext) DAT_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserDAT_LIT, 0)
+func (s *LiteralContext) DATE_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserDATE_LIT, 0)
 }
 
-func (s *LiteralContext) DUR_LIT() antlr.TerminalNode {
-	return s.GetToken(preludioParserDUR_LIT, 0)
+func (s *LiteralContext) DURATION_LIT() antlr.TerminalNode {
+	return s.GetToken(preludioParserDURATION_LIT, 0)
 }
 
 func (s *LiteralContext) GetRuleContext() antlr.RuleContext {

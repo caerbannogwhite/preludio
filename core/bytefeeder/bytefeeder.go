@@ -3,7 +3,6 @@ package bytefeeder
 import (
 	"encoding/binary"
 	"fmt"
-	"strings"
 	"typesys"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
@@ -374,13 +373,13 @@ func (bf *ByteFeeder) EnterExprUnary(ctx *ExprUnaryContext) {}
 func (bf *ByteFeeder) ExitExprUnary(ctx *ExprUnaryContext) {
 	if ctx.GetChildCount() == 2 {
 		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
-		case "-":
+		case typesys.SYMBOL_UNARY_SUB:
 			bf.AppendInstruction(typesys.OP_UNARY_SUB, 0, 0)
 
-		case "+":
+		case typesys.SYMBOL_UNARY_ADD:
 			bf.AppendInstruction(typesys.OP_UNARY_ADD, 0, 0)
 
-		case "not":
+		case typesys.SYMBOL_UNARY_NOT:
 			bf.AppendInstruction(typesys.OP_UNARY_NOT, 0, 0)
 		}
 	}
@@ -393,47 +392,92 @@ func (bf *ByteFeeder) EnterLiteral(ctx *LiteralContext) {}
 func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 	switch ctx.GetChildCount() {
 	case 1:
+		// IDENT
+		if ctx.IDENT() != nil {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL,
+				bf.symbolTable.Add(
+					ctx.IDENT().GetSymbol().GetText()))
+		}
+
 		// NULL
 		if ctx.NULL_() != nil {
 			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_NULL, 0)
 		} else
 
 		// BOOLEAN
-		if ctx.BOOL_LIT() != nil {
-			if ctx.BOOL_LIT().GetSymbol().GetText() == "true" {
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOL, 1)
+		if ctx.BOOLEAN_LIT() != nil {
+			if ctx.BOOLEAN_LIT().GetSymbol().GetText() == typesys.SYMBOL_TRUE {
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 1)
 			} else {
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOL, 0)
+				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 0)
 			}
 		} else
 
 		// INTEGER
-		if ctx.INT_LIT() != nil {
-			num := ctx.INT_LIT().GetSymbol().GetText()
-			pos := bf.symbolTable.Add(num)
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_INTEGER, pos)
+		if ctx.INTEGER_LIT() != nil {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_INTEGER,
+				bf.symbolTable.Add(
+					ctx.INTEGER_LIT().GetSymbol().GetText()))
 		} else
 
-		// // FLOAT
-		if ctx.FLT_LIT() != nil {
-			num := ctx.FLT_LIT().GetSymbol().GetText()
-			pos := bf.symbolTable.Add(num)
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_FLOAT, pos)
+		// RANGE
+		if ctx.RANGE_LIT() != nil {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_RANGE,
+				bf.symbolTable.Add(
+					ctx.RANGE_LIT().GetSymbol().GetText()))
+		} else
+
+		// FLOAT
+		if ctx.FLOAT_LIT() != nil {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_FLOAT,
+				bf.symbolTable.Add(
+					ctx.FLOAT_LIT().GetSymbol().GetText()))
 		} else
 
 		// STRING
-		if ctx.STR_LIT() != nil {
-			replacer := strings.NewReplacer("\"", "", "'", "")
-			str := replacer.Replace(ctx.STR_LIT().GetText())
-			pos := bf.symbolTable.Add(str)
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING, pos)
-		}
+		if ctx.STRING_LIT() != nil {
+			val := ctx.STRING_LIT().GetText()
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING,
+				bf.symbolTable.Add(val[1:len(val)-1]))
+		} else
 
-		// IDENT
-		if ctx.IDENT() != nil {
-			id := ctx.IDENT().GetSymbol().GetText()
-			pos := bf.symbolTable.Add(id)
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL, pos)
+		// STRING INTERP
+		if ctx.STRING_INTERP_LIT() != nil {
+			// replacer := strings.NewReplacer("'", "")
+		} else
+
+		// STRING RAW
+		if ctx.STRING_RAW_LIT() != nil {
+			val := ctx.STRING_RAW_LIT().GetText()
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_RAW,
+				bf.symbolTable.Add(val[2:len(val)-1]))
+		} else
+
+		// STRING PATH
+		if ctx.STRING_PATH_LIT() != nil {
+			val := ctx.STRING_PATH_LIT().GetText()
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_PATH,
+				bf.symbolTable.Add(val[2:len(val)-1]))
+		} else
+
+		// REGEX
+		if ctx.REGEX_LIT() != nil {
+			val := ctx.REGEX_LIT().GetText()
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_REGEX,
+				bf.symbolTable.Add(val[2:len(val)-1]))
+		} else
+
+		// DATE
+		if ctx.DATE_LIT() != nil {
+			val := ctx.DATE_LIT().GetText()
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DATE,
+				bf.symbolTable.Add(val[2:len(val)-1]))
+		} else
+
+		// DURATION
+		if ctx.DURATION_LIT() != nil {
+			pos := bf.symbolTable.Add(ctx.DURATION_LIT().GetText())
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION, pos)
 		}
 
 	// time interval
