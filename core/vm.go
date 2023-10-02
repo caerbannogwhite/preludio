@@ -435,7 +435,7 @@ MAIN_LOOP:
 
 			switch funcName {
 
-			// Standard library functions build-ins
+			// Standard library build-ins
 			case "derive":
 				PreludioFunc_Derive("derive", vm)
 			// case "describe":
@@ -572,6 +572,10 @@ MAIN_LOOP:
 
 			case typesys.TERM_RANGE:
 				termType = "RANGE"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				// TODO: check if the range is valid
+				// strings.Split(termVal, typesys.SYMBOL_RANGE)
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_FLOAT:
 				termType = "FLOAT"
@@ -591,12 +595,18 @@ MAIN_LOOP:
 
 			case typesys.TERM_STRING_PATH:
 				termType = "STRING_PATH"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_REGEX:
 				termType = "REGEX"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_DATE:
 				termType = "DATE"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				vm.stackPush(vm.newPInternTerm(termVal))
 
 			case typesys.TERM_DURATION_MICROSECOND:
 				termType = "DURATION MICROSECOND"

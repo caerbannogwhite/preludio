@@ -66,17 +66,17 @@ joined := (
 
 The language supports the following data types:
 
-- `bool` (boolean) ie: `true`/`false`
-- `int` (integer) ie: `1`, `2`, `3`, etc.
-- `rng` (range) ie: `1..10`, `1..10:2` etc.
-- `flt` (float) ie: `1.0`, `2e-3`, etc.
-- `str` (string) which has some variants:
+- `boolean` ie: `true`/`false`
+- `integer` ie: `1`, `2`, `3`
+- `range` ie: `1..10`, `1..10:2`
+- `float` ie: `1.0`, `2e-3`, `4.5E+6`
+- `string` which has some variants:
   - plain `'hello world'`
   - raw `r'\d'`
   - path `p'c:\temp'`
-- `rgx` (regex) ie: `x'he(l){2}o'`
-- `dat` (date) ie: `d'2021-08-20'`
-- `dur` (duration) ie: `1:h`
+- `regex` ie: `x'he(l){2}o'`
+- `date` ie: `d'2021-08-20'`
+- `duration` ie: `1:h`, `2:milliseconds`, `3:us`
 
 In addition, the language supports the following data structures:
 

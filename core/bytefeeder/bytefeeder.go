@@ -391,126 +391,123 @@ func (bf *ByteFeeder) EnterLiteral(ctx *LiteralContext) {}
 
 // ExitLiteral is called when production literal is exited.
 func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
-	switch ctx.GetChildCount() {
-	case 1:
-		// IDENT
-		if ctx.IDENT() != nil {
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL,
-				bf.symbolTable.Add(
-					ctx.IDENT().GetSymbol().GetText()))
+	// IDENT
+	if ctx.IDENT() != nil {
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL,
+			bf.symbolTable.Add(
+				ctx.IDENT().GetSymbol().GetText()))
+	}
+
+	// NULL
+	if ctx.NULL_() != nil {
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_NULL, 0)
+	} else
+
+	// BOOLEAN
+	if ctx.BOOLEAN_LIT() != nil {
+		if ctx.BOOLEAN_LIT().GetSymbol().GetText() == typesys.SYMBOL_TRUE {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 1)
+		} else {
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 0)
 		}
+	} else
 
-		// NULL
-		if ctx.NULL_() != nil {
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_NULL, 0)
-		} else
+	// INTEGER
+	if ctx.INTEGER_LIT() != nil {
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_INTEGER,
+			bf.symbolTable.Add(
+				ctx.INTEGER_LIT().GetSymbol().GetText()))
+	} else
 
-		// BOOLEAN
-		if ctx.BOOLEAN_LIT() != nil {
-			if ctx.BOOLEAN_LIT().GetSymbol().GetText() == typesys.SYMBOL_TRUE {
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 1)
-			} else {
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_BOOLEAN, 0)
-			}
-		} else
+	// RANGE
+	if ctx.RANGE_LIT() != nil {
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_RANGE,
+			bf.symbolTable.Add(
+				ctx.RANGE_LIT().GetSymbol().GetText()))
+	} else
 
-		// INTEGER
-		if ctx.INTEGER_LIT() != nil {
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_INTEGER,
-				bf.symbolTable.Add(
-					ctx.INTEGER_LIT().GetSymbol().GetText()))
-		} else
+	// FLOAT
+	if ctx.FLOAT_LIT() != nil {
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_FLOAT,
+			bf.symbolTable.Add(
+				ctx.FLOAT_LIT().GetSymbol().GetText()))
+	} else
 
-		// RANGE
-		if ctx.RANGE_LIT() != nil {
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_RANGE,
-				bf.symbolTable.Add(
-					ctx.RANGE_LIT().GetSymbol().GetText()))
-		} else
+	// STRING
+	if ctx.STRING_LIT() != nil {
+		val := ctx.STRING_LIT().GetText()
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING,
+			bf.symbolTable.Add(val[1:len(val)-1]))
+	} else
 
-		// FLOAT
-		if ctx.FLOAT_LIT() != nil {
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_FLOAT,
-				bf.symbolTable.Add(
-					ctx.FLOAT_LIT().GetSymbol().GetText()))
-		} else
+	// STRING INTERP
+	if ctx.STRING_INTERP_LIT() != nil {
+		// TODO: implement string interpolation
+	} else
 
-		// STRING
-		if ctx.STRING_LIT() != nil {
-			val := ctx.STRING_LIT().GetText()
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING,
-				bf.symbolTable.Add(val[1:len(val)-1]))
-		} else
+	// STRING RAW
+	if ctx.STRING_RAW_LIT() != nil {
+		val := ctx.STRING_RAW_LIT().GetText()
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_RAW,
+			bf.symbolTable.Add(val[2:len(val)-1]))
+	} else
 
-		// STRING INTERP
-		if ctx.STRING_INTERP_LIT() != nil {
-			// replacer := strings.NewReplacer("'", "")
-		} else
+	// STRING PATH
+	if ctx.STRING_PATH_LIT() != nil {
+		val := ctx.STRING_PATH_LIT().GetText()
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_PATH,
+			bf.symbolTable.Add(val[2:len(val)-1]))
+	} else
 
-		// STRING RAW
-		if ctx.STRING_RAW_LIT() != nil {
-			val := ctx.STRING_RAW_LIT().GetText()
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_RAW,
-				bf.symbolTable.Add(val[2:len(val)-1]))
-		} else
+	// REGEX
+	if ctx.REGEX_LIT() != nil {
+		val := ctx.REGEX_LIT().GetText()
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_REGEX,
+			bf.symbolTable.Add(val[2:len(val)-1]))
+	} else
 
-		// STRING PATH
-		if ctx.STRING_PATH_LIT() != nil {
-			val := ctx.STRING_PATH_LIT().GetText()
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING_PATH,
-				bf.symbolTable.Add(val[2:len(val)-1]))
-		} else
+	// DATE
+	if ctx.DATE_LIT() != nil {
+		val := ctx.DATE_LIT().GetText()
+		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DATE,
+			bf.symbolTable.Add(val[2:len(val)-1]))
+	} else
 
-		// REGEX
-		if ctx.REGEX_LIT() != nil {
-			val := ctx.REGEX_LIT().GetText()
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_REGEX,
-				bf.symbolTable.Add(val[2:len(val)-1]))
-		} else
+	// DURATION
+	if ctx.DURATION_LIT() != nil {
+		val := strings.Split(ctx.DURATION_LIT().GetText(), typesys.SYMBOL_COLON)
+		switch val[1] {
+		case typesys.SYMBOL_DURATION_MICROSECOND, typesys.SYMBOL_DURATION_MICROSECOND_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MICROSECOND,
+				bf.symbolTable.Add(val[0]))
 
-		// DATE
-		if ctx.DATE_LIT() != nil {
-			val := ctx.DATE_LIT().GetText()
-			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DATE,
-				bf.symbolTable.Add(val[2:len(val)-1]))
-		} else
+		case typesys.SYMBOL_DURATION_MILLISECOND, typesys.SYMBOL_DURATION_MILLISECOND_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MILLISECOND,
+				bf.symbolTable.Add(val[0]))
 
-		// DURATION
-		if ctx.DURATION_LIT() != nil {
-			val := strings.Split(ctx.DURATION_LIT().GetText(), ":")
-			switch val[1] {
-			case typesys.SYMBOL_DURATION_MICROSECOND, typesys.SYMBOL_DURATION_MICROSECOND_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MICROSECOND,
-					bf.symbolTable.Add(val[0]))
+		case typesys.SYMBOL_DURATION_SECOND, typesys.SYMBOL_DURATION_SECOND_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_SECOND,
+				bf.symbolTable.Add(val[0]))
 
-			case typesys.SYMBOL_DURATION_MILLISECOND, typesys.SYMBOL_DURATION_MILLISECOND_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MILLISECOND,
-					bf.symbolTable.Add(val[0]))
+		case typesys.SYMBOL_DURATION_MINUTE, typesys.SYMBOL_DURATION_MINUTE_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MINUTE,
+				bf.symbolTable.Add(val[0]))
 
-			case typesys.SYMBOL_DURATION_SECOND, typesys.SYMBOL_DURATION_SECOND_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_SECOND,
-					bf.symbolTable.Add(val[0]))
+		case typesys.SYMBOL_DURATION_HOUR, typesys.SYMBOL_DURATION_HOUR_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_HOUR,
+				bf.symbolTable.Add(val[0]))
 
-			case typesys.SYMBOL_DURATION_MINUTE, typesys.SYMBOL_DURATION_MINUTE_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MINUTE,
-					bf.symbolTable.Add(val[0]))
+		case typesys.SYMBOL_DURATION_DAY, typesys.SYMBOL_DURATION_DAY_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_DAY,
+				bf.symbolTable.Add(val[0]))
 
-			case typesys.SYMBOL_DURATION_HOUR, typesys.SYMBOL_DURATION_HOUR_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_HOUR,
-					bf.symbolTable.Add(val[0]))
+		case typesys.SYMBOL_DURATION_MONTH, typesys.SYMBOL_DURATION_MONTH_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MONTH,
+				bf.symbolTable.Add(val[0]))
 
-			case typesys.SYMBOL_DURATION_DAY, typesys.SYMBOL_DURATION_DAY_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_DAY,
-					bf.symbolTable.Add(val[0]))
-
-			case typesys.SYMBOL_DURATION_MONTH, typesys.SYMBOL_DURATION_MONTH_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_MONTH,
-					bf.symbolTable.Add(val[0]))
-
-			case typesys.SYMBOL_DURATION_YEAR, typesys.SYMBOL_DURATION_YEAR_SHORT:
-				bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_YEAR,
-					bf.symbolTable.Add(val[0]))
-			}
+		case typesys.SYMBOL_DURATION_YEAR, typesys.SYMBOL_DURATION_YEAR_SHORT:
+			bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_DURATION_YEAR,
+				bf.symbolTable.Add(val[0]))
 		}
 	}
 }
