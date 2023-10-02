@@ -304,59 +304,57 @@ func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
 func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// operation or nested expression
 	if ctx.GetChildCount() == 3 {
-		if cmt, ok := ctx.GetChild(0).GetPayload().(*antlr.CommonToken); ok && cmt.GetText() != "(" {
-			switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
-			case typesys.SYMBOL_INDEXING:
-				bf.AppendInstruction(typesys.OP_INDEXING, 0, 0)
+		switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
+		case typesys.SYMBOL_INDEXING:
+			bf.AppendInstruction(typesys.OP_INDEXING, 0, 0)
 
-			case typesys.SYMBOL_BINARY_MUL:
-				bf.AppendInstruction(typesys.OP_BINARY_MUL, 0, 0)
+		case typesys.SYMBOL_BINARY_MUL:
+			bf.AppendInstruction(typesys.OP_BINARY_MUL, 0, 0)
 
-			case typesys.SYMBOL_BINARY_DIV:
-				bf.AppendInstruction(typesys.OP_BINARY_DIV, 0, 0)
+		case typesys.SYMBOL_BINARY_DIV:
+			bf.AppendInstruction(typesys.OP_BINARY_DIV, 0, 0)
 
-			case typesys.SYMBOL_BINARY_MOD:
-				bf.AppendInstruction(typesys.OP_BINARY_MOD, 0, 0)
+		case typesys.SYMBOL_BINARY_MOD:
+			bf.AppendInstruction(typesys.OP_BINARY_MOD, 0, 0)
 
-			case typesys.SYMBOL_BINARY_EXP:
-				bf.AppendInstruction(typesys.OP_BINARY_EXP, 0, 0)
+		case typesys.SYMBOL_BINARY_EXP:
+			bf.AppendInstruction(typesys.OP_BINARY_EXP, 0, 0)
 
-			case typesys.SYMBOL_BINARY_ADD:
-				bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
+		case typesys.SYMBOL_BINARY_ADD:
+			bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
 
-			case typesys.SYMBOL_BINARY_SUB:
-				bf.AppendInstruction(typesys.OP_BINARY_SUB, 0, 0)
+		case typesys.SYMBOL_BINARY_SUB:
+			bf.AppendInstruction(typesys.OP_BINARY_SUB, 0, 0)
 
-			case typesys.SYMBOL_BINARY_EQ:
-				bf.AppendInstruction(typesys.OP_BINARY_EQ, 0, 0)
+		case typesys.SYMBOL_BINARY_EQ:
+			bf.AppendInstruction(typesys.OP_BINARY_EQ, 0, 0)
 
-			case typesys.SYMBOL_BINARY_NE:
-				bf.AppendInstruction(typesys.OP_BINARY_NE, 0, 0)
+		case typesys.SYMBOL_BINARY_NE:
+			bf.AppendInstruction(typesys.OP_BINARY_NE, 0, 0)
 
-			case typesys.SYMBOL_BINARY_GE:
-				bf.AppendInstruction(typesys.OP_BINARY_GE, 0, 0)
+		case typesys.SYMBOL_BINARY_GE:
+			bf.AppendInstruction(typesys.OP_BINARY_GE, 0, 0)
 
-			case typesys.SYMBOL_BINARY_LE:
-				bf.AppendInstruction(typesys.OP_BINARY_LE, 0, 0)
+		case typesys.SYMBOL_BINARY_LE:
+			bf.AppendInstruction(typesys.OP_BINARY_LE, 0, 0)
 
-			case typesys.SYMBOL_BINARY_GT:
-				bf.AppendInstruction(typesys.OP_BINARY_GT, 0, 0)
+		case typesys.SYMBOL_BINARY_GT:
+			bf.AppendInstruction(typesys.OP_BINARY_GT, 0, 0)
 
-			case typesys.SYMBOL_BINARY_LT:
-				bf.AppendInstruction(typesys.OP_BINARY_LT, 0, 0)
+		case typesys.SYMBOL_BINARY_LT:
+			bf.AppendInstruction(typesys.OP_BINARY_LT, 0, 0)
 
-			case typesys.SYMBOL_BINARY_AND:
-				bf.AppendInstruction(typesys.OP_BINARY_AND, 0, 0)
+		case typesys.SYMBOL_BINARY_AND:
+			bf.AppendInstruction(typesys.OP_BINARY_AND, 0, 0)
 
-			case typesys.SYMBOL_BINARY_OR:
-				bf.AppendInstruction(typesys.OP_BINARY_OR, 0, 0)
+		case typesys.SYMBOL_BINARY_OR:
+			bf.AppendInstruction(typesys.OP_BINARY_OR, 0, 0)
 
-			case typesys.SYMBOL_BINARY_MODEL:
-				bf.AppendInstruction(typesys.OP_BINARY_MODEL, 0, 0)
+		case typesys.SYMBOL_BINARY_MODEL:
+			bf.AppendInstruction(typesys.OP_BINARY_MODEL, 0, 0)
 
-			case typesys.SYMBOL_BINARY_COALESCE:
-				bf.AppendInstruction(typesys.OP_BINARY_COALESCE, 0, 0)
-			}
+		case typesys.SYMBOL_BINARY_COALESCE:
+			bf.AppendInstruction(typesys.OP_BINARY_COALESCE, 0, 0)
 		}
 	}
 }
