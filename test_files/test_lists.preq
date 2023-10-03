@@ -1,3 +1,6 @@
+na
+true
+false
 
 # comment
 myList := [
@@ -10,16 +13,16 @@ myList := [
 n := 1
 
 # indexing
-myList$0
-myList$1..2
-myList$1..2:2
-myList$n..3:n
-myList$x'A'
-myList$[1..2, x'A'] # not valid
+myList@0
+myList@1..2
+myList@1..2:2
+myList@n..3:n
+myList@x'A'
+myList@[1..2, x'A'] # not valid
 
 # regex
 regex := x'[a-z]+{2,4}'
 
-(from x | select x'.*')
+(from$ x | select$ x'.*')
 # which is equivalent to
 x$x'.*'
