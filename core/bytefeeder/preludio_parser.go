@@ -33,179 +33,177 @@ func preludioparserParserInit() {
 	staticData := &preludioparserParserStaticData
 	staticData.literalNames = []string{
 		"", "'func'", "'prql'", "'ret'", "'->'", "'='", "':='", "'+'", "'-'",
-		"'*'", "'^'", "'/'", "'%'", "'~'", "'=='", "'!='", "'<='", "'>='", "'@'",
-		"'|'", "':'", "','", "'.'", "'$'", "'..'", "'<'", "'>'", "'['", "']'",
-		"'('", "')'", "'{'", "'}'", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'",
-		"'''''", "'and'", "'or'", "'not'", "'??'", "'na'",
+		"'*'", "'^'", "'/'", "'%'", "'~'", "'=='", "'!='", "'>='", "'>'", "'<='",
+		"'<'", "'|'", "':'", "','", "'.'", "'$'", "'..'", "'['", "']'", "'('",
+		"')'", "'{'", "'}'", "", "", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'",
+		"'''''", "'and'", "'or'", "'not'", "'??'", "'na'", "'@'",
 	}
 	staticData.symbolicNames = []string{
 		"", "FUNC", "PRQL", "RET", "ARROW", "ASSIGN", "DECLARE", "PLUS", "MINUS",
-		"STAR", "EXP", "DIV", "MOD", "MODEL", "EQ", "NE", "LE", "GE", "AT",
-		"BAR", "COLON", "COMMA", "DOT", "DOLLAR", "RANGE", "LANG", "RANG", "LBRACKET",
-		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "UNDERSCORE", "BACKTICK",
-		"DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE", "TRIPLE_SINGLE_QUOTE",
-		"AND", "OR", "NOT", "COALESCE", "NULL_", "IDENT", "IDENT_START", "IDENT_NEXT",
-		"WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOLEAN_LIT", "INTEGER_LIT",
-		"RANGE_LIT", "FLOAT_LIT", "STRING_CHAR", "STRING_RAW_CHAR", "STRING_LIT",
-		"STRING_INTERP_LIT", "STRING_RAW_LIT", "STRING_PATH_LIT", "REGEX_LIT",
-		"DATE_LIT", "DURATION_LIT",
+		"STAR", "EXP", "DIV", "MOD", "MODEL", "EQ", "NE", "GE", "GT", "LE",
+		"LT", "BAR", "COLON", "COMMA", "DOT", "DOLLAR", "RANGE", "LBRACKET",
+		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "LANG", "RANG",
+		"UNDERSCORE", "BACKTICK", "DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE",
+		"TRIPLE_SINGLE_QUOTE", "AND", "OR", "NOT", "COALESCE", "NA", "INDEXING",
+		"IDENT", "IDENT_START", "IDENT_NEXT", "WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT",
+		"BOOLEAN_LIT", "INTEGER_LIT", "RANGE_LIT", "FLOAT_LIT", "STRING_CHAR",
+		"STRING_RAW_CHAR", "STRING_LIT", "STRING_INTERP_LIT", "STRING_RAW_LIT",
+		"STRING_PATH_LIT", "REGEX_LIT", "DATE_LIT", "DURATION_LIT",
 	}
 	staticData.ruleNames = []string{
 		"nl", "program", "programIntro", "funcDef", "funcDefName", "funcDefParams",
 		"funcDefParam", "typeDef", "typeTerm", "stmt", "varAssignStmt", "varDeclStmt",
-		"retStmt", "pipeline", "inlinePipeline", "nestedPipeline", "identBacktick",
-		"funcCall", "funcCallParam", "namedArg", "assign", "multiAssign", "exprCall",
-		"expr", "term", "exprUnary", "literal", "list",
+		"retStmt", "exprCall", "expr", "literal", "list", "funcCall", "funcCallParam",
+		"namedArg", "assign", "multiAssign", "pipeline", "inlinePipeline", "nestedPipeline",
 	}
 	staticData.predictionContextCache = antlr.NewPredictionContextCache()
 	staticData.serializedATN = []int32{
-		4, 1, 62, 325, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
+		4, 1, 64, 322, 2, 0, 7, 0, 2, 1, 7, 1, 2, 2, 7, 2, 2, 3, 7, 3, 2, 4, 7,
 		4, 2, 5, 7, 5, 2, 6, 7, 6, 2, 7, 7, 7, 2, 8, 7, 8, 2, 9, 7, 9, 2, 10, 7,
 		10, 2, 11, 7, 11, 2, 12, 7, 12, 2, 13, 7, 13, 2, 14, 7, 14, 2, 15, 7, 15,
 		2, 16, 7, 16, 2, 17, 7, 17, 2, 18, 7, 18, 2, 19, 7, 19, 2, 20, 7, 20, 2,
-		21, 7, 21, 2, 22, 7, 22, 2, 23, 7, 23, 2, 24, 7, 24, 2, 25, 7, 25, 2, 26,
-		7, 26, 2, 27, 7, 27, 1, 0, 1, 0, 1, 1, 5, 1, 60, 8, 1, 10, 1, 12, 1, 63,
-		9, 1, 1, 1, 3, 1, 66, 8, 1, 1, 1, 5, 1, 69, 8, 1, 10, 1, 12, 1, 72, 9,
-		1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 1, 78, 8, 1, 1, 1, 5, 1, 81, 8, 1, 10, 1,
-		12, 1, 84, 9, 1, 5, 1, 86, 8, 1, 10, 1, 12, 1, 89, 9, 1, 1, 1, 1, 1, 1,
-		2, 1, 2, 5, 2, 95, 8, 2, 10, 2, 12, 2, 98, 9, 2, 1, 2, 1, 2, 1, 3, 1, 3,
-		1, 3, 1, 3, 1, 3, 1, 3, 1, 4, 1, 4, 3, 4, 110, 8, 4, 1, 5, 5, 5, 113, 8,
-		5, 10, 5, 12, 5, 116, 9, 5, 1, 6, 1, 6, 3, 6, 120, 8, 6, 1, 6, 3, 6, 123,
-		8, 6, 1, 7, 1, 7, 1, 7, 1, 7, 5, 7, 129, 8, 7, 10, 7, 12, 7, 132, 9, 7,
-		1, 7, 1, 7, 1, 8, 1, 8, 3, 8, 138, 8, 8, 1, 9, 1, 9, 1, 9, 1, 9, 3, 9,
-		144, 8, 9, 1, 10, 1, 10, 1, 10, 1, 10, 1, 11, 1, 11, 1, 11, 1, 11, 1, 12,
-		1, 12, 1, 12, 1, 13, 1, 13, 1, 13, 1, 13, 5, 13, 161, 8, 13, 10, 13, 12,
-		13, 164, 9, 13, 1, 13, 1, 13, 3, 13, 168, 8, 13, 1, 14, 1, 14, 1, 14, 5,
-		14, 173, 8, 14, 10, 14, 12, 14, 176, 9, 14, 1, 15, 1, 15, 5, 15, 180, 8,
-		15, 10, 15, 12, 15, 183, 9, 15, 1, 15, 1, 15, 3, 15, 187, 8, 15, 1, 15,
-		5, 15, 190, 8, 15, 10, 15, 12, 15, 193, 9, 15, 1, 15, 1, 15, 1, 16, 1,
-		16, 5, 16, 199, 8, 16, 10, 16, 12, 16, 202, 9, 16, 1, 16, 1, 16, 1, 17,
-		1, 17, 5, 17, 208, 8, 17, 10, 17, 12, 17, 211, 9, 17, 1, 18, 1, 18, 1,
-		18, 1, 18, 3, 18, 217, 8, 18, 1, 19, 1, 19, 1, 19, 1, 19, 3, 19, 223, 8,
-		19, 1, 20, 1, 20, 1, 20, 1, 20, 1, 21, 1, 21, 1, 21, 1, 21, 1, 22, 1, 22,
-		3, 22, 235, 8, 22, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 3, 23, 243,
-		8, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1,
-		23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23, 1, 23,
-		1, 23, 1, 23, 1, 23, 1, 23, 5, 23, 269, 8, 23, 10, 23, 12, 23, 272, 9,
-		23, 1, 24, 1, 24, 1, 24, 1, 24, 1, 24, 3, 24, 279, 8, 24, 1, 25, 1, 25,
-		1, 25, 1, 26, 1, 26, 1, 27, 1, 27, 5, 27, 288, 8, 27, 10, 27, 12, 27, 291,
-		9, 27, 1, 27, 1, 27, 1, 27, 3, 27, 296, 8, 27, 1, 27, 1, 27, 5, 27, 300,
-		8, 27, 10, 27, 12, 27, 303, 9, 27, 1, 27, 1, 27, 1, 27, 3, 27, 308, 8,
-		27, 5, 27, 310, 8, 27, 10, 27, 12, 27, 313, 9, 27, 1, 27, 3, 27, 316, 8,
-		27, 1, 27, 3, 27, 319, 8, 27, 3, 27, 321, 8, 27, 1, 27, 1, 27, 1, 27, 0,
-		1, 46, 28, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
-		34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 0, 7, 2, 0, 34, 34, 48, 48,
-		2, 0, 9, 9, 11, 12, 1, 0, 7, 8, 2, 0, 14, 17, 25, 26, 1, 0, 39, 40, 2,
-		0, 7, 8, 41, 41, 3, 0, 43, 44, 50, 53, 56, 62, 350, 0, 56, 1, 0, 0, 0,
-		2, 61, 1, 0, 0, 0, 4, 92, 1, 0, 0, 0, 6, 101, 1, 0, 0, 0, 8, 107, 1, 0,
-		0, 0, 10, 114, 1, 0, 0, 0, 12, 119, 1, 0, 0, 0, 14, 124, 1, 0, 0, 0, 16,
-		135, 1, 0, 0, 0, 18, 143, 1, 0, 0, 0, 20, 145, 1, 0, 0, 0, 22, 149, 1,
-		0, 0, 0, 24, 153, 1, 0, 0, 0, 26, 156, 1, 0, 0, 0, 28, 169, 1, 0, 0, 0,
-		30, 177, 1, 0, 0, 0, 32, 196, 1, 0, 0, 0, 34, 205, 1, 0, 0, 0, 36, 216,
-		1, 0, 0, 0, 38, 218, 1, 0, 0, 0, 40, 224, 1, 0, 0, 0, 42, 228, 1, 0, 0,
-		0, 44, 234, 1, 0, 0, 0, 46, 242, 1, 0, 0, 0, 48, 278, 1, 0, 0, 0, 50, 280,
-		1, 0, 0, 0, 52, 283, 1, 0, 0, 0, 54, 285, 1, 0, 0, 0, 56, 57, 5, 48, 0,
-		0, 57, 1, 1, 0, 0, 0, 58, 60, 3, 0, 0, 0, 59, 58, 1, 0, 0, 0, 60, 63, 1,
-		0, 0, 0, 61, 59, 1, 0, 0, 0, 61, 62, 1, 0, 0, 0, 62, 65, 1, 0, 0, 0, 63,
-		61, 1, 0, 0, 0, 64, 66, 3, 4, 2, 0, 65, 64, 1, 0, 0, 0, 65, 66, 1, 0, 0,
-		0, 66, 70, 1, 0, 0, 0, 67, 69, 3, 0, 0, 0, 68, 67, 1, 0, 0, 0, 69, 72,
-		1, 0, 0, 0, 70, 68, 1, 0, 0, 0, 70, 71, 1, 0, 0, 0, 71, 87, 1, 0, 0, 0,
-		72, 70, 1, 0, 0, 0, 73, 78, 3, 6, 3, 0, 74, 78, 3, 26, 13, 0, 75, 78, 3,
-		28, 14, 0, 76, 78, 3, 18, 9, 0, 77, 73, 1, 0, 0, 0, 77, 74, 1, 0, 0, 0,
-		77, 75, 1, 0, 0, 0, 77, 76, 1, 0, 0, 0, 78, 82, 1, 0, 0, 0, 79, 81, 3,
-		0, 0, 0, 80, 79, 1, 0, 0, 0, 81, 84, 1, 0, 0, 0, 82, 80, 1, 0, 0, 0, 82,
-		83, 1, 0, 0, 0, 83, 86, 1, 0, 0, 0, 84, 82, 1, 0, 0, 0, 85, 77, 1, 0, 0,
-		0, 86, 89, 1, 0, 0, 0, 87, 85, 1, 0, 0, 0, 87, 88, 1, 0, 0, 0, 88, 90,
-		1, 0, 0, 0, 89, 87, 1, 0, 0, 0, 90, 91, 5, 0, 0, 1, 91, 3, 1, 0, 0, 0,
-		92, 96, 5, 2, 0, 0, 93, 95, 3, 38, 19, 0, 94, 93, 1, 0, 0, 0, 95, 98, 1,
-		0, 0, 0, 96, 94, 1, 0, 0, 0, 96, 97, 1, 0, 0, 0, 97, 99, 1, 0, 0, 0, 98,
-		96, 1, 0, 0, 0, 99, 100, 3, 0, 0, 0, 100, 5, 1, 0, 0, 0, 101, 102, 5, 1,
-		0, 0, 102, 103, 3, 8, 4, 0, 103, 104, 3, 10, 5, 0, 104, 105, 5, 4, 0, 0,
-		105, 106, 3, 46, 23, 0, 106, 7, 1, 0, 0, 0, 107, 109, 5, 44, 0, 0, 108,
-		110, 3, 14, 7, 0, 109, 108, 1, 0, 0, 0, 109, 110, 1, 0, 0, 0, 110, 9, 1,
-		0, 0, 0, 111, 113, 3, 12, 6, 0, 112, 111, 1, 0, 0, 0, 113, 116, 1, 0, 0,
-		0, 114, 112, 1, 0, 0, 0, 114, 115, 1, 0, 0, 0, 115, 11, 1, 0, 0, 0, 116,
-		114, 1, 0, 0, 0, 117, 120, 3, 38, 19, 0, 118, 120, 5, 44, 0, 0, 119, 117,
-		1, 0, 0, 0, 119, 118, 1, 0, 0, 0, 120, 122, 1, 0, 0, 0, 121, 123, 3, 14,
-		7, 0, 122, 121, 1, 0, 0, 0, 122, 123, 1, 0, 0, 0, 123, 13, 1, 0, 0, 0,
-		124, 125, 5, 25, 0, 0, 125, 126, 3, 16, 8, 0, 126, 130, 5, 19, 0, 0, 127,
-		129, 3, 16, 8, 0, 128, 127, 1, 0, 0, 0, 129, 132, 1, 0, 0, 0, 130, 128,
-		1, 0, 0, 0, 130, 131, 1, 0, 0, 0, 131, 133, 1, 0, 0, 0, 132, 130, 1, 0,
-		0, 0, 133, 134, 5, 26, 0, 0, 134, 15, 1, 0, 0, 0, 135, 137, 5, 44, 0, 0,
-		136, 138, 3, 14, 7, 0, 137, 136, 1, 0, 0, 0, 137, 138, 1, 0, 0, 0, 138,
-		17, 1, 0, 0, 0, 139, 144, 3, 20, 10, 0, 140, 144, 3, 22, 11, 0, 141, 144,
-		3, 24, 12, 0, 142, 144, 3, 46, 23, 0, 143, 139, 1, 0, 0, 0, 143, 140, 1,
-		0, 0, 0, 143, 141, 1, 0, 0, 0, 143, 142, 1, 0, 0, 0, 144, 19, 1, 0, 0,
-		0, 145, 146, 5, 44, 0, 0, 146, 147, 5, 5, 0, 0, 147, 148, 3, 44, 22, 0,
-		148, 21, 1, 0, 0, 0, 149, 150, 5, 44, 0, 0, 150, 151, 5, 6, 0, 0, 151,
-		152, 3, 44, 22, 0, 152, 23, 1, 0, 0, 0, 153, 154, 5, 3, 0, 0, 154, 155,
-		3, 44, 22, 0, 155, 25, 1, 0, 0, 0, 156, 162, 3, 44, 22, 0, 157, 158, 3,
-		0, 0, 0, 158, 159, 3, 34, 17, 0, 159, 161, 1, 0, 0, 0, 160, 157, 1, 0,
-		0, 0, 161, 164, 1, 0, 0, 0, 162, 160, 1, 0, 0, 0, 162, 163, 1, 0, 0, 0,
-		163, 167, 1, 0, 0, 0, 164, 162, 1, 0, 0, 0, 165, 168, 3, 0, 0, 0, 166,
-		168, 5, 0, 0, 1, 167, 165, 1, 0, 0, 0, 167, 166, 1, 0, 0, 0, 168, 27, 1,
-		0, 0, 0, 169, 174, 3, 44, 22, 0, 170, 171, 5, 19, 0, 0, 171, 173, 3, 34,
-		17, 0, 172, 170, 1, 0, 0, 0, 173, 176, 1, 0, 0, 0, 174, 172, 1, 0, 0, 0,
-		174, 175, 1, 0, 0, 0, 175, 29, 1, 0, 0, 0, 176, 174, 1, 0, 0, 0, 177, 181,
-		5, 29, 0, 0, 178, 180, 3, 0, 0, 0, 179, 178, 1, 0, 0, 0, 180, 183, 1, 0,
-		0, 0, 181, 179, 1, 0, 0, 0, 181, 182, 1, 0, 0, 0, 182, 186, 1, 0, 0, 0,
-		183, 181, 1, 0, 0, 0, 184, 187, 3, 26, 13, 0, 185, 187, 3, 28, 14, 0, 186,
-		184, 1, 0, 0, 0, 186, 185, 1, 0, 0, 0, 187, 191, 1, 0, 0, 0, 188, 190,
-		3, 0, 0, 0, 189, 188, 1, 0, 0, 0, 190, 193, 1, 0, 0, 0, 191, 189, 1, 0,
-		0, 0, 191, 192, 1, 0, 0, 0, 192, 194, 1, 0, 0, 0, 193, 191, 1, 0, 0, 0,
-		194, 195, 5, 30, 0, 0, 195, 31, 1, 0, 0, 0, 196, 200, 5, 34, 0, 0, 197,
-		199, 8, 0, 0, 0, 198, 197, 1, 0, 0, 0, 199, 202, 1, 0, 0, 0, 200, 198,
-		1, 0, 0, 0, 200, 201, 1, 0, 0, 0, 201, 203, 1, 0, 0, 0, 202, 200, 1, 0,
-		0, 0, 203, 204, 5, 34, 0, 0, 204, 33, 1, 0, 0, 0, 205, 209, 5, 44, 0, 0,
-		206, 208, 3, 36, 18, 0, 207, 206, 1, 0, 0, 0, 208, 211, 1, 0, 0, 0, 209,
-		207, 1, 0, 0, 0, 209, 210, 1, 0, 0, 0, 210, 35, 1, 0, 0, 0, 211, 209, 1,
-		0, 0, 0, 212, 217, 3, 38, 19, 0, 213, 217, 3, 40, 20, 0, 214, 217, 3, 42,
-		21, 0, 215, 217, 3, 46, 23, 0, 216, 212, 1, 0, 0, 0, 216, 213, 1, 0, 0,
-		0, 216, 214, 1, 0, 0, 0, 216, 215, 1, 0, 0, 0, 217, 37, 1, 0, 0, 0, 218,
-		219, 5, 44, 0, 0, 219, 222, 5, 20, 0, 0, 220, 223, 3, 40, 20, 0, 221, 223,
-		3, 46, 23, 0, 222, 220, 1, 0, 0, 0, 222, 221, 1, 0, 0, 0, 223, 39, 1, 0,
-		0, 0, 224, 225, 5, 44, 0, 0, 225, 226, 5, 5, 0, 0, 226, 227, 3, 44, 22,
-		0, 227, 41, 1, 0, 0, 0, 228, 229, 3, 54, 27, 0, 229, 230, 5, 5, 0, 0, 230,
-		231, 3, 44, 22, 0, 231, 43, 1, 0, 0, 0, 232, 235, 3, 34, 17, 0, 233, 235,
-		3, 46, 23, 0, 234, 232, 1, 0, 0, 0, 234, 233, 1, 0, 0, 0, 235, 45, 1, 0,
-		0, 0, 236, 237, 6, 23, -1, 0, 237, 238, 5, 29, 0, 0, 238, 239, 3, 46, 23,
-		0, 239, 240, 5, 30, 0, 0, 240, 243, 1, 0, 0, 0, 241, 243, 3, 48, 24, 0,
-		242, 236, 1, 0, 0, 0, 242, 241, 1, 0, 0, 0, 243, 270, 1, 0, 0, 0, 244,
-		245, 10, 10, 0, 0, 245, 246, 5, 23, 0, 0, 246, 269, 3, 46, 23, 11, 247,
-		248, 10, 9, 0, 0, 248, 249, 5, 10, 0, 0, 249, 269, 3, 46, 23, 10, 250,
-		251, 10, 8, 0, 0, 251, 252, 7, 1, 0, 0, 252, 269, 3, 46, 23, 9, 253, 254,
-		10, 7, 0, 0, 254, 255, 7, 2, 0, 0, 255, 269, 3, 46, 23, 8, 256, 257, 10,
-		6, 0, 0, 257, 258, 5, 13, 0, 0, 258, 269, 3, 46, 23, 7, 259, 260, 10, 5,
-		0, 0, 260, 261, 7, 3, 0, 0, 261, 269, 3, 46, 23, 6, 262, 263, 10, 4, 0,
-		0, 263, 264, 5, 42, 0, 0, 264, 269, 3, 46, 23, 5, 265, 266, 10, 3, 0, 0,
-		266, 267, 7, 4, 0, 0, 267, 269, 3, 46, 23, 4, 268, 244, 1, 0, 0, 0, 268,
-		247, 1, 0, 0, 0, 268, 250, 1, 0, 0, 0, 268, 253, 1, 0, 0, 0, 268, 256,
-		1, 0, 0, 0, 268, 259, 1, 0, 0, 0, 268, 262, 1, 0, 0, 0, 268, 265, 1, 0,
-		0, 0, 269, 272, 1, 0, 0, 0, 270, 268, 1, 0, 0, 0, 270, 271, 1, 0, 0, 0,
-		271, 47, 1, 0, 0, 0, 272, 270, 1, 0, 0, 0, 273, 279, 3, 52, 26, 0, 274,
-		279, 3, 32, 16, 0, 275, 279, 3, 50, 25, 0, 276, 279, 3, 54, 27, 0, 277,
-		279, 3, 30, 15, 0, 278, 273, 1, 0, 0, 0, 278, 274, 1, 0, 0, 0, 278, 275,
-		1, 0, 0, 0, 278, 276, 1, 0, 0, 0, 278, 277, 1, 0, 0, 0, 279, 49, 1, 0,
-		0, 0, 280, 281, 7, 5, 0, 0, 281, 282, 3, 48, 24, 0, 282, 51, 1, 0, 0, 0,
-		283, 284, 7, 6, 0, 0, 284, 53, 1, 0, 0, 0, 285, 320, 5, 27, 0, 0, 286,
-		288, 3, 0, 0, 0, 287, 286, 1, 0, 0, 0, 288, 291, 1, 0, 0, 0, 289, 287,
-		1, 0, 0, 0, 289, 290, 1, 0, 0, 0, 290, 295, 1, 0, 0, 0, 291, 289, 1, 0,
-		0, 0, 292, 296, 3, 40, 20, 0, 293, 296, 3, 42, 21, 0, 294, 296, 3, 44,
-		22, 0, 295, 292, 1, 0, 0, 0, 295, 293, 1, 0, 0, 0, 295, 294, 1, 0, 0, 0,
-		296, 311, 1, 0, 0, 0, 297, 301, 5, 21, 0, 0, 298, 300, 3, 0, 0, 0, 299,
-		298, 1, 0, 0, 0, 300, 303, 1, 0, 0, 0, 301, 299, 1, 0, 0, 0, 301, 302,
-		1, 0, 0, 0, 302, 307, 1, 0, 0, 0, 303, 301, 1, 0, 0, 0, 304, 308, 3, 40,
-		20, 0, 305, 308, 3, 42, 21, 0, 306, 308, 3, 44, 22, 0, 307, 304, 1, 0,
-		0, 0, 307, 305, 1, 0, 0, 0, 307, 306, 1, 0, 0, 0, 308, 310, 1, 0, 0, 0,
-		309, 297, 1, 0, 0, 0, 310, 313, 1, 0, 0, 0, 311, 309, 1, 0, 0, 0, 311,
-		312, 1, 0, 0, 0, 312, 315, 1, 0, 0, 0, 313, 311, 1, 0, 0, 0, 314, 316,
-		5, 21, 0, 0, 315, 314, 1, 0, 0, 0, 315, 316, 1, 0, 0, 0, 316, 318, 1, 0,
-		0, 0, 317, 319, 3, 0, 0, 0, 318, 317, 1, 0, 0, 0, 318, 319, 1, 0, 0, 0,
-		319, 321, 1, 0, 0, 0, 320, 289, 1, 0, 0, 0, 320, 321, 1, 0, 0, 0, 321,
-		322, 1, 0, 0, 0, 322, 323, 5, 28, 0, 0, 323, 55, 1, 0, 0, 0, 37, 61, 65,
-		70, 77, 82, 87, 96, 109, 114, 119, 122, 130, 137, 143, 162, 167, 174, 181,
-		186, 191, 200, 209, 216, 222, 234, 242, 268, 270, 278, 289, 295, 301, 307,
-		311, 315, 318, 320,
+		21, 7, 21, 2, 22, 7, 22, 2, 23, 7, 23, 2, 24, 7, 24, 1, 0, 1, 0, 1, 1,
+		5, 1, 54, 8, 1, 10, 1, 12, 1, 57, 9, 1, 1, 1, 3, 1, 60, 8, 1, 1, 1, 5,
+		1, 63, 8, 1, 10, 1, 12, 1, 66, 9, 1, 1, 1, 1, 1, 3, 1, 70, 8, 1, 1, 1,
+		5, 1, 73, 8, 1, 10, 1, 12, 1, 76, 9, 1, 5, 1, 78, 8, 1, 10, 1, 12, 1, 81,
+		9, 1, 1, 1, 1, 1, 1, 2, 1, 2, 5, 2, 87, 8, 2, 10, 2, 12, 2, 90, 9, 2, 1,
+		2, 1, 2, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 5, 3, 101, 8, 3, 10,
+		3, 12, 3, 104, 9, 3, 1, 3, 1, 3, 5, 3, 108, 8, 3, 10, 3, 12, 3, 111, 9,
+		3, 5, 3, 113, 8, 3, 10, 3, 12, 3, 116, 9, 3, 1, 3, 3, 3, 119, 8, 3, 1,
+		4, 1, 4, 3, 4, 123, 8, 4, 1, 5, 5, 5, 126, 8, 5, 10, 5, 12, 5, 129, 9,
+		5, 1, 6, 1, 6, 3, 6, 133, 8, 6, 1, 6, 3, 6, 136, 8, 6, 1, 7, 1, 7, 1, 7,
+		1, 7, 5, 7, 142, 8, 7, 10, 7, 12, 7, 145, 9, 7, 1, 7, 1, 7, 1, 8, 1, 8,
+		3, 8, 151, 8, 8, 1, 9, 1, 9, 1, 9, 1, 9, 3, 9, 157, 8, 9, 1, 10, 1, 10,
+		1, 10, 1, 10, 1, 11, 1, 11, 1, 11, 1, 11, 1, 12, 1, 12, 1, 12, 1, 13, 1,
+		13, 3, 13, 172, 8, 13, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14,
+		1, 14, 1, 14, 1, 14, 3, 14, 184, 8, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1,
+		14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14,
+		1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 1, 14, 5, 14, 210,
+		8, 14, 10, 14, 12, 14, 213, 9, 14, 1, 15, 1, 15, 1, 16, 1, 16, 5, 16, 219,
+		8, 16, 10, 16, 12, 16, 222, 9, 16, 1, 16, 1, 16, 1, 16, 3, 16, 227, 8,
+		16, 1, 16, 1, 16, 5, 16, 231, 8, 16, 10, 16, 12, 16, 234, 9, 16, 1, 16,
+		1, 16, 1, 16, 3, 16, 239, 8, 16, 5, 16, 241, 8, 16, 10, 16, 12, 16, 244,
+		9, 16, 1, 16, 3, 16, 247, 8, 16, 1, 16, 3, 16, 250, 8, 16, 3, 16, 252,
+		8, 16, 1, 16, 1, 16, 1, 17, 1, 17, 1, 17, 5, 17, 259, 8, 17, 10, 17, 12,
+		17, 262, 9, 17, 1, 18, 1, 18, 1, 18, 1, 18, 3, 18, 268, 8, 18, 1, 19, 1,
+		19, 1, 19, 1, 19, 3, 19, 274, 8, 19, 1, 20, 1, 20, 1, 20, 1, 20, 1, 21,
+		1, 21, 1, 21, 1, 21, 1, 22, 1, 22, 1, 22, 1, 22, 5, 22, 288, 8, 22, 10,
+		22, 12, 22, 291, 9, 22, 1, 22, 1, 22, 1, 23, 1, 23, 1, 23, 5, 23, 298,
+		8, 23, 10, 23, 12, 23, 301, 9, 23, 1, 24, 1, 24, 5, 24, 305, 8, 24, 10,
+		24, 12, 24, 308, 9, 24, 1, 24, 1, 24, 3, 24, 312, 8, 24, 1, 24, 5, 24,
+		315, 8, 24, 10, 24, 12, 24, 318, 9, 24, 1, 24, 1, 24, 1, 24, 0, 1, 28,
+		25, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34,
+		36, 38, 40, 42, 44, 46, 48, 0, 7, 1, 0, 50, 51, 2, 0, 7, 8, 42, 42, 2,
+		0, 9, 9, 11, 12, 1, 0, 7, 8, 1, 0, 14, 19, 1, 0, 40, 41, 4, 0, 44, 44,
+		46, 46, 52, 55, 58, 64, 349, 0, 50, 1, 0, 0, 0, 2, 55, 1, 0, 0, 0, 4, 84,
+		1, 0, 0, 0, 6, 93, 1, 0, 0, 0, 8, 120, 1, 0, 0, 0, 10, 127, 1, 0, 0, 0,
+		12, 132, 1, 0, 0, 0, 14, 137, 1, 0, 0, 0, 16, 148, 1, 0, 0, 0, 18, 156,
+		1, 0, 0, 0, 20, 158, 1, 0, 0, 0, 22, 162, 1, 0, 0, 0, 24, 166, 1, 0, 0,
+		0, 26, 171, 1, 0, 0, 0, 28, 183, 1, 0, 0, 0, 30, 214, 1, 0, 0, 0, 32, 216,
+		1, 0, 0, 0, 34, 255, 1, 0, 0, 0, 36, 267, 1, 0, 0, 0, 38, 269, 1, 0, 0,
+		0, 40, 275, 1, 0, 0, 0, 42, 279, 1, 0, 0, 0, 44, 283, 1, 0, 0, 0, 46, 294,
+		1, 0, 0, 0, 48, 302, 1, 0, 0, 0, 50, 51, 7, 0, 0, 0, 51, 1, 1, 0, 0, 0,
+		52, 54, 3, 0, 0, 0, 53, 52, 1, 0, 0, 0, 54, 57, 1, 0, 0, 0, 55, 53, 1,
+		0, 0, 0, 55, 56, 1, 0, 0, 0, 56, 59, 1, 0, 0, 0, 57, 55, 1, 0, 0, 0, 58,
+		60, 3, 4, 2, 0, 59, 58, 1, 0, 0, 0, 59, 60, 1, 0, 0, 0, 60, 64, 1, 0, 0,
+		0, 61, 63, 3, 0, 0, 0, 62, 61, 1, 0, 0, 0, 63, 66, 1, 0, 0, 0, 64, 62,
+		1, 0, 0, 0, 64, 65, 1, 0, 0, 0, 65, 79, 1, 0, 0, 0, 66, 64, 1, 0, 0, 0,
+		67, 70, 3, 6, 3, 0, 68, 70, 3, 18, 9, 0, 69, 67, 1, 0, 0, 0, 69, 68, 1,
+		0, 0, 0, 70, 74, 1, 0, 0, 0, 71, 73, 3, 0, 0, 0, 72, 71, 1, 0, 0, 0, 73,
+		76, 1, 0, 0, 0, 74, 72, 1, 0, 0, 0, 74, 75, 1, 0, 0, 0, 75, 78, 1, 0, 0,
+		0, 76, 74, 1, 0, 0, 0, 77, 69, 1, 0, 0, 0, 78, 81, 1, 0, 0, 0, 79, 77,
+		1, 0, 0, 0, 79, 80, 1, 0, 0, 0, 80, 82, 1, 0, 0, 0, 81, 79, 1, 0, 0, 0,
+		82, 83, 5, 0, 0, 1, 83, 3, 1, 0, 0, 0, 84, 88, 5, 2, 0, 0, 85, 87, 3, 38,
+		19, 0, 86, 85, 1, 0, 0, 0, 87, 90, 1, 0, 0, 0, 88, 86, 1, 0, 0, 0, 88,
+		89, 1, 0, 0, 0, 89, 91, 1, 0, 0, 0, 90, 88, 1, 0, 0, 0, 91, 92, 3, 0, 0,
+		0, 92, 5, 1, 0, 0, 0, 93, 94, 5, 1, 0, 0, 94, 95, 3, 8, 4, 0, 95, 96, 3,
+		10, 5, 0, 96, 118, 5, 4, 0, 0, 97, 119, 3, 26, 13, 0, 98, 102, 5, 30, 0,
+		0, 99, 101, 3, 0, 0, 0, 100, 99, 1, 0, 0, 0, 101, 104, 1, 0, 0, 0, 102,
+		100, 1, 0, 0, 0, 102, 103, 1, 0, 0, 0, 103, 114, 1, 0, 0, 0, 104, 102,
+		1, 0, 0, 0, 105, 109, 3, 18, 9, 0, 106, 108, 3, 0, 0, 0, 107, 106, 1, 0,
+		0, 0, 108, 111, 1, 0, 0, 0, 109, 107, 1, 0, 0, 0, 109, 110, 1, 0, 0, 0,
+		110, 113, 1, 0, 0, 0, 111, 109, 1, 0, 0, 0, 112, 105, 1, 0, 0, 0, 113,
+		116, 1, 0, 0, 0, 114, 112, 1, 0, 0, 0, 114, 115, 1, 0, 0, 0, 115, 117,
+		1, 0, 0, 0, 116, 114, 1, 0, 0, 0, 117, 119, 5, 31, 0, 0, 118, 97, 1, 0,
+		0, 0, 118, 98, 1, 0, 0, 0, 119, 7, 1, 0, 0, 0, 120, 122, 5, 46, 0, 0, 121,
+		123, 3, 14, 7, 0, 122, 121, 1, 0, 0, 0, 122, 123, 1, 0, 0, 0, 123, 9, 1,
+		0, 0, 0, 124, 126, 3, 12, 6, 0, 125, 124, 1, 0, 0, 0, 126, 129, 1, 0, 0,
+		0, 127, 125, 1, 0, 0, 0, 127, 128, 1, 0, 0, 0, 128, 11, 1, 0, 0, 0, 129,
+		127, 1, 0, 0, 0, 130, 133, 3, 38, 19, 0, 131, 133, 5, 46, 0, 0, 132, 130,
+		1, 0, 0, 0, 132, 131, 1, 0, 0, 0, 133, 135, 1, 0, 0, 0, 134, 136, 3, 14,
+		7, 0, 135, 134, 1, 0, 0, 0, 135, 136, 1, 0, 0, 0, 136, 13, 1, 0, 0, 0,
+		137, 138, 5, 32, 0, 0, 138, 139, 3, 16, 8, 0, 139, 143, 5, 20, 0, 0, 140,
+		142, 3, 16, 8, 0, 141, 140, 1, 0, 0, 0, 142, 145, 1, 0, 0, 0, 143, 141,
+		1, 0, 0, 0, 143, 144, 1, 0, 0, 0, 144, 146, 1, 0, 0, 0, 145, 143, 1, 0,
+		0, 0, 146, 147, 5, 33, 0, 0, 147, 15, 1, 0, 0, 0, 148, 150, 5, 46, 0, 0,
+		149, 151, 3, 14, 7, 0, 150, 149, 1, 0, 0, 0, 150, 151, 1, 0, 0, 0, 151,
+		17, 1, 0, 0, 0, 152, 157, 3, 20, 10, 0, 153, 157, 3, 22, 11, 0, 154, 157,
+		3, 24, 12, 0, 155, 157, 3, 26, 13, 0, 156, 152, 1, 0, 0, 0, 156, 153, 1,
+		0, 0, 0, 156, 154, 1, 0, 0, 0, 156, 155, 1, 0, 0, 0, 157, 19, 1, 0, 0,
+		0, 158, 159, 5, 46, 0, 0, 159, 160, 5, 5, 0, 0, 160, 161, 3, 26, 13, 0,
+		161, 21, 1, 0, 0, 0, 162, 163, 5, 46, 0, 0, 163, 164, 5, 6, 0, 0, 164,
+		165, 3, 26, 13, 0, 165, 23, 1, 0, 0, 0, 166, 167, 5, 3, 0, 0, 167, 168,
+		3, 26, 13, 0, 168, 25, 1, 0, 0, 0, 169, 172, 3, 28, 14, 0, 170, 172, 3,
+		34, 17, 0, 171, 169, 1, 0, 0, 0, 171, 170, 1, 0, 0, 0, 172, 27, 1, 0, 0,
+		0, 173, 174, 6, 14, -1, 0, 174, 184, 3, 30, 15, 0, 175, 176, 7, 1, 0, 0,
+		176, 184, 3, 28, 14, 11, 177, 178, 5, 28, 0, 0, 178, 179, 3, 28, 14, 0,
+		179, 180, 5, 29, 0, 0, 180, 184, 1, 0, 0, 0, 181, 184, 3, 32, 16, 0, 182,
+		184, 3, 48, 24, 0, 183, 173, 1, 0, 0, 0, 183, 175, 1, 0, 0, 0, 183, 177,
+		1, 0, 0, 0, 183, 181, 1, 0, 0, 0, 183, 182, 1, 0, 0, 0, 184, 211, 1, 0,
+		0, 0, 185, 186, 10, 12, 0, 0, 186, 187, 5, 45, 0, 0, 187, 210, 3, 28, 14,
+		13, 188, 189, 10, 10, 0, 0, 189, 190, 5, 10, 0, 0, 190, 210, 3, 28, 14,
+		11, 191, 192, 10, 9, 0, 0, 192, 193, 7, 2, 0, 0, 193, 210, 3, 28, 14, 10,
+		194, 195, 10, 8, 0, 0, 195, 196, 7, 3, 0, 0, 196, 210, 3, 28, 14, 9, 197,
+		198, 10, 7, 0, 0, 198, 199, 5, 13, 0, 0, 199, 210, 3, 28, 14, 8, 200, 201,
+		10, 6, 0, 0, 201, 202, 7, 4, 0, 0, 202, 210, 3, 28, 14, 7, 203, 204, 10,
+		5, 0, 0, 204, 205, 5, 43, 0, 0, 205, 210, 3, 28, 14, 6, 206, 207, 10, 4,
+		0, 0, 207, 208, 7, 5, 0, 0, 208, 210, 3, 28, 14, 5, 209, 185, 1, 0, 0,
+		0, 209, 188, 1, 0, 0, 0, 209, 191, 1, 0, 0, 0, 209, 194, 1, 0, 0, 0, 209,
+		197, 1, 0, 0, 0, 209, 200, 1, 0, 0, 0, 209, 203, 1, 0, 0, 0, 209, 206,
+		1, 0, 0, 0, 210, 213, 1, 0, 0, 0, 211, 209, 1, 0, 0, 0, 211, 212, 1, 0,
+		0, 0, 212, 29, 1, 0, 0, 0, 213, 211, 1, 0, 0, 0, 214, 215, 7, 6, 0, 0,
+		215, 31, 1, 0, 0, 0, 216, 251, 5, 26, 0, 0, 217, 219, 3, 0, 0, 0, 218,
+		217, 1, 0, 0, 0, 219, 222, 1, 0, 0, 0, 220, 218, 1, 0, 0, 0, 220, 221,
+		1, 0, 0, 0, 221, 226, 1, 0, 0, 0, 222, 220, 1, 0, 0, 0, 223, 227, 3, 40,
+		20, 0, 224, 227, 3, 42, 21, 0, 225, 227, 3, 26, 13, 0, 226, 223, 1, 0,
+		0, 0, 226, 224, 1, 0, 0, 0, 226, 225, 1, 0, 0, 0, 227, 242, 1, 0, 0, 0,
+		228, 232, 5, 22, 0, 0, 229, 231, 3, 0, 0, 0, 230, 229, 1, 0, 0, 0, 231,
+		234, 1, 0, 0, 0, 232, 230, 1, 0, 0, 0, 232, 233, 1, 0, 0, 0, 233, 238,
+		1, 0, 0, 0, 234, 232, 1, 0, 0, 0, 235, 239, 3, 40, 20, 0, 236, 239, 3,
+		42, 21, 0, 237, 239, 3, 26, 13, 0, 238, 235, 1, 0, 0, 0, 238, 236, 1, 0,
+		0, 0, 238, 237, 1, 0, 0, 0, 239, 241, 1, 0, 0, 0, 240, 228, 1, 0, 0, 0,
+		241, 244, 1, 0, 0, 0, 242, 240, 1, 0, 0, 0, 242, 243, 1, 0, 0, 0, 243,
+		246, 1, 0, 0, 0, 244, 242, 1, 0, 0, 0, 245, 247, 5, 22, 0, 0, 246, 245,
+		1, 0, 0, 0, 246, 247, 1, 0, 0, 0, 247, 249, 1, 0, 0, 0, 248, 250, 3, 0,
+		0, 0, 249, 248, 1, 0, 0, 0, 249, 250, 1, 0, 0, 0, 250, 252, 1, 0, 0, 0,
+		251, 220, 1, 0, 0, 0, 251, 252, 1, 0, 0, 0, 252, 253, 1, 0, 0, 0, 253,
+		254, 5, 27, 0, 0, 254, 33, 1, 0, 0, 0, 255, 256, 5, 46, 0, 0, 256, 260,
+		5, 24, 0, 0, 257, 259, 3, 36, 18, 0, 258, 257, 1, 0, 0, 0, 259, 262, 1,
+		0, 0, 0, 260, 258, 1, 0, 0, 0, 260, 261, 1, 0, 0, 0, 261, 35, 1, 0, 0,
+		0, 262, 260, 1, 0, 0, 0, 263, 268, 3, 38, 19, 0, 264, 268, 3, 40, 20, 0,
+		265, 268, 3, 42, 21, 0, 266, 268, 3, 26, 13, 0, 267, 263, 1, 0, 0, 0, 267,
+		264, 1, 0, 0, 0, 267, 265, 1, 0, 0, 0, 267, 266, 1, 0, 0, 0, 268, 37, 1,
+		0, 0, 0, 269, 270, 5, 46, 0, 0, 270, 273, 5, 21, 0, 0, 271, 274, 3, 40,
+		20, 0, 272, 274, 3, 26, 13, 0, 273, 271, 1, 0, 0, 0, 273, 272, 1, 0, 0,
+		0, 274, 39, 1, 0, 0, 0, 275, 276, 5, 46, 0, 0, 276, 277, 5, 5, 0, 0, 277,
+		278, 3, 26, 13, 0, 278, 41, 1, 0, 0, 0, 279, 280, 3, 32, 16, 0, 280, 281,
+		5, 5, 0, 0, 281, 282, 3, 26, 13, 0, 282, 43, 1, 0, 0, 0, 283, 289, 3, 26,
+		13, 0, 284, 285, 3, 0, 0, 0, 285, 286, 3, 34, 17, 0, 286, 288, 1, 0, 0,
+		0, 287, 284, 1, 0, 0, 0, 288, 291, 1, 0, 0, 0, 289, 287, 1, 0, 0, 0, 289,
+		290, 1, 0, 0, 0, 290, 292, 1, 0, 0, 0, 291, 289, 1, 0, 0, 0, 292, 293,
+		3, 0, 0, 0, 293, 45, 1, 0, 0, 0, 294, 299, 3, 26, 13, 0, 295, 296, 5, 20,
+		0, 0, 296, 298, 3, 34, 17, 0, 297, 295, 1, 0, 0, 0, 298, 301, 1, 0, 0,
+		0, 299, 297, 1, 0, 0, 0, 299, 300, 1, 0, 0, 0, 300, 47, 1, 0, 0, 0, 301,
+		299, 1, 0, 0, 0, 302, 306, 5, 28, 0, 0, 303, 305, 3, 0, 0, 0, 304, 303,
+		1, 0, 0, 0, 305, 308, 1, 0, 0, 0, 306, 304, 1, 0, 0, 0, 306, 307, 1, 0,
+		0, 0, 307, 311, 1, 0, 0, 0, 308, 306, 1, 0, 0, 0, 309, 312, 3, 44, 22,
+		0, 310, 312, 3, 46, 23, 0, 311, 309, 1, 0, 0, 0, 311, 310, 1, 0, 0, 0,
+		312, 316, 1, 0, 0, 0, 313, 315, 3, 0, 0, 0, 314, 313, 1, 0, 0, 0, 315,
+		318, 1, 0, 0, 0, 316, 314, 1, 0, 0, 0, 316, 317, 1, 0, 0, 0, 317, 319,
+		1, 0, 0, 0, 318, 316, 1, 0, 0, 0, 319, 320, 5, 29, 0, 0, 320, 49, 1, 0,
+		0, 0, 38, 55, 59, 64, 69, 74, 79, 88, 102, 109, 114, 118, 122, 127, 132,
+		135, 143, 150, 156, 171, 183, 209, 211, 220, 226, 232, 238, 242, 246, 249,
+		251, 260, 267, 273, 289, 299, 306, 311, 316,
 	}
 	deserializer := antlr.NewATNDeserializer(nil)
 	staticData.atn = deserializer.Deserialize(staticData.serializedATN)
@@ -259,53 +257,55 @@ const (
 	preludioParserMODEL               = 13
 	preludioParserEQ                  = 14
 	preludioParserNE                  = 15
-	preludioParserLE                  = 16
-	preludioParserGE                  = 17
-	preludioParserAT                  = 18
-	preludioParserBAR                 = 19
-	preludioParserCOLON               = 20
-	preludioParserCOMMA               = 21
-	preludioParserDOT                 = 22
-	preludioParserDOLLAR              = 23
-	preludioParserRANGE               = 24
-	preludioParserLANG                = 25
-	preludioParserRANG                = 26
-	preludioParserLBRACKET            = 27
-	preludioParserRBRACKET            = 28
-	preludioParserLPAREN              = 29
-	preludioParserRPAREN              = 30
-	preludioParserLBRACE              = 31
-	preludioParserRBRACE              = 32
-	preludioParserUNDERSCORE          = 33
-	preludioParserBACKTICK            = 34
-	preludioParserDOUBLE_QUOTE        = 35
-	preludioParserSINGLE_QUOTE        = 36
-	preludioParserTRIPLE_DOUBLE_QUOTE = 37
-	preludioParserTRIPLE_SINGLE_QUOTE = 38
-	preludioParserAND                 = 39
-	preludioParserOR                  = 40
-	preludioParserNOT                 = 41
-	preludioParserCOALESCE            = 42
-	preludioParserNULL_               = 43
-	preludioParserIDENT               = 44
-	preludioParserIDENT_START         = 45
-	preludioParserIDENT_NEXT          = 46
-	preludioParserWHITESPACE          = 47
-	preludioParserNEWLINE             = 48
-	preludioParserSINGLE_LINE_COMMENT = 49
-	preludioParserBOOLEAN_LIT         = 50
-	preludioParserINTEGER_LIT         = 51
-	preludioParserRANGE_LIT           = 52
-	preludioParserFLOAT_LIT           = 53
-	preludioParserSTRING_CHAR         = 54
-	preludioParserSTRING_RAW_CHAR     = 55
-	preludioParserSTRING_LIT          = 56
-	preludioParserSTRING_INTERP_LIT   = 57
-	preludioParserSTRING_RAW_LIT      = 58
-	preludioParserSTRING_PATH_LIT     = 59
-	preludioParserREGEX_LIT           = 60
-	preludioParserDATE_LIT            = 61
-	preludioParserDURATION_LIT        = 62
+	preludioParserGE                  = 16
+	preludioParserGT                  = 17
+	preludioParserLE                  = 18
+	preludioParserLT                  = 19
+	preludioParserBAR                 = 20
+	preludioParserCOLON               = 21
+	preludioParserCOMMA               = 22
+	preludioParserDOT                 = 23
+	preludioParserDOLLAR              = 24
+	preludioParserRANGE               = 25
+	preludioParserLBRACKET            = 26
+	preludioParserRBRACKET            = 27
+	preludioParserLPAREN              = 28
+	preludioParserRPAREN              = 29
+	preludioParserLBRACE              = 30
+	preludioParserRBRACE              = 31
+	preludioParserLANG                = 32
+	preludioParserRANG                = 33
+	preludioParserUNDERSCORE          = 34
+	preludioParserBACKTICK            = 35
+	preludioParserDOUBLE_QUOTE        = 36
+	preludioParserSINGLE_QUOTE        = 37
+	preludioParserTRIPLE_DOUBLE_QUOTE = 38
+	preludioParserTRIPLE_SINGLE_QUOTE = 39
+	preludioParserAND                 = 40
+	preludioParserOR                  = 41
+	preludioParserNOT                 = 42
+	preludioParserCOALESCE            = 43
+	preludioParserNA                  = 44
+	preludioParserINDEXING            = 45
+	preludioParserIDENT               = 46
+	preludioParserIDENT_START         = 47
+	preludioParserIDENT_NEXT          = 48
+	preludioParserWHITESPACE          = 49
+	preludioParserNEWLINE             = 50
+	preludioParserSINGLE_LINE_COMMENT = 51
+	preludioParserBOOLEAN_LIT         = 52
+	preludioParserINTEGER_LIT         = 53
+	preludioParserRANGE_LIT           = 54
+	preludioParserFLOAT_LIT           = 55
+	preludioParserSTRING_CHAR         = 56
+	preludioParserSTRING_RAW_CHAR     = 57
+	preludioParserSTRING_LIT          = 58
+	preludioParserSTRING_INTERP_LIT   = 59
+	preludioParserSTRING_RAW_LIT      = 60
+	preludioParserSTRING_PATH_LIT     = 61
+	preludioParserREGEX_LIT           = 62
+	preludioParserDATE_LIT            = 63
+	preludioParserDURATION_LIT        = 64
 )
 
 // preludioParser rules.
@@ -323,21 +323,18 @@ const (
 	preludioParserRULE_varAssignStmt  = 10
 	preludioParserRULE_varDeclStmt    = 11
 	preludioParserRULE_retStmt        = 12
-	preludioParserRULE_pipeline       = 13
-	preludioParserRULE_inlinePipeline = 14
-	preludioParserRULE_nestedPipeline = 15
-	preludioParserRULE_identBacktick  = 16
+	preludioParserRULE_exprCall       = 13
+	preludioParserRULE_expr           = 14
+	preludioParserRULE_literal        = 15
+	preludioParserRULE_list           = 16
 	preludioParserRULE_funcCall       = 17
 	preludioParserRULE_funcCallParam  = 18
 	preludioParserRULE_namedArg       = 19
 	preludioParserRULE_assign         = 20
 	preludioParserRULE_multiAssign    = 21
-	preludioParserRULE_exprCall       = 22
-	preludioParserRULE_expr           = 23
-	preludioParserRULE_term           = 24
-	preludioParserRULE_exprUnary      = 25
-	preludioParserRULE_literal        = 26
-	preludioParserRULE_list           = 27
+	preludioParserRULE_pipeline       = 22
+	preludioParserRULE_inlinePipeline = 23
+	preludioParserRULE_nestedPipeline = 24
 )
 
 // INlContext is an interface to support dynamic dispatch.
@@ -382,6 +379,10 @@ func (s *NlContext) NEWLINE() antlr.TerminalNode {
 	return s.GetToken(preludioParserNEWLINE, 0)
 }
 
+func (s *NlContext) SINGLE_LINE_COMMENT() antlr.TerminalNode {
+	return s.GetToken(preludioParserSINGLE_LINE_COMMENT, 0)
+}
+
 func (s *NlContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -408,6 +409,7 @@ func (p *preludioParser) Nl() (localctx INlContext) {
 
 	localctx = NewNlContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 0, preludioParserRULE_nl)
+	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -427,8 +429,15 @@ func (p *preludioParser) Nl() (localctx INlContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(56)
-		p.Match(preludioParserNEWLINE)
+		p.SetState(50)
+		_la = p.GetTokenStream().LA(1)
+
+		if !(_la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT) {
+			p.GetErrorHandler().RecoverInline(p)
+		} else {
+			p.GetErrorHandler().ReportMatch(p)
+			p.Consume()
+		}
 	}
 
 	return localctx
@@ -574,88 +583,6 @@ func (s *ProgramContext) FuncDef(i int) IFuncDefContext {
 	return t.(IFuncDefContext)
 }
 
-func (s *ProgramContext) AllPipeline() []IPipelineContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(IPipelineContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]IPipelineContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(IPipelineContext); ok {
-			tst[i] = t.(IPipelineContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *ProgramContext) Pipeline(i int) IPipelineContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IPipelineContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IPipelineContext)
-}
-
-func (s *ProgramContext) AllInlinePipeline() []IInlinePipelineContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(IInlinePipelineContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]IInlinePipelineContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(IInlinePipelineContext); ok {
-			tst[i] = t.(IInlinePipelineContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *ProgramContext) InlinePipeline(i int) IInlinePipelineContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInlinePipelineContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IInlinePipelineContext)
-}
-
 func (s *ProgramContext) AllStmt() []IStmtContext {
 	children := s.GetChildren()
 	len := 0
@@ -744,101 +671,92 @@ func (p *preludioParser) Program() (localctx IProgramContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(61)
+	p.SetState(55)
 	p.GetErrorHandler().Sync(p)
 	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 0, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
 			{
-				p.SetState(58)
+				p.SetState(52)
 				p.Nl()
 			}
 
 		}
-		p.SetState(63)
+		p.SetState(57)
 		p.GetErrorHandler().Sync(p)
 		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 0, p.GetParserRuleContext())
 	}
-	p.SetState(65)
+	p.SetState(59)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == preludioParserPRQL {
 		{
-			p.SetState(64)
+			p.SetState(58)
 			p.ProgramIntro()
 		}
 
 	}
-	p.SetState(70)
+	p.SetState(64)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for _la == preludioParserNEWLINE {
+	for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
 		{
-			p.SetState(67)
+			p.SetState(61)
 			p.Nl()
 		}
 
-		p.SetState(72)
+		p.SetState(66)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
-	p.SetState(87)
+	p.SetState(79)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&9168231546572767626) != 0 {
-		p.SetState(77)
+	for (int64((_la-1)) & ^0x3f) == 0 && ((int64(1)<<(_la-1))&-110292011214438203) != 0 {
+		p.SetState(69)
 		p.GetErrorHandler().Sync(p)
-		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 3, p.GetParserRuleContext()) {
-		case 1:
+
+		switch p.GetTokenStream().LA(1) {
+		case preludioParserFUNC:
 			{
-				p.SetState(73)
+				p.SetState(67)
 				p.FuncDef()
 			}
 
-		case 2:
+		case preludioParserRET, preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
 			{
-				p.SetState(74)
-				p.Pipeline()
-			}
-
-		case 3:
-			{
-				p.SetState(75)
-				p.InlinePipeline()
-			}
-
-		case 4:
-			{
-				p.SetState(76)
+				p.SetState(68)
 				p.Stmt()
 			}
 
+		default:
+			panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 		}
-		p.SetState(82)
+		p.SetState(74)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		for _la == preludioParserNEWLINE {
+		for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
 			{
-				p.SetState(79)
+				p.SetState(71)
 				p.Nl()
 			}
 
-			p.SetState(84)
+			p.SetState(76)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
 
-		p.SetState(89)
+		p.SetState(81)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(90)
+		p.SetState(82)
 		p.Match(preludioParserEOF)
 	}
 
@@ -990,25 +908,25 @@ func (p *preludioParser) ProgramIntro() (localctx IProgramIntroContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(92)
+		p.SetState(84)
 		p.Match(preludioParserPRQL)
 	}
-	p.SetState(96)
+	p.SetState(88)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == preludioParserIDENT {
 		{
-			p.SetState(93)
+			p.SetState(85)
 			p.NamedArg()
 		}
 
-		p.SetState(98)
+		p.SetState(90)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(99)
+		p.SetState(91)
 		p.Nl()
 	}
 
@@ -1093,10 +1011,10 @@ func (s *FuncDefContext) ARROW() antlr.TerminalNode {
 	return s.GetToken(preludioParserARROW, 0)
 }
 
-func (s *FuncDefContext) Expr() IExprContext {
+func (s *FuncDefContext) ExprCall() IExprCallContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprContext); ok {
+		if _, ok := ctx.(IExprCallContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1106,7 +1024,97 @@ func (s *FuncDefContext) Expr() IExprContext {
 		return nil
 	}
 
-	return t.(IExprContext)
+	return t.(IExprCallContext)
+}
+
+func (s *FuncDefContext) LBRACE() antlr.TerminalNode {
+	return s.GetToken(preludioParserLBRACE, 0)
+}
+
+func (s *FuncDefContext) RBRACE() antlr.TerminalNode {
+	return s.GetToken(preludioParserRBRACE, 0)
+}
+
+func (s *FuncDefContext) AllNl() []INlContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(INlContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]INlContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(INlContext); ok {
+			tst[i] = t.(INlContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *FuncDefContext) Nl(i int) INlContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(INlContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(INlContext)
+}
+
+func (s *FuncDefContext) AllStmt() []IStmtContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IStmtContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IStmtContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IStmtContext); ok {
+			tst[i] = t.(IStmtContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *FuncDefContext) Stmt(i int) IStmtContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IStmtContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IStmtContext)
 }
 
 func (s *FuncDefContext) GetRuleContext() antlr.RuleContext {
@@ -1135,6 +1143,7 @@ func (p *preludioParser) FuncDef() (localctx IFuncDefContext) {
 
 	localctx = NewFuncDefContext(p, p.GetParserRuleContext(), p.GetState())
 	p.EnterRule(localctx, 6, preludioParserRULE_funcDef)
+	var _la int
 
 	defer func() {
 		p.ExitRule()
@@ -1154,24 +1163,85 @@ func (p *preludioParser) FuncDef() (localctx IFuncDefContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(101)
+		p.SetState(93)
 		p.Match(preludioParserFUNC)
 	}
 	{
-		p.SetState(102)
+		p.SetState(94)
 		p.FuncDefName()
 	}
 	{
-		p.SetState(103)
+		p.SetState(95)
 		p.FuncDefParams()
 	}
 	{
-		p.SetState(104)
+		p.SetState(96)
 		p.Match(preludioParserARROW)
 	}
-	{
-		p.SetState(105)
-		p.expr(0)
+	p.SetState(118)
+	p.GetErrorHandler().Sync(p)
+
+	switch p.GetTokenStream().LA(1) {
+	case preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
+		{
+			p.SetState(97)
+			p.ExprCall()
+		}
+
+	case preludioParserLBRACE:
+		{
+			p.SetState(98)
+			p.Match(preludioParserLBRACE)
+		}
+		p.SetState(102)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+
+		for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
+			{
+				p.SetState(99)
+				p.Nl()
+			}
+
+			p.SetState(104)
+			p.GetErrorHandler().Sync(p)
+			_la = p.GetTokenStream().LA(1)
+		}
+		p.SetState(114)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+
+		for (int64((_la-3)) & ^0x3f) == 0 && ((int64(1)<<(_la-3))&4584113015623778353) != 0 {
+			{
+				p.SetState(105)
+				p.Stmt()
+			}
+			p.SetState(109)
+			p.GetErrorHandler().Sync(p)
+			_la = p.GetTokenStream().LA(1)
+
+			for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
+				{
+					p.SetState(106)
+					p.Nl()
+				}
+
+				p.SetState(111)
+				p.GetErrorHandler().Sync(p)
+				_la = p.GetTokenStream().LA(1)
+			}
+
+			p.SetState(116)
+			p.GetErrorHandler().Sync(p)
+			_la = p.GetTokenStream().LA(1)
+		}
+		{
+			p.SetState(117)
+			p.Match(preludioParserRBRACE)
+		}
+
+	default:
+		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
 	}
 
 	return localctx
@@ -1281,16 +1351,16 @@ func (p *preludioParser) FuncDefName() (localctx IFuncDefNameContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(107)
+		p.SetState(120)
 		p.Match(preludioParserIDENT)
 	}
-	p.SetState(109)
+	p.SetState(122)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == preludioParserLANG {
 		{
-			p.SetState(108)
+			p.SetState(121)
 			p.TypeDef()
 		}
 
@@ -1423,17 +1493,17 @@ func (p *preludioParser) FuncDefParams() (localctx IFuncDefParamsContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(114)
+	p.SetState(127)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == preludioParserIDENT {
 		{
-			p.SetState(111)
+			p.SetState(124)
 			p.FuncDefParam()
 		}
 
-		p.SetState(116)
+		p.SetState(129)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
@@ -1560,29 +1630,29 @@ func (p *preludioParser) FuncDefParam() (localctx IFuncDefParamContext) {
 	}()
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(119)
+	p.SetState(132)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 9, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 13, p.GetParserRuleContext()) {
 	case 1:
 		{
-			p.SetState(117)
+			p.SetState(130)
 			p.NamedArg()
 		}
 
 	case 2:
 		{
-			p.SetState(118)
+			p.SetState(131)
 			p.Match(preludioParserIDENT)
 		}
 
 	}
-	p.SetState(122)
+	p.SetState(135)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == preludioParserLANG {
 		{
-			p.SetState(121)
+			p.SetState(134)
 			p.TypeDef()
 		}
 
@@ -1728,33 +1798,33 @@ func (p *preludioParser) TypeDef() (localctx ITypeDefContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(124)
+		p.SetState(137)
 		p.Match(preludioParserLANG)
 	}
 	{
-		p.SetState(125)
+		p.SetState(138)
 		p.TypeTerm()
 	}
 	{
-		p.SetState(126)
+		p.SetState(139)
 		p.Match(preludioParserBAR)
 	}
-	p.SetState(130)
+	p.SetState(143)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	for _la == preludioParserIDENT {
 		{
-			p.SetState(127)
+			p.SetState(140)
 			p.TypeTerm()
 		}
 
-		p.SetState(132)
+		p.SetState(145)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 	}
 	{
-		p.SetState(133)
+		p.SetState(146)
 		p.Match(preludioParserRANG)
 	}
 
@@ -1865,16 +1935,16 @@ func (p *preludioParser) TypeTerm() (localctx ITypeTermContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(135)
+		p.SetState(148)
 		p.Match(preludioParserIDENT)
 	}
-	p.SetState(137)
+	p.SetState(150)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
 	if _la == preludioParserLANG {
 		{
-			p.SetState(136)
+			p.SetState(149)
 			p.TypeDef()
 		}
 
@@ -1969,10 +2039,10 @@ func (s *StmtContext) RetStmt() IRetStmtContext {
 	return t.(IRetStmtContext)
 }
 
-func (s *StmtContext) Expr() IExprContext {
+func (s *StmtContext) ExprCall() IExprCallContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprContext); ok {
+		if _, ok := ctx.(IExprCallContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -1982,7 +2052,7 @@ func (s *StmtContext) Expr() IExprContext {
 		return nil
 	}
 
-	return t.(IExprContext)
+	return t.(IExprCallContext)
 }
 
 func (s *StmtContext) GetRuleContext() antlr.RuleContext {
@@ -2028,35 +2098,35 @@ func (p *preludioParser) Stmt() (localctx IStmtContext) {
 		}
 	}()
 
-	p.SetState(143)
+	p.SetState(156)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 13, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 17, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(139)
+			p.SetState(152)
 			p.VarAssignStmt()
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(140)
+			p.SetState(153)
 			p.VarDeclStmt()
 		}
 
 	case 3:
 		p.EnterOuterAlt(localctx, 3)
 		{
-			p.SetState(141)
+			p.SetState(154)
 			p.RetStmt()
 		}
 
 	case 4:
 		p.EnterOuterAlt(localctx, 4)
 		{
-			p.SetState(142)
-			p.expr(0)
+			p.SetState(155)
+			p.ExprCall()
 		}
 
 	}
@@ -2171,15 +2241,15 @@ func (p *preludioParser) VarAssignStmt() (localctx IVarAssignStmtContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(145)
+		p.SetState(158)
 		p.Match(preludioParserIDENT)
 	}
 	{
-		p.SetState(146)
+		p.SetState(159)
 		p.Match(preludioParserASSIGN)
 	}
 	{
-		p.SetState(147)
+		p.SetState(160)
 		p.ExprCall()
 	}
 
@@ -2293,15 +2363,15 @@ func (p *preludioParser) VarDeclStmt() (localctx IVarDeclStmtContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(149)
+		p.SetState(162)
 		p.Match(preludioParserIDENT)
 	}
 	{
-		p.SetState(150)
+		p.SetState(163)
 		p.Match(preludioParserDECLARE)
 	}
 	{
-		p.SetState(151)
+		p.SetState(164)
 		p.ExprCall()
 	}
 
@@ -2411,1510 +2481,11 @@ func (p *preludioParser) RetStmt() (localctx IRetStmtContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(153)
+		p.SetState(166)
 		p.Match(preludioParserRET)
 	}
 	{
-		p.SetState(154)
-		p.ExprCall()
-	}
-
-	return localctx
-}
-
-// IPipelineContext is an interface to support dynamic dispatch.
-type IPipelineContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsPipelineContext differentiates from other interfaces.
-	IsPipelineContext()
-}
-
-type PipelineContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyPipelineContext() *PipelineContext {
-	var p = new(PipelineContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_pipeline
-	return p
-}
-
-func (*PipelineContext) IsPipelineContext() {}
-
-func NewPipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *PipelineContext {
-	var p = new(PipelineContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_pipeline
-
-	return p
-}
-
-func (s *PipelineContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *PipelineContext) ExprCall() IExprCallContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprCallContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprCallContext)
-}
-
-func (s *PipelineContext) AllNl() []INlContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(INlContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]INlContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(INlContext); ok {
-			tst[i] = t.(INlContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *PipelineContext) Nl(i int) INlContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INlContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INlContext)
-}
-
-func (s *PipelineContext) EOF() antlr.TerminalNode {
-	return s.GetToken(preludioParserEOF, 0)
-}
-
-func (s *PipelineContext) AllFuncCall() []IFuncCallContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(IFuncCallContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]IFuncCallContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(IFuncCallContext); ok {
-			tst[i] = t.(IFuncCallContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *PipelineContext) FuncCall(i int) IFuncCallContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IFuncCallContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFuncCallContext)
-}
-
-func (s *PipelineContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *PipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *PipelineContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterPipeline(s)
-	}
-}
-
-func (s *PipelineContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitPipeline(s)
-	}
-}
-
-func (p *preludioParser) Pipeline() (localctx IPipelineContext) {
-	this := p
-	_ = this
-
-	localctx = NewPipelineContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 26, preludioParserRULE_pipeline)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	var _alt int
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(156)
-		p.ExprCall()
-	}
-	p.SetState(162)
-	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 14, p.GetParserRuleContext())
-
-	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
-		if _alt == 1 {
-			{
-				p.SetState(157)
-				p.Nl()
-			}
-			{
-				p.SetState(158)
-				p.FuncCall()
-			}
-
-		}
-		p.SetState(164)
-		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 14, p.GetParserRuleContext())
-	}
-	p.SetState(167)
-	p.GetErrorHandler().Sync(p)
-
-	switch p.GetTokenStream().LA(1) {
-	case preludioParserNEWLINE:
-		{
-			p.SetState(165)
-			p.Nl()
-		}
-
-	case preludioParserEOF:
-		{
-			p.SetState(166)
-			p.Match(preludioParserEOF)
-		}
-
-	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
-	}
-
-	return localctx
-}
-
-// IInlinePipelineContext is an interface to support dynamic dispatch.
-type IInlinePipelineContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsInlinePipelineContext differentiates from other interfaces.
-	IsInlinePipelineContext()
-}
-
-type InlinePipelineContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyInlinePipelineContext() *InlinePipelineContext {
-	var p = new(InlinePipelineContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_inlinePipeline
-	return p
-}
-
-func (*InlinePipelineContext) IsInlinePipelineContext() {}
-
-func NewInlinePipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *InlinePipelineContext {
-	var p = new(InlinePipelineContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_inlinePipeline
-
-	return p
-}
-
-func (s *InlinePipelineContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *InlinePipelineContext) ExprCall() IExprCallContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprCallContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprCallContext)
-}
-
-func (s *InlinePipelineContext) AllBAR() []antlr.TerminalNode {
-	return s.GetTokens(preludioParserBAR)
-}
-
-func (s *InlinePipelineContext) BAR(i int) antlr.TerminalNode {
-	return s.GetToken(preludioParserBAR, i)
-}
-
-func (s *InlinePipelineContext) AllFuncCall() []IFuncCallContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(IFuncCallContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]IFuncCallContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(IFuncCallContext); ok {
-			tst[i] = t.(IFuncCallContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *InlinePipelineContext) FuncCall(i int) IFuncCallContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IFuncCallContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFuncCallContext)
-}
-
-func (s *InlinePipelineContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *InlinePipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *InlinePipelineContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterInlinePipeline(s)
-	}
-}
-
-func (s *InlinePipelineContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitInlinePipeline(s)
-	}
-}
-
-func (p *preludioParser) InlinePipeline() (localctx IInlinePipelineContext) {
-	this := p
-	_ = this
-
-	localctx = NewInlinePipelineContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 28, preludioParserRULE_inlinePipeline)
-	var _la int
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(169)
-		p.ExprCall()
-	}
-	p.SetState(174)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	for _la == preludioParserBAR {
-		{
-			p.SetState(170)
-			p.Match(preludioParserBAR)
-		}
-		{
-			p.SetState(171)
-			p.FuncCall()
-		}
-
-		p.SetState(176)
-		p.GetErrorHandler().Sync(p)
-		_la = p.GetTokenStream().LA(1)
-	}
-
-	return localctx
-}
-
-// INestedPipelineContext is an interface to support dynamic dispatch.
-type INestedPipelineContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsNestedPipelineContext differentiates from other interfaces.
-	IsNestedPipelineContext()
-}
-
-type NestedPipelineContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyNestedPipelineContext() *NestedPipelineContext {
-	var p = new(NestedPipelineContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_nestedPipeline
-	return p
-}
-
-func (*NestedPipelineContext) IsNestedPipelineContext() {}
-
-func NewNestedPipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NestedPipelineContext {
-	var p = new(NestedPipelineContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_nestedPipeline
-
-	return p
-}
-
-func (s *NestedPipelineContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *NestedPipelineContext) LPAREN() antlr.TerminalNode {
-	return s.GetToken(preludioParserLPAREN, 0)
-}
-
-func (s *NestedPipelineContext) RPAREN() antlr.TerminalNode {
-	return s.GetToken(preludioParserRPAREN, 0)
-}
-
-func (s *NestedPipelineContext) Pipeline() IPipelineContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IPipelineContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IPipelineContext)
-}
-
-func (s *NestedPipelineContext) InlinePipeline() IInlinePipelineContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IInlinePipelineContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IInlinePipelineContext)
-}
-
-func (s *NestedPipelineContext) AllNl() []INlContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(INlContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]INlContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(INlContext); ok {
-			tst[i] = t.(INlContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *NestedPipelineContext) Nl(i int) INlContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INlContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INlContext)
-}
-
-func (s *NestedPipelineContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *NestedPipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *NestedPipelineContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterNestedPipeline(s)
-	}
-}
-
-func (s *NestedPipelineContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitNestedPipeline(s)
-	}
-}
-
-func (p *preludioParser) NestedPipeline() (localctx INestedPipelineContext) {
-	this := p
-	_ = this
-
-	localctx = NewNestedPipelineContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 30, preludioParserRULE_nestedPipeline)
-	var _la int
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(177)
-		p.Match(preludioParserLPAREN)
-	}
-	p.SetState(181)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	for _la == preludioParserNEWLINE {
-		{
-			p.SetState(178)
-			p.Nl()
-		}
-
-		p.SetState(183)
-		p.GetErrorHandler().Sync(p)
-		_la = p.GetTokenStream().LA(1)
-	}
-	p.SetState(186)
-	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 18, p.GetParserRuleContext()) {
-	case 1:
-		{
-			p.SetState(184)
-			p.Pipeline()
-		}
-
-	case 2:
-		{
-			p.SetState(185)
-			p.InlinePipeline()
-		}
-
-	}
-	p.SetState(191)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	for _la == preludioParserNEWLINE {
-		{
-			p.SetState(188)
-			p.Nl()
-		}
-
-		p.SetState(193)
-		p.GetErrorHandler().Sync(p)
-		_la = p.GetTokenStream().LA(1)
-	}
-	{
-		p.SetState(194)
-		p.Match(preludioParserRPAREN)
-	}
-
-	return localctx
-}
-
-// IIdentBacktickContext is an interface to support dynamic dispatch.
-type IIdentBacktickContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsIdentBacktickContext differentiates from other interfaces.
-	IsIdentBacktickContext()
-}
-
-type IdentBacktickContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyIdentBacktickContext() *IdentBacktickContext {
-	var p = new(IdentBacktickContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_identBacktick
-	return p
-}
-
-func (*IdentBacktickContext) IsIdentBacktickContext() {}
-
-func NewIdentBacktickContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *IdentBacktickContext {
-	var p = new(IdentBacktickContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_identBacktick
-
-	return p
-}
-
-func (s *IdentBacktickContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *IdentBacktickContext) AllBACKTICK() []antlr.TerminalNode {
-	return s.GetTokens(preludioParserBACKTICK)
-}
-
-func (s *IdentBacktickContext) BACKTICK(i int) antlr.TerminalNode {
-	return s.GetToken(preludioParserBACKTICK, i)
-}
-
-func (s *IdentBacktickContext) AllNEWLINE() []antlr.TerminalNode {
-	return s.GetTokens(preludioParserNEWLINE)
-}
-
-func (s *IdentBacktickContext) NEWLINE(i int) antlr.TerminalNode {
-	return s.GetToken(preludioParserNEWLINE, i)
-}
-
-func (s *IdentBacktickContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *IdentBacktickContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *IdentBacktickContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterIdentBacktick(s)
-	}
-}
-
-func (s *IdentBacktickContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitIdentBacktick(s)
-	}
-}
-
-func (p *preludioParser) IdentBacktick() (localctx IIdentBacktickContext) {
-	this := p
-	_ = this
-
-	localctx = NewIdentBacktickContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 32, preludioParserRULE_identBacktick)
-	var _la int
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(196)
-		p.Match(preludioParserBACKTICK)
-	}
-	p.SetState(200)
-	p.GetErrorHandler().Sync(p)
-	_la = p.GetTokenStream().LA(1)
-
-	for (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&9223090544698195966) != 0 {
-		{
-			p.SetState(197)
-			_la = p.GetTokenStream().LA(1)
-
-			if _la <= 0 || _la == preludioParserBACKTICK || _la == preludioParserNEWLINE {
-				p.GetErrorHandler().RecoverInline(p)
-			} else {
-				p.GetErrorHandler().ReportMatch(p)
-				p.Consume()
-			}
-		}
-
-		p.SetState(202)
-		p.GetErrorHandler().Sync(p)
-		_la = p.GetTokenStream().LA(1)
-	}
-	{
-		p.SetState(203)
-		p.Match(preludioParserBACKTICK)
-	}
-
-	return localctx
-}
-
-// IFuncCallContext is an interface to support dynamic dispatch.
-type IFuncCallContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsFuncCallContext differentiates from other interfaces.
-	IsFuncCallContext()
-}
-
-type FuncCallContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyFuncCallContext() *FuncCallContext {
-	var p = new(FuncCallContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_funcCall
-	return p
-}
-
-func (*FuncCallContext) IsFuncCallContext() {}
-
-func NewFuncCallContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *FuncCallContext {
-	var p = new(FuncCallContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_funcCall
-
-	return p
-}
-
-func (s *FuncCallContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *FuncCallContext) IDENT() antlr.TerminalNode {
-	return s.GetToken(preludioParserIDENT, 0)
-}
-
-func (s *FuncCallContext) AllFuncCallParam() []IFuncCallParamContext {
-	children := s.GetChildren()
-	len := 0
-	for _, ctx := range children {
-		if _, ok := ctx.(IFuncCallParamContext); ok {
-			len++
-		}
-	}
-
-	tst := make([]IFuncCallParamContext, len)
-	i := 0
-	for _, ctx := range children {
-		if t, ok := ctx.(IFuncCallParamContext); ok {
-			tst[i] = t.(IFuncCallParamContext)
-			i++
-		}
-	}
-
-	return tst
-}
-
-func (s *FuncCallContext) FuncCallParam(i int) IFuncCallParamContext {
-	var t antlr.RuleContext
-	j := 0
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IFuncCallParamContext); ok {
-			if j == i {
-				t = ctx.(antlr.RuleContext)
-				break
-			}
-			j++
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFuncCallParamContext)
-}
-
-func (s *FuncCallContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *FuncCallContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *FuncCallContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterFuncCall(s)
-	}
-}
-
-func (s *FuncCallContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitFuncCall(s)
-	}
-}
-
-func (p *preludioParser) FuncCall() (localctx IFuncCallContext) {
-	this := p
-	_ = this
-
-	localctx = NewFuncCallContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 34, preludioParserRULE_funcCall)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	var _alt int
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(205)
-		p.Match(preludioParserIDENT)
-	}
-	p.SetState(209)
-	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
-
-	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
-		if _alt == 1 {
-			{
-				p.SetState(206)
-				p.FuncCallParam()
-			}
-
-		}
-		p.SetState(211)
-		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
-	}
-
-	return localctx
-}
-
-// IFuncCallParamContext is an interface to support dynamic dispatch.
-type IFuncCallParamContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsFuncCallParamContext differentiates from other interfaces.
-	IsFuncCallParamContext()
-}
-
-type FuncCallParamContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyFuncCallParamContext() *FuncCallParamContext {
-	var p = new(FuncCallParamContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_funcCallParam
-	return p
-}
-
-func (*FuncCallParamContext) IsFuncCallParamContext() {}
-
-func NewFuncCallParamContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *FuncCallParamContext {
-	var p = new(FuncCallParamContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_funcCallParam
-
-	return p
-}
-
-func (s *FuncCallParamContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *FuncCallParamContext) NamedArg() INamedArgContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INamedArgContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INamedArgContext)
-}
-
-func (s *FuncCallParamContext) Assign() IAssignContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IAssignContext)
-}
-
-func (s *FuncCallParamContext) MultiAssign() IMultiAssignContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IMultiAssignContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IMultiAssignContext)
-}
-
-func (s *FuncCallParamContext) Expr() IExprContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprContext)
-}
-
-func (s *FuncCallParamContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *FuncCallParamContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *FuncCallParamContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterFuncCallParam(s)
-	}
-}
-
-func (s *FuncCallParamContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitFuncCallParam(s)
-	}
-}
-
-func (p *preludioParser) FuncCallParam() (localctx IFuncCallParamContext) {
-	this := p
-	_ = this
-
-	localctx = NewFuncCallParamContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 36, preludioParserRULE_funcCallParam)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.SetState(216)
-	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 22, p.GetParserRuleContext()) {
-	case 1:
-		p.EnterOuterAlt(localctx, 1)
-		{
-			p.SetState(212)
-			p.NamedArg()
-		}
-
-	case 2:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(213)
-			p.Assign()
-		}
-
-	case 3:
-		p.EnterOuterAlt(localctx, 3)
-		{
-			p.SetState(214)
-			p.MultiAssign()
-		}
-
-	case 4:
-		p.EnterOuterAlt(localctx, 4)
-		{
-			p.SetState(215)
-			p.expr(0)
-		}
-
-	}
-
-	return localctx
-}
-
-// INamedArgContext is an interface to support dynamic dispatch.
-type INamedArgContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsNamedArgContext differentiates from other interfaces.
-	IsNamedArgContext()
-}
-
-type NamedArgContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyNamedArgContext() *NamedArgContext {
-	var p = new(NamedArgContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_namedArg
-	return p
-}
-
-func (*NamedArgContext) IsNamedArgContext() {}
-
-func NewNamedArgContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NamedArgContext {
-	var p = new(NamedArgContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_namedArg
-
-	return p
-}
-
-func (s *NamedArgContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *NamedArgContext) IDENT() antlr.TerminalNode {
-	return s.GetToken(preludioParserIDENT, 0)
-}
-
-func (s *NamedArgContext) COLON() antlr.TerminalNode {
-	return s.GetToken(preludioParserCOLON, 0)
-}
-
-func (s *NamedArgContext) Assign() IAssignContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IAssignContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IAssignContext)
-}
-
-func (s *NamedArgContext) Expr() IExprContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprContext)
-}
-
-func (s *NamedArgContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *NamedArgContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *NamedArgContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterNamedArg(s)
-	}
-}
-
-func (s *NamedArgContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitNamedArg(s)
-	}
-}
-
-func (p *preludioParser) NamedArg() (localctx INamedArgContext) {
-	this := p
-	_ = this
-
-	localctx = NewNamedArgContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 38, preludioParserRULE_namedArg)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(218)
-		p.Match(preludioParserIDENT)
-	}
-	{
-		p.SetState(219)
-		p.Match(preludioParserCOLON)
-	}
-	p.SetState(222)
-	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 23, p.GetParserRuleContext()) {
-	case 1:
-		{
-			p.SetState(220)
-			p.Assign()
-		}
-
-	case 2:
-		{
-			p.SetState(221)
-			p.expr(0)
-		}
-
-	}
-
-	return localctx
-}
-
-// IAssignContext is an interface to support dynamic dispatch.
-type IAssignContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsAssignContext differentiates from other interfaces.
-	IsAssignContext()
-}
-
-type AssignContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyAssignContext() *AssignContext {
-	var p = new(AssignContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_assign
-	return p
-}
-
-func (*AssignContext) IsAssignContext() {}
-
-func NewAssignContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *AssignContext {
-	var p = new(AssignContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_assign
-
-	return p
-}
-
-func (s *AssignContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *AssignContext) IDENT() antlr.TerminalNode {
-	return s.GetToken(preludioParserIDENT, 0)
-}
-
-func (s *AssignContext) ASSIGN() antlr.TerminalNode {
-	return s.GetToken(preludioParserASSIGN, 0)
-}
-
-func (s *AssignContext) ExprCall() IExprCallContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprCallContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprCallContext)
-}
-
-func (s *AssignContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *AssignContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *AssignContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterAssign(s)
-	}
-}
-
-func (s *AssignContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitAssign(s)
-	}
-}
-
-func (p *preludioParser) Assign() (localctx IAssignContext) {
-	this := p
-	_ = this
-
-	localctx = NewAssignContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 40, preludioParserRULE_assign)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(224)
-		p.Match(preludioParserIDENT)
-	}
-	{
-		p.SetState(225)
-		p.Match(preludioParserASSIGN)
-	}
-	{
-		p.SetState(226)
-		p.ExprCall()
-	}
-
-	return localctx
-}
-
-// IMultiAssignContext is an interface to support dynamic dispatch.
-type IMultiAssignContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsMultiAssignContext differentiates from other interfaces.
-	IsMultiAssignContext()
-}
-
-type MultiAssignContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyMultiAssignContext() *MultiAssignContext {
-	var p = new(MultiAssignContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_multiAssign
-	return p
-}
-
-func (*MultiAssignContext) IsMultiAssignContext() {}
-
-func NewMultiAssignContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *MultiAssignContext {
-	var p = new(MultiAssignContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_multiAssign
-
-	return p
-}
-
-func (s *MultiAssignContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *MultiAssignContext) List() IListContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IListContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IListContext)
-}
-
-func (s *MultiAssignContext) ASSIGN() antlr.TerminalNode {
-	return s.GetToken(preludioParserASSIGN, 0)
-}
-
-func (s *MultiAssignContext) ExprCall() IExprCallContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprCallContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprCallContext)
-}
-
-func (s *MultiAssignContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *MultiAssignContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *MultiAssignContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterMultiAssign(s)
-	}
-}
-
-func (s *MultiAssignContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitMultiAssign(s)
-	}
-}
-
-func (p *preludioParser) MultiAssign() (localctx IMultiAssignContext) {
-	this := p
-	_ = this
-
-	localctx = NewMultiAssignContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 42, preludioParserRULE_multiAssign)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(228)
-		p.List()
-	}
-	{
-		p.SetState(229)
-		p.Match(preludioParserASSIGN)
-	}
-	{
-		p.SetState(230)
+		p.SetState(167)
 		p.ExprCall()
 	}
 
@@ -3959,22 +2530,6 @@ func NewExprCallContext(parser antlr.Parser, parent antlr.ParserRuleContext, inv
 
 func (s *ExprCallContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ExprCallContext) FuncCall() IFuncCallContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IFuncCallContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IFuncCallContext)
-}
-
 func (s *ExprCallContext) Expr() IExprContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
@@ -3989,6 +2544,22 @@ func (s *ExprCallContext) Expr() IExprContext {
 	}
 
 	return t.(IExprContext)
+}
+
+func (s *ExprCallContext) FuncCall() IFuncCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncCallContext)
 }
 
 func (s *ExprCallContext) GetRuleContext() antlr.RuleContext {
@@ -4016,7 +2587,7 @@ func (p *preludioParser) ExprCall() (localctx IExprCallContext) {
 	_ = this
 
 	localctx = NewExprCallContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 44, preludioParserRULE_exprCall)
+	p.EnterRule(localctx, 26, preludioParserRULE_exprCall)
 
 	defer func() {
 		p.ExitRule()
@@ -4034,21 +2605,21 @@ func (p *preludioParser) ExprCall() (localctx IExprCallContext) {
 		}
 	}()
 
-	p.SetState(234)
+	p.SetState(171)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 24, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 18, p.GetParserRuleContext()) {
 	case 1:
 		p.EnterOuterAlt(localctx, 1)
 		{
-			p.SetState(232)
-			p.FuncCall()
+			p.SetState(169)
+			p.expr(0)
 		}
 
 	case 2:
 		p.EnterOuterAlt(localctx, 2)
 		{
-			p.SetState(233)
-			p.expr(0)
+			p.SetState(170)
+			p.FuncCall()
 		}
 
 	}
@@ -4094,8 +2665,20 @@ func NewExprContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokin
 
 func (s *ExprContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *ExprContext) LPAREN() antlr.TerminalNode {
-	return s.GetToken(preludioParserLPAREN, 0)
+func (s *ExprContext) Literal() ILiteralContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(ILiteralContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(ILiteralContext)
 }
 
 func (s *ExprContext) AllExpr() []IExprContext {
@@ -4139,14 +2722,30 @@ func (s *ExprContext) Expr(i int) IExprContext {
 	return t.(IExprContext)
 }
 
+func (s *ExprContext) MINUS() antlr.TerminalNode {
+	return s.GetToken(preludioParserMINUS, 0)
+}
+
+func (s *ExprContext) PLUS() antlr.TerminalNode {
+	return s.GetToken(preludioParserPLUS, 0)
+}
+
+func (s *ExprContext) NOT() antlr.TerminalNode {
+	return s.GetToken(preludioParserNOT, 0)
+}
+
+func (s *ExprContext) LPAREN() antlr.TerminalNode {
+	return s.GetToken(preludioParserLPAREN, 0)
+}
+
 func (s *ExprContext) RPAREN() antlr.TerminalNode {
 	return s.GetToken(preludioParserRPAREN, 0)
 }
 
-func (s *ExprContext) Term() ITermContext {
+func (s *ExprContext) List() IListContext {
 	var t antlr.RuleContext
 	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ITermContext); ok {
+		if _, ok := ctx.(IListContext); ok {
 			t = ctx.(antlr.RuleContext)
 			break
 		}
@@ -4156,11 +2755,27 @@ func (s *ExprContext) Term() ITermContext {
 		return nil
 	}
 
-	return t.(ITermContext)
+	return t.(IListContext)
 }
 
-func (s *ExprContext) DOLLAR() antlr.TerminalNode {
-	return s.GetToken(preludioParserDOLLAR, 0)
+func (s *ExprContext) NestedPipeline() INestedPipelineContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(INestedPipelineContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(INestedPipelineContext)
+}
+
+func (s *ExprContext) INDEXING() antlr.TerminalNode {
+	return s.GetToken(preludioParserINDEXING, 0)
 }
 
 func (s *ExprContext) EXP() antlr.TerminalNode {
@@ -4179,14 +2794,6 @@ func (s *ExprContext) MOD() antlr.TerminalNode {
 	return s.GetToken(preludioParserMOD, 0)
 }
 
-func (s *ExprContext) MINUS() antlr.TerminalNode {
-	return s.GetToken(preludioParserMINUS, 0)
-}
-
-func (s *ExprContext) PLUS() antlr.TerminalNode {
-	return s.GetToken(preludioParserPLUS, 0)
-}
-
 func (s *ExprContext) MODEL() antlr.TerminalNode {
 	return s.GetToken(preludioParserMODEL, 0)
 }
@@ -4203,16 +2810,16 @@ func (s *ExprContext) GE() antlr.TerminalNode {
 	return s.GetToken(preludioParserGE, 0)
 }
 
+func (s *ExprContext) GT() antlr.TerminalNode {
+	return s.GetToken(preludioParserGT, 0)
+}
+
 func (s *ExprContext) LE() antlr.TerminalNode {
 	return s.GetToken(preludioParserLE, 0)
 }
 
-func (s *ExprContext) LANG() antlr.TerminalNode {
-	return s.GetToken(preludioParserLANG, 0)
-}
-
-func (s *ExprContext) RANG() antlr.TerminalNode {
-	return s.GetToken(preludioParserRANG, 0)
+func (s *ExprContext) LT() antlr.TerminalNode {
+	return s.GetToken(preludioParserLT, 0)
 }
 
 func (s *ExprContext) COALESCE() antlr.TerminalNode {
@@ -4260,8 +2867,8 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 	localctx = NewExprContext(p, p.GetParserRuleContext(), _parentState)
 	var _prevctx IExprContext = localctx
 	var _ antlr.ParserRuleContext = _prevctx // TODO: To prevent unused variable warning.
-	_startState := 46
-	p.EnterRecursionRule(localctx, 46, preludioParserRULE_expr, _p)
+	_startState := 28
+	p.EnterRecursionRule(localctx, 28, preludioParserRULE_expr, _p)
 	var _la int
 
 	defer func() {
@@ -4283,34 +2890,63 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 	var _alt int
 
 	p.EnterOuterAlt(localctx, 1)
-	p.SetState(242)
+	p.SetState(183)
 	p.GetErrorHandler().Sync(p)
-	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 25, p.GetParserRuleContext()) {
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 19, p.GetParserRuleContext()) {
 	case 1:
 		{
-			p.SetState(237)
-			p.Match(preludioParserLPAREN)
-		}
-		{
-			p.SetState(238)
-			p.expr(0)
-		}
-		{
-			p.SetState(239)
-			p.Match(preludioParserRPAREN)
+			p.SetState(174)
+			p.Literal()
 		}
 
 	case 2:
 		{
-			p.SetState(241)
-			p.Term()
+			p.SetState(175)
+			_la = p.GetTokenStream().LA(1)
+
+			if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&4398046511488) != 0) {
+				p.GetErrorHandler().RecoverInline(p)
+			} else {
+				p.GetErrorHandler().ReportMatch(p)
+				p.Consume()
+			}
+		}
+		{
+			p.SetState(176)
+			p.expr(11)
+		}
+
+	case 3:
+		{
+			p.SetState(177)
+			p.Match(preludioParserLPAREN)
+		}
+		{
+			p.SetState(178)
+			p.expr(0)
+		}
+		{
+			p.SetState(179)
+			p.Match(preludioParserRPAREN)
+		}
+
+	case 4:
+		{
+			p.SetState(181)
+			p.List()
+		}
+
+	case 5:
+		{
+			p.SetState(182)
+			p.NestedPipeline()
 		}
 
 	}
 	p.GetParserRuleContext().SetStop(p.GetTokenStream().LT(-1))
-	p.SetState(270)
+	p.SetState(211)
 	p.GetErrorHandler().Sync(p)
-	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 27, p.GetParserRuleContext())
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
 
 	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 		if _alt == 1 {
@@ -4318,53 +2954,53 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 				p.TriggerExitRuleEvent()
 			}
 			_prevctx = localctx
-			p.SetState(268)
+			p.SetState(209)
 			p.GetErrorHandler().Sync(p)
-			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 26, p.GetParserRuleContext()) {
+			switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 20, p.GetParserRuleContext()) {
 			case 1:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(244)
+				p.SetState(185)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 10)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 10)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 12)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 12)", ""))
 				}
 				{
-					p.SetState(245)
-					p.Match(preludioParserDOLLAR)
+					p.SetState(186)
+					p.Match(preludioParserINDEXING)
 				}
 				{
-					p.SetState(246)
-					p.expr(11)
+					p.SetState(187)
+					p.expr(13)
 				}
 
 			case 2:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(247)
+				p.SetState(188)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 9)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 9)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 10)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 10)", ""))
 				}
 				{
-					p.SetState(248)
+					p.SetState(189)
 					p.Match(preludioParserEXP)
 				}
 				{
-					p.SetState(249)
-					p.expr(10)
+					p.SetState(190)
+					p.expr(11)
 				}
 
 			case 3:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(250)
+				p.SetState(191)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 8)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 8)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 9)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 9)", ""))
 				}
 				{
-					p.SetState(251)
+					p.SetState(192)
 					_la = p.GetTokenStream().LA(1)
 
 					if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&6656) != 0) {
@@ -4375,20 +3011,20 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 					}
 				}
 				{
-					p.SetState(252)
-					p.expr(9)
+					p.SetState(193)
+					p.expr(10)
 				}
 
 			case 4:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(253)
+				p.SetState(194)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 7)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 7)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 8)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 8)", ""))
 				}
 				{
-					p.SetState(254)
+					p.SetState(195)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == preludioParserPLUS || _la == preludioParserMINUS) {
@@ -4399,40 +3035,40 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 					}
 				}
 				{
-					p.SetState(255)
-					p.expr(8)
+					p.SetState(196)
+					p.expr(9)
 				}
 
 			case 5:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(256)
+				p.SetState(197)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 6)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 6)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 7)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 7)", ""))
 				}
 				{
-					p.SetState(257)
+					p.SetState(198)
 					p.Match(preludioParserMODEL)
 				}
 				{
-					p.SetState(258)
-					p.expr(7)
+					p.SetState(199)
+					p.expr(8)
 				}
 
 			case 6:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(259)
+				p.SetState(200)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 5)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 6)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 6)", ""))
 				}
 				{
-					p.SetState(260)
+					p.SetState(201)
 					_la = p.GetTokenStream().LA(1)
 
-					if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&100909056) != 0) {
+					if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&1032192) != 0) {
 						p.GetErrorHandler().RecoverInline(p)
 					} else {
 						p.GetErrorHandler().ReportMatch(p)
@@ -4440,37 +3076,37 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 					}
 				}
 				{
-					p.SetState(261)
-					p.expr(6)
+					p.SetState(202)
+					p.expr(7)
 				}
 
 			case 7:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(262)
+				p.SetState(203)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 4)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 5)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 5)", ""))
 				}
 				{
-					p.SetState(263)
+					p.SetState(204)
 					p.Match(preludioParserCOALESCE)
 				}
 				{
-					p.SetState(264)
-					p.expr(5)
+					p.SetState(205)
+					p.expr(6)
 				}
 
 			case 8:
 				localctx = NewExprContext(p, _parentctx, _parentState)
 				p.PushNewRecursionContext(localctx, _startState, preludioParserRULE_expr)
-				p.SetState(265)
+				p.SetState(206)
 
-				if !(p.Precpred(p.GetParserRuleContext(), 3)) {
-					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 3)", ""))
+				if !(p.Precpred(p.GetParserRuleContext(), 4)) {
+					panic(antlr.NewFailedPredicateException(p, "p.Precpred(p.GetParserRuleContext(), 4)", ""))
 				}
 				{
-					p.SetState(266)
+					p.SetState(207)
 					_la = p.GetTokenStream().LA(1)
 
 					if !(_la == preludioParserAND || _la == preludioParserOR) {
@@ -4481,353 +3117,16 @@ func (p *preludioParser) expr(_p int) (localctx IExprContext) {
 					}
 				}
 				{
-					p.SetState(267)
-					p.expr(4)
+					p.SetState(208)
+					p.expr(5)
 				}
 
 			}
 
 		}
-		p.SetState(272)
+		p.SetState(213)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 27, p.GetParserRuleContext())
-	}
-
-	return localctx
-}
-
-// ITermContext is an interface to support dynamic dispatch.
-type ITermContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsTermContext differentiates from other interfaces.
-	IsTermContext()
-}
-
-type TermContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyTermContext() *TermContext {
-	var p = new(TermContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_term
-	return p
-}
-
-func (*TermContext) IsTermContext() {}
-
-func NewTermContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *TermContext {
-	var p = new(TermContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_term
-
-	return p
-}
-
-func (s *TermContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *TermContext) Literal() ILiteralContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ILiteralContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(ILiteralContext)
-}
-
-func (s *TermContext) IdentBacktick() IIdentBacktickContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IIdentBacktickContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IIdentBacktickContext)
-}
-
-func (s *TermContext) ExprUnary() IExprUnaryContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IExprUnaryContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IExprUnaryContext)
-}
-
-func (s *TermContext) List() IListContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(IListContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(IListContext)
-}
-
-func (s *TermContext) NestedPipeline() INestedPipelineContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(INestedPipelineContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(INestedPipelineContext)
-}
-
-func (s *TermContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *TermContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *TermContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterTerm(s)
-	}
-}
-
-func (s *TermContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitTerm(s)
-	}
-}
-
-func (p *preludioParser) Term() (localctx ITermContext) {
-	this := p
-	_ = this
-
-	localctx = NewTermContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 48, preludioParserRULE_term)
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.SetState(278)
-	p.GetErrorHandler().Sync(p)
-
-	switch p.GetTokenStream().LA(1) {
-	case preludioParserNULL_, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
-		p.EnterOuterAlt(localctx, 1)
-		{
-			p.SetState(273)
-			p.Literal()
-		}
-
-	case preludioParserBACKTICK:
-		p.EnterOuterAlt(localctx, 2)
-		{
-			p.SetState(274)
-			p.IdentBacktick()
-		}
-
-	case preludioParserPLUS, preludioParserMINUS, preludioParserNOT:
-		p.EnterOuterAlt(localctx, 3)
-		{
-			p.SetState(275)
-			p.ExprUnary()
-		}
-
-	case preludioParserLBRACKET:
-		p.EnterOuterAlt(localctx, 4)
-		{
-			p.SetState(276)
-			p.List()
-		}
-
-	case preludioParserLPAREN:
-		p.EnterOuterAlt(localctx, 5)
-		{
-			p.SetState(277)
-			p.NestedPipeline()
-		}
-
-	default:
-		panic(antlr.NewNoViableAltException(p, nil, nil, nil, nil, nil))
-	}
-
-	return localctx
-}
-
-// IExprUnaryContext is an interface to support dynamic dispatch.
-type IExprUnaryContext interface {
-	antlr.ParserRuleContext
-
-	// GetParser returns the parser.
-	GetParser() antlr.Parser
-
-	// IsExprUnaryContext differentiates from other interfaces.
-	IsExprUnaryContext()
-}
-
-type ExprUnaryContext struct {
-	*antlr.BaseParserRuleContext
-	parser antlr.Parser
-}
-
-func NewEmptyExprUnaryContext() *ExprUnaryContext {
-	var p = new(ExprUnaryContext)
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
-	p.RuleIndex = preludioParserRULE_exprUnary
-	return p
-}
-
-func (*ExprUnaryContext) IsExprUnaryContext() {}
-
-func NewExprUnaryContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *ExprUnaryContext {
-	var p = new(ExprUnaryContext)
-
-	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
-
-	p.parser = parser
-	p.RuleIndex = preludioParserRULE_exprUnary
-
-	return p
-}
-
-func (s *ExprUnaryContext) GetParser() antlr.Parser { return s.parser }
-
-func (s *ExprUnaryContext) Term() ITermContext {
-	var t antlr.RuleContext
-	for _, ctx := range s.GetChildren() {
-		if _, ok := ctx.(ITermContext); ok {
-			t = ctx.(antlr.RuleContext)
-			break
-		}
-	}
-
-	if t == nil {
-		return nil
-	}
-
-	return t.(ITermContext)
-}
-
-func (s *ExprUnaryContext) MINUS() antlr.TerminalNode {
-	return s.GetToken(preludioParserMINUS, 0)
-}
-
-func (s *ExprUnaryContext) PLUS() antlr.TerminalNode {
-	return s.GetToken(preludioParserPLUS, 0)
-}
-
-func (s *ExprUnaryContext) NOT() antlr.TerminalNode {
-	return s.GetToken(preludioParserNOT, 0)
-}
-
-func (s *ExprUnaryContext) GetRuleContext() antlr.RuleContext {
-	return s
-}
-
-func (s *ExprUnaryContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
-	return antlr.TreesStringTree(s, ruleNames, recog)
-}
-
-func (s *ExprUnaryContext) EnterRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.EnterExprUnary(s)
-	}
-}
-
-func (s *ExprUnaryContext) ExitRule(listener antlr.ParseTreeListener) {
-	if listenerT, ok := listener.(preludioParserListener); ok {
-		listenerT.ExitExprUnary(s)
-	}
-}
-
-func (p *preludioParser) ExprUnary() (localctx IExprUnaryContext) {
-	this := p
-	_ = this
-
-	localctx = NewExprUnaryContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 50, preludioParserRULE_exprUnary)
-	var _la int
-
-	defer func() {
-		p.ExitRule()
-	}()
-
-	defer func() {
-		if err := recover(); err != nil {
-			if v, ok := err.(antlr.RecognitionException); ok {
-				localctx.SetException(v)
-				p.GetErrorHandler().ReportError(p, v)
-				p.GetErrorHandler().Recover(p, v)
-			} else {
-				panic(err)
-			}
-		}
-	}()
-
-	p.EnterOuterAlt(localctx, 1)
-	{
-		p.SetState(280)
-		_la = p.GetTokenStream().LA(1)
-
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&2199023255936) != 0) {
-			p.GetErrorHandler().RecoverInline(p)
-		} else {
-			p.GetErrorHandler().ReportMatch(p)
-			p.Consume()
-		}
-	}
-	{
-		p.SetState(281)
-		p.Term()
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 21, p.GetParserRuleContext())
 	}
 
 	return localctx
@@ -4871,12 +3170,8 @@ func NewLiteralContext(parser antlr.Parser, parent antlr.ParserRuleContext, invo
 
 func (s *LiteralContext) GetParser() antlr.Parser { return s.parser }
 
-func (s *LiteralContext) IDENT() antlr.TerminalNode {
-	return s.GetToken(preludioParserIDENT, 0)
-}
-
-func (s *LiteralContext) NULL_() antlr.TerminalNode {
-	return s.GetToken(preludioParserNULL_, 0)
+func (s *LiteralContext) NA() antlr.TerminalNode {
+	return s.GetToken(preludioParserNA, 0)
 }
 
 func (s *LiteralContext) BOOLEAN_LIT() antlr.TerminalNode {
@@ -4923,6 +3218,10 @@ func (s *LiteralContext) DURATION_LIT() antlr.TerminalNode {
 	return s.GetToken(preludioParserDURATION_LIT, 0)
 }
 
+func (s *LiteralContext) IDENT() antlr.TerminalNode {
+	return s.GetToken(preludioParserIDENT, 0)
+}
+
 func (s *LiteralContext) GetRuleContext() antlr.RuleContext {
 	return s
 }
@@ -4948,7 +3247,7 @@ func (p *preludioParser) Literal() (localctx ILiteralContext) {
 	_ = this
 
 	localctx = NewLiteralContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 52, preludioParserRULE_literal)
+	p.EnterRule(localctx, 30, preludioParserRULE_literal)
 	var _la int
 
 	defer func() {
@@ -4969,10 +3268,10 @@ func (p *preludioParser) Literal() (localctx ILiteralContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(283)
+		p.SetState(214)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&9168229329698553856) != 0) {
+		if !((int64((_la-44)) & ^0x3f) == 0 && ((int64(1)<<(_la-44))&2084613) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -5226,7 +3525,7 @@ func (p *preludioParser) List() (localctx IListContext) {
 	_ = this
 
 	localctx = NewListContext(p, p.GetParserRuleContext(), p.GetState())
-	p.EnterRule(localctx, 54, preludioParserRULE_list)
+	p.EnterRule(localctx, 32, preludioParserRULE_list)
 	var _la int
 
 	defer func() {
@@ -5249,120 +3548,120 @@ func (p *preludioParser) List() (localctx IListContext) {
 
 	p.EnterOuterAlt(localctx, 1)
 	{
-		p.SetState(285)
+		p.SetState(216)
 		p.Match(preludioParserLBRACKET)
 	}
-	p.SetState(320)
+	p.SetState(251)
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (int64(_la) & ^0x3f) == 0 && ((int64(1)<<_la)&9168513021549478272) != 0 {
-		p.SetState(289)
+	if (int64((_la-7)) & ^0x3f) == 0 && ((int64(1)<<(_la-7))&286533451755552771) != 0 {
+		p.SetState(220)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		for _la == preludioParserNEWLINE {
+		for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
 			{
-				p.SetState(286)
+				p.SetState(217)
 				p.Nl()
 			}
 
-			p.SetState(291)
+			p.SetState(222)
 			p.GetErrorHandler().Sync(p)
 			_la = p.GetTokenStream().LA(1)
 		}
-		p.SetState(295)
+		p.SetState(226)
 		p.GetErrorHandler().Sync(p)
-		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 30, p.GetParserRuleContext()) {
+		switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 23, p.GetParserRuleContext()) {
 		case 1:
 			{
-				p.SetState(292)
+				p.SetState(223)
 				p.Assign()
 			}
 
 		case 2:
 			{
-				p.SetState(293)
+				p.SetState(224)
 				p.MultiAssign()
 			}
 
 		case 3:
 			{
-				p.SetState(294)
+				p.SetState(225)
 				p.ExprCall()
 			}
 
 		}
-		p.SetState(311)
+		p.SetState(242)
 		p.GetErrorHandler().Sync(p)
-		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 33, p.GetParserRuleContext())
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 26, p.GetParserRuleContext())
 
 		for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
 			if _alt == 1 {
 				{
-					p.SetState(297)
+					p.SetState(228)
 					p.Match(preludioParserCOMMA)
 				}
-				p.SetState(301)
+				p.SetState(232)
 				p.GetErrorHandler().Sync(p)
 				_la = p.GetTokenStream().LA(1)
 
-				for _la == preludioParserNEWLINE {
+				for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
 					{
-						p.SetState(298)
+						p.SetState(229)
 						p.Nl()
 					}
 
-					p.SetState(303)
+					p.SetState(234)
 					p.GetErrorHandler().Sync(p)
 					_la = p.GetTokenStream().LA(1)
 				}
-				p.SetState(307)
+				p.SetState(238)
 				p.GetErrorHandler().Sync(p)
-				switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 32, p.GetParserRuleContext()) {
+				switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 25, p.GetParserRuleContext()) {
 				case 1:
 					{
-						p.SetState(304)
+						p.SetState(235)
 						p.Assign()
 					}
 
 				case 2:
 					{
-						p.SetState(305)
+						p.SetState(236)
 						p.MultiAssign()
 					}
 
 				case 3:
 					{
-						p.SetState(306)
+						p.SetState(237)
 						p.ExprCall()
 					}
 
 				}
 
 			}
-			p.SetState(313)
+			p.SetState(244)
 			p.GetErrorHandler().Sync(p)
-			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 33, p.GetParserRuleContext())
+			_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 26, p.GetParserRuleContext())
 		}
-		p.SetState(315)
+		p.SetState(246)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
 		if _la == preludioParserCOMMA {
 			{
-				p.SetState(314)
+				p.SetState(245)
 				p.Match(preludioParserCOMMA)
 			}
 
 		}
-		p.SetState(318)
+		p.SetState(249)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		if _la == preludioParserNEWLINE {
+		if _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
 			{
-				p.SetState(317)
+				p.SetState(248)
 				p.Nl()
 			}
 
@@ -5370,8 +3669,1364 @@ func (p *preludioParser) List() (localctx IListContext) {
 
 	}
 	{
-		p.SetState(322)
+		p.SetState(253)
 		p.Match(preludioParserRBRACKET)
+	}
+
+	return localctx
+}
+
+// IFuncCallContext is an interface to support dynamic dispatch.
+type IFuncCallContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsFuncCallContext differentiates from other interfaces.
+	IsFuncCallContext()
+}
+
+type FuncCallContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyFuncCallContext() *FuncCallContext {
+	var p = new(FuncCallContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_funcCall
+	return p
+}
+
+func (*FuncCallContext) IsFuncCallContext() {}
+
+func NewFuncCallContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *FuncCallContext {
+	var p = new(FuncCallContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_funcCall
+
+	return p
+}
+
+func (s *FuncCallContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *FuncCallContext) IDENT() antlr.TerminalNode {
+	return s.GetToken(preludioParserIDENT, 0)
+}
+
+func (s *FuncCallContext) DOLLAR() antlr.TerminalNode {
+	return s.GetToken(preludioParserDOLLAR, 0)
+}
+
+func (s *FuncCallContext) AllFuncCallParam() []IFuncCallParamContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IFuncCallParamContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IFuncCallParamContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IFuncCallParamContext); ok {
+			tst[i] = t.(IFuncCallParamContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *FuncCallContext) FuncCallParam(i int) IFuncCallParamContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncCallParamContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncCallParamContext)
+}
+
+func (s *FuncCallContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *FuncCallContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *FuncCallContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterFuncCall(s)
+	}
+}
+
+func (s *FuncCallContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitFuncCall(s)
+	}
+}
+
+func (p *preludioParser) FuncCall() (localctx IFuncCallContext) {
+	this := p
+	_ = this
+
+	localctx = NewFuncCallContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 34, preludioParserRULE_funcCall)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	var _alt int
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(255)
+		p.Match(preludioParserIDENT)
+	}
+	{
+		p.SetState(256)
+		p.Match(preludioParserDOLLAR)
+	}
+	p.SetState(260)
+	p.GetErrorHandler().Sync(p)
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 30, p.GetParserRuleContext())
+
+	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
+		if _alt == 1 {
+			{
+				p.SetState(257)
+				p.FuncCallParam()
+			}
+
+		}
+		p.SetState(262)
+		p.GetErrorHandler().Sync(p)
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 30, p.GetParserRuleContext())
+	}
+
+	return localctx
+}
+
+// IFuncCallParamContext is an interface to support dynamic dispatch.
+type IFuncCallParamContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsFuncCallParamContext differentiates from other interfaces.
+	IsFuncCallParamContext()
+}
+
+type FuncCallParamContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyFuncCallParamContext() *FuncCallParamContext {
+	var p = new(FuncCallParamContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_funcCallParam
+	return p
+}
+
+func (*FuncCallParamContext) IsFuncCallParamContext() {}
+
+func NewFuncCallParamContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *FuncCallParamContext {
+	var p = new(FuncCallParamContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_funcCallParam
+
+	return p
+}
+
+func (s *FuncCallParamContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *FuncCallParamContext) NamedArg() INamedArgContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(INamedArgContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(INamedArgContext)
+}
+
+func (s *FuncCallParamContext) Assign() IAssignContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignContext)
+}
+
+func (s *FuncCallParamContext) MultiAssign() IMultiAssignContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IMultiAssignContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IMultiAssignContext)
+}
+
+func (s *FuncCallParamContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *FuncCallParamContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *FuncCallParamContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *FuncCallParamContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterFuncCallParam(s)
+	}
+}
+
+func (s *FuncCallParamContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitFuncCallParam(s)
+	}
+}
+
+func (p *preludioParser) FuncCallParam() (localctx IFuncCallParamContext) {
+	this := p
+	_ = this
+
+	localctx = NewFuncCallParamContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 36, preludioParserRULE_funcCallParam)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.SetState(267)
+	p.GetErrorHandler().Sync(p)
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 31, p.GetParserRuleContext()) {
+	case 1:
+		p.EnterOuterAlt(localctx, 1)
+		{
+			p.SetState(263)
+			p.NamedArg()
+		}
+
+	case 2:
+		p.EnterOuterAlt(localctx, 2)
+		{
+			p.SetState(264)
+			p.Assign()
+		}
+
+	case 3:
+		p.EnterOuterAlt(localctx, 3)
+		{
+			p.SetState(265)
+			p.MultiAssign()
+		}
+
+	case 4:
+		p.EnterOuterAlt(localctx, 4)
+		{
+			p.SetState(266)
+			p.ExprCall()
+		}
+
+	}
+
+	return localctx
+}
+
+// INamedArgContext is an interface to support dynamic dispatch.
+type INamedArgContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsNamedArgContext differentiates from other interfaces.
+	IsNamedArgContext()
+}
+
+type NamedArgContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyNamedArgContext() *NamedArgContext {
+	var p = new(NamedArgContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_namedArg
+	return p
+}
+
+func (*NamedArgContext) IsNamedArgContext() {}
+
+func NewNamedArgContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NamedArgContext {
+	var p = new(NamedArgContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_namedArg
+
+	return p
+}
+
+func (s *NamedArgContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *NamedArgContext) IDENT() antlr.TerminalNode {
+	return s.GetToken(preludioParserIDENT, 0)
+}
+
+func (s *NamedArgContext) COLON() antlr.TerminalNode {
+	return s.GetToken(preludioParserCOLON, 0)
+}
+
+func (s *NamedArgContext) Assign() IAssignContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IAssignContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IAssignContext)
+}
+
+func (s *NamedArgContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *NamedArgContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *NamedArgContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *NamedArgContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterNamedArg(s)
+	}
+}
+
+func (s *NamedArgContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitNamedArg(s)
+	}
+}
+
+func (p *preludioParser) NamedArg() (localctx INamedArgContext) {
+	this := p
+	_ = this
+
+	localctx = NewNamedArgContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 38, preludioParserRULE_namedArg)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(269)
+		p.Match(preludioParserIDENT)
+	}
+	{
+		p.SetState(270)
+		p.Match(preludioParserCOLON)
+	}
+	p.SetState(273)
+	p.GetErrorHandler().Sync(p)
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 32, p.GetParserRuleContext()) {
+	case 1:
+		{
+			p.SetState(271)
+			p.Assign()
+		}
+
+	case 2:
+		{
+			p.SetState(272)
+			p.ExprCall()
+		}
+
+	}
+
+	return localctx
+}
+
+// IAssignContext is an interface to support dynamic dispatch.
+type IAssignContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsAssignContext differentiates from other interfaces.
+	IsAssignContext()
+}
+
+type AssignContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyAssignContext() *AssignContext {
+	var p = new(AssignContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_assign
+	return p
+}
+
+func (*AssignContext) IsAssignContext() {}
+
+func NewAssignContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *AssignContext {
+	var p = new(AssignContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_assign
+
+	return p
+}
+
+func (s *AssignContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *AssignContext) IDENT() antlr.TerminalNode {
+	return s.GetToken(preludioParserIDENT, 0)
+}
+
+func (s *AssignContext) ASSIGN() antlr.TerminalNode {
+	return s.GetToken(preludioParserASSIGN, 0)
+}
+
+func (s *AssignContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *AssignContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *AssignContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *AssignContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterAssign(s)
+	}
+}
+
+func (s *AssignContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitAssign(s)
+	}
+}
+
+func (p *preludioParser) Assign() (localctx IAssignContext) {
+	this := p
+	_ = this
+
+	localctx = NewAssignContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 40, preludioParserRULE_assign)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(275)
+		p.Match(preludioParserIDENT)
+	}
+	{
+		p.SetState(276)
+		p.Match(preludioParserASSIGN)
+	}
+	{
+		p.SetState(277)
+		p.ExprCall()
+	}
+
+	return localctx
+}
+
+// IMultiAssignContext is an interface to support dynamic dispatch.
+type IMultiAssignContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsMultiAssignContext differentiates from other interfaces.
+	IsMultiAssignContext()
+}
+
+type MultiAssignContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyMultiAssignContext() *MultiAssignContext {
+	var p = new(MultiAssignContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_multiAssign
+	return p
+}
+
+func (*MultiAssignContext) IsMultiAssignContext() {}
+
+func NewMultiAssignContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *MultiAssignContext {
+	var p = new(MultiAssignContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_multiAssign
+
+	return p
+}
+
+func (s *MultiAssignContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *MultiAssignContext) List() IListContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IListContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IListContext)
+}
+
+func (s *MultiAssignContext) ASSIGN() antlr.TerminalNode {
+	return s.GetToken(preludioParserASSIGN, 0)
+}
+
+func (s *MultiAssignContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *MultiAssignContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *MultiAssignContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *MultiAssignContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterMultiAssign(s)
+	}
+}
+
+func (s *MultiAssignContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitMultiAssign(s)
+	}
+}
+
+func (p *preludioParser) MultiAssign() (localctx IMultiAssignContext) {
+	this := p
+	_ = this
+
+	localctx = NewMultiAssignContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 42, preludioParserRULE_multiAssign)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(279)
+		p.List()
+	}
+	{
+		p.SetState(280)
+		p.Match(preludioParserASSIGN)
+	}
+	{
+		p.SetState(281)
+		p.ExprCall()
+	}
+
+	return localctx
+}
+
+// IPipelineContext is an interface to support dynamic dispatch.
+type IPipelineContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsPipelineContext differentiates from other interfaces.
+	IsPipelineContext()
+}
+
+type PipelineContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyPipelineContext() *PipelineContext {
+	var p = new(PipelineContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_pipeline
+	return p
+}
+
+func (*PipelineContext) IsPipelineContext() {}
+
+func NewPipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *PipelineContext {
+	var p = new(PipelineContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_pipeline
+
+	return p
+}
+
+func (s *PipelineContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *PipelineContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *PipelineContext) AllNl() []INlContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(INlContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]INlContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(INlContext); ok {
+			tst[i] = t.(INlContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *PipelineContext) Nl(i int) INlContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(INlContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(INlContext)
+}
+
+func (s *PipelineContext) AllFuncCall() []IFuncCallContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IFuncCallContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IFuncCallContext); ok {
+			tst[i] = t.(IFuncCallContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *PipelineContext) FuncCall(i int) IFuncCallContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncCallContext)
+}
+
+func (s *PipelineContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *PipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *PipelineContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterPipeline(s)
+	}
+}
+
+func (s *PipelineContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitPipeline(s)
+	}
+}
+
+func (p *preludioParser) Pipeline() (localctx IPipelineContext) {
+	this := p
+	_ = this
+
+	localctx = NewPipelineContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 44, preludioParserRULE_pipeline)
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	var _alt int
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(283)
+		p.ExprCall()
+	}
+	p.SetState(289)
+	p.GetErrorHandler().Sync(p)
+	_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 33, p.GetParserRuleContext())
+
+	for _alt != 2 && _alt != antlr.ATNInvalidAltNumber {
+		if _alt == 1 {
+			{
+				p.SetState(284)
+				p.Nl()
+			}
+			{
+				p.SetState(285)
+				p.FuncCall()
+			}
+
+		}
+		p.SetState(291)
+		p.GetErrorHandler().Sync(p)
+		_alt = p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 33, p.GetParserRuleContext())
+	}
+	{
+		p.SetState(292)
+		p.Nl()
+	}
+
+	return localctx
+}
+
+// IInlinePipelineContext is an interface to support dynamic dispatch.
+type IInlinePipelineContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsInlinePipelineContext differentiates from other interfaces.
+	IsInlinePipelineContext()
+}
+
+type InlinePipelineContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyInlinePipelineContext() *InlinePipelineContext {
+	var p = new(InlinePipelineContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_inlinePipeline
+	return p
+}
+
+func (*InlinePipelineContext) IsInlinePipelineContext() {}
+
+func NewInlinePipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *InlinePipelineContext {
+	var p = new(InlinePipelineContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_inlinePipeline
+
+	return p
+}
+
+func (s *InlinePipelineContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *InlinePipelineContext) ExprCall() IExprCallContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IExprCallContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IExprCallContext)
+}
+
+func (s *InlinePipelineContext) AllBAR() []antlr.TerminalNode {
+	return s.GetTokens(preludioParserBAR)
+}
+
+func (s *InlinePipelineContext) BAR(i int) antlr.TerminalNode {
+	return s.GetToken(preludioParserBAR, i)
+}
+
+func (s *InlinePipelineContext) AllFuncCall() []IFuncCallContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]IFuncCallContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(IFuncCallContext); ok {
+			tst[i] = t.(IFuncCallContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *InlinePipelineContext) FuncCall(i int) IFuncCallContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IFuncCallContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IFuncCallContext)
+}
+
+func (s *InlinePipelineContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *InlinePipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *InlinePipelineContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterInlinePipeline(s)
+	}
+}
+
+func (s *InlinePipelineContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitInlinePipeline(s)
+	}
+}
+
+func (p *preludioParser) InlinePipeline() (localctx IInlinePipelineContext) {
+	this := p
+	_ = this
+
+	localctx = NewInlinePipelineContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 46, preludioParserRULE_inlinePipeline)
+	var _la int
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(294)
+		p.ExprCall()
+	}
+	p.SetState(299)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	for _la == preludioParserBAR {
+		{
+			p.SetState(295)
+			p.Match(preludioParserBAR)
+		}
+		{
+			p.SetState(296)
+			p.FuncCall()
+		}
+
+		p.SetState(301)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+	}
+
+	return localctx
+}
+
+// INestedPipelineContext is an interface to support dynamic dispatch.
+type INestedPipelineContext interface {
+	antlr.ParserRuleContext
+
+	// GetParser returns the parser.
+	GetParser() antlr.Parser
+
+	// IsNestedPipelineContext differentiates from other interfaces.
+	IsNestedPipelineContext()
+}
+
+type NestedPipelineContext struct {
+	*antlr.BaseParserRuleContext
+	parser antlr.Parser
+}
+
+func NewEmptyNestedPipelineContext() *NestedPipelineContext {
+	var p = new(NestedPipelineContext)
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(nil, -1)
+	p.RuleIndex = preludioParserRULE_nestedPipeline
+	return p
+}
+
+func (*NestedPipelineContext) IsNestedPipelineContext() {}
+
+func NewNestedPipelineContext(parser antlr.Parser, parent antlr.ParserRuleContext, invokingState int) *NestedPipelineContext {
+	var p = new(NestedPipelineContext)
+
+	p.BaseParserRuleContext = antlr.NewBaseParserRuleContext(parent, invokingState)
+
+	p.parser = parser
+	p.RuleIndex = preludioParserRULE_nestedPipeline
+
+	return p
+}
+
+func (s *NestedPipelineContext) GetParser() antlr.Parser { return s.parser }
+
+func (s *NestedPipelineContext) LPAREN() antlr.TerminalNode {
+	return s.GetToken(preludioParserLPAREN, 0)
+}
+
+func (s *NestedPipelineContext) RPAREN() antlr.TerminalNode {
+	return s.GetToken(preludioParserRPAREN, 0)
+}
+
+func (s *NestedPipelineContext) Pipeline() IPipelineContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IPipelineContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IPipelineContext)
+}
+
+func (s *NestedPipelineContext) InlinePipeline() IInlinePipelineContext {
+	var t antlr.RuleContext
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(IInlinePipelineContext); ok {
+			t = ctx.(antlr.RuleContext)
+			break
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(IInlinePipelineContext)
+}
+
+func (s *NestedPipelineContext) AllNl() []INlContext {
+	children := s.GetChildren()
+	len := 0
+	for _, ctx := range children {
+		if _, ok := ctx.(INlContext); ok {
+			len++
+		}
+	}
+
+	tst := make([]INlContext, len)
+	i := 0
+	for _, ctx := range children {
+		if t, ok := ctx.(INlContext); ok {
+			tst[i] = t.(INlContext)
+			i++
+		}
+	}
+
+	return tst
+}
+
+func (s *NestedPipelineContext) Nl(i int) INlContext {
+	var t antlr.RuleContext
+	j := 0
+	for _, ctx := range s.GetChildren() {
+		if _, ok := ctx.(INlContext); ok {
+			if j == i {
+				t = ctx.(antlr.RuleContext)
+				break
+			}
+			j++
+		}
+	}
+
+	if t == nil {
+		return nil
+	}
+
+	return t.(INlContext)
+}
+
+func (s *NestedPipelineContext) GetRuleContext() antlr.RuleContext {
+	return s
+}
+
+func (s *NestedPipelineContext) ToStringTree(ruleNames []string, recog antlr.Recognizer) string {
+	return antlr.TreesStringTree(s, ruleNames, recog)
+}
+
+func (s *NestedPipelineContext) EnterRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.EnterNestedPipeline(s)
+	}
+}
+
+func (s *NestedPipelineContext) ExitRule(listener antlr.ParseTreeListener) {
+	if listenerT, ok := listener.(preludioParserListener); ok {
+		listenerT.ExitNestedPipeline(s)
+	}
+}
+
+func (p *preludioParser) NestedPipeline() (localctx INestedPipelineContext) {
+	this := p
+	_ = this
+
+	localctx = NewNestedPipelineContext(p, p.GetParserRuleContext(), p.GetState())
+	p.EnterRule(localctx, 48, preludioParserRULE_nestedPipeline)
+	var _la int
+
+	defer func() {
+		p.ExitRule()
+	}()
+
+	defer func() {
+		if err := recover(); err != nil {
+			if v, ok := err.(antlr.RecognitionException); ok {
+				localctx.SetException(v)
+				p.GetErrorHandler().ReportError(p, v)
+				p.GetErrorHandler().Recover(p, v)
+			} else {
+				panic(err)
+			}
+		}
+	}()
+
+	p.EnterOuterAlt(localctx, 1)
+	{
+		p.SetState(302)
+		p.Match(preludioParserLPAREN)
+	}
+	p.SetState(306)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
+		{
+			p.SetState(303)
+			p.Nl()
+		}
+
+		p.SetState(308)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+	}
+	p.SetState(311)
+	p.GetErrorHandler().Sync(p)
+	switch p.GetInterpreter().AdaptivePredict(p.GetTokenStream(), 36, p.GetParserRuleContext()) {
+	case 1:
+		{
+			p.SetState(309)
+			p.Pipeline()
+		}
+
+	case 2:
+		{
+			p.SetState(310)
+			p.InlinePipeline()
+		}
+
+	}
+	p.SetState(316)
+	p.GetErrorHandler().Sync(p)
+	_la = p.GetTokenStream().LA(1)
+
+	for _la == preludioParserNEWLINE || _la == preludioParserSINGLE_LINE_COMMENT {
+		{
+			p.SetState(313)
+			p.Nl()
+		}
+
+		p.SetState(318)
+		p.GetErrorHandler().Sync(p)
+		_la = p.GetTokenStream().LA(1)
+	}
+	{
+		p.SetState(319)
+		p.Match(preludioParserRPAREN)
 	}
 
 	return localctx
@@ -5379,7 +5034,7 @@ func (p *preludioParser) List() (localctx IListContext) {
 
 func (p *preludioParser) Sempred(localctx antlr.RuleContext, ruleIndex, predIndex int) bool {
 	switch ruleIndex {
-	case 23:
+	case 14:
 		var t *ExprContext = nil
 		if localctx != nil {
 			t = localctx.(*ExprContext)
@@ -5397,28 +5052,28 @@ func (p *preludioParser) Expr_Sempred(localctx antlr.RuleContext, predIndex int)
 
 	switch predIndex {
 	case 0:
-		return p.Precpred(p.GetParserRuleContext(), 10)
+		return p.Precpred(p.GetParserRuleContext(), 12)
 
 	case 1:
-		return p.Precpred(p.GetParserRuleContext(), 9)
+		return p.Precpred(p.GetParserRuleContext(), 10)
 
 	case 2:
-		return p.Precpred(p.GetParserRuleContext(), 8)
+		return p.Precpred(p.GetParserRuleContext(), 9)
 
 	case 3:
-		return p.Precpred(p.GetParserRuleContext(), 7)
+		return p.Precpred(p.GetParserRuleContext(), 8)
 
 	case 4:
-		return p.Precpred(p.GetParserRuleContext(), 6)
+		return p.Precpred(p.GetParserRuleContext(), 7)
 
 	case 5:
-		return p.Precpred(p.GetParserRuleContext(), 5)
+		return p.Precpred(p.GetParserRuleContext(), 6)
 
 	case 6:
-		return p.Precpred(p.GetParserRuleContext(), 4)
+		return p.Precpred(p.GetParserRuleContext(), 5)
 
 	case 7:
-		return p.Precpred(p.GetParserRuleContext(), 3)
+		return p.Precpred(p.GetParserRuleContext(), 4)
 
 	default:
 		panic("No predicate with index: " + fmt.Sprint(predIndex))

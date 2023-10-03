@@ -237,12 +237,6 @@ func (bf *ByteFeeder) ExitInlinePipeline(ctx *InlinePipelineContext) {
 	bf.AppendInstruction(typesys.OP_END_PIPELINE, 0, 0)
 }
 
-// EnterIdentBacktick is called when production identBacktick is entered.
-func (bf *ByteFeeder) EnterIdentBacktick(ctx *IdentBacktickContext) {}
-
-// ExitIdentBacktick is called when production identBacktick is exited.
-func (bf *ByteFeeder) ExitIdentBacktick(ctx *IdentBacktickContext) {}
-
 // EnterFuncCall is called when production funcCall is entered.
 func (bf *ByteFeeder) EnterFuncCall(ctx *FuncCallContext) {
 	bf.AppendInstruction(typesys.OP_START_FUNC_CALL, 0, 0)
@@ -289,21 +283,29 @@ func (bf *ByteFeeder) EnterMultiAssign(ctx *MultiAssignContext) {}
 // ExitMultiAssign is called when production multiAssign is exited.
 func (bf *ByteFeeder) ExitMultiAssign(ctx *MultiAssignContext) {}
 
-// EnterExprCall is called when production exprCall is entered.
-func (bf *ByteFeeder) EnterExprCall(ctx *ExprCallContext) {}
-
-// ExitExprCall is called when production exprCall is exited.
-func (bf *ByteFeeder) ExitExprCall(ctx *ExprCallContext) {
-	bf.AppendInstruction(typesys.OP_END_CHUNCK, 0, 0)
-}
-
 // EnterExpr is called when production expr is entered.
 func (bf *ByteFeeder) EnterExpr(ctx *ExprContext) {}
 
 // ExitExpr is called when production expr is exited.
 func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// operation or nested expression
-	if ctx.GetChildCount() == 3 {
+	switch ctx.GetChildCount() {
+
+	// UNARY OPERATIONS
+	case 2:
+		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
+		case typesys.SYMBOL_UNARY_SUB:
+			bf.AppendInstruction(typesys.OP_UNARY_SUB, 0, 0)
+
+		case typesys.SYMBOL_UNARY_ADD:
+			bf.AppendInstruction(typesys.OP_UNARY_ADD, 0, 0)
+
+		case typesys.SYMBOL_UNARY_NOT:
+			bf.AppendInstruction(typesys.OP_UNARY_NOT, 0, 0)
+		}
+
+	// BINARY OPERATIONS
+	case 3:
 		switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
 		case typesys.SYMBOL_INDEXING:
 			bf.AppendInstruction(typesys.OP_INDEXING, 0, 0)
@@ -359,31 +361,6 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	}
 }
 
-// EnterTerm is called when production term is entered.
-func (bf *ByteFeeder) EnterTerm(ctx *TermContext) {}
-
-// ExitTerm is called when production term is exited.
-func (bf *ByteFeeder) ExitTerm(ctx *TermContext) {}
-
-// EnterExprUnary is called when production exprUnary is entered.
-func (bf *ByteFeeder) EnterExprUnary(ctx *ExprUnaryContext) {}
-
-// ExitExprUnary is called when production exprUnary is exited.
-func (bf *ByteFeeder) ExitExprUnary(ctx *ExprUnaryContext) {
-	if ctx.GetChildCount() == 2 {
-		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
-		case typesys.SYMBOL_UNARY_SUB:
-			bf.AppendInstruction(typesys.OP_UNARY_SUB, 0, 0)
-
-		case typesys.SYMBOL_UNARY_ADD:
-			bf.AppendInstruction(typesys.OP_UNARY_ADD, 0, 0)
-
-		case typesys.SYMBOL_UNARY_NOT:
-			bf.AppendInstruction(typesys.OP_UNARY_NOT, 0, 0)
-		}
-	}
-}
-
 // EnterLiteral is called when production literal is entered.
 func (bf *ByteFeeder) EnterLiteral(ctx *LiteralContext) {}
 
@@ -394,10 +371,10 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_SYMBOL,
 			bf.symbolTable.Add(
 				ctx.IDENT().GetSymbol().GetText()))
-	}
+	} else
 
 	// NULL
-	if ctx.NULL_() != nil {
+	if ctx.NA() != nil {
 		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_NULL, 0)
 	} else
 

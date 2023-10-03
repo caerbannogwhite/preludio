@@ -46,17 +46,17 @@ type preludioParserListener interface {
 	// EnterRetStmt is called when entering the retStmt production.
 	EnterRetStmt(c *RetStmtContext)
 
-	// EnterPipeline is called when entering the pipeline production.
-	EnterPipeline(c *PipelineContext)
+	// EnterExprCall is called when entering the exprCall production.
+	EnterExprCall(c *ExprCallContext)
 
-	// EnterInlinePipeline is called when entering the inlinePipeline production.
-	EnterInlinePipeline(c *InlinePipelineContext)
+	// EnterExpr is called when entering the expr production.
+	EnterExpr(c *ExprContext)
 
-	// EnterNestedPipeline is called when entering the nestedPipeline production.
-	EnterNestedPipeline(c *NestedPipelineContext)
+	// EnterLiteral is called when entering the literal production.
+	EnterLiteral(c *LiteralContext)
 
-	// EnterIdentBacktick is called when entering the identBacktick production.
-	EnterIdentBacktick(c *IdentBacktickContext)
+	// EnterList is called when entering the list production.
+	EnterList(c *ListContext)
 
 	// EnterFuncCall is called when entering the funcCall production.
 	EnterFuncCall(c *FuncCallContext)
@@ -73,23 +73,14 @@ type preludioParserListener interface {
 	// EnterMultiAssign is called when entering the multiAssign production.
 	EnterMultiAssign(c *MultiAssignContext)
 
-	// EnterExprCall is called when entering the exprCall production.
-	EnterExprCall(c *ExprCallContext)
+	// EnterPipeline is called when entering the pipeline production.
+	EnterPipeline(c *PipelineContext)
 
-	// EnterExpr is called when entering the expr production.
-	EnterExpr(c *ExprContext)
+	// EnterInlinePipeline is called when entering the inlinePipeline production.
+	EnterInlinePipeline(c *InlinePipelineContext)
 
-	// EnterTerm is called when entering the term production.
-	EnterTerm(c *TermContext)
-
-	// EnterExprUnary is called when entering the exprUnary production.
-	EnterExprUnary(c *ExprUnaryContext)
-
-	// EnterLiteral is called when entering the literal production.
-	EnterLiteral(c *LiteralContext)
-
-	// EnterList is called when entering the list production.
-	EnterList(c *ListContext)
+	// EnterNestedPipeline is called when entering the nestedPipeline production.
+	EnterNestedPipeline(c *NestedPipelineContext)
 
 	// ExitNl is called when exiting the nl production.
 	ExitNl(c *NlContext)
@@ -130,17 +121,17 @@ type preludioParserListener interface {
 	// ExitRetStmt is called when exiting the retStmt production.
 	ExitRetStmt(c *RetStmtContext)
 
-	// ExitPipeline is called when exiting the pipeline production.
-	ExitPipeline(c *PipelineContext)
+	// ExitExprCall is called when exiting the exprCall production.
+	ExitExprCall(c *ExprCallContext)
 
-	// ExitInlinePipeline is called when exiting the inlinePipeline production.
-	ExitInlinePipeline(c *InlinePipelineContext)
+	// ExitExpr is called when exiting the expr production.
+	ExitExpr(c *ExprContext)
 
-	// ExitNestedPipeline is called when exiting the nestedPipeline production.
-	ExitNestedPipeline(c *NestedPipelineContext)
+	// ExitLiteral is called when exiting the literal production.
+	ExitLiteral(c *LiteralContext)
 
-	// ExitIdentBacktick is called when exiting the identBacktick production.
-	ExitIdentBacktick(c *IdentBacktickContext)
+	// ExitList is called when exiting the list production.
+	ExitList(c *ListContext)
 
 	// ExitFuncCall is called when exiting the funcCall production.
 	ExitFuncCall(c *FuncCallContext)
@@ -157,21 +148,12 @@ type preludioParserListener interface {
 	// ExitMultiAssign is called when exiting the multiAssign production.
 	ExitMultiAssign(c *MultiAssignContext)
 
-	// ExitExprCall is called when exiting the exprCall production.
-	ExitExprCall(c *ExprCallContext)
+	// ExitPipeline is called when exiting the pipeline production.
+	ExitPipeline(c *PipelineContext)
 
-	// ExitExpr is called when exiting the expr production.
-	ExitExpr(c *ExprContext)
+	// ExitInlinePipeline is called when exiting the inlinePipeline production.
+	ExitInlinePipeline(c *InlinePipelineContext)
 
-	// ExitTerm is called when exiting the term production.
-	ExitTerm(c *TermContext)
-
-	// ExitExprUnary is called when exiting the exprUnary production.
-	ExitExprUnary(c *ExprUnaryContext)
-
-	// ExitLiteral is called when exiting the literal production.
-	ExitLiteral(c *LiteralContext)
-
-	// ExitList is called when exiting the list production.
-	ExitList(c *ListContext)
+	// ExitNestedPipeline is called when exiting the nestedPipeline production.
+	ExitNestedPipeline(c *NestedPipelineContext)
 }

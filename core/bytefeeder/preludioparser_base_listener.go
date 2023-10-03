@@ -98,29 +98,29 @@ func (s *BasepreludioParserListener) EnterRetStmt(ctx *RetStmtContext) {}
 // ExitRetStmt is called when production retStmt is exited.
 func (s *BasepreludioParserListener) ExitRetStmt(ctx *RetStmtContext) {}
 
-// EnterPipeline is called when production pipeline is entered.
-func (s *BasepreludioParserListener) EnterPipeline(ctx *PipelineContext) {}
+// EnterExprCall is called when production exprCall is entered.
+func (s *BasepreludioParserListener) EnterExprCall(ctx *ExprCallContext) {}
 
-// ExitPipeline is called when production pipeline is exited.
-func (s *BasepreludioParserListener) ExitPipeline(ctx *PipelineContext) {}
+// ExitExprCall is called when production exprCall is exited.
+func (s *BasepreludioParserListener) ExitExprCall(ctx *ExprCallContext) {}
 
-// EnterInlinePipeline is called when production inlinePipeline is entered.
-func (s *BasepreludioParserListener) EnterInlinePipeline(ctx *InlinePipelineContext) {}
+// EnterExpr is called when production expr is entered.
+func (s *BasepreludioParserListener) EnterExpr(ctx *ExprContext) {}
 
-// ExitInlinePipeline is called when production inlinePipeline is exited.
-func (s *BasepreludioParserListener) ExitInlinePipeline(ctx *InlinePipelineContext) {}
+// ExitExpr is called when production expr is exited.
+func (s *BasepreludioParserListener) ExitExpr(ctx *ExprContext) {}
 
-// EnterNestedPipeline is called when production nestedPipeline is entered.
-func (s *BasepreludioParserListener) EnterNestedPipeline(ctx *NestedPipelineContext) {}
+// EnterLiteral is called when production literal is entered.
+func (s *BasepreludioParserListener) EnterLiteral(ctx *LiteralContext) {}
 
-// ExitNestedPipeline is called when production nestedPipeline is exited.
-func (s *BasepreludioParserListener) ExitNestedPipeline(ctx *NestedPipelineContext) {}
+// ExitLiteral is called when production literal is exited.
+func (s *BasepreludioParserListener) ExitLiteral(ctx *LiteralContext) {}
 
-// EnterIdentBacktick is called when production identBacktick is entered.
-func (s *BasepreludioParserListener) EnterIdentBacktick(ctx *IdentBacktickContext) {}
+// EnterList is called when production list is entered.
+func (s *BasepreludioParserListener) EnterList(ctx *ListContext) {}
 
-// ExitIdentBacktick is called when production identBacktick is exited.
-func (s *BasepreludioParserListener) ExitIdentBacktick(ctx *IdentBacktickContext) {}
+// ExitList is called when production list is exited.
+func (s *BasepreludioParserListener) ExitList(ctx *ListContext) {}
 
 // EnterFuncCall is called when production funcCall is entered.
 func (s *BasepreludioParserListener) EnterFuncCall(ctx *FuncCallContext) {}
@@ -152,38 +152,20 @@ func (s *BasepreludioParserListener) EnterMultiAssign(ctx *MultiAssignContext) {
 // ExitMultiAssign is called when production multiAssign is exited.
 func (s *BasepreludioParserListener) ExitMultiAssign(ctx *MultiAssignContext) {}
 
-// EnterExprCall is called when production exprCall is entered.
-func (s *BasepreludioParserListener) EnterExprCall(ctx *ExprCallContext) {}
+// EnterPipeline is called when production pipeline is entered.
+func (s *BasepreludioParserListener) EnterPipeline(ctx *PipelineContext) {}
 
-// ExitExprCall is called when production exprCall is exited.
-func (s *BasepreludioParserListener) ExitExprCall(ctx *ExprCallContext) {}
+// ExitPipeline is called when production pipeline is exited.
+func (s *BasepreludioParserListener) ExitPipeline(ctx *PipelineContext) {}
 
-// EnterExpr is called when production expr is entered.
-func (s *BasepreludioParserListener) EnterExpr(ctx *ExprContext) {}
+// EnterInlinePipeline is called when production inlinePipeline is entered.
+func (s *BasepreludioParserListener) EnterInlinePipeline(ctx *InlinePipelineContext) {}
 
-// ExitExpr is called when production expr is exited.
-func (s *BasepreludioParserListener) ExitExpr(ctx *ExprContext) {}
+// ExitInlinePipeline is called when production inlinePipeline is exited.
+func (s *BasepreludioParserListener) ExitInlinePipeline(ctx *InlinePipelineContext) {}
 
-// EnterTerm is called when production term is entered.
-func (s *BasepreludioParserListener) EnterTerm(ctx *TermContext) {}
+// EnterNestedPipeline is called when production nestedPipeline is entered.
+func (s *BasepreludioParserListener) EnterNestedPipeline(ctx *NestedPipelineContext) {}
 
-// ExitTerm is called when production term is exited.
-func (s *BasepreludioParserListener) ExitTerm(ctx *TermContext) {}
-
-// EnterExprUnary is called when production exprUnary is entered.
-func (s *BasepreludioParserListener) EnterExprUnary(ctx *ExprUnaryContext) {}
-
-// ExitExprUnary is called when production exprUnary is exited.
-func (s *BasepreludioParserListener) ExitExprUnary(ctx *ExprUnaryContext) {}
-
-// EnterLiteral is called when production literal is entered.
-func (s *BasepreludioParserListener) EnterLiteral(ctx *LiteralContext) {}
-
-// ExitLiteral is called when production literal is exited.
-func (s *BasepreludioParserListener) ExitLiteral(ctx *LiteralContext) {}
-
-// EnterList is called when production list is entered.
-func (s *BasepreludioParserListener) EnterList(ctx *ListContext) {}
-
-// ExitList is called when production list is exited.
-func (s *BasepreludioParserListener) ExitList(ctx *ListContext) {}
+// ExitNestedPipeline is called when production nestedPipeline is exited.
+func (s *BasepreludioParserListener) ExitNestedPipeline(ctx *NestedPipelineContext) {}
