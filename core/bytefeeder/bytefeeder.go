@@ -423,7 +423,7 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		strBegin := 0
 		exprBegin := strings.Index(val, typesys.SYMBOL_LBRACE)
 		exprEnd := -1
-		exprFound := false
+		exprNum := 0
 		for exprBegin != -1 {
 
 			exprEnd = strings.Index(val, typesys.SYMBOL_RBRACE)
@@ -450,13 +450,13 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 
 			val = val[exprEnd+1:]
 			exprBegin = strings.Index(val, typesys.SYMBOL_LBRACE)
-			exprFound = true
+			exprNum++
 		}
 
 		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING,
 			bf.symbolTable.Add(val))
 
-		if exprFound {
+		for i := 0; i < exprNum; i++ {
 			bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
 		}
 
