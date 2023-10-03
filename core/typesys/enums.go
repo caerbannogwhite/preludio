@@ -83,9 +83,10 @@ const (
 	SYMBOL_TRUE  = "true"
 	SYMBOL_FALSE = "false"
 
-	SYMBOL_INDEXING = "$"
-	SYMBOL_RANGE    = ".."
-	SYMBOL_COLON    = ":"
+	SYMBOL_INDEXING  = "@"
+	SYMBOL_FUNC_CALL = "$"
+	SYMBOL_RANGE     = ".."
+	SYMBOL_COLON     = ":"
 
 	SYMBOL_BINARY_MUL      = "*"
 	SYMBOL_BINARY_DIV      = "/"
