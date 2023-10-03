@@ -14,12 +14,12 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const VERSION = "0.3.0"
+const VERSION = "0.4.0"
 
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
 const DEFAULT_SUSPENSION_STRING = "... "
-const DEFAULT_NULL_STRING = "NA"
+const DEFAULT_NULL_STRING = typesys.SYMBOL_NA
 const DEFAULT_OUTPUT_COLUMN_SIZE = 12
 
 var JUST_RIGHT_TYPES = map[string]bool{

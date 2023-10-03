@@ -79,7 +79,7 @@ const (
 )
 
 const (
-	SYMBOL_NULL  = "na"
+	SYMBOL_NA    = "na"
 	SYMBOL_TRUE  = "true"
 	SYMBOL_FALSE = "false"
 
@@ -87,6 +87,8 @@ const (
 	SYMBOL_FUNC_CALL = "$"
 	SYMBOL_RANGE     = ".."
 	SYMBOL_COLON     = ":"
+	SYMBOL_LBRACE    = "{"
+	SYMBOL_RBRACE    = "}"
 
 	SYMBOL_BINARY_MUL      = "*"
 	SYMBOL_BINARY_DIV      = "/"
