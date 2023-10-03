@@ -17,24 +17,25 @@ MODEL: '~';
 
 EQ: '==';
 NE: '!=';
-LE: '<=';
 GE: '>=';
+GT: '>';
+LE: '<=';
+LT: '<';
 
-AT: '@';
 BAR: '|';
 COLON: ':';
 COMMA: ',';
 DOT: '.';
 DOLLAR: '$';
 RANGE: '..';
-LANG: '<';
-RANG: '>';
 LBRACKET: '[';
 RBRACKET: ']';
 LPAREN: '(';
 RPAREN: ')';
 LBRACE: '{';
 RBRACE: '}';
+LANG: LT;
+RANG: GT;
 UNDERSCORE: '_';
 
 BACKTICK: '`';
@@ -47,7 +48,8 @@ AND: 'and';
 OR: 'or';
 NOT: 'not';
 COALESCE: '??';
-NULL_: 'na';
+NA: 'na';
+INDEXING: '@';
 
 IDENT: IDENT_START (DOT IDENT_NEXT)*;
 IDENT_START: (LETTER | UNDERSCORE) (LETTER | DIGIT | UNDERSCORE)*;

@@ -6,14 +6,15 @@ options {
 
 nl: NEWLINE | SINGLE_LINE_COMMENT;
 
-program:
-	nl* programIntro? nl* (
-		(funcDef | pipeline | inlinePipeline | stmt) nl*
-	)* EOF;
+program: nl* programIntro? nl* ((funcDef | stmt) nl*)* EOF;
 
 programIntro: PRQL namedArg* nl;
 
-funcDef: FUNC funcDefName funcDefParams ARROW expr;
+funcDef:
+	FUNC funcDefName funcDefParams ARROW (
+		exprCall
+		| LBRACE nl* (stmt nl*)* RBRACE
+	);
 
 funcDefName: IDENT typeDef?;
 funcDefParams: funcDefParam*;
@@ -22,29 +23,30 @@ funcDefParam: (namedArg | IDENT) typeDef?;
 typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
-stmt: varAssignStmt | varDeclStmt | retStmt | expr;
-varAssignStmt: IDENT ASSIGN expr;
-varDeclStmt: IDENT DECLARE expr;
-retStmt: RET expr;
+stmt: varAssignStmt | varDeclStmt | retStmt | exprCall;
+varAssignStmt: IDENT ASSIGN exprCall;
+varDeclStmt: IDENT DECLARE exprCall;
+retStmt: RET exprCall;
+
+exprCall: expr | funcCall;
 
 expr:
-	expr AT expr
+	literal
+	| expr INDEXING expr
+	| (MINUS | PLUS | NOT) expr
 	| expr EXP expr
 	| expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
 	| expr MODEL expr
-	| expr (EQ | NE | GE | LE | LANG | RANG) expr
+	| expr (EQ | NE | GE | GT | LE | LT) expr
 	| expr COALESCE expr
 	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
-	| (MINUS | PLUS | NOT) expr
 	| list
-	| funcCall
-	| nestedPipeline
-	| literal;
+	| nestedPipeline;
 
 literal:
-	NULL_
+	NA
 	| BOOLEAN_LIT
 	| INTEGER_LIT
 	| RANGE_LIT
@@ -60,18 +62,18 @@ literal:
 
 list:
 	LBRACKET (
-		nl* (assign | multiAssign | expr) (
-			COMMA nl* (assign | multiAssign | expr)
+		nl* (assign | multiAssign | exprCall) (
+			COMMA nl* (assign | multiAssign | exprCall)
 		)* COMMA? nl?
 	)? RBRACKET;
 
 funcCall: IDENT DOLLAR funcCallParam*;
-funcCallParam: namedArg | assign | multiAssign | expr;
-namedArg: IDENT COLON (assign | expr);
-assign: IDENT ASSIGN expr;
-multiAssign: list ASSIGN expr;
+funcCallParam: namedArg | assign | multiAssign | exprCall;
+namedArg: IDENT COLON (assign | exprCall);
+assign: IDENT ASSIGN exprCall;
+multiAssign: list ASSIGN exprCall;
 
-pipeline: expr (nl funcCall)* (nl | EOF);
-inlinePipeline: expr (BAR funcCall)*;
+pipeline: exprCall (nl funcCall)* nl;
+inlinePipeline: exprCall (BAR funcCall)*;
 nestedPipeline:
 	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
