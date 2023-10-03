@@ -4,7 +4,7 @@ options {
 	tokenVocab = preludioLexer;
 }
 
-nl: NEWLINE;
+nl: NEWLINE | SINGLE_LINE_COMMENT;
 
 program:
 	nl* programIntro? nl* (
@@ -23,28 +23,12 @@ typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
 stmt: varAssignStmt | varDeclStmt | retStmt | expr;
-varAssignStmt: IDENT ASSIGN exprCall;
-varDeclStmt: IDENT DECLARE exprCall;
-retStmt: RET exprCall;
-
-pipeline: exprCall (nl funcCall)* (nl | EOF);
-inlinePipeline: exprCall (BAR funcCall)*;
-nestedPipeline:
-	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
-
-identBacktick: BACKTICK ~(NEWLINE | BACKTICK)* BACKTICK;
-
-funcCall: IDENT funcCallParam*;
-
-funcCallParam: namedArg | assign | multiAssign | expr;
-namedArg: IDENT COLON (assign | expr);
-assign: IDENT ASSIGN exprCall;
-multiAssign: list ASSIGN exprCall;
-
-exprCall: funcCall | expr;
+varAssignStmt: IDENT ASSIGN expr;
+varDeclStmt: IDENT DECLARE expr;
+retStmt: RET expr;
 
 expr:
-	expr DOLLAR expr
+	expr AT expr
 	| expr EXP expr
 	| expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
@@ -53,20 +37,14 @@ expr:
 	| expr COALESCE expr
 	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
-	| term;
-
-term:
-	literal
-	| identBacktick
-	| exprUnary
+	| (MINUS | PLUS | NOT) expr
 	| list
-	| nestedPipeline;
-
-exprUnary: (MINUS | PLUS | NOT) term;
+	| funcCall
+	| nestedPipeline
+	| literal;
 
 literal:
-	IDENT
-	| NULL_
+	NULL_
 	| BOOLEAN_LIT
 	| INTEGER_LIT
 	| RANGE_LIT
@@ -77,11 +55,23 @@ literal:
 	| STRING_PATH_LIT
 	| REGEX_LIT
 	| DATE_LIT
-	| DURATION_LIT;
+	| DURATION_LIT
+	| IDENT;
 
 list:
 	LBRACKET (
-		nl* (assign | multiAssign | exprCall) (
-			COMMA nl* (assign | multiAssign | exprCall)
+		nl* (assign | multiAssign | expr) (
+			COMMA nl* (assign | multiAssign | expr)
 		)* COMMA? nl?
 	)? RBRACKET;
+
+funcCall: IDENT DOLLAR funcCallParam*;
+funcCallParam: namedArg | assign | multiAssign | expr;
+namedArg: IDENT COLON (assign | expr);
+assign: IDENT ASSIGN expr;
+multiAssign: list ASSIGN expr;
+
+pipeline: expr (nl funcCall)* (nl | EOF);
+inlinePipeline: expr (BAR funcCall)*;
+nestedPipeline:
+	LPAREN nl* (pipeline | inlinePipeline) nl* RPAREN;
