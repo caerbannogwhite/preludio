@@ -126,7 +126,7 @@ func (bf *ByteFeeder) VisitTerminal(node antlr.TerminalNode) {}
 
 // VisitErrorNode is called when an error node is visited.
 func (bf *ByteFeeder) VisitErrorNode(node antlr.ErrorNode) {
-	fmt.Println("Error node: ", node.GetText())
+	bf.err = fmt.Errorf("error node: %s", node.GetText())
 }
 
 // EnterEveryRule is called when any rule is entered.

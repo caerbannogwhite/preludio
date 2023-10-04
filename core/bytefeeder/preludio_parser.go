@@ -36,7 +36,7 @@ func preludioparserParserInit() {
 		"'*'", "'^'", "'/'", "'%'", "'~'", "'=='", "'!='", "'>='", "'>'", "'<='",
 		"'<'", "'|'", "':'", "','", "'.'", "'$'", "'..'", "'['", "']'", "'('",
 		"')'", "'{'", "'}'", "", "", "'_'", "'`'", "'\"'", "'''", "'\"\"\"'",
-		"'''''", "'and'", "'or'", "'not'", "'??'", "'na'", "'@'",
+		"'''''", "'and'", "'or'", "'not'", "'??'", "'na'", "'@'", "'!'",
 	}
 	staticData.symbolicNames = []string{
 		"", "FUNC", "PRQL", "RET", "ARROW", "ASSIGN", "DECLARE", "PLUS", "MINUS",
@@ -45,9 +45,9 @@ func preludioparserParserInit() {
 		"RBRACKET", "LPAREN", "RPAREN", "LBRACE", "RBRACE", "LANG", "RANG",
 		"UNDERSCORE", "BACKTICK", "DOUBLE_QUOTE", "SINGLE_QUOTE", "TRIPLE_DOUBLE_QUOTE",
 		"TRIPLE_SINGLE_QUOTE", "AND", "OR", "NOT", "COALESCE", "NA", "INDEXING",
-		"IDENT", "IDENT_START", "IDENT_NEXT", "WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT",
-		"BOOLEAN_LIT", "INTEGER_LIT", "RANGE_LIT", "FLOAT_LIT", "STRING_CHAR",
-		"STRING_RAW_CHAR", "STRING_LIT", "STRING_INTERP_LIT", "STRING_RAW_LIT",
+		"FUNCTION_CALL", "WHITESPACE", "NEWLINE", "SINGLE_LINE_COMMENT", "BOOLEAN_LIT",
+		"IDENT", "IDENT_START", "IDENT_NEXT", "INTEGER_LIT", "RANGE_LIT", "FLOAT_LIT",
+		"STRING_CHAR", "STRING_LIT", "STRING_INTERP_LIT", "STRING_RAW_LIT",
 		"STRING_PATH_LIT", "REGEX_LIT", "DATE_LIT", "DURATION_LIT",
 	}
 	staticData.ruleNames = []string{
@@ -93,9 +93,9 @@ func preludioparserParserInit() {
 		24, 12, 24, 308, 9, 24, 1, 24, 1, 24, 3, 24, 312, 8, 24, 1, 24, 5, 24,
 		315, 8, 24, 10, 24, 12, 24, 318, 9, 24, 1, 24, 1, 24, 1, 24, 0, 1, 28,
 		25, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34,
-		36, 38, 40, 42, 44, 46, 48, 0, 7, 1, 0, 50, 51, 2, 0, 7, 8, 42, 42, 2,
+		36, 38, 40, 42, 44, 46, 48, 0, 7, 1, 0, 48, 49, 2, 0, 7, 8, 42, 42, 2,
 		0, 9, 9, 11, 12, 1, 0, 7, 8, 1, 0, 14, 19, 1, 0, 40, 41, 4, 0, 44, 44,
-		46, 46, 52, 55, 58, 64, 349, 0, 50, 1, 0, 0, 0, 2, 55, 1, 0, 0, 0, 4, 84,
+		50, 51, 54, 56, 58, 64, 349, 0, 50, 1, 0, 0, 0, 2, 55, 1, 0, 0, 0, 4, 84,
 		1, 0, 0, 0, 6, 93, 1, 0, 0, 0, 8, 120, 1, 0, 0, 0, 10, 127, 1, 0, 0, 0,
 		12, 132, 1, 0, 0, 0, 14, 137, 1, 0, 0, 0, 16, 148, 1, 0, 0, 0, 18, 156,
 		1, 0, 0, 0, 20, 158, 1, 0, 0, 0, 22, 162, 1, 0, 0, 0, 24, 166, 1, 0, 0,
@@ -125,23 +125,23 @@ func preludioparserParserInit() {
 		110, 113, 1, 0, 0, 0, 111, 109, 1, 0, 0, 0, 112, 105, 1, 0, 0, 0, 113,
 		116, 1, 0, 0, 0, 114, 112, 1, 0, 0, 0, 114, 115, 1, 0, 0, 0, 115, 117,
 		1, 0, 0, 0, 116, 114, 1, 0, 0, 0, 117, 119, 5, 31, 0, 0, 118, 97, 1, 0,
-		0, 0, 118, 98, 1, 0, 0, 0, 119, 7, 1, 0, 0, 0, 120, 122, 5, 46, 0, 0, 121,
+		0, 0, 118, 98, 1, 0, 0, 0, 119, 7, 1, 0, 0, 0, 120, 122, 5, 51, 0, 0, 121,
 		123, 3, 14, 7, 0, 122, 121, 1, 0, 0, 0, 122, 123, 1, 0, 0, 0, 123, 9, 1,
 		0, 0, 0, 124, 126, 3, 12, 6, 0, 125, 124, 1, 0, 0, 0, 126, 129, 1, 0, 0,
 		0, 127, 125, 1, 0, 0, 0, 127, 128, 1, 0, 0, 0, 128, 11, 1, 0, 0, 0, 129,
-		127, 1, 0, 0, 0, 130, 133, 3, 38, 19, 0, 131, 133, 5, 46, 0, 0, 132, 130,
+		127, 1, 0, 0, 0, 130, 133, 3, 38, 19, 0, 131, 133, 5, 51, 0, 0, 132, 130,
 		1, 0, 0, 0, 132, 131, 1, 0, 0, 0, 133, 135, 1, 0, 0, 0, 134, 136, 3, 14,
 		7, 0, 135, 134, 1, 0, 0, 0, 135, 136, 1, 0, 0, 0, 136, 13, 1, 0, 0, 0,
 		137, 138, 5, 32, 0, 0, 138, 139, 3, 16, 8, 0, 139, 143, 5, 20, 0, 0, 140,
 		142, 3, 16, 8, 0, 141, 140, 1, 0, 0, 0, 142, 145, 1, 0, 0, 0, 143, 141,
 		1, 0, 0, 0, 143, 144, 1, 0, 0, 0, 144, 146, 1, 0, 0, 0, 145, 143, 1, 0,
-		0, 0, 146, 147, 5, 33, 0, 0, 147, 15, 1, 0, 0, 0, 148, 150, 5, 46, 0, 0,
+		0, 0, 146, 147, 5, 33, 0, 0, 147, 15, 1, 0, 0, 0, 148, 150, 5, 51, 0, 0,
 		149, 151, 3, 14, 7, 0, 150, 149, 1, 0, 0, 0, 150, 151, 1, 0, 0, 0, 151,
 		17, 1, 0, 0, 0, 152, 157, 3, 20, 10, 0, 153, 157, 3, 22, 11, 0, 154, 157,
 		3, 24, 12, 0, 155, 157, 3, 26, 13, 0, 156, 152, 1, 0, 0, 0, 156, 153, 1,
 		0, 0, 0, 156, 154, 1, 0, 0, 0, 156, 155, 1, 0, 0, 0, 157, 19, 1, 0, 0,
-		0, 158, 159, 5, 46, 0, 0, 159, 160, 5, 5, 0, 0, 160, 161, 3, 26, 13, 0,
-		161, 21, 1, 0, 0, 0, 162, 163, 5, 46, 0, 0, 163, 164, 5, 6, 0, 0, 164,
+		0, 158, 159, 5, 51, 0, 0, 159, 160, 5, 5, 0, 0, 160, 161, 3, 26, 13, 0,
+		161, 21, 1, 0, 0, 0, 162, 163, 5, 51, 0, 0, 163, 164, 5, 6, 0, 0, 164,
 		165, 3, 26, 13, 0, 165, 23, 1, 0, 0, 0, 166, 167, 5, 3, 0, 0, 167, 168,
 		3, 26, 13, 0, 168, 25, 1, 0, 0, 0, 169, 172, 3, 28, 14, 0, 170, 172, 3,
 		34, 17, 0, 171, 169, 1, 0, 0, 0, 171, 170, 1, 0, 0, 0, 172, 27, 1, 0, 0,
@@ -177,15 +177,15 @@ func preludioparserParserInit() {
 		1, 0, 0, 0, 246, 247, 1, 0, 0, 0, 247, 249, 1, 0, 0, 0, 248, 250, 3, 0,
 		0, 0, 249, 248, 1, 0, 0, 0, 249, 250, 1, 0, 0, 0, 250, 252, 1, 0, 0, 0,
 		251, 220, 1, 0, 0, 0, 251, 252, 1, 0, 0, 0, 252, 253, 1, 0, 0, 0, 253,
-		254, 5, 27, 0, 0, 254, 33, 1, 0, 0, 0, 255, 256, 5, 46, 0, 0, 256, 260,
-		5, 24, 0, 0, 257, 259, 3, 36, 18, 0, 258, 257, 1, 0, 0, 0, 259, 262, 1,
+		254, 5, 27, 0, 0, 254, 33, 1, 0, 0, 0, 255, 256, 5, 51, 0, 0, 256, 260,
+		5, 46, 0, 0, 257, 259, 3, 36, 18, 0, 258, 257, 1, 0, 0, 0, 259, 262, 1,
 		0, 0, 0, 260, 258, 1, 0, 0, 0, 260, 261, 1, 0, 0, 0, 261, 35, 1, 0, 0,
 		0, 262, 260, 1, 0, 0, 0, 263, 268, 3, 38, 19, 0, 264, 268, 3, 40, 20, 0,
 		265, 268, 3, 42, 21, 0, 266, 268, 3, 26, 13, 0, 267, 263, 1, 0, 0, 0, 267,
 		264, 1, 0, 0, 0, 267, 265, 1, 0, 0, 0, 267, 266, 1, 0, 0, 0, 268, 37, 1,
-		0, 0, 0, 269, 270, 5, 46, 0, 0, 270, 273, 5, 21, 0, 0, 271, 274, 3, 40,
+		0, 0, 0, 269, 270, 5, 51, 0, 0, 270, 273, 5, 21, 0, 0, 271, 274, 3, 40,
 		20, 0, 272, 274, 3, 26, 13, 0, 273, 271, 1, 0, 0, 0, 273, 272, 1, 0, 0,
-		0, 274, 39, 1, 0, 0, 0, 275, 276, 5, 46, 0, 0, 276, 277, 5, 5, 0, 0, 277,
+		0, 274, 39, 1, 0, 0, 0, 275, 276, 5, 51, 0, 0, 276, 277, 5, 5, 0, 0, 277,
 		278, 3, 26, 13, 0, 278, 41, 1, 0, 0, 0, 279, 280, 3, 32, 16, 0, 280, 281,
 		5, 5, 0, 0, 281, 282, 3, 26, 13, 0, 282, 43, 1, 0, 0, 0, 283, 289, 3, 26,
 		13, 0, 284, 285, 3, 0, 0, 0, 285, 286, 3, 34, 17, 0, 286, 288, 1, 0, 0,
@@ -287,18 +287,18 @@ const (
 	preludioParserCOALESCE            = 43
 	preludioParserNA                  = 44
 	preludioParserINDEXING            = 45
-	preludioParserIDENT               = 46
-	preludioParserIDENT_START         = 47
-	preludioParserIDENT_NEXT          = 48
-	preludioParserWHITESPACE          = 49
-	preludioParserNEWLINE             = 50
-	preludioParserSINGLE_LINE_COMMENT = 51
-	preludioParserBOOLEAN_LIT         = 52
-	preludioParserINTEGER_LIT         = 53
-	preludioParserRANGE_LIT           = 54
-	preludioParserFLOAT_LIT           = 55
-	preludioParserSTRING_CHAR         = 56
-	preludioParserSTRING_RAW_CHAR     = 57
+	preludioParserFUNCTION_CALL       = 46
+	preludioParserWHITESPACE          = 47
+	preludioParserNEWLINE             = 48
+	preludioParserSINGLE_LINE_COMMENT = 49
+	preludioParserBOOLEAN_LIT         = 50
+	preludioParserIDENT               = 51
+	preludioParserIDENT_START         = 52
+	preludioParserIDENT_NEXT          = 53
+	preludioParserINTEGER_LIT         = 54
+	preludioParserRANGE_LIT           = 55
+	preludioParserFLOAT_LIT           = 56
+	preludioParserSTRING_CHAR         = 57
 	preludioParserSTRING_LIT          = 58
 	preludioParserSTRING_INTERP_LIT   = 59
 	preludioParserSTRING_RAW_LIT      = 60
@@ -716,7 +716,7 @@ func (p *preludioParser) Program() (localctx IProgramContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	for (int64((_la-1)) & ^0x3f) == 0 && ((int64(1)<<(_la-1))&-110292011214438203) != 0 {
+	for (int64((_la-1)) & ^0x3f) == 0 && ((int64(1)<<(_la-1))&-79364948148354875) != 0 {
 		p.SetState(69)
 		p.GetErrorHandler().Sync(p)
 
@@ -727,7 +727,7 @@ func (p *preludioParser) Program() (localctx IProgramContext) {
 				p.FuncDef()
 			}
 
-		case preludioParserRET, preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
+		case preludioParserRET, preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserBOOLEAN_LIT, preludioParserIDENT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
 			{
 				p.SetState(68)
 				p.Stmt()
@@ -1182,7 +1182,7 @@ func (p *preludioParser) FuncDef() (localctx IFuncDefContext) {
 	p.GetErrorHandler().Sync(p)
 
 	switch p.GetTokenStream().LA(1) {
-	case preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserIDENT, preludioParserBOOLEAN_LIT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
+	case preludioParserPLUS, preludioParserMINUS, preludioParserLBRACKET, preludioParserLPAREN, preludioParserNOT, preludioParserNA, preludioParserBOOLEAN_LIT, preludioParserIDENT, preludioParserINTEGER_LIT, preludioParserRANGE_LIT, preludioParserFLOAT_LIT, preludioParserSTRING_LIT, preludioParserSTRING_INTERP_LIT, preludioParserSTRING_RAW_LIT, preludioParserSTRING_PATH_LIT, preludioParserREGEX_LIT, preludioParserDATE_LIT, preludioParserDURATION_LIT:
 		{
 			p.SetState(97)
 			p.ExprCall()
@@ -1211,7 +1211,7 @@ func (p *preludioParser) FuncDef() (localctx IFuncDefContext) {
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
 
-		for (int64((_la-3)) & ^0x3f) == 0 && ((int64(1)<<(_la-3))&4584113015623778353) != 0 {
+		for (int64((_la-3)) & ^0x3f) == 0 && ((int64(1)<<(_la-3))&4591844781390299185) != 0 {
 			{
 				p.SetState(105)
 				p.Stmt()
@@ -3271,7 +3271,7 @@ func (p *preludioParser) Literal() (localctx ILiteralContext) {
 		p.SetState(214)
 		_la = p.GetTokenStream().LA(1)
 
-		if !((int64((_la-44)) & ^0x3f) == 0 && ((int64(1)<<(_la-44))&2084613) != 0) {
+		if !((int64((_la-44)) & ^0x3f) == 0 && ((int64(1)<<(_la-44))&2088129) != 0) {
 			p.GetErrorHandler().RecoverInline(p)
 		} else {
 			p.GetErrorHandler().ReportMatch(p)
@@ -3555,7 +3555,7 @@ func (p *preludioParser) List() (localctx IListContext) {
 	p.GetErrorHandler().Sync(p)
 	_la = p.GetTokenStream().LA(1)
 
-	if (int64((_la-7)) & ^0x3f) == 0 && ((int64(1)<<(_la-7))&286533451755552771) != 0 {
+	if (int64((_la-7)) & ^0x3f) == 0 && ((int64(1)<<(_la-7))&286996895906660355) != 0 {
 		p.SetState(220)
 		p.GetErrorHandler().Sync(p)
 		_la = p.GetTokenStream().LA(1)
@@ -3718,8 +3718,8 @@ func (s *FuncCallContext) IDENT() antlr.TerminalNode {
 	return s.GetToken(preludioParserIDENT, 0)
 }
 
-func (s *FuncCallContext) DOLLAR() antlr.TerminalNode {
-	return s.GetToken(preludioParserDOLLAR, 0)
+func (s *FuncCallContext) FUNCTION_CALL() antlr.TerminalNode {
+	return s.GetToken(preludioParserFUNCTION_CALL, 0)
 }
 
 func (s *FuncCallContext) AllFuncCallParam() []IFuncCallParamContext {
@@ -3815,7 +3815,7 @@ func (p *preludioParser) FuncCall() (localctx IFuncCallContext) {
 	}
 	{
 		p.SetState(256)
-		p.Match(preludioParserDOLLAR)
+		p.Match(preludioParserFUNCTION_CALL)
 	}
 	p.SetState(260)
 	p.GetErrorHandler().Sync(p)
