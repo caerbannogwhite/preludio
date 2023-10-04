@@ -142,7 +142,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error(err)
 	}
 
-	be.RunSource(`"hello" + "world"`)
+	be.RunSource(`'hello' + 'world'`)
 	if err = checkCurrentResult(be, "helloworld"); err != nil {
 		t.Error(err)
 	}
@@ -152,7 +152,7 @@ func Test_Expressions(t *testing.T) {
 		t.Error(err)
 	}
 
-	be.RunSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + "hello"`)
+	be.RunSource(`1 + 2 * 3 - 4 + 5 * 6 % 7 + 'hello'`)
 	if err = checkCurrentResult(be, "5hello"); err != nil {
 		t.Error(err)
 	}
@@ -183,6 +183,43 @@ func Test_Expressions(t *testing.T) {
 	}
 }
 
+func Test_String_Interpolation(t *testing.T) {
+	var err error
+
+	be.RunSource(`f'foo'`)
+	if err = checkCurrentResult(be, "foo"); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`f'{0+1}foo'`)
+	if err = checkCurrentResult(be, "1foo"); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`f'{0+1}foo{2+3}'`)
+	if err = checkCurrentResult(be, "1foo5"); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`f'{0+1}foo{2+3}bar'`)
+	if err = checkCurrentResult(be, "1foo5bar"); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`f'{0+1}foo{2+3}bar{4+5}'`)
+	if err = checkCurrentResult(be, "1foo5bar9"); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`
+	a := 31.4e-1
+	f'{a*1-1}foo{a*2+1}bar{a*3-1}baz'
+	`)
+	if err = checkCurrentResult(be, "2.14foo7.28bar8.42baz"); err != nil {
+		t.Error(err)
+	}
+}
+
 func Test_Lists(t *testing.T) {
 	var err error
 
@@ -201,7 +238,7 @@ func Test_Lists(t *testing.T) {
 		t.Error(err)
 	}
 
-	be.RunSource(`["hello", "world", "this is a string"]`)
+	be.RunSource(`['hello', 'world', 'this is a string']`)
 	if err = checkCurrentResult(be, []string{"hello", "world", "this is a string"}); err != nil {
 		t.Error(err)
 	}
@@ -252,18 +289,18 @@ func Test_Lists_Expressions(t *testing.T) {
 		t.Error(err)
 	}
 
-	be.RunSource(`["hello", "foo", "this is a string"] + "!"`)
+	be.RunSource(`['hello', 'foo', 'this is a string'] + '!'`)
 	if err = checkCurrentResult(be, []string{"hello!", "foo!", "this is a string!"}); err != nil {
 		t.Error(err)
 	}
 
-	be.RunSource(`["hello", "foo", "this is a string"] + [" ", " ", " "] + ["world", "bar", "and this is another string"]`)
+	be.RunSource(`['hello', 'foo', 'this is a string'] + [' ', ' ', ' '] + ['world', 'bar', 'and this is another string']`)
 	if err = checkCurrentResult(be, []string{"hello world", "foo bar", "this is a string and this is another string"}); err != nil {
 		t.Error(err)
 	}
 
 	// diff sizes
-	be.RunSource(`["hello", "foo", "this is a string"] + [" ", " "]`)
+	be.RunSource(`['hello', 'foo', 'this is a string'] + [' ', ' ']`)
 	if be.getLastError() != "binary operator + not supported between String[3] and String[2]" {
 		t.Error("Expected error, got", be.getLastError())
 	}
