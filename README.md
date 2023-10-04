@@ -15,48 +15,48 @@ Read and clean up a CSV file, then store the result in a variable called `clean`
 
 ```
 clean := (
-  rcsv p'test_files/Cars.csv' del:';' head:true
-  strRepl [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  asFlt [MPG, Displacement, Horsepower, Acceleration]
-  sort [-Origin, Cylinders, -MPG]
+  rcsv! p'test_files/Cars.csv' del:';' head:true
+  strRepl! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  asFlt! [MPG, Displacement, Horsepower, Acceleration]
+  sort! [-Origin, Cylinders, -MPG]
 )
 ```
 
 ```
 europe5Cylinders := (
-  from clean
-  filter Cylinders == 5 and Origin == 'Europe'
+  from! clean
+  filter! Cylinders == 5 and Origin == 'Europe'
 )
 ```
 
 Derive new columns and write the result to a CSV file:
 
 ```
-from clean
-derive [
+from! clean
+derive! [
   Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
   CarOrigin = Car + ' - ' + Origin
 ]
-filter Stat > 1.3
-select [Car, Origin, Stat]
-wcsv p'test_files/Cars1.csv' del: '\t'
+filter! Stat > 1.3
+select! [Car, Origin, Stat]
+wcsv! p'test_files/Cars1.csv' del: '\t'
 ```
 
 Create a new table by joining two tables:
 
 ```
 continents := (
-  new [
+  new! [
     Continent = ['Asia', 'America', 'Europe'],
     Origin = ['Japan', 'US', 'Europe']
   ]
 )
 
 joined := (
-  from clean
-  leftj continents on: [Origin]
-  select [Car, Origin, Continent]
-  sort [Continent, Origin]
+  from! clean
+  leftj! continents on: [Origin]
+  select! [Car, Origin, Continent]
+  sort! [Continent, Origin]
 )
 ```
 
@@ -71,11 +71,11 @@ The language supports the following data types:
 - `range` ie: `1..10`, `1..10:2`
 - `float` ie: `1.0`, `2e-3`, `4.5E+6`
 - `string` which has some variants:
-  - plain `'hello world'`
-  - raw `r'\d'`
-  - path `p'c:\temp'`
-- `regex` ie: `x'he(l){2}o'`
-- `date` ie: `d'2021-08-20'`
+  - plain `'hello world'`, `"foo bar"`
+  - raw `r'\d'`, `r"\a"`
+  - path `p'c:\temp'`, `p"/home/user"`
+- `regex` ie: `x'he(l){2}o'`, `x"f(o){2} bar"`
+- `date` ie: `d'2021-08-20'`, `d"2021-08-20"`
 - `duration` ie: `1:h`, `2:milliseconds`, `3:us`
 
 In addition, the language supports the following data structures:
@@ -101,6 +101,21 @@ The language supports the following operators:
 - `>=` (greater than or equal to)
 - `<` (less than)
 - `<=` (less than or equal to)
+
+- string interpolation `f'I have {1 + 2} apples'`
+
+### Built-in Functions
+
+The language supports the following built-in functions:
+
+- `from` initializes a pipeline, ie: `from table`
+- `new` creates a new dataframe, ie: `new [a = [1, 2], b = [3, 4]]`
+- `rcsv` reads a CSV file, ie: `rcsv p'c:\temp\file.csv' del:',' head:true`
+- `wcsv` writes a CSV file ie: `wcsv p'c:\temp\file.csv' del:','`
+- `filter` filters rows, ie: `filter a > 1`
+- `select` selects columns, ie: `select [a, b]`
+- `sort` sorts rows, ie: `sort [a, -b]`
+- `derive` adds new columns from the existing ones, ie: `derive [c = a + b]`
 
 ### Features
 
@@ -128,14 +143,14 @@ go run .
 ### Future Features
 
 - [x] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
+- [ ] Add date/time data types
 - [ ] Add statistical functions
 - [ ] Add support for Excel files
 - [ ] Add support for XPT files
+- [ ] VS Code extension
 - [ ] Add support for SAS7BDAT files
 - [ ] Add support for SPSS files
-- [ ] Add date/time data types
 - [ ] Database connections (SQL, MongoDB, etc.)
-- [ ] VS Code extension
 
 In case the language becomes quite successful, I will consider adding:
 
