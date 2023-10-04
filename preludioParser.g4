@@ -67,7 +67,7 @@ list:
 		)* COMMA? nl?
 	)? RBRACKET;
 
-funcCall: IDENT DOLLAR funcCallParam*;
+funcCall: IDENT FUNCTION_CALL funcCallParam*;
 funcCallParam: namedArg | assign | multiAssign | exprCall;
 namedArg: IDENT COLON (assign | exprCall);
 assign: IDENT ASSIGN exprCall;
