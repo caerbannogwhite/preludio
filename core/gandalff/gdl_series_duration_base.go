@@ -14,17 +14,6 @@ func (s SeriesDuration) Len() int {
 	return len(s.data)
 }
 
-// Return the name of the series.
-func (s SeriesDuration) Name() string {
-	return s.name
-}
-
-// Set the name of the series.
-func (s SeriesDuration) SetName(name string) Series {
-	s.name = name
-	return s
-}
-
 // Return the StringPool of the series.
 func (s SeriesDuration) StringPool() *StringPool {
 	return s.pool
@@ -201,7 +190,6 @@ func (s SeriesDuration) Copy() Series {
 		isGrouped:  s.isGrouped,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
-		name:       s.name,
 		data:       data,
 		nullMask:   nullMask,
 		pool:       s.pool,
@@ -398,7 +386,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -415,7 +402,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -432,7 +418,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -449,7 +434,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -470,7 +454,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -487,7 +470,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -504,7 +486,6 @@ func (s SeriesDuration) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -543,7 +524,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -565,7 +545,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -587,7 +566,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -609,7 +587,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -635,7 +612,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -657,7 +633,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,
@@ -679,7 +654,6 @@ func (s SeriesDuration) MapNull(f MapFuncNull) Series {
 			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   nullMask,
 			pool:       s.pool,

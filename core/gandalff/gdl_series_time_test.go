@@ -16,7 +16,7 @@ func Test_SeriesTime_Map(t *testing.T) {
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesTime("test", true, false, data, NewStringPool()).
+	s := NewSeriesTime(true, false, data, NewStringPool()).
 		SetNullMask(nullMask)
 
 	// Map the series to bool.
@@ -74,22 +74,22 @@ func Test_SeriesTime_Arithmetic_Add(t *testing.T) {
 	dayNano := int64(24 * time.Hour.Nanoseconds())
 	pool := NewStringPool()
 
-	times := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	timev := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	times_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
-	timev_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
+	times := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	timev := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	times_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
+	timev_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
 		SetNullMask([]bool{true, false, true, false, true, false, true, false, true, false}).(SeriesTime)
 
-	durations := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).(SeriesDuration)
-	durationv := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).(SeriesDuration)
-	durations_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).SetNullMask([]bool{true}).(SeriesDuration)
-	durationv_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).
+	durations := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).(SeriesDuration)
+	durationv := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).(SeriesDuration)
+	durations_ := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).SetNullMask([]bool{true}).(SeriesDuration)
+	durationv_ := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesDuration)
 
-	ss := NewSeriesString("test", true, false, []string{"2"}, pool).(SeriesString)
-	sv := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, false, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv_ := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
+	ss := NewSeriesString(true, false, []string{"2"}, pool).(SeriesString)
+	sv := NewSeriesString(true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
+	ss_ := NewSeriesString(true, false, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv_ := NewSeriesString(true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
 
 	// scalar | time
@@ -181,16 +181,16 @@ func Test_SeriesTime_Sub(t *testing.T) {
 	dayNano := int64(24 * time.Hour.Nanoseconds())
 	pool := NewStringPool()
 
-	times := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	timev := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	times_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
-	timev_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
+	times := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	timev := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	times_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
+	timev_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
 		SetNullMask([]bool{true, false, true, false, true, false, true, false, true, false}).(SeriesTime)
 
-	durations := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).(SeriesDuration)
-	durationv := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).(SeriesDuration)
-	durations_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).SetNullMask([]bool{true}).(SeriesDuration)
-	durationv_ := NewSeriesDuration("test", true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).
+	durations := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).(SeriesDuration)
+	durationv := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).(SeriesDuration)
+	durations_ := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano)}, pool).SetNullMask([]bool{true}).(SeriesDuration)
+	durationv_ := NewSeriesDuration(true, false, []time.Duration{time.Duration(1 * dayNano), time.Duration(2 * dayNano), time.Duration(3 * dayNano), time.Duration(4 * dayNano), time.Duration(5 * dayNano), time.Duration(6 * dayNano), time.Duration(7 * dayNano), time.Duration(8 * dayNano), time.Duration(9 * dayNano), time.Duration(10 * dayNano)}, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesDuration)
 
 	// scalar | time
@@ -257,10 +257,10 @@ func Test_SeriesTime_Eq(t *testing.T) {
 func Test_SeriesTime_Ne(t *testing.T) {
 	pool := NewStringPool()
 
-	times := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	timev := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
-	times_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
-	timev_ := NewSeriesTime("test", true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
+	times := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	timev := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).(SeriesTime)
+	times_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)}, pool).SetNullMask([]bool{true}).(SeriesTime)
+	timev_ := NewSeriesTime(true, false, []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}, pool).
 		SetNullMask([]bool{true, false, true, false, true, false, true, false, true, false}).(SeriesTime)
 
 	// scalar | time

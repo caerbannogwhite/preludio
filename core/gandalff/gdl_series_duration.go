@@ -12,7 +12,6 @@ type SeriesDuration struct {
 	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
-	name       string
 	data       []time.Duration
 	nullMask   []uint8
 	pool       *StringPool
@@ -152,7 +151,6 @@ func (s SeriesDuration) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -169,7 +167,6 @@ func (s SeriesDuration) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -186,7 +183,6 @@ func (s SeriesDuration) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -217,7 +213,6 @@ func (s SeriesDuration) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,

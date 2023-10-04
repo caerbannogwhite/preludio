@@ -91,8 +91,8 @@ func (r *CsvReader) Read() DataFrame {
 	}
 
 	df := NewBaseDataFrame().SetStringPool(r.pool)
-	for _, s := range series {
-		df = df.AddSeries(s)
+	for name, s := range series {
+		df = df.AddSeries(name, s)
 	}
 
 	return df
@@ -139,7 +139,7 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) (map[string]Series, error) {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
@@ -312,20 +312,19 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	// Create series
-	series := make([]Series, len(dataTypes))
+	series := make(map[string]Series)
 	for i, name := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewSeriesBool(name, isNullable, false, values[i].([]bool), stringPool)
+			series[name] = NewSeriesBool(isNullable, false, values[i].([]bool), stringPool)
 		case typesys.Int32Type:
-			series[i] = NewSeriesInt32(name, isNullable, false, values[i].([]int32), stringPool)
+			series[name] = NewSeriesInt32(isNullable, false, values[i].([]int32), stringPool)
 		case typesys.Int64Type:
-			series[i] = NewSeriesInt64(name, isNullable, false, values[i].([]int64), stringPool)
+			series[name] = NewSeriesInt64(isNullable, false, values[i].([]int64), stringPool)
 		case typesys.Float64Type:
-			series[i] = NewSeriesFloat64(name, isNullable, false, values[i].([]float64), stringPool)
+			series[name] = NewSeriesFloat64(isNullable, false, values[i].([]float64), stringPool)
 		case typesys.StringType:
-			series[i] = SeriesString{
-				name:       name,
+			series[name] = SeriesString{
 				isNullable: isNullable,
 				data:       values[i].([]*string),
 				pool:       stringPool,
@@ -399,11 +398,11 @@ func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool) error
 	}
 
 	if header {
-		for i, s := range series {
+		for i, name := range df.Names() {
 			if i > 0 {
 				fmt.Fprintf(writer, "%c", delimiter)
 			}
-			fmt.Fprintf(writer, "%s", s.Name())
+			fmt.Fprintf(writer, "%s", name)
 		}
 
 		fmt.Fprintf(writer, "\n")

@@ -17,7 +17,7 @@ func Test_SeriesString_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesString.
-	s := NewSeriesString("test", true, false, data, stringPool)
+	s := NewSeriesString(true, false, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -25,11 +25,6 @@ func Test_SeriesString_Base(t *testing.T) {
 	// Check the length.
 	if s.Len() != 10 {
 		t.Errorf("Expected length of 10, got %d", s.Len())
-	}
-
-	// Check the name.
-	if s.Name() != "test" {
-		t.Errorf("Expected name of \"test\", got %s", s.Name())
 	}
 
 	// Check the type.
@@ -110,7 +105,7 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesString("test", false, false, data, stringPool)
+	p := NewSeriesString(false, false, data, stringPool)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -160,9 +155,9 @@ func Test_SeriesString_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesString("testA", true, false, dataA, stringPool)
-	sB := NewSeriesString("testB", true, false, dataB, stringPool)
-	sC := NewSeriesString("testC", true, false, dataC, stringPool)
+	sA := NewSeriesString(true, false, dataA, stringPool)
+	sB := NewSeriesString(true, false, dataB, stringPool)
+	sC := NewSeriesString(true, false, dataC, stringPool)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -171,11 +166,6 @@ func Test_SeriesString_Append(t *testing.T) {
 
 	// Append the series.
 	result := sA.Append(sB).Append(sC)
-
-	// Check the name.
-	if result.Name() != "testA" {
-		t.Errorf("Expected name of \"testA\", got %s", result.Name())
-	}
 
 	// Check the length.
 	if result.Len() != 30 {
@@ -218,7 +208,7 @@ func Test_SeriesString_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	sD := NewSeriesString("testD", true, false, dataD, stringPool)
+	sD := NewSeriesString(true, false, dataD, stringPool)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]string) {
@@ -253,7 +243,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesString("test", true, false, data, stringPool)
+	s := NewSeriesString(true, false, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -359,7 +349,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewSeriesString("test", true, false, data, stringPool)
+	s := NewSeriesString(true, false, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -373,7 +363,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("mask", false, true, filterMask, nil).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool(false, true, filterMask, nil).(SeriesBool))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -454,7 +444,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesString("test", true, false, data, stringPool)
+	s = NewSeriesString(true, false, data, stringPool)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -517,7 +507,7 @@ func Test_SeriesString_Map(t *testing.T) {
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesString("test", true, false, data, NewStringPool())
+	s := NewSeriesString(true, false, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(nullMask)
@@ -598,7 +588,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
 
 	// Test 1
-	s1 := NewSeriesString("s1", true, false, data1, pool).
+	s1 := NewSeriesString(true, false, data1, pool).
 		SetNullMask(data1Mask).
 		group()
 
@@ -616,7 +606,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	}
 
 	// Test 2
-	s2 := NewSeriesString("s2", true, false, data2, pool).
+	s2 := NewSeriesString(true, false, data2, pool).
 		SetNullMask(data2Mask).
 		GroupBy(s1.GetPartition())
 
@@ -638,7 +628,7 @@ func Test_SeriesString_Group(t *testing.T) {
 	}
 
 	// Test 3
-	s3 := NewSeriesString("test", true, false, data3, pool).
+	s3 := NewSeriesString(true, false, data3, pool).
 		SetNullMask(data3Mask).
 		GroupBy(s2.GetPartition())
 
@@ -673,7 +663,7 @@ func Test_SeriesString_Sort(t *testing.T) {
 	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesString("test", false, false, data, NewStringPool())
+	s := NewSeriesString(false, false, data, NewStringPool())
 
 	// Sort the series.
 	sorted := s.Sort()
@@ -685,7 +675,7 @@ func Test_SeriesString_Sort(t *testing.T) {
 	}
 
 	// Create a new series.
-	s = NewSeriesString("test", true, false, data, NewStringPool()).
+	s = NewSeriesString(true, false, data, NewStringPool()).
 		SetNullMask(mask)
 
 	// Sort the series.
@@ -707,34 +697,34 @@ func Test_SeriesString_Sort(t *testing.T) {
 func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 	pool := NewStringPool()
 
-	bools := NewSeriesBool("test", true, false, []bool{true}, nil).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
+	bools := NewSeriesBool(true, false, []bool{true}, nil).(SeriesBool)
+	boolv := NewSeriesBool(true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).(SeriesBool)
+	bools_ := NewSeriesBool(true, false, []bool{true}, nil).SetNullMask([]bool{true}).(SeriesBool)
+	boolv_ := NewSeriesBool(true, false, []bool{true, false, true, false, true, false, true, true, false, false}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}, nil).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
+	i32s := NewSeriesInt32(true, false, []int32{2}, nil).(SeriesInt32)
+	i32v := NewSeriesInt32(true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt32)
+	i32s_ := NewSeriesInt32(true, false, []int32{2}, nil).SetNullMask([]bool{true}).(SeriesInt32)
+	i32v_ := NewSeriesInt32(true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}, nil).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
+	i64s := NewSeriesInt64(true, false, []int64{2}, nil).(SeriesInt64)
+	i64v := NewSeriesInt64(true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesInt64)
+	i64s_ := NewSeriesInt64(true, false, []int64{2}, nil).SetNullMask([]bool{true}).(SeriesInt64)
+	i64v_ := NewSeriesInt64(true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}, nil).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
+	f64s := NewSeriesFloat64(true, false, []float64{2}, nil).(SeriesFloat64)
+	f64v := NewSeriesFloat64(true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).(SeriesFloat64)
+	f64s_ := NewSeriesFloat64(true, false, []float64{2}, nil).SetNullMask([]bool{true}).(SeriesFloat64)
+	f64v_ := NewSeriesFloat64(true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
 
-	ss := NewSeriesString("test", true, false, []string{"2"}, pool).(SeriesString)
-	sv := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, false, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv_ := NewSeriesString("test", true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
+	ss := NewSeriesString(true, false, []string{"2"}, pool).(SeriesString)
+	sv := NewSeriesString(true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
+	ss_ := NewSeriesString(true, false, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv_ := NewSeriesString(true, false, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
 
 	// scalar | bool
@@ -810,10 +800,10 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 
 func Test_SeriesString_Logical_Eq(t *testing.T) {
 	pool := NewStringPool()
-	ss := NewSeriesString("test", true, false, []string{"1"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, false, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv := NewSeriesString("test", true, false, []string{"1", "2", "3"}, pool).(SeriesString)
-	sv_ := NewSeriesString("test", true, false, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+	ss := NewSeriesString(true, false, []string{"1"}, pool).(SeriesString)
+	ss_ := NewSeriesString(true, false, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv := NewSeriesString(true, false, []string{"1", "2", "3"}, pool).(SeriesString)
+	sv_ := NewSeriesString(true, false, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
 
 	// scalar | scalar
 	res := ss.Eq(ss)
@@ -876,10 +866,10 @@ func Test_SeriesString_Logical_Ne(t *testing.T) {
 
 func Test_SeriesString_Logical_Lt(t *testing.T) {
 	pool := NewStringPool()
-	ss := NewSeriesString("test", true, false, []string{"1"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, false, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv := NewSeriesString("test", true, false, []string{"1", "2", "3"}, pool).(SeriesString)
-	sv_ := NewSeriesString("test", true, false, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
+	ss := NewSeriesString(true, false, []string{"1"}, pool).(SeriesString)
+	ss_ := NewSeriesString(true, false, []string{"1"}, pool).SetNullMask([]bool{true}).(SeriesString)
+	sv := NewSeriesString(true, false, []string{"1", "2", "3"}, pool).(SeriesString)
+	sv_ := NewSeriesString(true, false, []string{"1", "2", "3"}, pool).SetNullMask([]bool{true, true, false}).(SeriesString)
 
 	// scalar | scalar
 	res := ss.Lt(ss)

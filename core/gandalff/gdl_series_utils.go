@@ -71,8 +71,8 @@ func debugPrintPartition(p SeriesPartition, series ...Series) {
 
 	header := ""
 	separators := ""
-	for _, s := range series {
-		header += fmt.Sprintf("| %-10s ", s.Name())
+	for i := range series {
+		header += fmt.Sprintf("| %-10d ", i)
 		separators += "|------------"
 	}
 

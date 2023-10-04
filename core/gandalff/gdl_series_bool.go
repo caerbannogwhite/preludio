@@ -12,7 +12,6 @@ type SeriesBool struct {
 	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
-	name       string
 	data       []bool
 	nullMask   []uint8
 	pool       *StringPool
@@ -162,7 +161,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -181,7 +179,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -200,7 +197,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -237,7 +233,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,

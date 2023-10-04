@@ -136,10 +136,6 @@ type Series interface {
 
 	// Return the number of elements in the series.
 	Len() int
-	// Return the name of the series.
-	Name() string
-	// Set the name of the series.
-	SetName(name string) Series
 
 	// Return the StringPool of the series.
 	StringPool() *StringPool

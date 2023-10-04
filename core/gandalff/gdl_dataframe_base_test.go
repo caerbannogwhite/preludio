@@ -913,17 +913,20 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	var res DataFrame
 
-	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil).
+	a := NewSeriesInt64(false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	b := NewSeriesString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
+	b := NewSeriesString(false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
 		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
-	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil).
+	c := NewSeriesFloat64(false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}, nil).
+	d := NewSeriesBool(false, false, []bool{true, false, true, true, false, true, true, false, true, false}, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 
 	df := NewBaseDataFrame().
-		AddSeries(a, b, c, d)
+		AddSeries("A", a).
+		AddSeries("B", b).
+		AddSeries("C", c).
+		AddSeries("D", d)
 
 	res = df.OrderBy(Asc("A"))
 	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 2, 4, 4, 4, 1, 2, 1}, nil, "") {

@@ -11,7 +11,7 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesBoolMemOpt.
-	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
+	s := NewSeriesBoolMemOpt(true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -19,11 +19,6 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	// Check the length.
 	if s.Len() != 10 {
 		t.Errorf("Expected length of 10, got %d", s.Len())
-	}
-
-	// Check the name.
-	if s.Name() != "test" {
-		t.Errorf("Expected name of \"test\", got %s", s.Name())
 	}
 
 	// Check the type.
@@ -104,7 +99,7 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesBoolMemOpt("test", false, false, data, nil)
+	p := NewSeriesBoolMemOpt(false, false, data, nil)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -154,9 +149,9 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
-	sB := NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
-	sC := NewSeriesBoolMemOpt("testC", true, false, dataC, nil)
+	sA := NewSeriesBoolMemOpt(true, false, dataA, nil)
+	sB := NewSeriesBoolMemOpt(true, false, dataB, nil)
+	sC := NewSeriesBoolMemOpt(true, false, dataC, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -165,11 +160,6 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 
 	// Append the series.
 	result := sA.Append(sB).Append(sC)
-
-	// Check the name.
-	if result.Name() != "testA" {
-		t.Errorf("Expected name of \"testA\", got %s", result.Name())
-	}
 
 	// Check the length.
 	if result.Len() != 30 {
@@ -212,7 +202,7 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewSeriesBoolMemOpt("testD", true, false, dataD, nil)
+	sD := NewSeriesBoolMemOpt(true, false, dataD, nil)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]bool) {
@@ -261,7 +251,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, false, data, NewStringPool())
+	s := NewSeriesBoolMemOpt(true, false, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -354,8 +344,8 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
 
 	// Create two new series.
-	sA := NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
-	sB := NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
+	sA := NewSeriesBoolMemOpt(true, false, dataA, nil)
+	sB := NewSeriesBoolMemOpt(true, false, dataB, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -388,8 +378,8 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 
 	// Check the Or() method.
 	// Create two new series.
-	sA = NewSeriesBoolMemOpt("testA", true, false, dataA, nil)
-	sB = NewSeriesBoolMemOpt("testB", true, false, dataB, nil)
+	sA = NewSeriesBoolMemOpt(true, false, dataA, nil)
+	sB = NewSeriesBoolMemOpt(true, false, dataB, nil)
 
 	// Set the null masks.
 	sA.SetNullMask(maskA)
@@ -419,7 +409,7 @@ func Test_SeriesBoolMemOpt_LogicOperators(t *testing.T) {
 	}
 
 	// Check the Not() method.
-	not := NewSeriesBoolMemOpt("test", true, false, dataA, nil).
+	not := NewSeriesBoolMemOpt(true, false, dataA, nil).
 		SetNullMask(maskA).(SeriesBoolMemOpt).
 		Not()
 
@@ -448,7 +438,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, false, data, nil)
+	s := NewSeriesBoolMemOpt(true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -462,7 +452,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBoolMemOpt("mask", false, false, filterMask, nil).(SeriesBoolMemOpt))
+	filtered := s.Filter(NewSeriesBoolMemOpt(false, false, filterMask, nil).(SeriesBoolMemOpt))
 
 	// Check the length.
 	if filtered.Len() != 9 {
@@ -543,7 +533,7 @@ func Test_SeriesBoolMemOpt_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesBoolMemOpt("test", true, false, data, nil)
+	s = NewSeriesBoolMemOpt(true, false, data, nil)
 
 	// Set the null mask.
 	s.SetNullMask(mask)
@@ -606,7 +596,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := NewSeriesBoolMemOpt("test", true, false, data, NewStringPool())
+	s := NewSeriesBoolMemOpt(true, false, data, NewStringPool())
 
 	// Set the null mask.
 	s.SetNullMask(mask)

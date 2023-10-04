@@ -292,10 +292,10 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 			Key:   &ast.Ident{Name: "isNullable"},
 			Value: &ast.Ident{Name: fmt.Sprintf("%v", resIsNullable)},
 		},
-		&ast.KeyValueExpr{
-			Key:   &ast.Ident{Name: "name"},
-			Value: &ast.Ident{Name: fmt.Sprintf("%s.name", info.Op1VarName)},
-		},
+		// &ast.KeyValueExpr{
+		// 	Key:   &ast.Ident{Name: "name"},
+		// 	Value: &ast.Ident{Name: fmt.Sprintf("%s.name", info.Op1VarName)},
+		// },
 		&ast.KeyValueExpr{
 			Key:   &ast.Ident{Name: "nullMask"},
 			Value: &ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},

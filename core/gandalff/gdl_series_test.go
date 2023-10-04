@@ -6,7 +6,7 @@ import (
 
 func Test_Series(t *testing.T) {
 
-	s := NewSeries("test", true, false, false, []bool{true, false, true, false, true, false, true, false, true, false}, nil)
+	s := NewSeries(true, false, false, []bool{true, false, true, false, true, false, true, false, true, false}, nil)
 
 	r := s.Append(true).
 		Append([]NullableBool{{true, true}, {true, false}}).

@@ -41,16 +41,6 @@ func (s SeriesError) MakeNullable() Series {
 	return s
 }
 
-// Returns the name of the series.
-func (s SeriesError) Name() string {
-	return ""
-}
-
-// Sets the name of the series.
-func (s SeriesError) SetName(name string) Series {
-	return s
-}
-
 // Return the StringPool of the series.
 func (s SeriesError) StringPool() *StringPool {
 	return nil

@@ -13,7 +13,6 @@ type SeriesBoolMemOpt struct {
 	isNullable bool
 	sorted     SeriesSortOrder
 	size       int
-	name       string
 	data       []uint8
 	nullMask   []uint8
 	pool       *StringPool
@@ -35,17 +34,6 @@ func (s SeriesBoolMemOpt) __trueCount() int {
 // Returns the number of elements in the series.
 func (s SeriesBoolMemOpt) Len() int {
 	return s.size
-}
-
-// Returns the name of the series.
-func (s SeriesBoolMemOpt) Name() string {
-	return s.name
-}
-
-// Sets the name of the series.
-func (s SeriesBoolMemOpt) SetName(name string) Series {
-	s.name = name
-	return s
 }
 
 // Return the StringPool of the series.
@@ -547,7 +535,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -568,7 +555,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -589,7 +575,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -632,7 +617,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -859,7 +843,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			size:       s.size,
 			data:       data,
 			nullMask:   s.nullMask,
@@ -877,7 +860,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -894,7 +876,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -911,7 +892,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -932,7 +912,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -949,7 +928,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -999,7 +977,6 @@ func (s SeriesBoolMemOpt) group() Series {
 		isGrouped:  true,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
-		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{
@@ -1023,7 +1000,6 @@ func (s SeriesBoolMemOpt) GroupBy(partition SeriesPartition) Series {
 		isGrouped:  true,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
-		name:       s.name,
 		data:       s.data,
 		nullMask:   s.nullMask,
 		partition: &SeriesBoolMemOptPartition{

@@ -13,7 +13,6 @@ type SeriesFloat64 struct {
 	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
-	name       string
 	data       []float64
 	nullMask   []uint8
 	pool       *StringPool
@@ -211,7 +210,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -228,7 +226,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -245,7 +242,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -279,7 +275,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -296,7 +291,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
@@ -313,7 +307,6 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
-			name:       s.name,
 			data:       data,
 			nullMask:   s.nullMask,
 			pool:       s.pool,
