@@ -417,7 +417,10 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 
 	// STRING INTERP
 	if ctx.STRING_INTERP_LIT() != nil {
-		val := ctx.STRING_INTERP_LIT().GetText()
+		var expr, val string
+		var stream *antlr.InputStream
+
+		val = ctx.STRING_INTERP_LIT().GetText()
 		val = val[2 : len(val)-1]
 
 		strBegin := 0
@@ -428,7 +431,7 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 
 			exprEnd = strings.Index(val, typesys.SYMBOL_RBRACE)
 			if exprEnd == -1 {
-				bf.err = fmt.Errorf("Invalid string interpolation: %s", val)
+				bf.err = fmt.Errorf("invalid string interpolation: %s", val)
 				return
 			}
 
@@ -436,14 +439,11 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 				bf.symbolTable.Add(val[strBegin:exprBegin]))
 
 			// START Parse expression
-			expr := val[exprBegin+1 : exprEnd]
-			stream := antlr.NewInputStream(expr)
+			expr = val[exprBegin+1 : exprEnd]
+			stream = antlr.NewInputStream(expr)
 
-			lexer := NewpreludioLexer(stream)
-			tokStream := antlr.NewCommonTokenStream(lexer, 0)
-			parser := NewpreludioParser(tokStream)
-
-			antlr.ParseTreeWalkerDefault.Walk(bf, parser.Expr())
+			antlr.ParseTreeWalkerDefault.Walk(bf, NewpreludioParser(
+				antlr.NewCommonTokenStream(NewpreludioLexer(stream), 0)).Expr())
 			// END Parse expression
 
 			bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
@@ -456,10 +456,10 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 		bf.AppendInstruction(typesys.OP_PUSH_TERM, typesys.TERM_STRING,
 			bf.symbolTable.Add(val))
 
+		// add binary add instruction for each expression
 		for i := 0; i < exprNum; i++ {
 			bf.AppendInstruction(typesys.OP_BINARY_ADD, 0, 0)
 		}
-
 	} else
 
 	// STRING RAW
