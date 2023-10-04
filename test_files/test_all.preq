@@ -1,36 +1,36 @@
 clean := (
-  rcsv p'test_files/Cars.csv' del:';' head:true
-  strReplace [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  asFlt [MPG, Displacement, Horsepower, Acceleration]
-  sort [-Origin, Cylinders, -MPG]
+  rcsv! p'test_files/Cars.csv' del:';' head:true
+  strRepl! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  asFlt! [MPG, Displacement, Horsepower, Acceleration]
+  sort! [-Origin, Cylinders, -MPG]
 )
 
 europe5Cylinders := (
-  from clean
-  filter Cylinders == 5 and Origin == 'Europe'
+  from! clean
+  filter! Cylinders == 5 and Origin == 'Europe'
 )
 
 (
-  from clean
-  derive [
+  from! clean
+  derive! [
     Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
     CarOrigin = Car + ' - ' + Origin
   ]
-  filter Stat > 1.3
-  select [Car, Origin, Stat]
-  wcsv p'test_files/Cars1.csv' del: '\t'
+  filter! Stat > 1.3
+  select! [Car, Origin, Stat]
+  wcsv! p'test_files/Cars1.csv' del: '\t'
 )
 
 continents := (
-  new [
+  new! [
     Continent = ['Asia', 'America', 'Europe'],
     Origin = ['Japan', 'US', 'Europe']
   ]
 )
 
 joined := (
-  from clean
-  leftj continents on: [Origin]
-  select [Car, Origin, Continent]
-  sort [Continent, Origin]
+  from! clean
+  leftj! continents on: [Origin]
+  select! [Car, Origin, Continent]
+  sort! [Continent, Origin]
 )

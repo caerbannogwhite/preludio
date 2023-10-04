@@ -23,6 +23,6 @@ myList@[1..2, x'A'] # not valid
 # regex
 regex := x'[a-z]+{2,4}'
 
-(from$ x | select$ x'.*')
+(from! x | select! x'.*')
 # which is equivalent to
-x$x'.*'
+x@x'.*'

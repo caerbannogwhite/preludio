@@ -15,18 +15,18 @@ floats := [
   2^4-1, 2^(4-1), na
 ] * -1.4 # comment
 
-strings := ['a', 'b', 'c', 'd', na] + 'f'
+strings := ['a', '\b', "c", "\d", na] + 'f'
 
-raw_strings := [r'\a', r'\b', 'c', r'd', na] + 'f'
+raw_strings := [r'a', r'\b', "c", r"\d", na] + 'f'
 
-regexes := [x'^[a-z]+{2,4}$', x'^[A-z]?.+$', x'^[\d]', na]
+regexes := [x'^[a-z]+{2,4}$', x'^[A-z]?.+$', x"^[\d]", na]
 
 ranges := ([
   1..10:1, 2..20:2,
   (3..30:3), 4..40, na
 ])
 
-dates := [d'2023-09-29', d'2023-09-30', d'2023-10-01', na]
+dates := [d'2023-09-29', d'2023-09-30', d"2023-10-01", na]
 
 durations := [
   na,
