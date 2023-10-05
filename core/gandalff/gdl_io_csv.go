@@ -85,14 +85,14 @@ func (r *CsvReader) Read() DataFrame {
 		r.pool = NewStringPool()
 	}
 
-	series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema, r.pool)
+	names, series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema, r.pool)
 	if err != nil {
 		return BaseDataFrame{err: err}
 	}
 
 	df := NewBaseDataFrame().SetStringPool(r.pool)
-	for name, s := range series {
-		df = df.AddSeries(name, s)
+	for i, name := range names {
+		df = df.AddSeries(name, series[i])
 	}
 
 	return df
@@ -139,7 +139,7 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) (map[string]Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]string, []Series, error) {
 
 	// TODO: Add support for reading CSV files with missing values
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
@@ -147,7 +147,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 	isNullable := false
 	if stringPool == nil {
-		return nil, fmt.Errorf("readCSV: string pool cannot be nil")
+		return nil, nil, fmt.Errorf("readCSV: string pool cannot be nil")
 	}
 
 	// Initialize TypeGuesser
@@ -164,7 +164,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	if header {
 		names, err = csvReader.Read()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
@@ -228,28 +228,28 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 				case typesys.BoolType:
 					b, err := tg.atoBool(v)
 					if err != nil {
-						return nil, err
+						return nil, nil, err
 					}
 					values[i] = append(values[i].([]bool), b)
 
 				case typesys.Int32Type:
 					d, err := strconv.Atoi(v)
 					if err != nil {
-						return nil, err
+						return nil, nil, err
 					}
 					values[i] = append(values[i].([]int32), int32(d))
 
 				case typesys.Int64Type:
 					d, err := strconv.ParseInt(v, 10, 64)
 					if err != nil {
-						return nil, err
+						return nil, nil, err
 					}
 					values[i] = append(values[i].([]int64), d)
 
 				case typesys.Float64Type:
 					f, err := strconv.ParseFloat(v, 64)
 					if err != nil {
-						return nil, err
+						return nil, nil, err
 					}
 					values[i] = append(values[i].([]float64), f)
 
@@ -273,28 +273,28 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			case typesys.BoolType:
 				b, err := tg.atoBool(v)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				values[i] = append(values[i].([]bool), b)
 
 			case typesys.Int32Type:
 				d, err := strconv.Atoi(v)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				values[i] = append(values[i].([]int32), int32(d))
 
 			case typesys.Int64Type:
 				d, err := strconv.ParseInt(v, 10, 64)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				values[i] = append(values[i].([]int64), d)
 
 			case typesys.Float64Type:
 				f, err := strconv.ParseFloat(v, 64)
 				if err != nil {
-					return nil, err
+					return nil, nil, err
 				}
 				values[i] = append(values[i].([]float64), f)
 
@@ -312,19 +312,19 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	// Create series
-	series := make(map[string]Series)
-	for i, name := range names {
+	series := make([]Series, len(names))
+	for i := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[name] = NewSeriesBool(isNullable, false, values[i].([]bool), stringPool)
+			series[i] = NewSeriesBool(isNullable, false, values[i].([]bool), stringPool)
 		case typesys.Int32Type:
-			series[name] = NewSeriesInt32(isNullable, false, values[i].([]int32), stringPool)
+			series[i] = NewSeriesInt32(isNullable, false, values[i].([]int32), stringPool)
 		case typesys.Int64Type:
-			series[name] = NewSeriesInt64(isNullable, false, values[i].([]int64), stringPool)
+			series[i] = NewSeriesInt64(isNullable, false, values[i].([]int64), stringPool)
 		case typesys.Float64Type:
-			series[name] = NewSeriesFloat64(isNullable, false, values[i].([]float64), stringPool)
+			series[i] = NewSeriesFloat64(isNullable, false, values[i].([]float64), stringPool)
 		case typesys.StringType:
-			series[name] = SeriesString{
+			series[i] = SeriesString{
 				isNullable: isNullable,
 				data:       values[i].([]*string),
 				pool:       stringPool,
@@ -332,7 +332,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		}
 	}
 
-	return series, nil
+	return names, series, nil
 }
 
 type CsvWriter struct {
