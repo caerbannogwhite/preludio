@@ -89,8 +89,8 @@ func (df BaseDataFrame) SetStringPool(pool *StringPool) DataFrame {
 }
 
 func (df BaseDataFrame) GetSeriesIndex(name string) int {
-	for i, name := range df.names {
-		if name == name {
+	for i, name_ := range df.names {
+		if name_ == name {
 			return i
 		}
 	}
@@ -271,8 +271,8 @@ func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
 
 // Returns the series with the given name.
 func (df BaseDataFrame) Series(name string) Series {
-	for i, name := range df.names {
-		if name == name {
+	for i, name_ := range df.names {
+		if name_ == name {
 			return df.series[i]
 		}
 	}
@@ -283,8 +283,8 @@ func (df BaseDataFrame) Series(name string) Series {
 // Returns the series with the given name.
 // For internal use only: returns nil if the series is not found.
 func (df BaseDataFrame) __series(name string) Series {
-	for i, name := range df.names {
-		if name == name {
+	for i, name_ := range df.names {
+		if name_ == name {
 			return df.series[i]
 		}
 	}
@@ -356,6 +356,7 @@ func (df BaseDataFrame) Filter(mask SeriesBool) DataFrame {
 	}
 
 	return BaseDataFrame{
+		names:  df.names,
 		series: seriesList,
 		pool:   df.pool,
 	}
@@ -391,7 +392,6 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 		df.partitions = make([]BaseDataFramePartitionEntry, len(by))
 
 		for partitionsIndex, name := range by {
-
 			i := df.GetSeriesIndex(name)
 			series := df.series[i]
 
@@ -1132,7 +1132,6 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	if df.isGrouped {
 		var indeces *[][]int
 		result, indeces, _ = df.groupHelper()
-
 		if df.NRows() < MINIMUM_PARALLEL_SIZE_2 {
 			for _, agg := range aggregators {
 				series := df.__series(agg.name)
