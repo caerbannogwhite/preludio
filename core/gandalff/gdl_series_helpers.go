@@ -53,6 +53,16 @@ func __binVecInit(size int) []uint8 {
 	return make([]uint8, (size+7)>>3)
 }
 
+func __binVecFromBools(v []bool) []uint8 {
+	binVec := make([]uint8, (len(v)+7)>>3)
+	for i := 0; i < len(v); i++ {
+		if v[i] {
+			binVec[i>>3] |= 1 << uint(i%8)
+		}
+	}
+	return binVec
+}
+
 func __binVecResize(v []uint8, size int) []uint8 {
 	if size <= len(v)<<3 {
 		return v

@@ -5,26 +5,26 @@ import (
 	"time"
 )
 
-func NewSeries(isNullable, makeCopy bool, memOpt bool, data interface{}, pool *StringPool) Series {
+func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, pool *StringPool) Series {
 	switch data := data.(type) {
 	case []bool:
 		// if memOpt {
 		// 	return NewSeriesBoolMemOpt(isNullable, makeCopy, data, pool)
 		// } else {
-		return NewSeriesBool(isNullable, makeCopy, data, pool)
+		return NewSeriesBool(data, nullMask, makeCopy, pool)
 		// }
 	case []int32:
-		return NewSeriesInt32(isNullable, makeCopy, data, pool)
+		return NewSeriesInt32(data, nullMask, makeCopy, pool)
 	case []int64:
-		return NewSeriesInt64(isNullable, makeCopy, data, pool)
+		return NewSeriesInt64(data, nullMask, makeCopy, pool)
 	case []float64:
-		return NewSeriesFloat64(isNullable, makeCopy, data, pool)
+		return NewSeriesFloat64(data, nullMask, makeCopy, pool)
 	case []string:
-		return NewSeriesString(isNullable, makeCopy, data, pool)
+		return NewSeriesString(data, nullMask, makeCopy, pool)
 	case []time.Time:
-		return NewSeriesTime(isNullable, makeCopy, data, pool)
+		return NewSeriesTime(data, nullMask, makeCopy, pool)
 	case []time.Duration:
-		return NewSeriesDuration(isNullable, makeCopy, data, pool)
+		return NewSeriesDuration(data, nullMask, makeCopy, pool)
 	default:
 		return SeriesError{fmt.Sprintf("NewSeries: unsupported type %T", data)}
 	}
@@ -34,12 +34,15 @@ func NewSeriesError(err string) SeriesError {
 	return SeriesError{msg: err}
 }
 
-func NewSeriesBool(isNullable, makeCopy bool, data []bool, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -48,34 +51,35 @@ func NewSeriesBool(isNullable, makeCopy bool, data []bool, pool *StringPool) Ser
 		data = actualData
 	}
 
-	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesBoolMemOpt(isNullable bool, makeCopy bool, data []bool, pool *StringPool) Series {
+func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
+	} else {
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
+	}
+
 	size := len(data)
-	actualData := __binVecInit(size)
-	for i := 0; i < size; i++ {
-		if data[i] {
-			actualData[i>>3] |= 1 << uint(i%8)
-		}
-	}
+	actualData := __binVecFromBools(data)
 
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
-	} else {
-		nullMask = make([]uint8, 0)
-	}
-
-	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask, pool: pool}
+	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesInt32(isNullable, makeCopy bool, data []int32, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -84,15 +88,18 @@ func NewSeriesInt32(isNullable, makeCopy bool, data []int32, pool *StringPool) S
 		data = actualData
 	}
 
-	return SeriesInt32{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesInt32{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesInt64(isNullable, makeCopy bool, data []int64, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -101,15 +108,18 @@ func NewSeriesInt64(isNullable, makeCopy bool, data []int64, pool *StringPool) S
 		data = actualData
 	}
 
-	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesFloat64(isNullable, makeCopy bool, data []float64, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -118,15 +128,18 @@ func NewSeriesFloat64(isNullable, makeCopy bool, data []float64, pool *StringPoo
 		data = actualData
 	}
 
-	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesString(isNullable bool, makeCopy bool, data []string, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	actualData := make([]*string, len(data))
@@ -134,15 +147,18 @@ func NewSeriesString(isNullable bool, makeCopy bool, data []string, pool *String
 		actualData[i] = pool.Put(v)
 	}
 
-	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask, pool: pool}
+	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesTime(isNullable, makeCopy bool, data []time.Time, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -151,15 +167,18 @@ func NewSeriesTime(isNullable, makeCopy bool, data []time.Time, pool *StringPool
 		data = actualData
 	}
 
-	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesDuration(isNullable, makeCopy bool, data []time.Duration, pool *StringPool) Series {
-	var nullMask []uint8
-	if isNullable {
-		nullMask = __binVecInit(len(data))
+func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+	var isNullable bool
+	var nullMask_ []uint8
+	if nullMask != nil {
+		isNullable = true
+		nullMask_ = __binVecFromBools(nullMask)
 	} else {
-		nullMask = make([]uint8, 0)
+		isNullable = false
+		nullMask_ = make([]uint8, 0)
 	}
 
 	if makeCopy {
@@ -168,5 +187,5 @@ func NewSeriesDuration(isNullable, makeCopy bool, data []time.Duration, pool *St
 		data = actualData
 	}
 
-	return SeriesDuration{isNullable: isNullable, data: data, nullMask: nullMask, pool: pool}
+	return SeriesDuration{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
