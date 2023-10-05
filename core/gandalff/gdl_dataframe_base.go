@@ -380,6 +380,7 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 					break
 				}
 			}
+
 			if !found {
 				df.err = fmt.Errorf("BaseDataFrame.GroupBy: column \"%s\" not found", name)
 				return df
@@ -466,6 +467,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		old := df.series[partition.index]
 
 		// TODO: null masks, null values are all mapped to the same group
+		result.names = append(result.names, partition.name)
 
 		switch series := old.(type) {
 		case SeriesBool:
@@ -473,6 +475,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			for i, group := range indeces {
 				values[i] = series.data[group[0]]
 			}
+
 			result.series = append(result.series, SeriesBool{
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces)),
@@ -1111,15 +1114,15 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	for _, agg := range aggregators {
 
 		// CASE: aggregator count has a default name
-		if agg.getAggregateType() != AGGREGATE_COUNT {
-			if aggNames[agg.getSeriesName()] {
+		if agg.type_ != AGGREGATE_COUNT {
+			if aggNames[agg.name] {
 				df.err = fmt.Errorf("BaseDataFrame.Agg: aggregator names must be unique")
 				return df
 			}
-			aggNames[agg.getSeriesName()] = true
+			aggNames[agg.name] = true
 
-			if df.__series(agg.getSeriesName()) == nil {
-				df.err = fmt.Errorf("BaseDataFrame.Agg: series \"%s\" not found", agg.getSeriesName())
+			if df.__series(agg.name) == nil {
+				df.err = fmt.Errorf("BaseDataFrame.Agg: series \"%s\" not found", agg.name)
 				return df
 			}
 		}
@@ -1127,39 +1130,38 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 	var result DataFrame
 	if df.isGrouped {
-
 		var indeces *[][]int
 		result, indeces, _ = df.groupHelper()
 
 		if df.NRows() < MINIMUM_PARALLEL_SIZE_2 {
 			for _, agg := range aggregators {
-				series := df.__series(agg.getSeriesName())
+				series := df.__series(agg.name)
 
-				switch agg.getAggregateType() {
+				switch agg.type_ {
 				case AGGREGATE_COUNT:
 					counts := make([]int64, len(*indeces))
 					for i, group := range *indeces {
 						counts[i] = int64(len(group))
 					}
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesInt64(false, false, counts, df.pool))
+					result = result.AddSeries(agg.name, NewSeriesInt64(false, false, counts, df.pool))
 
 				case AGGREGATE_SUM:
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, __gdl_sum_grouped__(series, *indeces), df.pool))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, __gdl_sum_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MIN:
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, __gdl_min_grouped__(series, *indeces), df.pool))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, __gdl_min_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MAX:
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, __gdl_max_grouped__(series, *indeces), df.pool))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, __gdl_max_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MEAN:
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, __gdl_mean_grouped__(series, *indeces), df.pool))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, __gdl_mean_grouped__(series, *indeces), df.pool))
 
 				case AGGREGATE_MEDIAN:
 					// TODO: implement
 
 				case AGGREGATE_STD:
-					result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, __gdl_std_grouped__(series, *indeces), df.pool))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, __gdl_std_grouped__(series, *indeces), df.pool))
 				}
 			}
 		} else {
@@ -1173,13 +1175,13 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 			}
 
 			for _, agg := range aggregators {
-				series := df.__series(agg.getSeriesName())
+				series := df.__series(agg.name)
 
 				resultData := make([]float64, len(*indeces))
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, resultData, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, resultData, df.pool))
 				for gi, group := range *indeces {
 					buffer <- __stats_thread_data{
-						op:      agg.getAggregateType(),
+						op:      agg.type_,
 						gi:      gi,
 						indeces: group,
 						series:  series,
@@ -1191,35 +1193,33 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 			close(buffer)
 			wg.Wait()
 		}
-
 	} else {
-
 		result = NewBaseDataFrame()
 
 		for _, agg := range aggregators {
-			series := df.__series(agg.getSeriesName())
+			series := df.__series(agg.name)
 
-			switch agg.getAggregateType() {
+			switch agg.type_ {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesInt64(false, false, []int64{int64(df.NRows())}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesInt64(false, false, []int64{int64(df.NRows())}, df.pool))
 
 			case AGGREGATE_SUM:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, []float64{__gdl_sum__(series)}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, []float64{__gdl_sum__(series)}, df.pool))
 
 			case AGGREGATE_MIN:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, []float64{__gdl_min__(series)}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, []float64{__gdl_min__(series)}, df.pool))
 
 			case AGGREGATE_MAX:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, []float64{__gdl_max__(series)}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, []float64{__gdl_max__(series)}, df.pool))
 
 			case AGGREGATE_MEAN:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, []float64{__gdl_mean__(series)}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, []float64{__gdl_mean__(series)}, df.pool))
 
 			case AGGREGATE_MEDIAN:
 				// TODO: implement
 
 			case AGGREGATE_STD:
-				result = result.AddSeries(agg.getSeriesName(), NewSeriesFloat64(false, false, []float64{__gdl_std__(series)}, df.pool))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(false, false, []float64{__gdl_std__(series)}, df.pool))
 			}
 		}
 	}

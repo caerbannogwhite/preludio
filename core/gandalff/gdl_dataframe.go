@@ -116,129 +116,37 @@ const (
 
 const DEFAULT_COUNT_NAME = "n"
 
-type aggregator interface {
-	getSeriesName() string
-	getAggregateType() AggregateType
-}
-
-type countAggregator struct {
+type aggregator struct {
 	name  string
 	type_ AggregateType
-}
-
-func (agg countAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg countAggregator) getAggregateType() AggregateType {
-	return agg.type_
 }
 
 func Count() aggregator {
-
-	return countAggregator{DEFAULT_COUNT_NAME, AGGREGATE_COUNT}
-}
-
-type sumAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg sumAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg sumAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{DEFAULT_COUNT_NAME, AGGREGATE_COUNT}
 }
 
 func Sum(name string) aggregator {
-	return sumAggregator{name, AGGREGATE_SUM}
-}
-
-type meanAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg meanAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg meanAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{name, AGGREGATE_SUM}
 }
 
 func Mean(name string) aggregator {
-	return meanAggregator{name, AGGREGATE_MEAN}
-}
-
-type medianAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg medianAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg medianAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{name, AGGREGATE_MEAN}
 }
 
 func Median(name string) aggregator {
-	return medianAggregator{name, AGGREGATE_MEDIAN}
-}
-
-type minAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg minAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg minAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{name, AGGREGATE_MEDIAN}
 }
 
 func Min(name string) aggregator {
-	return minAggregator{name, AGGREGATE_MIN}
-}
-
-type maxAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg maxAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg maxAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{name, AGGREGATE_MIN}
 }
 
 func Max(name string) aggregator {
-	return maxAggregator{name, AGGREGATE_MAX}
-}
-
-type stdAggregator struct {
-	name  string
-	type_ AggregateType
-}
-
-func (agg stdAggregator) getSeriesName() string {
-	return agg.name
-}
-
-func (agg stdAggregator) getAggregateType() AggregateType {
-	return agg.type_
+	return aggregator{name, AGGREGATE_MAX}
 }
 
 func Std(name string) aggregator {
-	return stdAggregator{name, AGGREGATE_STD}
+	return aggregator{name, AGGREGATE_STD}
 }
 
 ////////////////////////			SORT
