@@ -19,6 +19,18 @@ type SeriesBoolMemOpt struct {
 	partition  *SeriesBoolMemOptPartition
 }
 
+func (s SeriesBoolMemOpt) printInfo() {
+	fmt.Println("SeriesBoolMemOpt")
+	fmt.Println("==========")
+	fmt.Println("IsGrouped:", s.isGrouped)
+	fmt.Println("IsNullable:", s.isNullable)
+	fmt.Println("Sorted:", s.sorted)
+	fmt.Println("Data:", s.data)
+	fmt.Println("NullMask:", s.nullMask)
+	fmt.Println("Pool:", s.pool.ToString())
+	fmt.Println("Partition:", s.partition)
+}
+
 ////////////////////////			BASIC ACCESSORS
 
 func (s SeriesBoolMemOpt) __trueCount() int {

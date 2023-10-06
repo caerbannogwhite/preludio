@@ -7,6 +7,8 @@ type SeriesError struct {
 	msg string
 }
 
+func (s SeriesError) printInfo() {}
+
 // Returns the length of the series.
 func (s SeriesError) Len() int {
 	return 0

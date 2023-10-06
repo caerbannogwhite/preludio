@@ -5,6 +5,7 @@ import (
 )
 
 type Series interface {
+	printInfo()
 
 	// Basic accessors.
 

@@ -7,6 +7,18 @@ import (
 	"typesys"
 )
 
+func (s SeriesFloat64) printInfo() {
+	fmt.Println("SeriesFloat64")
+	fmt.Println("==========")
+	fmt.Println("IsGrouped:", s.isGrouped)
+	fmt.Println("IsNullable:", s.isNullable)
+	fmt.Println("Sorted:", s.sorted)
+	fmt.Println("Data:", s.data)
+	fmt.Println("NullMask:", s.nullMask)
+	fmt.Println("Pool:", s.pool.ToString())
+	fmt.Println("Partition:", s.partition)
+}
+
 ////////////////////////			BASIC ACCESSORS
 
 // Return the number of elements in the series.
