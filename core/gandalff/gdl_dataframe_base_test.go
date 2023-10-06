@@ -628,12 +628,12 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
 func Test_BaseDataFrame_Join(t *testing.T) {
 	dfx := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{1, 1, 2, 3, 4, 5, 5}).
-		AddSeriesFromString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g"})
+		AddSeriesFromInt64s("A", []int64{1, 1, 2, 3, 4, 5, 5}, nil, false).
+		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g"}, nil, false)
 
 	dfy := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{4, 5, 6, 6}).
-		AddSeriesFromString("C", false, false, []string{"h", "i", "j", "k"})
+		AddSeriesFromInt64s("A", []int64{4, 5, 6, 6}, nil, false).
+		AddSeriesFromStrings("C", []string{"h", "i", "j", "k"}, nil, false)
 
 	///////////////////			INNER JOIN
 
@@ -736,10 +736,10 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 	var res DataFrame
 
 	df := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}).
-		AddSeriesFromString("B", false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
-		AddSeriesFromFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
-		AddSeriesFromBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false})
+		AddSeriesFromInt64s("A", []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}, nil, false).
+		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, false).
+		AddSeriesFromFloat64s("C", []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, false).
+		AddSeriesFromBools("D", []bool{true, false, true, true, false, true, true, false, true, false}, nil, false)
 
 	res = df.OrderBy(Asc("A"))
 	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 1, 1, 2, 2, 4, 5, 5}, nil, "") {
@@ -913,13 +913,13 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	var res DataFrame
 
-	a := NewSeriesInt64(false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil).
+	a := NewSeriesInt64([]int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil, true, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	b := NewSeriesString(false, false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
+	b := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, true, NewStringPool()).
 		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
-	c := NewSeriesFloat64(false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil).
+	c := NewSeriesFloat64([]float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, true, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	d := NewSeriesBool(false, false, []bool{true, false, true, true, false, true, true, false, true, false}, nil).
+	d := NewSeriesBool([]bool{true, false, true, true, false, true, true, false, true, false}, nil, true, nil).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 
 	df := NewBaseDataFrame().

@@ -34,7 +34,7 @@ func NewSeriesError(err string) SeriesError {
 	return SeriesError{msg: err}
 }
 
-func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBool {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -54,7 +54,7 @@ func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool
 	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBoolMemOpt {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -71,7 +71,7 @@ func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *Stri
 	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt32 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -91,7 +91,7 @@ func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPo
 	return SeriesInt32{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt64 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -111,7 +111,7 @@ func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPo
 	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesFloat64 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -131,7 +131,7 @@ func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *Stri
 	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *StringPool) SeriesString {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -150,7 +150,7 @@ func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *String
 	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *StringPool) SeriesTime {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -170,7 +170,7 @@ func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *Strin
 	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
-func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, pool *StringPool) Series {
+func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, pool *StringPool) SeriesDuration {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {

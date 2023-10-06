@@ -60,6 +60,15 @@ func (sp *StringPool) Len() int {
 	return len(sp.pool)
 }
 
+func (sp *StringPool) ToString() string {
+	out := "StringPool["
+	for _, v := range sp.pool {
+		out += *v + ", "
+	}
+	out = out[:len(out)-2] + "]"
+	return out
+}
+
 func (sp *StringPool) debugPrint() {
 	for k, v := range sp.pool {
 		fmt.Printf("%s: %p\n", k, v)

@@ -141,11 +141,11 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
 func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]string, []Series, error) {
 
-	// TODO: Add support for reading CSV files with missing values
+	// TODO: Add support for Time and Duration types (defined in a schema)
+	// TODO: Optimize null masks (use bit vectors)?
 	// TODO: Try to optimize this function by using goroutines: read the rows (like 1000)
 	//		and guess the data types in parallel
 
-	isNullable := false
 	if stringPool == nil {
 		return nil, nil, fmt.Errorf("readCSV: string pool cannot be nil")
 	}
@@ -204,8 +204,10 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		dataTypes = schema.GetDataTypes()
 	}
 
+	nullMasks := make([][]bool, len(dataTypes))
 	values := make([]interface{}, len(dataTypes))
 	for i := range values {
+		nullMasks[i] = make([]bool, 0)
 		switch dataTypes[i] {
 		case typesys.BoolType:
 			values[i] = make([]bool, 0)
@@ -226,32 +228,36 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 			for i, v := range record {
 				switch dataTypes[i] {
 				case typesys.BoolType:
-					b, err := tg.atoBool(v)
-					if err != nil {
-						return nil, nil, err
+					if b, err := tg.atoBool(v); err != nil {
+						nullMasks[i] = append(nullMasks[i], true)
+					} else {
+						nullMasks[i] = append(nullMasks[i], false)
+						values[i] = append(values[i].([]bool), b)
 					}
-					values[i] = append(values[i].([]bool), b)
 
 				case typesys.Int32Type:
-					d, err := strconv.Atoi(v)
-					if err != nil {
-						return nil, nil, err
+					if d, err := strconv.Atoi(v); err != nil {
+						nullMasks[i] = append(nullMasks[i], true)
+					} else {
+						nullMasks[i] = append(nullMasks[i], false)
+						values[i] = append(values[i].([]int32), int32(d))
 					}
-					values[i] = append(values[i].([]int32), int32(d))
 
 				case typesys.Int64Type:
-					d, err := strconv.ParseInt(v, 10, 64)
-					if err != nil {
+					if d, err := strconv.ParseInt(v, 10, 64); err != nil {
 						return nil, nil, err
+					} else {
+						nullMasks[i] = append(nullMasks[i], false)
+						values[i] = append(values[i].([]int64), d)
 					}
-					values[i] = append(values[i].([]int64), d)
 
 				case typesys.Float64Type:
-					f, err := strconv.ParseFloat(v, 64)
-					if err != nil {
+					if f, err := strconv.ParseFloat(v, 64); err != nil {
 						return nil, nil, err
+					} else {
+						nullMasks[i] = append(nullMasks[i], false)
+						values[i] = append(values[i].([]float64), f)
 					}
-					values[i] = append(values[i].([]float64), f)
 
 				case typesys.StringType:
 					values[i] = append(values[i].([]*string), stringPool.Put(v))
@@ -271,32 +277,36 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 		for i, v := range record {
 			switch dataTypes[i] {
 			case typesys.BoolType:
-				b, err := tg.atoBool(v)
-				if err != nil {
-					return nil, nil, err
+				if b, err := tg.atoBool(v); err != nil {
+					nullMasks[i] = append(nullMasks[i], true)
+				} else {
+					nullMasks[i] = append(nullMasks[i], false)
+					values[i] = append(values[i].([]bool), b)
 				}
-				values[i] = append(values[i].([]bool), b)
 
 			case typesys.Int32Type:
-				d, err := strconv.Atoi(v)
-				if err != nil {
-					return nil, nil, err
+				if d, err := strconv.Atoi(v); err != nil {
+					nullMasks[i] = append(nullMasks[i], true)
+				} else {
+					nullMasks[i] = append(nullMasks[i], false)
+					values[i] = append(values[i].([]int32), int32(d))
 				}
-				values[i] = append(values[i].([]int32), int32(d))
 
 			case typesys.Int64Type:
-				d, err := strconv.ParseInt(v, 10, 64)
-				if err != nil {
-					return nil, nil, err
+				if d, err := strconv.ParseInt(v, 10, 64); err != nil {
+					nullMasks[i] = append(nullMasks[i], true)
+				} else {
+					nullMasks[i] = append(nullMasks[i], false)
+					values[i] = append(values[i].([]int64), d)
 				}
-				values[i] = append(values[i].([]int64), d)
 
 			case typesys.Float64Type:
-				f, err := strconv.ParseFloat(v, 64)
-				if err != nil {
-					return nil, nil, err
+				if f, err := strconv.ParseFloat(v, 64); err != nil {
+					nullMasks[i] = append(nullMasks[i], true)
+				} else {
+					nullMasks[i] = append(nullMasks[i], false)
+					values[i] = append(values[i].([]float64), f)
 				}
-				values[i] = append(values[i].([]float64), f)
 
 			case typesys.StringType:
 				values[i] = append(values[i].([]*string), stringPool.Put(v))
@@ -316,17 +326,22 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	for i := range names {
 		switch dataTypes[i] {
 		case typesys.BoolType:
-			series[i] = NewSeriesBool(isNullable, false, values[i].([]bool), stringPool)
+			series[i] = NewSeriesBool(values[i].([]bool), nullMasks[i], false, stringPool)
+
 		case typesys.Int32Type:
-			series[i] = NewSeriesInt32(isNullable, false, values[i].([]int32), stringPool)
+			series[i] = NewSeriesInt32(values[i].([]int32), nullMasks[i], false, stringPool)
+
 		case typesys.Int64Type:
-			series[i] = NewSeriesInt64(isNullable, false, values[i].([]int64), stringPool)
+			series[i] = NewSeriesInt64(values[i].([]int64), nullMasks[i], false, stringPool)
+
 		case typesys.Float64Type:
-			series[i] = NewSeriesFloat64(isNullable, false, values[i].([]float64), stringPool)
+			series[i] = NewSeriesFloat64(values[i].([]float64), nullMasks[i], false, stringPool)
+
 		case typesys.StringType:
 			series[i] = SeriesString{
-				isNullable: isNullable,
+				isNullable: true,
 				data:       values[i].([]*string),
+				nullMask:   __binVecFromBools(nullMasks[i]),
 				pool:       stringPool,
 			}
 		}

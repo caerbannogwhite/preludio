@@ -42,20 +42,20 @@ type DataFrame interface {
 
 	// AddSeries adds a generic series to the dataframe.
 	AddSeries(name string, series Series) DataFrame
-	// AddSeriesFromBool adds a series of bools to the dataframe.
-	AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame
-	// AddSeriesFromInt32 adds a series of ints to the dataframe.
-	AddSeriesFromInt32(name string, isNullable, makeCopy bool, data []int32) DataFrame
-	// AddSeriesFromInt64 adds a series of ints to the dataframe.
-	AddSeriesFromInt64(name string, isNullable, makeCopy bool, data []int64) DataFrame
-	// AddSeriesFromFloat adds a series of floats to the dataframe.
-	AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame
-	// AddSeriesFromString adds a series of strings to the dataframe.
-	AddSeriesFromString(name string, isNullable bool, makeCopy bool, data []string) DataFrame
-	// AddSeriesFromTime adds a series of times to the dataframe.
-	AddSeriesFromTime(name string, isNullable, makeCopy bool, data []time.Time) DataFrame
-	// AddSeriesFromDuration adds a series of durations to the dataframe.
-	AddSeriesFromDuration(name string, isNullable, makeCopy bool, data []time.Duration) DataFrame
+	// AddSeriesFromBools adds a series of bools to the dataframe.
+	AddSeriesFromBools(name string, data []bool, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromInt32s adds a series of ints to the dataframe.
+	AddSeriesFromInt32s(name string, data []int32, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromInt64s adds a series of ints to the dataframe.
+	AddSeriesFromInt64s(name string, data []int64, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromFloat64s adds a series of floats to the dataframe.
+	AddSeriesFromFloat64s(name string, data []float64, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromStrings adds a series of strings to the dataframe.
+	AddSeriesFromStrings(name string, data []string, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromTimes adds a series of times to the dataframe.
+	AddSeriesFromTimes(name string, data []time.Time, nullMask []bool, makeCopy bool) DataFrame
+	// AddSeriesFromDurations adds a series of durations to the dataframe.
+	AddSeriesFromDurations(name string, data []time.Duration, nullMask []bool, makeCopy bool) DataFrame
 
 	// Replace the series with the given name.
 	Replace(name string, s Series) DataFrame
