@@ -20,6 +20,7 @@ type CsvReader struct {
 	delimiter        rune
 	guessDataTypeLen int
 	path             string
+	nullValues       bool
 	reader           io.Reader
 	schema           *typesys.Schema
 	pool             *StringPool
@@ -31,6 +32,7 @@ func NewCsvReader(pool *StringPool) *CsvReader {
 		delimiter:        CSV_READER_DEFAULT_DELIMITER,
 		guessDataTypeLen: CSV_READER_DEFAULT_GUESS_DATA_TYPE_LEN,
 		path:             "",
+		nullValues:       false,
 		reader:           nil,
 		schema:           nil,
 		pool:             pool,
@@ -54,6 +56,11 @@ func (r *CsvReader) SetGuessDataTypeLen(guessDataTypeLen int) *CsvReader {
 
 func (r *CsvReader) SetPath(path string) *CsvReader {
 	r.path = path
+	return r
+}
+
+func (r *CsvReader) SetNullValues(nullValues bool) *CsvReader {
+	r.nullValues = nullValues
 	return r
 }
 
@@ -85,7 +92,7 @@ func (r *CsvReader) Read() DataFrame {
 		r.pool = NewStringPool()
 	}
 
-	names, series, err := readCSV(r.reader, r.delimiter, r.header, r.guessDataTypeLen, r.schema, r.pool)
+	names, series, err := readCSV(r.reader, r.delimiter, r.header, r.nullValues, r.guessDataTypeLen, r.schema, r.pool)
 	if err != nil {
 		return BaseDataFrame{err: err}
 	}
@@ -139,7 +146,7 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]string, []Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, guessDataTypeLen int, schema *typesys.Schema, stringPool *StringPool) ([]string, []Series, error) {
 
 	// TODO: Add support for Time and Duration types (defined in a schema)
 	// TODO: Optimize null masks (use bit vectors)?
@@ -205,9 +212,14 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 	}
 
 	nullMasks := make([][]bool, len(dataTypes))
+	if nullValues {
+		for i := range nullMasks {
+			nullMasks[i] = make([]bool, 0)
+		}
+	}
+
 	values := make([]interface{}, len(dataTypes))
 	for i := range values {
-		nullMasks[i] = make([]bool, 0)
 		switch dataTypes[i] {
 		case typesys.BoolType:
 			values[i] = make([]bool, 0)
@@ -224,7 +236,97 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 	// If no schema: add records for guessing to values
 	if schema == nil {
-		for _, record := range recordsForGuessing {
+		if nullValues {
+			for _, record := range recordsForGuessing {
+				for i, v := range record {
+					switch dataTypes[i] {
+					case typesys.BoolType:
+						if b, err := tg.atoBool(v); err != nil {
+							nullMasks[i] = append(nullMasks[i], true)
+						} else {
+							nullMasks[i] = append(nullMasks[i], false)
+							values[i] = append(values[i].([]bool), b)
+						}
+
+					case typesys.Int32Type:
+						if d, err := strconv.Atoi(v); err != nil {
+							nullMasks[i] = append(nullMasks[i], true)
+						} else {
+							nullMasks[i] = append(nullMasks[i], false)
+							values[i] = append(values[i].([]int32), int32(d))
+						}
+
+					case typesys.Int64Type:
+						if d, err := strconv.ParseInt(v, 10, 64); err != nil {
+							return nil, nil, err
+						} else {
+							nullMasks[i] = append(nullMasks[i], false)
+							values[i] = append(values[i].([]int64), d)
+						}
+
+					case typesys.Float64Type:
+						if f, err := strconv.ParseFloat(v, 64); err != nil {
+							return nil, nil, err
+						} else {
+							nullMasks[i] = append(nullMasks[i], false)
+							values[i] = append(values[i].([]float64), f)
+						}
+
+					case typesys.StringType:
+						nullMasks[i] = append(nullMasks[i], false)
+						values[i] = append(values[i].([]*string), stringPool.Put(v))
+					}
+				}
+			}
+		} else {
+			for _, record := range recordsForGuessing {
+				for i, v := range record {
+					switch dataTypes[i] {
+					case typesys.BoolType:
+						b, err := tg.atoBool(v)
+						if err != nil {
+							return nil, nil, err
+						}
+						values[i] = append(values[i].([]bool), b)
+
+					case typesys.Int32Type:
+						d, err := strconv.Atoi(v)
+						if err != nil {
+							return nil, nil, err
+						}
+						values[i] = append(values[i].([]int32), int32(d))
+
+					case typesys.Int64Type:
+						d, err := strconv.ParseInt(v, 10, 64)
+						if err != nil {
+							return nil, nil, err
+						}
+						values[i] = append(values[i].([]int64), d)
+
+					case typesys.Float64Type:
+						f, err := strconv.ParseFloat(v, 64)
+						if err != nil {
+							return nil, nil, err
+						}
+						values[i] = append(values[i].([]float64), f)
+
+					case typesys.StringType:
+						values[i] = append(values[i].([]*string), stringPool.Put(v))
+					}
+				}
+			}
+		}
+	}
+
+	if nullValues {
+		for {
+			record, err := csvReader.Read()
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+			}
+
 			for i, v := range record {
 				switch dataTypes[i] {
 				case typesys.BoolType:
@@ -245,7 +347,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 				case typesys.Int64Type:
 					if d, err := strconv.ParseInt(v, 10, 64); err != nil {
-						return nil, nil, err
+						nullMasks[i] = append(nullMasks[i], true)
 					} else {
 						nullMasks[i] = append(nullMasks[i], false)
 						values[i] = append(values[i].([]int64), d)
@@ -253,63 +355,60 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 				case typesys.Float64Type:
 					if f, err := strconv.ParseFloat(v, 64); err != nil {
-						return nil, nil, err
+						nullMasks[i] = append(nullMasks[i], true)
 					} else {
 						nullMasks[i] = append(nullMasks[i], false)
 						values[i] = append(values[i].([]float64), f)
 					}
 
 				case typesys.StringType:
+					nullMasks[i] = append(nullMasks[i], false)
 					values[i] = append(values[i].([]*string), stringPool.Put(v))
 				}
 			}
 		}
-	}
-
-	for {
-		record, err := csvReader.Read()
-		if err != nil {
-			if err == io.EOF {
-				break
+	} else {
+		for {
+			record, err := csvReader.Read()
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
 			}
-		}
 
-		for i, v := range record {
-			switch dataTypes[i] {
-			case typesys.BoolType:
-				if b, err := tg.atoBool(v); err != nil {
-					nullMasks[i] = append(nullMasks[i], true)
-				} else {
-					nullMasks[i] = append(nullMasks[i], false)
+			for i, v := range record {
+				switch dataTypes[i] {
+				case typesys.BoolType:
+					b, err := tg.atoBool(v)
+					if err != nil {
+						return nil, nil, err
+					}
 					values[i] = append(values[i].([]bool), b)
-				}
 
-			case typesys.Int32Type:
-				if d, err := strconv.Atoi(v); err != nil {
-					nullMasks[i] = append(nullMasks[i], true)
-				} else {
-					nullMasks[i] = append(nullMasks[i], false)
+				case typesys.Int32Type:
+					d, err := strconv.Atoi(v)
+					if err != nil {
+						return nil, nil, err
+					}
 					values[i] = append(values[i].([]int32), int32(d))
-				}
 
-			case typesys.Int64Type:
-				if d, err := strconv.ParseInt(v, 10, 64); err != nil {
-					nullMasks[i] = append(nullMasks[i], true)
-				} else {
-					nullMasks[i] = append(nullMasks[i], false)
+				case typesys.Int64Type:
+					d, err := strconv.ParseInt(v, 10, 64)
+					if err != nil {
+						return nil, nil, err
+					}
 					values[i] = append(values[i].([]int64), d)
-				}
 
-			case typesys.Float64Type:
-				if f, err := strconv.ParseFloat(v, 64); err != nil {
-					nullMasks[i] = append(nullMasks[i], true)
-				} else {
-					nullMasks[i] = append(nullMasks[i], false)
+				case typesys.Float64Type:
+					f, err := strconv.ParseFloat(v, 64)
+					if err != nil {
+						return nil, nil, err
+					}
 					values[i] = append(values[i].([]float64), f)
-				}
 
-			case typesys.StringType:
-				values[i] = append(values[i].([]*string), stringPool.Put(v))
+				case typesys.StringType:
+					values[i] = append(values[i].([]*string), stringPool.Put(v))
+				}
 			}
 		}
 	}
@@ -339,7 +438,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 
 		case typesys.StringType:
 			series[i] = SeriesString{
-				isNullable: true,
+				isNullable: nullValues,
 				data:       values[i].([]*string),
 				nullMask:   __binVecFromBools(nullMasks[i]),
 				pool:       stringPool,
