@@ -351,20 +351,22 @@ func readCSV(reader io.Reader, delimiter rune, header bool, guessDataTypeLen int
 }
 
 type CsvWriter struct {
-	delimiter rune
-	header    bool
-	path      string
-	writer    io.Writer
-	dataframe DataFrame
+	delimiter  rune
+	header     bool
+	path       string
+	nullString string
+	writer     io.Writer
+	dataframe  DataFrame
 }
 
 func NewCsvWriter() *CsvWriter {
 	return &CsvWriter{
-		delimiter: CSV_READER_DEFAULT_DELIMITER,
-		header:    CSV_READER_DEFAULT_HEADER,
-		path:      "",
-		writer:    nil,
-		dataframe: nil,
+		delimiter:  CSV_READER_DEFAULT_DELIMITER,
+		header:     CSV_READER_DEFAULT_HEADER,
+		path:       "",
+		nullString: NULL_STRING,
+		writer:     nil,
+		dataframe:  nil,
 	}
 }
 
@@ -383,6 +385,11 @@ func (w *CsvWriter) SetPath(path string) *CsvWriter {
 	return w
 }
 
+func (w *CsvWriter) SetNullString(nullString string) *CsvWriter {
+	w.nullString = nullString
+	return w
+}
+
 func (w *CsvWriter) SetWriter(writer io.Writer) *CsvWriter {
 	w.writer = writer
 	return w
@@ -394,7 +401,7 @@ func (w *CsvWriter) SetDataFrame(dataframe DataFrame) *CsvWriter {
 }
 
 func (w *CsvWriter) Write() DataFrame {
-	err := writeCSV(w.dataframe, w.writer, w.delimiter, w.header)
+	err := writeCSV(w.dataframe, w.writer, w.delimiter, w.header, w.nullString)
 	if err != nil {
 		w.dataframe = BaseDataFrame{err: err}
 	}
@@ -402,7 +409,7 @@ func (w *CsvWriter) Write() DataFrame {
 	return w.dataframe
 }
 
-func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool) error {
+func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool, nullString string) error {
 	series := make([]Series, df.NCols())
 	for i := 0; i < df.NCols(); i++ {
 		series[i] = df.SeriesAt(i)
@@ -430,7 +437,7 @@ func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool) error
 			}
 
 			if s.IsNull(i) {
-				fmt.Fprintf(writer, "%s", NULL_STRING)
+				fmt.Fprintf(writer, "%s", nullString)
 			} else {
 				fmt.Fprintf(writer, "%s", s.GetString(i))
 			}
