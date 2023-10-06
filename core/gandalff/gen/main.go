@@ -132,7 +132,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s, false)", RESULT_SIZE_VAR_NAME)},
 				},
 			})
 
@@ -160,6 +160,13 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 			})
 		} else {
 
+			// Only the first operand is nullable: if this is a scalar,
+			// the value of its null mask will determine the value of the result null mask
+			nullMaskInitFlag := "true"
+			if info.Op1Scalar {
+				nullMaskInitFlag = fmt.Sprintf("%s.nullMask[0] == 1", info.Op1VarName)
+			}
+
 			// Only the first operand is nullable:
 			// copy the null mask of the first operand
 			stmts = append(stmts, &ast.AssignStmt{
@@ -168,20 +175,30 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s, %s)", RESULT_SIZE_VAR_NAME, nullMaskInitFlag)},
 				},
 			})
 
-			stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
-				Fun: &ast.Ident{Name: "copy"},
-				Args: []ast.Expr{
-					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
-					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op1VarName)},
-				}},
-			})
+			// If both operands have the same size, we can copy the null mask
+			if (info.Op1Scalar && info.Op2Scalar) || (!info.Op1Scalar && !info.Op2Scalar) {
+				stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
+					Fun: &ast.Ident{Name: "copy"},
+					Args: []ast.Expr{
+						&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+						&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op1VarName)},
+					}},
+				})
+			}
 		}
 	} else {
 		if info.Op2Nullable {
+
+			// Only the second operand is nullable: if this is a scalar,
+			// the value of its null mask will determine the value of the result null mask
+			nullMaskInitFlag := "true"
+			if info.Op2Scalar {
+				nullMaskInitFlag = fmt.Sprintf("%s.nullMask[0] == 1", info.Op2VarName)
+			}
 
 			// Only the second operand is nullable:
 			// copy the null mask of the second operand
@@ -191,17 +208,20 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s)", RESULT_SIZE_VAR_NAME)},
+					&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s, %s)", RESULT_SIZE_VAR_NAME, nullMaskInitFlag)},
 				},
 			})
 
-			stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
-				Fun: &ast.Ident{Name: "copy"},
-				Args: []ast.Expr{
-					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
-					&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op2VarName)},
-				}},
-			})
+			// If both operands have the same size, we can copy the null mask
+			if (info.Op1Scalar && info.Op2Scalar) || (!info.Op1Scalar && !info.Op2Scalar) {
+				stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
+					Fun: &ast.Ident{Name: "copy"},
+					Args: []ast.Expr{
+						&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+						&ast.Ident{Name: fmt.Sprintf("%s.nullMask", info.Op2VarName)},
+					}},
+				})
+			}
 		} else {
 
 			// None of the operands is nullable:
@@ -212,7 +232,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
-					&ast.Ident{Name: "__binVecInit(0)"},
+					&ast.Ident{Name: "__binVecInit(0, true)"},
 				},
 			})
 		}

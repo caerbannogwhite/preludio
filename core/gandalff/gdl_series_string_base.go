@@ -119,7 +119,7 @@ func (s SeriesString) SetNull(i int) Series {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
 	} else {
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		nullMask[i/8] |= 1 << uint(i%8)
 
 		s.isNullable = true
@@ -154,7 +154,7 @@ func (s SeriesString) SetNullMask(mask []bool) Series {
 		}
 		return s
 	} else {
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		for k, v := range mask {
 			if v {
 				nullMask[k/8] |= 1 << uint(k%8)
@@ -174,7 +174,7 @@ func (s SeriesString) SetNullMask(mask []bool) Series {
 func (s SeriesString) MakeNullable() Series {
 	if !s.isNullable {
 		s.isNullable = true
-		s.nullMask = __binVecInit(len(s.data))
+		s.nullMask = __binVecInit(len(s.data), false)
 	}
 	return s
 }
@@ -268,7 +268,7 @@ func (s SeriesString) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 
 	data := make([]*string, elementCount)
 	if s.isNullable {
-		nullMask = __binVecInit(elementCount)
+		nullMask = __binVecInit(elementCount, false)
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.Len(); srcIdx++ {
 			if mask.data[srcIdx>>3]&(1<<uint(srcIdx%8)) != 0 {
@@ -316,7 +316,7 @@ func (s SeriesString) filterBoolSlice(mask []bool) Series {
 	data = make([]*string, elementCount)
 
 	if s.isNullable {
-		nullMask = __binVecInit(elementCount)
+		nullMask = __binVecInit(elementCount, false)
 		dstIdx := 0
 		for srcIdx, v := range mask {
 			if v {
@@ -369,7 +369,7 @@ func (s SeriesString) filterIntSlice(indexes []int, check bool) Series {
 	data = make([]*string, size)
 
 	if s.isNullable {
-		nullMask = __binVecInit(size)
+		nullMask = __binVecInit(size, false)
 		for dstIdx, srcIdx := range indexes {
 			data[dstIdx] = s.data[srcIdx]
 			if srcIdx%8 > dstIdx%8 {

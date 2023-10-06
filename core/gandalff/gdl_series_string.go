@@ -149,7 +149,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
 		data := make([]bool, len(s.data))
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -187,7 +187,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 
 	case typesys.Int32Type:
 		data := make([]int32, len(s.data))
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -226,7 +226,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 
 	case typesys.Int64Type:
 		data := make([]int64, len(s.data))
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}
@@ -265,7 +265,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
-		nullMask := __binVecInit(len(s.data))
+		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
 		}

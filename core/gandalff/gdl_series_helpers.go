@@ -49,8 +49,14 @@ func __mergeNullMasks(s1Len int, s1Nullable bool, s1Mask []uint8, s2Len int, s2N
 	}
 }
 
-func __binVecInit(size int) []uint8 {
-	return make([]uint8, (size+7)>>3)
+func __binVecInit(size int, flag bool) []uint8 {
+	vec := make([]uint8, (size+7)>>3)
+	if flag {
+		for i := range vec {
+			vec[i] = 0xFF
+		}
+	}
+	return vec
 }
 
 func __binVecFromBools(v []bool) []uint8 {

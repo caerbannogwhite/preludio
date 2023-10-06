@@ -695,12 +695,12 @@ func (s SeriesBoolMemOpt) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 
 	elementCount := mask.__trueCount()
 
-	data := __binVecInit(elementCount)
+	data := __binVecInit(elementCount, false)
 	var nullMask []uint8
 
 	if s.isNullable {
 
-		nullMask = __binVecInit(elementCount)
+		nullMask = __binVecInit(elementCount, false)
 
 		dstIdx := 0
 		for srcIdx := 0; srcIdx < s.size; srcIdx++ {
@@ -754,12 +754,12 @@ func (s SeriesBoolMemOpt) filterBoolSlice(mask []bool) Series {
 		}
 	}
 
-	data := __binVecInit(elementCount)
+	data := __binVecInit(elementCount, false)
 	var nullMask []uint8
 
 	if s.isNullable {
 
-		nullMask = __binVecInit(elementCount)
+		nullMask = __binVecInit(elementCount, false)
 
 		dstIdx := 0
 		for srcIdx, v := range mask {
@@ -806,10 +806,10 @@ func (s SeriesBoolMemOpt) filterIntSlice(indexes []int, check bool) Series {
 	var nullMask []uint8
 
 	size := len(indexes)
-	data = __binVecInit(len(indexes))
+	data = __binVecInit(len(indexes), false)
 
 	if s.isNullable {
-		nullMask = __binVecInit(size)
+		nullMask = __binVecInit(size, false)
 		for dstIdx, srcIdx := range indexes {
 			if srcIdx%8 > dstIdx%8 {
 				data[dstIdx>>3] |= ((s.data[srcIdx>>3] & (1 << uint(srcIdx%8))) >> uint(srcIdx%8-dstIdx%8))

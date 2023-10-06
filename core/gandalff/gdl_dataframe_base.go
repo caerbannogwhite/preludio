@@ -478,7 +478,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 			result.series = append(result.series, SeriesBool{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -490,7 +490,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 			result.series = append(result.series, SeriesInt32{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -502,7 +502,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 			result.series = append(result.series, SeriesInt64{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -514,7 +514,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 			result.series = append(result.series, SeriesFloat64{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -526,7 +526,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 
 			result.series = append(result.series, SeriesString{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 				pool:       series.pool,
 			})
