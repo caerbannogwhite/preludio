@@ -15,7 +15,11 @@ func (s SeriesInt32) printInfo() {
 	fmt.Println("Sorted:", s.sorted)
 	fmt.Println("Data:", s.data)
 	fmt.Println("NullMask:", s.nullMask)
-	fmt.Println("Pool:", s.pool.ToString())
+	if s.pool != nil {
+		fmt.Println("Pool:", s.pool.ToString())
+	} else {
+		fmt.Println("Pool:", s.pool)
+	}
 	fmt.Println("Partition:", s.partition)
 }
 
