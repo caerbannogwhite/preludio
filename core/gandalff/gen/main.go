@@ -160,15 +160,17 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 			})
 		} else {
 
-			// Only the first operand is nullable: if this is a scalar,
-			// the value of its null mask will determine the value of the result null mask
-			nullMaskInitFlag := "true"
+			// Only the second operand is nullable, so the reuslt null mask
+			// depends on the value of the second operand null mask
+
+			// 	1 - initialize the null mask to 0 or, if the second operand is a scalar,
+			// 		to the value of its null mask
+			nullMaskInitFlag := "false"
 			if info.Op1Scalar {
 				nullMaskInitFlag = fmt.Sprintf("%s.nullMask[0] == 1", info.Op1VarName)
 			}
 
-			// Only the first operand is nullable:
-			// copy the null mask of the first operand
+			// 	2 - call the binary vector init function
 			stmts = append(stmts, &ast.AssignStmt{
 				Lhs: []ast.Expr{
 					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
@@ -179,8 +181,8 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 			})
 
-			// If both operands have the same size, we can copy the null mask
-			if (info.Op1Scalar && info.Op2Scalar) || (!info.Op1Scalar && !info.Op2Scalar) {
+			// 	3 - if the first operand is not a scalar, copy its null mask
+			if !info.Op1Scalar {
 				stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
 					Fun: &ast.Ident{Name: "copy"},
 					Args: []ast.Expr{
@@ -193,15 +195,17 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 	} else {
 		if info.Op2Nullable {
 
-			// Only the second operand is nullable: if this is a scalar,
-			// the value of its null mask will determine the value of the result null mask
-			nullMaskInitFlag := "true"
+			// Only the second operand is nullable, so the reuslt null mask
+			// depends on the value of the second operand null mask
+
+			// 	1 - initialize the null mask to 0 or, if the second operand is a scalar,
+			// 		to the value of its null mask
+			nullMaskInitFlag := "false"
 			if info.Op2Scalar {
 				nullMaskInitFlag = fmt.Sprintf("%s.nullMask[0] == 1", info.Op2VarName)
 			}
 
-			// Only the second operand is nullable:
-			// copy the null mask of the second operand
+			// 	2 - call the binary vector init function
 			stmts = append(stmts, &ast.AssignStmt{
 				Lhs: []ast.Expr{
 					&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
@@ -212,8 +216,8 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 			})
 
-			// If both operands have the same size, we can copy the null mask
-			if (info.Op1Scalar && info.Op2Scalar) || (!info.Op1Scalar && !info.Op2Scalar) {
+			// 	3 - if the second operand is not a scalar, copy its null mask
+			if !info.Op2Scalar {
 				stmts = append(stmts, &ast.ExprStmt{X: &ast.CallExpr{
 					Fun: &ast.Ident{Name: "copy"},
 					Args: []ast.Expr{
@@ -232,7 +236,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 				},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
-					&ast.Ident{Name: "__binVecInit(0, true)"},
+					&ast.Ident{Name: "__binVecInit(0, false)"},
 				},
 			})
 		}

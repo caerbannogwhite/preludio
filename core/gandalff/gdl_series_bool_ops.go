@@ -31,7 +31,6 @@ func (s SeriesBool) And(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						result[0] = s.data[0] && o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					}
@@ -40,13 +39,12 @@ func (s SeriesBool) And(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						result[0] = s.data[0] && o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] && o.data[0]
 						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
 					}
@@ -75,7 +73,8 @@ func (s SeriesBool) And(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] && o.data[i]
 						}
@@ -83,7 +82,7 @@ func (s SeriesBool) And(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] && o.data[i]
 						}
@@ -106,7 +105,8 @@ func (s SeriesBool) And(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] && o.data[0]
 						}
@@ -124,7 +124,7 @@ func (s SeriesBool) And(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] && o.data[0]
 						}
@@ -145,7 +145,7 @@ func (s SeriesBool) And(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] && o.data[i]
@@ -156,7 +156,7 @@ func (s SeriesBool) And(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] && o.data[i]
@@ -165,7 +165,7 @@ func (s SeriesBool) And(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] && o.data[i]
 						}
@@ -198,7 +198,6 @@ func (s SeriesBool) Or(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						result[0] = s.data[0] || o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					}
@@ -207,13 +206,12 @@ func (s SeriesBool) Or(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						result[0] = s.data[0] || o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] || o.data[0]
 						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
 					}
@@ -242,7 +240,8 @@ func (s SeriesBool) Or(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] || o.data[i]
 						}
@@ -250,7 +249,7 @@ func (s SeriesBool) Or(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] || o.data[i]
 						}
@@ -273,7 +272,8 @@ func (s SeriesBool) Or(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] || o.data[0]
 						}
@@ -291,7 +291,7 @@ func (s SeriesBool) Or(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] || o.data[0]
 						}
@@ -312,7 +312,7 @@ func (s SeriesBool) Or(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] || o.data[i]
@@ -323,7 +323,7 @@ func (s SeriesBool) Or(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] || o.data[i]
@@ -332,7 +332,7 @@ func (s SeriesBool) Or(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] || o.data[i]
 						}
@@ -367,7 +367,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						if s.data[0] && o.data[0] {
 							result[0] = 1
 						}
@@ -378,7 +377,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						if s.data[0] && o.data[0] {
 							result[0] = 1
 						}
@@ -386,7 +384,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						if s.data[0] && o.data[0] {
 							result[0] = 1
 						}
@@ -421,7 +419,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] && o.data[i] {
 								result[i] = 1
@@ -431,7 +430,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] && o.data[i] {
 								result[i] = 1
@@ -458,7 +457,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] && o.data[0] {
 								result[i] = 1
@@ -480,7 +480,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] && o.data[0] {
 								result[i] = 1
@@ -505,7 +505,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] && o.data[i] {
@@ -518,7 +518,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] && o.data[i] {
@@ -529,7 +529,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] && o.data[i] {
 								result[i] = 1
@@ -558,7 +558,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -569,7 +568,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -577,7 +575,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -612,7 +610,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -622,7 +621,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -649,7 +648,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -671,7 +671,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -696,7 +696,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -709,7 +709,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -720,7 +720,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[i]
@@ -749,7 +749,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -760,7 +759,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -768,7 +766,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -803,7 +801,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -813,7 +812,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -840,7 +839,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -862,7 +862,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -887,7 +887,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -900,7 +900,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -911,7 +911,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[i]
@@ -940,7 +940,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -951,7 +950,6 @@ func (s SeriesBool) Mul(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -959,7 +957,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						if s.data[0] {
 							result[0] = o.data[0]
 						}
@@ -994,7 +992,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -1004,7 +1003,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[0] {
 								result[i] = o.data[i]
@@ -1031,7 +1030,8 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -1053,7 +1053,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[0]
@@ -1078,7 +1078,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -1091,7 +1091,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
@@ -1102,7 +1102,7 @@ func (s SeriesBool) Mul(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							if s.data[i] {
 								result[i] = o.data[i]
@@ -1145,7 +1145,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -1162,7 +1161,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -1176,7 +1174,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -1229,7 +1227,8 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -1245,7 +1244,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -1284,7 +1283,8 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -1318,7 +1318,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -1355,7 +1355,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1374,7 +1374,7 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1391,7 +1391,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -1428,7 +1428,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1441,7 +1440,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1451,7 +1449,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1492,7 +1490,8 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1504,7 +1503,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1535,7 +1534,8 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1561,7 +1561,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1590,7 +1590,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1605,7 +1605,7 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1618,7 +1618,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1651,7 +1651,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1664,7 +1663,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1674,7 +1672,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1715,7 +1713,8 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1727,7 +1726,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1758,7 +1757,8 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1784,7 +1784,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1813,7 +1813,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1828,7 +1828,7 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -1841,7 +1841,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -1874,7 +1874,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1887,7 +1886,6 @@ func (s SeriesBool) Div(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1897,7 +1895,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -1938,7 +1936,8 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1950,7 +1949,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -1981,7 +1980,8 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2007,7 +2007,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2036,7 +2036,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2051,7 +2051,7 @@ func (s SeriesBool) Div(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2064,7 +2064,7 @@ func (s SeriesBool) Div(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2109,7 +2109,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -2126,7 +2125,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -2140,7 +2138,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -2193,7 +2191,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -2209,7 +2208,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -2248,7 +2247,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -2282,7 +2282,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -2319,7 +2319,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2338,7 +2338,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2355,7 +2355,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -2392,7 +2392,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2405,7 +2404,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2415,7 +2413,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2456,7 +2454,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2468,7 +2467,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2499,7 +2498,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2525,7 +2525,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2554,7 +2554,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2569,7 +2569,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2582,7 +2582,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2615,7 +2615,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2628,7 +2627,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2638,7 +2636,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2679,7 +2677,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2691,7 +2690,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2722,7 +2721,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2748,7 +2748,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2777,7 +2777,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2792,7 +2792,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -2805,7 +2805,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2838,7 +2838,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2851,7 +2850,6 @@ func (s SeriesBool) Mod(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2861,7 +2859,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -2902,7 +2900,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2914,7 +2913,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -2945,7 +2944,8 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -2971,7 +2971,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3000,7 +3000,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3015,7 +3015,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3028,7 +3028,7 @@ func (s SeriesBool) Mod(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3073,7 +3073,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -3090,7 +3089,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -3104,7 +3102,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						b2 := float64(0)
 						if s.data[0] {
@@ -3157,7 +3155,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -3173,7 +3172,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -3212,7 +3211,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -3246,7 +3246,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -3283,7 +3283,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3302,7 +3302,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3319,7 +3319,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							b2 := float64(0)
@@ -3356,7 +3356,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3369,7 +3368,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3379,7 +3377,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3420,7 +3418,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3432,7 +3431,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3463,7 +3462,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3489,7 +3489,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3518,7 +3518,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3533,7 +3533,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3546,7 +3546,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3579,7 +3579,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3592,7 +3591,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3602,7 +3600,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3643,7 +3641,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3655,7 +3654,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3686,7 +3685,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3712,7 +3712,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3741,7 +3741,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3756,7 +3756,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3769,7 +3769,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3802,7 +3802,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3815,7 +3814,6 @@ func (s SeriesBool) Pow(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3825,7 +3823,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -3866,7 +3864,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3878,7 +3877,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -3909,7 +3908,8 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3935,7 +3935,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -3964,7 +3964,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3979,7 +3979,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -3992,7 +3992,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -4037,7 +4037,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -4054,7 +4053,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -4068,7 +4066,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -4121,7 +4119,8 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -4137,7 +4136,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -4176,7 +4175,8 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -4210,7 +4210,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -4247,7 +4247,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -4266,7 +4266,7 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -4283,7 +4283,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -4320,7 +4320,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -4333,7 +4332,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -4343,7 +4341,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -4384,7 +4382,8 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -4396,7 +4395,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -4427,7 +4426,8 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -4453,7 +4453,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -4482,7 +4482,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -4497,7 +4497,7 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -4510,7 +4510,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -4543,7 +4543,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4556,7 +4555,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4566,7 +4564,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4607,7 +4605,8 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -4619,7 +4618,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -4650,7 +4649,8 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -4676,7 +4676,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -4705,7 +4705,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -4720,7 +4720,7 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -4733,7 +4733,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -4766,7 +4766,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4779,7 +4778,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4789,7 +4787,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -4830,7 +4828,8 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -4842,7 +4841,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -4873,7 +4872,8 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -4899,7 +4899,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -4928,7 +4928,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -4943,7 +4943,7 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -4956,7 +4956,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -4985,7 +4985,6 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						result[0] = o.pool.Put(boolToString(s.data[0]) + *o.data[0])
 						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
 					}
@@ -4994,13 +4993,12 @@ func (s SeriesBool) Add(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						result[0] = o.pool.Put(boolToString(s.data[0]) + *o.data[0])
 						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						result[0] = o.pool.Put(boolToString(s.data[0]) + *o.data[0])
 						return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
 					}
@@ -5029,7 +5027,8 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[0]) + *o.data[i])
 						}
@@ -5037,7 +5036,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[0]) + *o.data[i])
 						}
@@ -5060,7 +5059,8 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[i]) + *o.data[0])
 						}
@@ -5078,7 +5078,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[i]) + *o.data[0])
 						}
@@ -5099,7 +5099,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[i]) + *o.data[i])
@@ -5110,7 +5110,7 @@ func (s SeriesBool) Add(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[i]) + *o.data[i])
@@ -5119,7 +5119,7 @@ func (s SeriesBool) Add(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]*string, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = o.pool.Put(boolToString(s.data[i]) + *o.data[i])
 						}
@@ -5160,7 +5160,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -5177,7 +5176,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -5191,7 +5189,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -5244,7 +5242,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -5260,7 +5259,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -5299,7 +5298,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -5333,7 +5333,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -5370,7 +5370,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -5389,7 +5389,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -5406,7 +5406,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -5443,7 +5443,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -5456,7 +5455,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -5466,7 +5464,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -5507,7 +5505,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -5519,7 +5518,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -5550,7 +5549,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -5576,7 +5576,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -5605,7 +5605,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -5620,7 +5620,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -5633,7 +5633,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int32, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -5666,7 +5666,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5679,7 +5678,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5689,7 +5687,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5730,7 +5728,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -5742,7 +5741,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -5773,7 +5772,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -5799,7 +5799,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -5828,7 +5828,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -5843,7 +5843,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -5856,7 +5856,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]int64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -5889,7 +5889,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5902,7 +5901,6 @@ func (s SeriesBool) Sub(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5912,7 +5910,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -5953,7 +5951,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -5965,7 +5964,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -5996,7 +5995,8 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -6022,7 +6022,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -6051,7 +6051,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -6066,7 +6066,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -6079,7 +6079,7 @@ func (s SeriesBool) Sub(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]float64, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -6116,7 +6116,6 @@ func (s SeriesBool) Eq(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						result[0] = s.data[0] == o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					}
@@ -6125,13 +6124,12 @@ func (s SeriesBool) Eq(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						result[0] = s.data[0] == o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] == o.data[0]
 						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
 					}
@@ -6160,7 +6158,8 @@ func (s SeriesBool) Eq(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
@@ -6168,7 +6167,7 @@ func (s SeriesBool) Eq(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
@@ -6191,7 +6190,8 @@ func (s SeriesBool) Eq(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
@@ -6209,7 +6209,7 @@ func (s SeriesBool) Eq(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
@@ -6230,7 +6230,7 @@ func (s SeriesBool) Eq(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
@@ -6241,7 +6241,7 @@ func (s SeriesBool) Eq(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
@@ -6250,7 +6250,7 @@ func (s SeriesBool) Eq(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
 						}
@@ -6283,7 +6283,6 @@ func (s SeriesBool) Ne(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						result[0] = s.data[0] != o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					}
@@ -6292,13 +6291,12 @@ func (s SeriesBool) Ne(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						result[0] = s.data[0] != o.data[0]
 						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] != o.data[0]
 						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
 					}
@@ -6327,7 +6325,8 @@ func (s SeriesBool) Ne(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
@@ -6335,7 +6334,7 @@ func (s SeriesBool) Ne(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
@@ -6358,7 +6357,8 @@ func (s SeriesBool) Ne(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
@@ -6376,7 +6376,7 @@ func (s SeriesBool) Ne(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
@@ -6397,7 +6397,7 @@ func (s SeriesBool) Ne(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
@@ -6408,7 +6408,7 @@ func (s SeriesBool) Ne(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
@@ -6417,7 +6417,7 @@ func (s SeriesBool) Ne(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
 						}
@@ -6458,7 +6458,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -6475,7 +6474,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -6489,7 +6487,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -6542,7 +6540,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -6558,7 +6557,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -6597,7 +6596,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -6631,7 +6631,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -6668,7 +6668,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -6687,7 +6687,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -6704,7 +6704,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -6741,7 +6741,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -6754,7 +6753,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -6764,7 +6762,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -6805,7 +6803,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -6817,7 +6816,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -6848,7 +6847,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -6874,7 +6874,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -6903,7 +6903,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -6918,7 +6918,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -6931,7 +6931,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -6964,7 +6964,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -6977,7 +6976,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -6987,7 +6985,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7028,7 +7026,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -7040,7 +7039,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -7071,7 +7070,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -7097,7 +7097,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -7126,7 +7126,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -7141,7 +7141,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -7154,7 +7154,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -7187,7 +7187,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7200,7 +7199,6 @@ func (s SeriesBool) Gt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7210,7 +7208,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7251,7 +7249,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -7263,7 +7262,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -7294,7 +7293,8 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -7320,7 +7320,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -7349,7 +7349,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -7364,7 +7364,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -7377,7 +7377,7 @@ func (s SeriesBool) Gt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -7422,7 +7422,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -7439,7 +7438,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -7453,7 +7451,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -7506,7 +7504,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -7522,7 +7521,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -7561,7 +7560,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -7595,7 +7595,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -7632,7 +7632,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -7651,7 +7651,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -7668,7 +7668,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -7705,7 +7705,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -7718,7 +7717,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -7728,7 +7726,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -7769,7 +7767,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -7781,7 +7780,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -7812,7 +7811,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -7838,7 +7838,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -7867,7 +7867,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -7882,7 +7882,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -7895,7 +7895,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -7928,7 +7928,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7941,7 +7940,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7951,7 +7949,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -7992,7 +7990,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -8004,7 +8003,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -8035,7 +8034,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -8061,7 +8061,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -8090,7 +8090,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -8105,7 +8105,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -8118,7 +8118,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -8151,7 +8151,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8164,7 +8163,6 @@ func (s SeriesBool) Ge(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8174,7 +8172,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8215,7 +8213,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -8227,7 +8226,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -8258,7 +8257,8 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -8284,7 +8284,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -8313,7 +8313,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -8328,7 +8328,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -8341,7 +8341,7 @@ func (s SeriesBool) Ge(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -8386,7 +8386,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -8403,7 +8402,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -8417,7 +8415,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -8470,7 +8468,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -8486,7 +8485,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -8525,7 +8524,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -8559,7 +8559,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -8596,7 +8596,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -8615,7 +8615,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -8632,7 +8632,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -8669,7 +8669,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -8682,7 +8681,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -8692,7 +8690,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -8733,7 +8731,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -8745,7 +8744,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -8776,7 +8775,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -8802,7 +8802,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -8831,7 +8831,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -8846,7 +8846,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -8859,7 +8859,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -8892,7 +8892,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8905,7 +8904,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8915,7 +8913,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -8956,7 +8954,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -8968,7 +8967,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -8999,7 +8998,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -9025,7 +9025,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -9054,7 +9054,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -9069,7 +9069,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -9082,7 +9082,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -9115,7 +9115,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9128,7 +9127,6 @@ func (s SeriesBool) Lt(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9138,7 +9136,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9179,7 +9177,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -9191,7 +9190,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -9222,7 +9221,8 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -9248,7 +9248,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -9277,7 +9277,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -9292,7 +9292,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -9305,7 +9305,7 @@ func (s SeriesBool) Lt(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -9350,7 +9350,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -9367,7 +9366,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -9381,7 +9379,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						b2 := int64(0)
 						if s.data[0] {
@@ -9434,7 +9432,8 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -9450,7 +9449,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -9489,7 +9488,8 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -9523,7 +9523,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -9560,7 +9560,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -9579,7 +9579,7 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -9596,7 +9596,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							b2 := int64(0)
@@ -9633,7 +9633,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -9646,7 +9645,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -9656,7 +9654,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int32(0)
 						if s.data[0] {
 							b1 = 1
@@ -9697,7 +9695,8 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -9709,7 +9708,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[0] {
@@ -9740,7 +9739,8 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -9766,7 +9766,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -9795,7 +9795,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -9810,7 +9810,7 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
@@ -9823,7 +9823,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int32(0)
 							if s.data[i] {
@@ -9856,7 +9856,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9869,7 +9868,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9879,7 +9877,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := int64(0)
 						if s.data[0] {
 							b1 = 1
@@ -9920,7 +9918,8 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -9932,7 +9931,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[0] {
@@ -9963,7 +9962,8 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -9989,7 +9989,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -10018,7 +10018,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -10033,7 +10033,7 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
@@ -10046,7 +10046,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := int64(0)
 							if s.data[i] {
@@ -10079,7 +10079,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						copy(resultNullMask, s.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -10092,7 +10091,6 @@ func (s SeriesBool) Le(other Series) Series {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						copy(resultNullMask, o.nullMask)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -10102,7 +10100,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						b1 := float64(0)
 						if s.data[0] {
 							b1 = 1
@@ -10143,7 +10141,8 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -10155,7 +10154,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(o.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[0] {
@@ -10186,7 +10185,8 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
+						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -10212,7 +10212,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
@@ -10241,7 +10241,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -10256,7 +10256,7 @@ func (s SeriesBool) Le(other Series) Series {
 					if o.isNullable {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(resultSize, true)
+						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
@@ -10269,7 +10269,7 @@ func (s SeriesBool) Le(other Series) Series {
 					} else {
 						resultSize := len(s.data)
 						result := make([]bool, resultSize)
-						resultNullMask := __binVecInit(0, true)
+						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
 							b1 := float64(0)
 							if s.data[i] {
