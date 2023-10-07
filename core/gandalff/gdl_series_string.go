@@ -21,9 +21,6 @@ type SeriesString struct {
 
 // Get the element at index i as a string.
 func (s SeriesString) GetString(i int) string {
-	if s.isNullable && s.IsNull(i) {
-		return NULL_STRING
-	}
 	return *s.data[i]
 }
 
@@ -42,7 +39,7 @@ func (s SeriesString) Set(i int, v any) Series {
 		if v.Valid {
 			s.data[i] = s.pool.Put(v.Value)
 		} else {
-			s.data[i] = nil
+			s.data[i] = s.pool.nullStringPtr
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
@@ -120,8 +117,18 @@ func (s SeriesString) Append(v any) Series {
 // Return the underlying data as a slice of string.
 func (s SeriesString) Strings() []string {
 	data := make([]string, len(s.data))
-	for i, v := range s.data {
-		data[i] = *v
+	if s.isNullable {
+		for i, v := range s.data {
+			if s.IsNull(i) {
+				data[i] = NULL_STRING
+			} else {
+				data[i] = *v
+			}
+		}
+	} else {
+		for i, v := range s.data {
+			data[i] = *v
+		}
 	}
 	return data
 }

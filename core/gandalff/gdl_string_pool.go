@@ -7,11 +7,15 @@ import (
 
 type StringPool struct {
 	sync.RWMutex
-	pool map[string]*string
+	pool          map[string]*string
+	nullStringPtr *string
 }
 
 func NewStringPool() *StringPool {
-	return &StringPool{pool: make(map[string]*string)}
+	pool := &StringPool{pool: make(map[string]*string)}
+	pool.nullStringPtr = pool.Put(NULL_STRING)
+
+	return pool
 }
 
 // Get returns the address of the string if it exists in the pool, otherwise nil.
