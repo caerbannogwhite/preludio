@@ -9,7 +9,6 @@ import (
 
 // SeriesTime represents a datetime series.
 type SeriesTime struct {
-	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	name       string
@@ -29,12 +28,16 @@ func (s SeriesTime) GetString(i int) string {
 
 // Set the element at index i. The value v must be of type time.Time or NullableTime.
 func (s SeriesTime) Set(i int, v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesTime.Set: cannot set values on a grouped Series"}
+	}
+
 	switch v := v.(type) {
 	case time.Time:
 		s.data[i] = v
 
 	case NullableTime:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesTime)
 		if v.Valid {
 			s.data[i] = v.Value
 		} else {
@@ -52,6 +55,10 @@ func (s SeriesTime) Set(i int, v any) Series {
 
 // Append appends a value or a slice of values to the series.
 func (s SeriesTime) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesTime.Append: cannot append values on a grouped Series"}
+	}
+
 	switch v := v.(type) {
 	case time.Time:
 		s.data = append(s.data, v)
@@ -67,7 +74,7 @@ func (s SeriesTime) Append(v any) Series {
 
 	case NullableTime:
 		s.data = append(s.data, v.Value)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesTime)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -78,7 +85,7 @@ func (s SeriesTime) Append(v any) Series {
 	case []NullableTime:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]time.Time, len(v))...)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesTime)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -103,11 +110,12 @@ func (s SeriesTime) Append(v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+// Return the underlying data as a slice of time.Time.
 func (s SeriesTime) Times() []time.Time {
 	return s.data
 }
 
-// NullableData returns a slice of NullableTime.
+// Return the underlying data as a slice of NullableTime.
 func (s SeriesTime) DataAsNullable() any {
 	data := make([]NullableTime, len(s.data))
 	for i, v := range s.data {
@@ -116,7 +124,7 @@ func (s SeriesTime) DataAsNullable() any {
 	return data
 }
 
-// StringData returns a slice of strings.
+// Return the underlying data as a slice of strings.
 func (s SeriesTime) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
@@ -149,7 +157,6 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -165,7 +172,6 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -181,7 +187,6 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -211,7 +216,6 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -230,10 +234,9 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 
 ////////////////////////			GROUPING OPERATIONS
 
-// A partition is trivially a vector of maps (or boolIndices in this case)
-// Each element of the vector represent a sub-group (the default is 1,
-// which means no sub-grouping).
-// So is for the null group, which has the same size as the partition vector.
+// A SeriesTimePartition is a partition of a SeriesTime.
+// Each key is a hash of a bool value, and each value is a slice of indices
+// of the original series that are set to that value.
 type SeriesTimePartition struct {
 	partition map[int64][]int
 }
@@ -272,7 +275,6 @@ func (s SeriesTime) group() Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &partition
 
 	return s
@@ -320,7 +322,6 @@ func (s SeriesTime) GroupBy(partition SeriesPartition) Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &newPartition
 
 	return s

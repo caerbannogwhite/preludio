@@ -10,7 +10,7 @@ import (
 func (s SeriesBool) printInfo() {
 	fmt.Println("SeriesBool")
 	fmt.Println("==========")
-	fmt.Println("IsGrouped:", s.isGrouped)
+	fmt.Println("IsGrouped:", s.partition != nil)
 	fmt.Println("IsNullable:", s.isNullable)
 	fmt.Println("Sorted:", s.sorted)
 	fmt.Println("Data:", s.data)
@@ -53,7 +53,7 @@ func (s SeriesBool) TypeCard() typesys.BaseTypeCard {
 
 // Return if the series is grouped.
 func (s SeriesBool) IsGrouped() bool {
-	return s.isGrouped
+	return s.partition != nil
 }
 
 // Return if the series admits null values.
@@ -112,6 +112,10 @@ func (s SeriesBool) IsNull(i int) bool {
 
 // Set the element at index i to null.
 func (s SeriesBool) SetNull(i int) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBool.SetNull: cannot set values on a grouped series"}
+	}
+
 	if s.isNullable {
 		s.nullMask[i/8] |= 1 << uint(i%8)
 		return nil
@@ -141,6 +145,10 @@ func (s SeriesBool) GetNullMask() []bool {
 
 // Set the null mask of the series.
 func (s SeriesBool) SetNullMask(mask []bool) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBool.SetNullMask: cannot set values on a grouped series"}
+	}
+
 	if s.isNullable {
 		for k, v := range mask {
 			if v {
@@ -203,7 +211,6 @@ func (s SeriesBool) Copy() Series {
 	copy(nullMask, s.nullMask)
 
 	return SeriesBool{
-		isGrouped:  s.isGrouped,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
 		data:       data,
@@ -219,7 +226,6 @@ func (s SeriesBool) getDataPtr() *[]bool {
 
 // Ungroup the series.
 func (s SeriesBool) UnGroup() Series {
-	s.isGrouped = false
 	s.partition = nil
 	return s
 }
@@ -399,7 +405,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesBool{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -415,7 +420,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -431,7 +435,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -447,7 +450,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -467,7 +469,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -483,7 +484,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesTime{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -499,7 +499,6 @@ func (s SeriesBool) Map(f MapFunc) Series {
 		}
 
 		return SeriesDuration{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -537,7 +536,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesBool{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -558,7 +556,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -579,7 +576,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -600,7 +596,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -625,7 +620,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -646,7 +640,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesTime{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -667,7 +660,6 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 		}
 
 		return SeriesDuration{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,

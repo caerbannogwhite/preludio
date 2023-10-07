@@ -200,7 +200,7 @@ func Test_SeriesString_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	sD := NewSeriesString(dataD, nil, true, stringPool).MakeNullable().(SeriesString)
+	sD := NewSeriesString(dataD, nil, true, stringPool)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]string) {

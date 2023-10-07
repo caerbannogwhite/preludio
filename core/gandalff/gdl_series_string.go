@@ -11,7 +11,6 @@ import (
 
 // SeriesString represents a series of strings.
 type SeriesString struct {
-	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	data       []*string
@@ -30,12 +29,16 @@ func (s SeriesString) GetString(i int) string {
 
 // Set the element at index i. The value v must be of type string or NullableString.
 func (s SeriesString) Set(i int, v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesString.Set: cannot set values on a grouped Series"}
+	}
+
 	switch v := v.(type) {
 	case string:
 		s.data[i] = s.pool.Put(v)
 
 	case NullableString:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesString)
 		if v.Valid {
 			s.data[i] = s.pool.Put(v.Value)
 		} else {
@@ -53,6 +56,10 @@ func (s SeriesString) Set(i int, v any) Series {
 
 // Append appends a value or a slice of values to the series.
 func (s SeriesString) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesString.Append: cannot append values on a grouped Series"}
+	}
+
 	switch v := v.(type) {
 	case string:
 		s.data = append(s.data, s.pool.Put(v))
@@ -70,8 +77,8 @@ func (s SeriesString) Append(v any) Series {
 		}
 
 	case NullableString:
-		s.isNullable = true
 		s.data = append(s.data, s.pool.Put(v.Value))
+		s = s.MakeNullable().(SeriesString)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -80,9 +87,9 @@ func (s SeriesString) Append(v any) Series {
 		}
 
 	case []NullableString:
-		s.isNullable = true
 		ssize := len(s.data)
 		s.data = append(s.data, make([]*string, len(v))...)
+		s = s.MakeNullable().(SeriesString)
 		for i, b := range v {
 			s.data[ssize+i] = s.pool.Put(b.Value)
 			if !b.Valid {
@@ -110,6 +117,7 @@ func (s SeriesString) Append(v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+// Return the underlying data as a slice of string.
 func (s SeriesString) Strings() []string {
 	data := make([]string, len(s.data))
 	for i, v := range s.data {
@@ -118,6 +126,7 @@ func (s SeriesString) Strings() []string {
 	return data
 }
 
+// Return the underlying data as a slice of NullableString.
 func (s SeriesString) DataAsNullable() any {
 	data := make([]NullableString, len(s.data))
 	for i, v := range s.data {
@@ -126,6 +135,7 @@ func (s SeriesString) DataAsNullable() any {
 	return data
 }
 
+// Return the underlying data as a slice of string.
 func (s SeriesString) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
@@ -176,7 +186,6 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesBool{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -215,7 +224,6 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -254,7 +262,6 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -293,7 +300,6 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -312,6 +318,9 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 
 ////////////////////////			GROUPING OPERATIONS
 
+// A SeriesStringPartition is a partition of a SeriesString.
+// Each key is a hash of a bool value, and each value is a slice of indices
+// of the original series that are set to that value.
 type SeriesStringPartition struct {
 	partition map[int64][]int
 	pool      *StringPool
@@ -356,7 +365,6 @@ func (s SeriesString) group() Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &partition
 
 	return s
@@ -409,7 +417,6 @@ func (s SeriesString) GroupBy(partition SeriesPartition) Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &newPartition
 
 	return s
@@ -480,7 +487,7 @@ func (s SeriesString) SortRev() Series {
 ////////////////////////			STRING OPERATIONS
 
 func (s SeriesString) ToUpper() Series {
-	if s.isGrouped {
+	if s.partition != nil {
 		return SeriesError{"SeriesString.ToUpper() not supported on grouped Series"}
 	}
 
@@ -492,7 +499,7 @@ func (s SeriesString) ToUpper() Series {
 }
 
 func (s SeriesString) ToLower() Series {
-	if s.isGrouped {
+	if s.partition != nil {
 		return SeriesError{"SeriesString.ToLower() not supported on grouped Series"}
 	}
 
@@ -504,7 +511,7 @@ func (s SeriesString) ToLower() Series {
 }
 
 func (s SeriesString) TrimSpace() Series {
-	if s.isGrouped {
+	if s.partition != nil {
 		return SeriesError{"SeriesString.TrimSpace() not supported on grouped Series"}
 	}
 
@@ -516,7 +523,7 @@ func (s SeriesString) TrimSpace() Series {
 }
 
 func (s SeriesString) Trim(cutset string) Series {
-	if s.isGrouped {
+	if s.partition != nil {
 		return SeriesError{"SeriesString.Trim() not supported on grouped Series"}
 	}
 
@@ -528,7 +535,7 @@ func (s SeriesString) Trim(cutset string) Series {
 }
 
 func (s SeriesString) Replace(old, new string, n int) Series {
-	if s.isGrouped {
+	if s.partition != nil {
 		return SeriesError{"SeriesString.Replace() not supported on grouped Series"}
 	}
 

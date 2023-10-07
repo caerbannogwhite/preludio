@@ -9,7 +9,6 @@ import (
 // SeriesBool represents a series of bools.
 // The data is stored as a byte array, with each bit representing a bool.
 type SeriesBool struct {
-	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	data       []bool
@@ -31,12 +30,16 @@ func (s SeriesBool) GetString(i int) string {
 
 // Set the element at index i. The value must be of type bool or NullableBool.
 func (s SeriesBool) Set(i int, v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBool.Set: cannot set values in a grouped series"}
+	}
+
 	switch v := v.(type) {
 	case bool:
 		s.data[i] = v
 
 	case NullableBool:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesBool)
 		if v.Valid {
 			s.data[i] = v.Value
 		} else {
@@ -54,6 +57,10 @@ func (s SeriesBool) Set(i int, v any) Series {
 
 // Append appends a value or a slice of values to the series.
 func (s SeriesBool) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBool.Append: cannot append values to a grouped series"}
+	}
+
 	switch v := v.(type) {
 	case bool:
 		s.data = append(s.data, v)
@@ -69,7 +76,7 @@ func (s SeriesBool) Append(v any) Series {
 
 	case NullableBool:
 		s.data = append(s.data, v.Value)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesBool)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -80,7 +87,7 @@ func (s SeriesBool) Append(v any) Series {
 	case []NullableBool:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]bool, len(v))...)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesBool)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -105,11 +112,12 @@ func (s SeriesBool) Append(v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+// Return the underlying data as a slice of bools.
 func (s SeriesBool) Bools() []bool {
 	return s.data
 }
 
-// NullableData returns a slice of NullableBool.
+// Return the underlying data as a slice of NullableBool.
 func (s SeriesBool) DataAsNullable() any {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
@@ -118,7 +126,7 @@ func (s SeriesBool) DataAsNullable() any {
 	return data
 }
 
-// StringData returns a slice of strings.
+// Return the data as a slice of strings.
 func (s SeriesBool) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
@@ -143,7 +151,7 @@ func (s SeriesBool) DataAsString() []string {
 	return data
 }
 
-// Casts the series to a given type.
+// Cast the series to a given type.
 func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
@@ -158,7 +166,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -176,7 +183,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -194,7 +200,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -230,7 +235,6 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -246,10 +250,9 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 
 ////////////////////////			GROUPING OPERATIONS
 
-// A partition is trivially a vector of maps (or boolIndices in this case)
-// Each element of the vector represent a sub-group (the default is 1,
-// which means no sub-grouping).
-// So is for the null group, which has the same size as the partition vector.
+// A SeriesBoolPartition is a partition of a SeriesBool.
+// Each key is a hash of a bool value, and each value is a slice of indices
+// of the original series that are set to that value.
 type SeriesBoolPartition struct {
 	partition map[int64][]int
 }
@@ -295,7 +298,6 @@ func (s SeriesBool) group() Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &partition
 
 	return s
@@ -349,7 +351,6 @@ func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &newPartition
 
 	return s

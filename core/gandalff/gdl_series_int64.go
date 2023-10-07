@@ -9,7 +9,6 @@ import (
 
 // SeriesInt64 represents a series of ints.
 type SeriesInt64 struct {
-	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	data       []int64
@@ -29,6 +28,10 @@ func (s SeriesInt64) GetString(i int) string {
 // Set the element at index i. The value v can be any belonging to types:
 // int8, int16, int, int32, int64 and their nullable versions.
 func (s SeriesInt64) Set(i int, v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesInt64.Set: cannot set values on a grouped Series"}
+	}
+
 	switch val := v.(type) {
 	case int8:
 		s.data[i] = int64(val)
@@ -46,7 +49,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 		s.data[i] = val
 
 	case NullableInt8:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesInt64)
 		if v.(NullableInt8).Valid {
 			s.data[i] = int64(val.Value)
 		} else {
@@ -55,7 +58,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 		}
 
 	case NullableInt16:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesInt64)
 		if v.(NullableInt16).Valid {
 			s.data[i] = int64(val.Value)
 		} else {
@@ -64,7 +67,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 		}
 
 	case NullableInt32:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesInt64)
 		if v.(NullableInt32).Valid {
 			s.data[i] = int64(val.Value)
 		} else {
@@ -73,7 +76,7 @@ func (s SeriesInt64) Set(i int, v any) Series {
 		}
 
 	case NullableInt64:
-		s.MakeNullable()
+		s = s.MakeNullable().(SeriesInt64)
 		if v.(NullableInt64).Valid {
 			s.data[i] = val.Value
 		} else {
@@ -91,6 +94,10 @@ func (s SeriesInt64) Set(i int, v any) Series {
 
 // Append appends a value or a slice of values to the series.
 func (s SeriesInt64) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesInt64.Append: cannot append values on a grouped Series"}
+	}
+
 	switch v := v.(type) {
 	case int64:
 		s.data = append(s.data, v)
@@ -106,7 +113,7 @@ func (s SeriesInt64) Append(v any) Series {
 
 	case NullableInt64:
 		s.data = append(s.data, v.Value)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesInt64)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -117,7 +124,7 @@ func (s SeriesInt64) Append(v any) Series {
 	case []NullableInt64:
 		ssize := len(s.data)
 		s.data = append(s.data, make([]int64, len(v))...)
-		s.isNullable = true
+		s = s.MakeNullable().(SeriesInt64)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -142,10 +149,12 @@ func (s SeriesInt64) Append(v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+// Return the underlying data as a slice of int64.
 func (s SeriesInt64) Int64s() []int64 {
 	return s.data
 }
 
+// Return the underlying data as a slice of NullableInt64.
 func (s SeriesInt64) DataAsNullable() any {
 	data := make([]NullableInt64, len(s.data))
 	for i, v := range s.data {
@@ -154,6 +163,7 @@ func (s SeriesInt64) DataAsNullable() any {
 	return data
 }
 
+// Return the underlying data as a slice of strings.
 func (s SeriesInt64) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
@@ -182,7 +192,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesBool{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -198,7 +207,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -217,7 +225,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -247,7 +254,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -263,7 +269,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesTime{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -279,7 +284,6 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesDuration{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -295,6 +299,9 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 
 ////////////////////////			GROUPING OPERATIONS
 
+// A SeriesInt64Partition is a partition of a SeriesInt64.
+// Each key is a hash of a bool value, and each value is a slice of indices
+// of the original series that are set to that value.
 type SeriesInt64Partition struct {
 	partition           map[int64][]int
 	isDense             bool
@@ -438,7 +445,6 @@ func (s SeriesInt64) group() Series {
 		}
 	}
 
-	s.isGrouped = true
 	s.partition = &partition
 
 	return s
@@ -490,7 +496,6 @@ func (s SeriesInt64) GroupBy(partition SeriesPartition) Series {
 			worker, workerNulls),
 	}
 
-	s.isGrouped = true
 	s.partition = &newPartition
 
 	return s

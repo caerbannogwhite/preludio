@@ -9,7 +9,6 @@ import (
 // SeriesBoolMemOpt represents a series of bools.
 // The data is stored as a byte array, with each bit representing a bool.
 type SeriesBoolMemOpt struct {
-	isGrouped  bool
 	isNullable bool
 	sorted     SeriesSortOrder
 	size       int
@@ -22,7 +21,7 @@ type SeriesBoolMemOpt struct {
 func (s SeriesBoolMemOpt) printInfo() {
 	fmt.Println("SeriesBoolMemOpt")
 	fmt.Println("==========")
-	fmt.Println("IsGrouped:", s.isGrouped)
+	fmt.Println("IsGrouped:", s.partition != nil)
 	fmt.Println("IsNullable:", s.isNullable)
 	fmt.Println("Sorted:", s.sorted)
 	fmt.Println("Data:", s.data)
@@ -70,7 +69,7 @@ func (s SeriesBoolMemOpt) TypeCard() typesys.BaseTypeCard {
 
 // Returns if the series is grouped.
 func (s SeriesBoolMemOpt) IsGrouped() bool {
-	return s.isGrouped
+	return s.partition != nil
 }
 
 // Returns if the series admits null values.
@@ -124,6 +123,10 @@ func (s SeriesBoolMemOpt) IsNull(i int) bool {
 
 // Sets the element at index i to null.
 func (s SeriesBoolMemOpt) SetNull(i int) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBoolMemOpt.SetNull: cannot set values on a grouped series"}
+	}
+
 	if s.isNullable {
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
@@ -156,6 +159,10 @@ func (s SeriesBoolMemOpt) GetNullMask() []bool {
 
 // Sets the null mask of the series.
 func (s SeriesBoolMemOpt) SetNullMask(mask []bool) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBoolMemOpt.SetNullMask: cannot set values on a grouped series"}
+	}
+
 	if s.isNullable {
 		for k, v := range mask {
 			if v {
@@ -213,6 +220,10 @@ func (s SeriesBoolMemOpt) GetString(i int) string {
 
 // Set the element at index i. The value must be of type bool or NullableBool.
 func (s SeriesBoolMemOpt) Set(i int, v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesBoolMemOpt.Set: cannot set values on a grouped series"}
+	}
+
 	if b, ok := v.(bool); ok {
 		if b {
 			s.data[i>>3] |= 1 << uint(i%8)
@@ -461,6 +472,7 @@ func (s SeriesBoolMemOpt) appendSeries(other Series) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
+// Return the elements of the series as a slice of bools.
 func (s SeriesBoolMemOpt) Bools() []bool {
 	data := make([]bool, s.size)
 	for i, v := range s.data {
@@ -471,6 +483,7 @@ func (s SeriesBoolMemOpt) Bools() []bool {
 	return data
 }
 
+// Return the elements of the series as a slice of bools.
 func (s SeriesBoolMemOpt) Data() any {
 	data := make([]bool, s.size)
 	for i, v := range s.data {
@@ -481,7 +494,7 @@ func (s SeriesBoolMemOpt) Data() any {
 	return data
 }
 
-// NullableData returns a slice of NullableBool.
+// Return the elements of the series as a slice of NullableBool.
 func (s SeriesBoolMemOpt) DataAsNullable() any {
 	data := make([]NullableBool, len(s.data))
 	for i, v := range s.data {
@@ -496,7 +509,7 @@ func (s SeriesBoolMemOpt) DataAsNullable() any {
 	return data
 }
 
-// StringData returns a slice of strings.
+// Return the elements of the series as a slice of strings.
 func (s SeriesBoolMemOpt) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
@@ -544,7 +557,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -564,7 +576,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -584,7 +595,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -626,7 +636,6 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -648,7 +657,6 @@ func (s SeriesBoolMemOpt) Copy() Series {
 	copy(nullMask, s.nullMask)
 
 	return SeriesBoolMemOpt{
-		isGrouped:  s.isGrouped,
 		isNullable: s.isNullable,
 		size:       s.size,
 		data:       data,
@@ -852,7 +860,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesBoolMemOpt{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			size:       s.size,
@@ -869,7 +876,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesInt32{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -885,7 +891,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesInt64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -901,7 +906,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesFloat64{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -921,7 +925,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesString{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -937,7 +940,6 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 		}
 
 		return SeriesTime{
-			isGrouped:  false,
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -986,7 +988,6 @@ func (s SeriesBoolMemOpt) group() Series {
 	}
 
 	return SeriesBoolMemOpt{
-		isGrouped:  true,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
 		data:       s.data,
@@ -1009,7 +1010,6 @@ func (s SeriesBoolMemOpt) GroupBy(partition SeriesPartition) Series {
 	}
 
 	return SeriesBoolMemOpt{
-		isGrouped:  true,
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
 		data:       s.data,
@@ -1021,7 +1021,6 @@ func (s SeriesBoolMemOpt) GroupBy(partition SeriesPartition) Series {
 }
 
 func (s SeriesBoolMemOpt) UnGroup() Series {
-	s.isGrouped = false
 	s.partition = nil
 	return s
 }
