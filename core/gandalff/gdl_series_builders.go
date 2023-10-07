@@ -60,19 +60,27 @@ func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, po
 	}
 }
 
+// Build an Error Series
 func NewSeriesError(err string) SeriesError {
 	return SeriesError{msg: err}
 }
 
+// Build an NA Series
 func NewSeriesNA(size int, pool *StringPool) SeriesNA {
 	return SeriesNA{size: size, pool: pool}
 }
 
+// Build a Bool Series, if nullMask is nil then the series is not nullable
 func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBool {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -88,11 +96,17 @@ func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool
 	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Bool Series, if nullMask is nil then the series is not nullable
 func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBoolMemOpt {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -105,11 +119,17 @@ func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *Stri
 	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Int32 Series, if nullMask is nil then the series is not nullable
 func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt32 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -125,11 +145,17 @@ func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPo
 	return SeriesInt32{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Int64 Series, if nullMask is nil then the series is not nullable
 func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt64 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -145,11 +171,17 @@ func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPo
 	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Float64 Series, if nullMask is nil then the series is not nullable
 func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesFloat64 {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -165,11 +197,17 @@ func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *Stri
 	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
+// Build a String Series, if nullMask is nil then the series is not nullable
 func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *StringPool) SeriesString {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -177,22 +215,34 @@ func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *String
 	}
 
 	actualData := make([]*string, len(data))
-	for i, v := range data {
-		if nullMask[i] {
-			actualData[i] = pool.nullStringPtr
-			continue
+	if nullMask != nil {
+		for i, v := range data {
+			if nullMask[i] {
+				actualData[i] = pool.nullStringPtr
+				continue
+			}
+			actualData[i] = pool.Put(v)
 		}
-		actualData[i] = pool.Put(v)
+	} else {
+		for i, v := range data {
+			actualData[i] = pool.Put(v)
+		}
 	}
 
 	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Time Series, if nullMask is nil then the series is not nullable
 func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *StringPool) SeriesTime {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
@@ -208,11 +258,17 @@ func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *Strin
 	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
+// Build a Duration Series, if nullMask is nil then the series is not nullable
 func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, pool *StringPool) SeriesDuration {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
 		isNullable = true
+		if len(nullMask) < len(data) {
+			nullMask = append(nullMask, make([]bool, len(data)-len(nullMask))...)
+		} else if len(nullMask) > len(data) {
+			nullMask = nullMask[:len(data)]
+		}
 		nullMask_ = __binVecFromBools(nullMask)
 	} else {
 		isNullable = false
