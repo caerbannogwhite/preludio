@@ -7,24 +7,54 @@ import (
 
 func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, pool *StringPool) Series {
 	switch data := data.(type) {
+	case nil:
+		return NewSeriesNA(1, pool)
 	case []bool:
 		// if memOpt {
 		// 	return NewSeriesBoolMemOpt(isNullable, makeCopy, data, pool)
 		// } else {
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesBool(data, nullMask, makeCopy, pool)
 		// }
+
 	case []int32:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesInt32(data, nullMask, makeCopy, pool)
+
 	case []int64:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesInt64(data, nullMask, makeCopy, pool)
+
 	case []float64:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesFloat64(data, nullMask, makeCopy, pool)
+
 	case []string:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesString(data, nullMask, makeCopy, pool)
+
 	case []time.Time:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesTime(data, nullMask, makeCopy, pool)
+
 	case []time.Duration:
+		if nullMask != nil && len(nullMask) != len(data) {
+			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
+		}
 		return NewSeriesDuration(data, nullMask, makeCopy, pool)
+
 	default:
 		return SeriesError{fmt.Sprintf("NewSeries: unsupported type %T", data)}
 	}
@@ -32,6 +62,10 @@ func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, po
 
 func NewSeriesError(err string) SeriesError {
 	return SeriesError{msg: err}
+}
+
+func NewSeriesNA(size int, pool *StringPool) SeriesNA {
+	return SeriesNA{size: size, pool: pool}
 }
 
 func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBool {
@@ -144,6 +178,10 @@ func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *String
 
 	actualData := make([]*string, len(data))
 	for i, v := range data {
+		if nullMask[i] {
+			actualData[i] = pool.nullStringPtr
+			continue
+		}
 		actualData[i] = pool.Put(v)
 	}
 
