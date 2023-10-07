@@ -43,7 +43,7 @@ func (s SeriesString) Set(i int, v any) Series {
 			s.data[i] = s.pool.Put(v.Value)
 		} else {
 			s.data[i] = nil
-			s.nullMask[i/8] |= 1 << uint(i%8)
+			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
 	default:

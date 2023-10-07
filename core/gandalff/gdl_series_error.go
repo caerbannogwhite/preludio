@@ -85,7 +85,7 @@ func (s SeriesError) IsNull(i int) bool {
 
 // Sets the element at index i to null.
 func (s SeriesError) SetNull(i int) Series {
-	return nil
+	return s
 }
 
 // Returns the null mask of the series.
@@ -95,7 +95,7 @@ func (s SeriesError) GetNullMask() []bool {
 
 // Sets the null mask of the series.
 func (s SeriesError) SetNullMask(mask []bool) Series {
-	return nil
+	return s
 }
 
 // Get the element at index i.
@@ -126,17 +126,17 @@ func (s SeriesError) Append(v any) Series {
 
 // Returns the actual data of the series.
 func (s SeriesError) Data() any {
-	return nil
+	return s
 }
 
 // Returns the nullable data of the series.
 func (s SeriesError) DataAsNullable() any {
-	return nil
+	return s
 }
 
 // Returns the data of the series as a slice of strings.
 func (s SeriesError) DataAsString() []string {
-	return []string{}
+	return []string{s.msg}
 }
 
 // Casts the series to a given type.
@@ -171,11 +171,11 @@ func (s SeriesError) MapNull(f MapFuncNull) Series {
 
 // Group the elements in the series.
 func (s SeriesError) group() Series {
-	return nil
+	return s
 }
 
 func (s SeriesError) GroupBy(gp SeriesPartition) Series {
-	return nil
+	return s
 }
 
 func (s SeriesError) UnGroup() Series {
