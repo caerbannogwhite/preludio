@@ -42,8 +42,6 @@ type Series interface {
 	NullCount() int
 	// Return if the element at index i is null.
 	IsNull(i int) bool
-	// Set the element at index i to null.
-	SetNull(i int) Series
 	// Return the null mask of the series.
 	GetNullMask() []bool
 	// Set the null mask of the series.

@@ -108,29 +108,9 @@ func (s SeriesString) NullCount() int {
 // Return if the element at index i is null.
 func (s SeriesString) IsNull(i int) bool {
 	if s.isNullable {
-		return s.nullMask[i/8]&(1<<uint(i%8)) != 0
+		return s.nullMask[i>>3]&(1<<uint(i%8)) != 0
 	}
 	return false
-}
-
-// Set the element at index i to null.
-func (s SeriesString) SetNull(i int) Series {
-	if s.partition != nil {
-		return SeriesError{"SeriesString.SetNull: cannot set values on a grouped series"}
-	}
-
-	if s.isNullable {
-		s.nullMask[i/8] |= 1 << uint(i%8)
-		return nil
-	} else {
-		nullMask := __binVecInit(len(s.data), false)
-		nullMask[i/8] |= 1 << uint(i%8)
-
-		s.isNullable = true
-		s.nullMask = nullMask
-
-		return s
-	}
 }
 
 // Return the null mask of the series.
@@ -155,9 +135,9 @@ func (s SeriesString) SetNullMask(mask []bool) Series {
 	if s.isNullable {
 		for k, v := range mask {
 			if v {
-				s.nullMask[k/8] |= 1 << uint(k%8)
+				s.nullMask[k>>3] |= 1 << uint(k%8)
 			} else {
-				s.nullMask[k/8] &= ^(1 << uint(k%8))
+				s.nullMask[k>>3] &= ^(1 << uint(k%8))
 			}
 		}
 		return s
@@ -165,9 +145,9 @@ func (s SeriesString) SetNullMask(mask []bool) Series {
 		nullMask := __binVecInit(len(s.data), false)
 		for k, v := range mask {
 			if v {
-				nullMask[k/8] |= 1 << uint(k%8)
+				nullMask[k>>3] |= 1 << uint(k%8)
 			} else {
-				nullMask[k/8] &= ^(1 << uint(k%8))
+				nullMask[k>>3] &= ^(1 << uint(k%8))
 			}
 		}
 

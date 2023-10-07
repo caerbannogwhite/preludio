@@ -33,6 +33,12 @@ func (s SeriesInt64) Set(i int, v any) Series {
 	}
 
 	switch val := v.(type) {
+	case nil:
+		if !s.isNullable {
+			s = s.MakeNullable().(SeriesInt64)
+		}
+		s.nullMask[i>>3] |= 1 << uint(i%8)
+
 	case int8:
 		s.data[i] = int64(val)
 

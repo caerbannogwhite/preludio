@@ -31,6 +31,13 @@ func (s SeriesString) Set(i int, v any) Series {
 	}
 
 	switch v := v.(type) {
+	case nil:
+		if !s.isNullable {
+			s = s.MakeNullable().(SeriesString)
+		}
+		s.data[i] = s.pool.nullStringPtr
+		s.nullMask[i>>3] |= 1 << uint(i%8)
+
 	case string:
 		s.data[i] = s.pool.Put(v)
 

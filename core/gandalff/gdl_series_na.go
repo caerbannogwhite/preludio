@@ -89,11 +89,6 @@ func (s SeriesNA) IsNull(i int) bool {
 	return true
 }
 
-// Sets the element at index i to null.
-func (s SeriesNA) SetNull(i int) Series {
-	return s
-}
-
 // Returns the null mask of the series.
 func (s SeriesNA) GetNullMask() []bool {
 	nullMask := make([]bool, s.size)

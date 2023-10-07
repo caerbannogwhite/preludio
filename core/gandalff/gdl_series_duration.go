@@ -32,6 +32,12 @@ func (s SeriesDuration) Set(i int, v any) Series {
 	}
 
 	switch v := v.(type) {
+	case nil:
+		if !s.isNullable {
+			s = s.MakeNullable().(SeriesDuration)
+		}
+		s.nullMask[i>>3] |= 1 << uint(i%8)
+
 	case time.Duration:
 		s.data[i] = v
 

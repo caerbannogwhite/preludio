@@ -121,29 +121,6 @@ func (s SeriesBoolMemOpt) IsNull(i int) bool {
 	return false
 }
 
-// Sets the element at index i to null.
-func (s SeriesBoolMemOpt) SetNull(i int) Series {
-	if s.partition != nil {
-		return SeriesError{"SeriesBoolMemOpt.SetNull: cannot set values on a grouped series"}
-	}
-
-	if s.isNullable {
-		s.nullMask[i>>3] |= 1 << uint(i%8)
-
-		s.sorted = SORTED_NONE
-		return s
-	} else {
-		nullMask := make([]uint8, len(s.data))
-		nullMask[i>>3] |= 1 << uint(i%8)
-
-		s.isNullable = true
-		s.sorted = SORTED_NONE
-		s.nullMask = nullMask
-
-		return s
-	}
-}
-
 // Returns the null mask of the series.
 func (s SeriesBoolMemOpt) GetNullMask() []bool {
 	mask := make([]bool, s.size)
@@ -233,15 +210,23 @@ func (s SeriesBoolMemOpt) Set(i int, v any) Series {
 		return SeriesError{"SeriesBoolMemOpt.Set: cannot set values on a grouped series"}
 	}
 
-	if b, ok := v.(bool); ok {
-		if b {
+	switch v := v.(type) {
+	case nil:
+		if !s.isNullable {
+			s = s.MakeNullable().(SeriesBoolMemOpt)
+		}
+		s.nullMask[i>>3] |= 1 << uint(i%8)
+
+	case bool:
+		if v {
 			s.data[i>>3] |= 1 << uint(i%8)
 		} else {
 			s.data[i>>3] &= ^(1 << uint(i%8))
 		}
-	} else if nb, ok := v.(NullableBool); ok {
-		if nb.Valid {
-			if nb.Value {
+
+	case NullableBool:
+		if v.Valid {
+			if v.Value {
 				s.data[i>>3] |= 1 << uint(i%8)
 			} else {
 				s.data[i>>3] &= ^(1 << uint(i%8))
@@ -250,8 +235,9 @@ func (s SeriesBoolMemOpt) Set(i int, v any) Series {
 			s.data[i>>3] &= ^(1 << uint(i%8))
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
-	} else {
-		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Set: provided value %t is not of type bool or NullableBool", v)}
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE

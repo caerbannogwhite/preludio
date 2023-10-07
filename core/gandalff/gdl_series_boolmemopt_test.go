@@ -59,9 +59,9 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 		t.Errorf("Expected HasNull() to be true, got false")
 	}
 
-	// Check the SetNull() method.
+	// Check the Set() with null values.
 	for i := range s.Data().([]bool) {
-		s.SetNull(i)
+		s.Set(i, nil)
 	}
 
 	// Check the null values.
@@ -104,9 +104,9 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	}
 
 	// Set values to null.
-	p.SetNull(1)
-	p.SetNull(3)
-	p.SetNull(5)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 0 {
@@ -126,9 +126,9 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 0, got %d", p.NullCount())
 	}
 
-	p.SetNull(1)
-	p.SetNull(3)
-	p.SetNull(5)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 3 {

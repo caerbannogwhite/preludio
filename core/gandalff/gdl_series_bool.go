@@ -35,6 +35,12 @@ func (s SeriesBool) Set(i int, v any) Series {
 	}
 
 	switch v := v.(type) {
+	case nil:
+		if !s.isNullable {
+			s = s.MakeNullable().(SeriesBool)
+		}
+		s.nullMask[i>>3] |= 1 << uint(i%8)
+
 	case bool:
 		s.data[i] = v
 

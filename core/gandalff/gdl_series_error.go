@@ -83,11 +83,6 @@ func (s SeriesError) IsNull(i int) bool {
 	return false
 }
 
-// Sets the element at index i to null.
-func (s SeriesError) SetNull(i int) Series {
-	return s
-}
-
 // Returns the null mask of the series.
 func (s SeriesError) GetNullMask() []bool {
 	return []bool{}
