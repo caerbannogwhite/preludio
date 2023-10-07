@@ -655,9 +655,15 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	resBexp := []string{"e", "f", "g"}
 	resCexp := []string{"h", "i", "i"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Inner Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Inner Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Inner Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			LEFT JOIN
 
@@ -677,11 +683,17 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 
 	resAexp = []int64{1, 1, 2, 3, 4, 5, 5}
 	resBexp = []string{"a", "b", "c", "d", "e", "f", "g"}
-	resCexp = []string{"", "", "", "", "h", "i", "i"}
+	resCexp = []string{NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, "h", "i", "i"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Left Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Left Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Left Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			RIGHT JOIN
 
@@ -700,12 +712,18 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	resAexp = []int64{4, 5, 5, 6, 6}
-	resBexp = []string{"e", "f", "g", "", ""}
+	resBexp = []string{"e", "f", "g", NULL_STRING, NULL_STRING}
 	resCexp = []string{"h", "i", "i", "j", "k"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Right Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Right Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Right Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			FULL JOIN
 
@@ -724,12 +742,18 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	resAexp = []int64{1, 1, 2, 3, 4, 5, 5, 6, 6}
-	resBexp = []string{"a", "b", "c", "d", "e", "f", "g", "", ""}
-	resCexp = []string{"", "", "", "", "h", "i", "i", "j", "k"}
+	resBexp = []string{"a", "b", "c", "d", "e", "f", "g", NULL_STRING, NULL_STRING}
+	resCexp = []string{NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, "h", "i", "i", "j", "k"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Full Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Full Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Full Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 }
 
 func Test_BaseDataFrame_Sort(t *testing.T) {
@@ -952,7 +976,7 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
 	}
 
-	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "e", "g", "b", "b", "c", "f"}, nil, "") {
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", NULL_STRING, "c", "e", "g", NULL_STRING, "b", "c", NULL_STRING}, nil, "") {
 		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
 	}
 	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{false, false, true, false, false, false, true, false, false, true}, nil, "") {
@@ -967,7 +991,7 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
 	}
 
-	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "b", "g", "e", "f", "c", "b"}, nil, "") {
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{NULL_STRING, "d", "a", "c", NULL_STRING, "g", "e", NULL_STRING, "c", "b"}, nil, "") {
 		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
 	}
 	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{true, false, false, false, true, false, false, true, false, false}, nil, "") {

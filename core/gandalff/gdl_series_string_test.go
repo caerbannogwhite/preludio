@@ -13,7 +13,9 @@ func init() {
 }
 
 func Test_SeriesString_Base(t *testing.T) {
-	data := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
+	var data, expected []string
+
+	data = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesString.
@@ -30,10 +32,9 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]string) {
-		if v != data[i] {
-			t.Errorf("Expected data of []string{\"a\", \"b\", \"c\", \"d\", \"e\", \"f\", \"g\", \"h\", \"i\", \"j\"}, got %v", s.Data())
-		}
+	expected = []string{"a", "b", NULL_STRING, "d", "e", NULL_STRING, "g", "h", NULL_STRING, "j"}
+	if !checkEqSliceString(s.Data().([]string), expected, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expected, s.Data())
 	}
 
 	// Check the nullability.
@@ -42,10 +43,8 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Check the null mask.
-	for i, v := range s.GetNullMask() {
-		if v != mask[i] {
-			t.Errorf("Expected nullMask of []bool{false, false, false, false, true, false, true, false, false, true}, got %v", s.GetNullMask())
-		}
+	if !checkEqSliceBool(s.GetNullMask(), mask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", mask, s.GetNullMask())
 	}
 
 	// Check the null values.
@@ -95,10 +94,9 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range s.Data().([]string) {
-		if v != data[i]+"x" {
-			t.Errorf("Expected data of []string{\"ax\", \"bx\", \"cx\", \"dx\", \"ex\", \"fx\", \"gx\", \"hx\", \"ix\", \"jx\"}, got %v", s.Data())
-		}
+	expected = []string{"ax", "bx", NULL_STRING + "x", "dx", "ex", NULL_STRING + "x", "gx", "hx", NULL_STRING + "x", "jx"}
+	if !checkEqSliceString(s.Data().([]string), expected, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expected, s.Data())
 	}
 
 	// Check the MakeNullable() method.
@@ -143,9 +141,11 @@ func Test_SeriesString_Base(t *testing.T) {
 }
 
 func Test_SeriesString_Append(t *testing.T) {
-	dataA := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	dataB := []string{"k", "l", "m", "n", "o", "p", "q", "r", "s", "t"}
-	dataC := []string{"u", "v", "w", "x", "y", "z", "1", "2", "3", "4"}
+	var dataA, dataB, dataC, expected []string
+
+	dataA = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
+	dataB = []string{"k", "l", "m", "n", "o", "p", "q", "r", "s", "t"}
+	dataC = []string{"u", "v", "w", "x", "y", "z", "1", "2", "3", "4"}
 
 	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
 	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
@@ -165,37 +165,18 @@ func Test_SeriesString_Append(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range result.Data().([]string) {
-		if i < 10 {
-			if v != dataA[i] {
-				t.Errorf("Expected %s, got %s at index %d", dataA[i], v, i)
-			}
-		} else if i < 20 {
-			if v != dataB[i-10] {
-				t.Errorf("Expected %s, got %s at index %d", dataB[i-10], v, i)
-			}
-		} else {
-			if v != dataC[i-20] {
-				t.Errorf("Expected %s, got %s at index %d", dataC[i-20], v, i)
-			}
-		}
+	expected = []string{
+		"a", "b", NULL_STRING, "d", "e", NULL_STRING, "g", "h", NULL_STRING, "j",
+		"k", "l", "m", "n", NULL_STRING, "p", NULL_STRING, "r", "s", NULL_STRING,
+		NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING,
+	}
+	if !checkEqSliceString(result.Data().([]string), expected, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expected, result.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range result.GetNullMask() {
-		if i < 10 {
-			if v != maskA[i] {
-				t.Errorf("Expected nullMask %t, got %t at index %d", maskA[i], v, i)
-			}
-		} else if i < 20 {
-			if v != maskB[i-10] {
-				t.Errorf("Expected nullMask %t, got %t at index %d", maskB[i-10], v, i)
-			}
-		} else {
-			if v != maskC[i-20] {
-				t.Errorf("Expected nullMask %t, got %t at index %d", maskC[i-20], v, i)
-			}
-		}
+	if !checkEqSliceBool(result.GetNullMask(), append(maskA, append(maskB, maskC...)...), nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", append(maskA, append(maskB, maskC...)...), result.GetNullMask())
 	}
 
 	// Append random values.
@@ -344,7 +325,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	filterMask := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, true}
 	filterIndeces := []int{0, 2, 3, 5, 6, 8, 9, 10, 12, 13, 15, 16, 18, 19}
 
-	result := []string{"a", "c", "d", "f", "g", "i", "j", "k", "m", "n", "p", "q", "s", "t"}
+	result := []string{"a", "c", "d", "f", "g", "i", "j", NULL_STRING, "m", NULL_STRING, "p", NULL_STRING, "s", NULL_STRING}
 	resultMask := []bool{false, false, false, false, false, false, false, true, false, true, false, true, false, true}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -357,17 +338,13 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]string) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	if !checkEqSliceString(filtered.Data().([]string), result, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", result, filtered.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range filtered.GetNullMask() {
-		if v != resultMask[i] {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
-		}
+	if !checkEqSliceBool(filtered.GetNullMask(), resultMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", resultMask, filtered.GetNullMask())
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -380,17 +357,13 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]string) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	if !checkEqSliceString(filtered.Data().([]string), result, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", result, filtered.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range filtered.GetNullMask() {
-		if v != resultMask[i] {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
-		}
+	if !checkEqSliceBool(filtered.GetNullMask(), resultMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", resultMask, filtered.GetNullMask())
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -403,17 +376,13 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]string) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	if !checkEqSliceString(filtered.Data().([]string), result, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", result, filtered.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range filtered.GetNullMask() {
-		if v != resultMask[i] {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", resultMask[i], v, i)
-		}
+	if !checkEqSliceBool(filtered.GetNullMask(), resultMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", resultMask, filtered.GetNullMask())
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -436,7 +405,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	filterMask = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
 	filterIndeces = []int{0, 15, 22}
 
-	result = []string{"a", "p", "w"}
+	result = []string{NULL_STRING, NULL_STRING, NULL_STRING}
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
@@ -448,17 +417,13 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]string) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	if !checkEqSliceString(filtered.Data().([]string), result, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", result, filtered.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range filtered.GetNullMask() {
-		if v != true {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-		}
+	if !checkEqSliceBool(filtered.GetNullMask(), []bool{true, true, true}, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", []bool{true, true, true}, filtered.GetNullMask())
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -471,23 +436,19 @@ func Test_SeriesString_Filter(t *testing.T) {
 	}
 
 	// Check the data.
-	for i, v := range filtered.Data().([]string) {
-		if v != result[i] {
-			t.Errorf("Expected %v, got %v at index %d", result[i], v, i)
-		}
+	if !checkEqSliceString(filtered.Data().([]string), result, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", result, filtered.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range filtered.GetNullMask() {
-		if v != true {
-			t.Errorf("Expected nullMask of %v, got %v at index %d", true, v, i)
-		}
+	if !checkEqSliceBool(filtered.GetNullMask(), []bool{true, true, true}, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", []bool{true, true, true}, filtered.GetNullMask())
 	}
 }
 
 func Test_SeriesString_Map(t *testing.T) {
 	data := []string{"", "hello", "world", "this", "is", "a", "test", "of", "the", "map", "function", "in", "the", "series", "", "this", "is", "a", "", "test"}
-	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true, false}
+	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, false, true, true, false, false, true}
 
 	// Create a new series.
 	s := NewSeriesString(data, nullMask, true, NewStringPool())
@@ -497,11 +458,9 @@ func Test_SeriesString_Map(t *testing.T) {
 		return v.(string) == ""
 	})
 
-	expectedBool := []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, false}
-	for i, v := range resBool.Data().([]bool) {
-		if v != expectedBool[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedBool[i], v, i)
-		}
+	expectedBool := []bool{false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, true, false}
+	if !checkEqSliceBool(resBool.Data().([]bool), expectedBool, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedBool, resBool.Data())
 	}
 
 	// Map the series to int32.
@@ -509,11 +468,9 @@ func Test_SeriesString_Map(t *testing.T) {
 		return int32(len(v.(string)))
 	})
 
-	expectedInt32 := []int32{0, 5, 5, 4, 2, 1, 4, 2, 3, 3, 8, 2, 3, 6, 0, 4, 2, 1, 0, 4}
-	for i, v := range resInt.Data().([]int32) {
-		if v != expectedInt32[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedInt32[i], v, i)
-		}
+	expectedInt32 := []int32{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 0, 2, 2, 1, 0, 2}
+	if !checkEqSliceInt32(resInt.Data().([]int32), expectedInt32, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedInt32, resInt.Data())
 	}
 
 	// Map the series to int64.
@@ -521,11 +478,9 @@ func Test_SeriesString_Map(t *testing.T) {
 		return int64(len(v.(string)))
 	})
 
-	expectedInt64 := []int64{0, 5, 5, 4, 2, 1, 4, 2, 3, 3, 8, 2, 3, 6, 0, 4, 2, 1, 0, 4}
-	for i, v := range resInt64.Data().([]int64) {
-		if v != expectedInt64[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedInt64[i], v, i)
-		}
+	expectedInt64 := []int64{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 0, 2, 2, 1, 0, 2}
+	if !checkEqSliceInt64(resInt64.Data().([]int64), expectedInt64, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedInt64, resInt64.Data())
 	}
 
 	// Map the series to float64.
@@ -533,11 +488,9 @@ func Test_SeriesString_Map(t *testing.T) {
 		return -float64(len(v.(string)))
 	})
 
-	expectedFloat64 := []float64{-0, -5, -5, -4, -2, -1, -4, -2, -3, -3, -8, -2, -3, -6, -0, -4, -2, -1, -0, -4}
-	for i, v := range resFloat64.Data().([]float64) {
-		if v != expectedFloat64[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedFloat64[i], v, i)
-		}
+	expectedFloat64 := []float64{-2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -6, -0, -2, -2, -1, -0, -2}
+	if !checkEqSliceFloat64(resFloat64.Data().([]float64), expectedFloat64, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedFloat64, resFloat64.Data())
 	}
 
 	// Map the series to string.
@@ -548,11 +501,9 @@ func Test_SeriesString_Map(t *testing.T) {
 		return ""
 	})
 
-	expectedString := []string{"empty", "", "", "", "", "", "", "", "", "", "", "", "", "", "empty", "", "", "", "empty", ""}
-	for i, v := range resString.Data().([]string) {
-		if v != expectedString[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedString[i], v, i)
-		}
+	expectedString := []string{"", "", "", "", "", "", "", "", "", "", "", "", "", "", "empty", "", "", "", "empty", ""}
+	if !checkEqSliceString(resString.Data().([]string), expectedString, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedString, resString.Data())
 	}
 }
 
@@ -658,7 +609,7 @@ func Test_SeriesString_Sort(t *testing.T) {
 	sorted = s.Sort()
 
 	// Check the data.
-	expected = []string{"a", "a", "b", "d", "e", "l", "t", "w", "w", "{", "e", "u", "b", "g", "e", "u", "y", "x", "w", "h"}
+	expected = []string{"a", "a", "b", "d", "e", "l", "t", "w", "w", "{", NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING}
 	if !checkEqSliceString(sorted.Data().([]string), expected, nil, "") {
 		t.Errorf("SeriesString.Sort() failed, expecting %v, got %v", expected, sorted.Data().([]string))
 	}
