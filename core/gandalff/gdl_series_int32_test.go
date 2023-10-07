@@ -1172,7 +1172,7 @@ func Test_SeriesInt32_Arithmetic_Mod(t *testing.T) {
 	}
 }
 
-func Test_SeriesInt32_Arithmetic_Pow(t *testing.T) {
+func Test_SeriesInt32_Arithmetic_Exp(t *testing.T) {
 	bools := NewSeriesBool([]bool{true}, nil, true, nil)
 	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
 	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
@@ -1198,115 +1198,115 @@ func Test_SeriesInt32_Arithmetic_Pow(t *testing.T) {
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
-	if !checkEqSlice(i32s.Pow(bools).Data().([]int64), []int64{2}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(bools).Data().([]int64), []int64{2}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(boolv).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(boolv).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(bools_).GetNullMask(), []bool{true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(bools_).GetNullMask(), []bool{true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// scalar | int32
-	if !checkEqSlice(i32s.Pow(i32s).Data().([]int64), []int64{4}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i32s).Data().([]int64), []int64{4}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i32v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i32v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i32s_).GetNullMask(), []bool{true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i32s_).GetNullMask(), []bool{true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// scalar | int64
-	if !checkEqSlice(i32s.Pow(i64s).Data().([]int64), []int64{4}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i64s).Data().([]int64), []int64{4}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i64v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i64v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i64s_).GetNullMask(), []bool{true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i64s_).GetNullMask(), []bool{true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// scalar | float64
-	if !checkEqSlice(i32s.Pow(f64s).Data().([]float64), []float64{4}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(f64s).Data().([]float64), []float64{4}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(f64v).Data().([]float64), []float64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(f64v).Data().([]float64), []float64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(f64s_).GetNullMask(), []bool{true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(f64s_).GetNullMask(), []bool{true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32s.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32s.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// vector | bool
-	if !checkEqSlice(i32v.Pow(bools).Data().([]int64), []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(bools).Data().([]int64), []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(boolv).Data().([]int64), []int64{1, 1, 3, 1, 5, 1, 7, 8, 1, 1}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(boolv).Data().([]int64), []int64{1, 1, 3, 1, 5, 1, 7, 8, 1, 1}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// vector | int32
-	if !checkEqSlice(i32v.Pow(i32s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i32s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i32v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i32v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// vector | int64
-	if !checkEqSlice(i32v.Pow(i64s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i64s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i64v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i64v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 
 	// vector | float64
-	if !checkEqSlice(i32v.Pow(f64s).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(f64s).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(f64v).Data().([]float64), []float64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(f64v).Data().([]float64), []float64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
-	if !checkEqSlice(i32v.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Pow") {
-		t.Errorf("Error in Int32 Pow")
+	if !checkEqSlice(i32v.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Exp") {
+		t.Errorf("Error in Int32 Exp")
 	}
 }
 

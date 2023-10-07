@@ -1228,11 +1228,11 @@ func (s SeriesBoolMemOpt) Div(other Series) Series {
 }
 
 func (s SeriesBoolMemOpt) Mod(other Series) Series {
-	return SeriesError{fmt.Sprintf("Cannot modulo SeriesBoolMemOpt and %T", other)}
+	return SeriesError{fmt.Sprintf("Cannot use modulo SeriesBoolMemOpt and %T", other)}
 }
 
-func (s SeriesBoolMemOpt) Pow(other Series) Series {
-	return SeriesError{fmt.Sprintf("Cannot power SeriesBoolMemOpt and %T", other)}
+func (s SeriesBoolMemOpt) Exp(other Series) Series {
+	return SeriesError{fmt.Sprintf("Cannot use exponentiation SeriesBoolMemOpt and %T", other)}
 }
 
 func (s SeriesBoolMemOpt) Add(other Series) Series {

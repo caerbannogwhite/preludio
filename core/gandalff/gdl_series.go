@@ -113,7 +113,7 @@ type Series interface {
 	Mul(other Series) Series
 	Div(other Series) Series
 	Mod(other Series) Series
-	Pow(other Series) Series
+	Exp(other Series) Series
 	Add(other Series) Series
 	Sub(other Series) Series
 

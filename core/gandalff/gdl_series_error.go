@@ -219,7 +219,7 @@ func (s SeriesError) Mod(other Series) Series {
 	return s
 }
 
-func (s SeriesError) Pow(other Series) Series {
+func (s SeriesError) Exp(other Series) Series {
 	return s
 }
 

@@ -29,10 +29,10 @@ func (s SeriesDuration) Mod(other Series) Series {
 
 }
 
-func (s SeriesDuration) Pow(other Series) Series {
+func (s SeriesDuration) Exp(other Series) Series {
 	switch o := other.(type) {
 	default:
-		return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+		return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
 
 }

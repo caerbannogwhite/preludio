@@ -1129,7 +1129,7 @@ func Test_SeriesBool_Arithmetic_Mod(t *testing.T) {
 	}
 }
 
-func Test_SeriesBool_Arithmetic_Pow(t *testing.T) {
+func Test_SeriesBool_Arithmetic_Exp(t *testing.T) {
 	bools := NewSeriesBool([]bool{true}, nil, true, nil)
 	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
 	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
@@ -1155,115 +1155,115 @@ func Test_SeriesBool_Arithmetic_Pow(t *testing.T) {
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
-	if !checkEqSlice(bools.Pow(bools).Data().([]int64), []int64{1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(bools).Data().([]int64), []int64{1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(boolv).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(boolv).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(bools_).GetNullMask(), []bool{true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(bools_).GetNullMask(), []bool{true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// scalar | int32
-	if !checkEqSlice(bools.Pow(i32s).Data().([]int64), []int64{1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i32s).Data().([]int64), []int64{1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i32v).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i32v).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i32s_).GetNullMask(), []bool{true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i32s_).GetNullMask(), []bool{true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// scalar | int64
-	if !checkEqSlice(bools.Pow(i64s).Data().([]int64), []int64{1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i64s).Data().([]int64), []int64{1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i64v).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i64v).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i64s_).GetNullMask(), []bool{true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i64s_).GetNullMask(), []bool{true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// scalar | float64
-	if !checkEqSlice(bools.Pow(f64s).Data().([]float64), []float64{1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(f64s).Data().([]float64), []float64{1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(f64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(f64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(f64s_).GetNullMask(), []bool{true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(f64s_).GetNullMask(), []bool{true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(bools.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(bools.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// vector | bool
-	if !checkEqSlice(boolv.Pow(bools).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(bools).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(boolv).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(boolv).Data().([]int64), []int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// vector | int32
-	if !checkEqSlice(boolv.Pow(i32s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i32s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i32v).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i32v).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// vector | int64
-	if !checkEqSlice(boolv.Pow(i64s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i64s).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i64v).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i64v).Data().([]int64), []int64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 
 	// vector | float64
-	if !checkEqSlice(boolv.Pow(f64s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(f64s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(f64v).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(f64v).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 1, 0, 0}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
-	if !checkEqSlice(boolv.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Pow") {
-		t.Errorf("Error in Bool Pow")
+	if !checkEqSlice(boolv.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Exp") {
+		t.Errorf("Error in Bool Exp")
 	}
 }
 

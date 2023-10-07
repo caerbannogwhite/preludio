@@ -3048,7 +3048,7 @@ func (s SeriesBool) Mod(other Series) Series {
 
 }
 
-func (s SeriesBool) Pow(other Series) Series {
+func (s SeriesBool) Exp(other Series) Series {
 	switch o := other.(type) {
 	case SeriesBool:
 		if s.Len() == 1 {
@@ -3335,7 +3335,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					}
 				}
 			}
-			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+			return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt32:
 		if s.Len() == 1 {
@@ -3558,7 +3558,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					}
 				}
 			}
-			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+			return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesInt64:
 		if s.Len() == 1 {
@@ -3781,7 +3781,7 @@ func (s SeriesBool) Pow(other Series) Series {
 					}
 				}
 			}
-			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+			return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	case SeriesFloat64:
 		if s.Len() == 1 {
@@ -4004,10 +4004,10 @@ func (s SeriesBool) Pow(other Series) Series {
 					}
 				}
 			}
-			return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+			return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
 	default:
-		return SeriesError{fmt.Sprintf("Cannot use power %s and %s", s.Type().ToString(), o.Type().ToString())}
+		return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
 	}
 
 }

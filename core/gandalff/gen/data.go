@@ -182,7 +182,7 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				},
 			},
 
-			"Pow": {
+			"Exp": {
 				OpCode: typesys.OP_BINARY_POW,
 				ApplyTo: []OperationApplyTo{
 					{
@@ -587,7 +587,7 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				},
 			},
 
-			"Pow": {
+			"Exp": {
 				OpCode: typesys.OP_BINARY_POW,
 				ApplyTo: []OperationApplyTo{
 					{
@@ -994,7 +994,7 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				},
 			},
 
-			"Pow": {
+			"Exp": {
 				OpCode: typesys.OP_BINARY_POW,
 				ApplyTo: []OperationApplyTo{
 					{
@@ -1401,7 +1401,7 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				},
 			},
 
-			"Pow": {
+			"Exp": {
 				OpCode: typesys.OP_BINARY_POW,
 				ApplyTo: []OperationApplyTo{
 					{

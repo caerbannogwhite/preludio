@@ -596,12 +596,12 @@ func generateOperations() {
 							}),
 					}
 
-				case "Pow":
+				case "Exp":
 					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
 						generateSwitchType(
-							info.Operations["Pow"], info.SeriesName, info.SeriesType, "s", "other",
+							info.Operations["Exp"], info.SeriesName, info.SeriesType, "s", "other",
 							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use power"))},
+								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use exponentiation"))},
 							}),
 					}
 
