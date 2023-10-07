@@ -194,7 +194,7 @@ func Test_SeriesBoolMemOpt_Append(t *testing.T) {
 
 	// Append random values.
 	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewSeriesBoolMemOpt(dataD, nil, true, nil)
+	sD := NewSeriesBoolMemOpt(dataD, nil, true, nil).MakeNullable().(SeriesBoolMemOpt)
 
 	// Check the original data.
 	for i, v := range sD.Data().([]bool) {
