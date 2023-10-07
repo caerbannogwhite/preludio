@@ -5,6 +5,7 @@ import (
 )
 
 type Series interface {
+	// Utility functions.
 	printInfo()
 
 	// Basic accessors.
@@ -49,6 +50,8 @@ type Series interface {
 	SetNullMask(mask []bool) Series
 	// Make the series nullable.
 	MakeNullable() Series
+	// Make the series non-nullable.
+	MakeNonNullable() Series
 
 	// Get the element at index i.
 	Get(i int) any

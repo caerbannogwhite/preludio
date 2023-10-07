@@ -184,6 +184,15 @@ func (s SeriesTime) MakeNullable() Series {
 	return s
 }
 
+// Make the series non-nullable.
+func (s SeriesTime) MakeNonNullable() Series {
+	if s.isNullable {
+		s.isNullable = false
+		s.nullMask = make([]uint8, 0)
+	}
+	return s
+}
+
 // Get the element at index i.
 func (s SeriesTime) Get(i int) any {
 	return s.data[i]

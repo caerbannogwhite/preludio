@@ -202,6 +202,15 @@ func (s SeriesBoolMemOpt) MakeNullable() Series {
 	return s
 }
 
+// Make the series non-nullable.
+func (s SeriesBoolMemOpt) MakeNonNullable() Series {
+	if s.isNullable {
+		s.isNullable = false
+		s.nullMask = make([]uint8, 0)
+	}
+	return s
+}
+
 // Get the element at index i.
 func (s SeriesBoolMemOpt) Get(i int) any {
 	return s.data[i>>3]&(1<<uint(i%8)) != 0

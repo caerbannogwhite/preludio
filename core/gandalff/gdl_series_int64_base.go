@@ -184,6 +184,15 @@ func (s SeriesInt64) MakeNullable() Series {
 	return s
 }
 
+// Make the series non-nullable.
+func (s SeriesInt64) MakeNonNullable() Series {
+	if s.isNullable {
+		s.isNullable = false
+		s.nullMask = make([]uint8, 0)
+	}
+	return s
+}
+
 // Get the element at index i.
 func (s SeriesInt64) Get(i int) any {
 	return s.data[i]

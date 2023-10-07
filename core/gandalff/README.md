@@ -6,7 +6,7 @@ Or Gdl: Golang Data Library
 
 Gandalff is a library for data manipulation in Go. It is inspired by the R language and the dplyr package.
 It supports nullable types: null data is optimized for memory usage.
-`GDLSeriesBool` stores the boolean data as bits, and `GDLSeriesString` stores the string data in a string pool.
+`SeriesBool` stores the boolean data as bits, and `SeriesString` stores the string data in a string pool.
 
 ### Why?
 
@@ -174,6 +174,8 @@ type Series interface {
 	SetNullMask(mask []bool) Series
 	// Make the series nullable.
 	MakeNullable() Series
+	// Make the series non-nullable.
+	MakeNonNullable() Series
 
 	// Get the element at index i.
 	Get(i int) any
@@ -210,8 +212,9 @@ type Series interface {
 	Filter(mask any) Series
 	filterIntSlice(mask []int, check bool) Series
 
-	// Map the elements of the series.
-	Map(f GDLMapFunc) Series
+	// Apply the given function to each element of the series.
+	Map(f MapFunc) Series
+	MapNull(f MapFuncNull) Series
 
 	// Group the elements in the series.
 	group() Series

@@ -43,6 +43,11 @@ func (s SeriesError) MakeNullable() Series {
 	return s
 }
 
+// Make the series non-nullable.
+func (s SeriesError) MakeNonNullable() Series {
+	return s
+}
+
 // Return the StringPool of the series.
 func (s SeriesError) StringPool() *StringPool {
 	return nil

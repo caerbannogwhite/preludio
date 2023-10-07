@@ -191,6 +191,15 @@ func (s {{.SeriesName}}) MakeNullable() Series {
 	return s
 }
 
+// Make the series non-nullable.
+func (s {{.SeriesName}}) MakeNonNullable() Series {
+	if s.isNullable {
+		s.isNullable = false
+		s.nullMask = make([]uint8, 0)
+	}
+	return s
+}
+
 // Get the element at index i.
 func (s {{.SeriesName}}) Get(i int) any {
 	return {{if .IsGoTypePtr}}*{{end}}s.data[i]
