@@ -1215,7 +1215,7 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 		case NullType:
 			switch rop.Base {
 			case NullType, BoolType:
-				return Primitive{Base: BoolType, Size: size}
+				return Primitive{Base: NullType, Size: size}
 			default:
 				return Primitive{Base: ErrorType}
 			}
