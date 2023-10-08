@@ -541,8 +541,8 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 	case typesys.BoolType:
 		return s
 
-	case typesys.Int32Type:
-		data := make([]int32, s.size)
+	case typesys.IntType:
+		data := make([]int, s.size)
 		for i, v := range s.data {
 			for j := 0; j < 8 && i*8+j < s.size; j++ {
 				if v&(1<<uint(j)) != 0 {
@@ -551,7 +551,7 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			}
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,
@@ -864,13 +864,13 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			partition:  nil,
 		}
 
-	case int32:
-		data := make([]int32, s.size)
+	case int:
+		data := make([]int, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int32)
+			data[i] = f(s.data[i>>3]&(1<<uint(i%8)) != 0).(int)
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,

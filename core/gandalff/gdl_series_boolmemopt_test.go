@@ -245,11 +245,11 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	// Create a new series.
 	s := NewSeriesBoolMemOpt(data, mask, true, NewStringPool())
 
-	// Cast to int32.
-	castInt32 := s.Cast(typesys.Int32Type)
+	// Cast to int.
+	castInt := s.Cast(typesys.IntType)
 
 	// Check the data.
-	for i, v := range castInt32.Data().([]int32) {
+	for i, v := range castInt.Data().([]int) {
 		if data[i] && v != 1 {
 			t.Errorf("Expected %d, got %d at index %d", 1, v, i)
 		} else if !data[i] && v != 0 {
@@ -258,7 +258,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	}
 
 	// Check the null mask.
-	for i, v := range castInt32.GetNullMask() {
+	for i, v := range castInt.GetNullMask() {
 		if v != mask[i] {
 			t.Errorf("Expected nullMask of %t, got %t at index %d", mask[i], v, i)
 		}
@@ -582,18 +582,18 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 		}
 	}
 
-	// Map the series to int32.
+	// Map the series to int.
 	mappedInt := s.Map(func(v any) any {
 		if v.(bool) {
-			return int32(1)
+			return int(1)
 		}
-		return int32(0)
+		return int(0)
 	})
 
-	resultInt := []int32{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
+	resultInt := []int{1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1}
 
 	// Check the data.
-	for i, v := range mappedInt.Data().([]int32) {
+	for i, v := range mappedInt.Data().([]int) {
 		if v != resultInt[i] {
 			t.Errorf("Expected %v, got %v at index %d", resultInt[i], v, i)
 		}

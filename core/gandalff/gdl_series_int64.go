@@ -26,7 +26,7 @@ func (s SeriesInt64) GetString(i int) string {
 }
 
 // Set the element at index i. The value v can be any belonging to types:
-// int8, int16, int, int32, int64 and their nullable versions.
+// int8, int16, int, int, int64 and their nullable versions.
 func (s SeriesInt64) Set(i int, v any) Series {
 	if s.partition != nil {
 		return SeriesError{"SeriesInt64.Set: cannot set values on a grouped Series"}
@@ -72,9 +72,9 @@ func (s SeriesInt64) Set(i int, v any) Series {
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
-	case NullableInt32:
+	case NullableInt:
 		s = s.MakeNullable().(SeriesInt64)
-		if v.(NullableInt32).Valid {
+		if v.(NullableInt).Valid {
 			s.data[i] = int64(val.Value)
 		} else {
 			s.data[i] = 0
@@ -206,13 +206,13 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			partition:  nil,
 		}
 
-	case typesys.Int32Type:
-		data := make([]int32, len(s.data))
+	case typesys.IntType:
+		data := make([]int, len(s.data))
 		for i, v := range s.data {
-			data[i] = int32(v)
+			data[i] = int(v)
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,

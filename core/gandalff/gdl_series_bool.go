@@ -163,15 +163,15 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	case typesys.BoolType:
 		return s
 
-	case typesys.Int32Type:
-		data := make([]int32, len(s.data))
+	case typesys.IntType:
+		data := make([]int, len(s.data))
 		for i, v := range s.data {
 			if v {
 				data[i] = 1
 			}
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,

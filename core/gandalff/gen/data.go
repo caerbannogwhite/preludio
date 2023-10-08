@@ -36,10 +36,10 @@ var DATA_BASE_METHODS = map[string]SeriesFile{
 		SeriesGoTypeStr: "bool",
 	},
 
-	"gdl_series_int32_base.go": {
-		SeriesName:      "SeriesInt32",
-		SeriesTypeStr:   "Int32Type",
-		SeriesGoTypeStr: "int32",
+	"gdl_series_int_base.go": {
+		SeriesName:      "SeriesInt",
+		SeriesTypeStr:   "IntType",
+		SeriesGoTypeStr: "int",
 	},
 
 	"gdl_series_int64_base.go": {
@@ -91,8 +91,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("if %s.data[%s] { %s[%s] = %s.data[%s] }", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
@@ -125,8 +125,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("b1 := float64(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 / float64(%s.data[%s])", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
@@ -159,8 +159,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("b1 := float64(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = math.Mod(b1, float64(%s.data[%s]))", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
@@ -193,8 +193,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("b1 := float64(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = int64(math.Pow(b1, float64(%s.data[%s])))", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
@@ -227,10 +227,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 + %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 + %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -268,10 +268,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 - %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 - %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -328,10 +328,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 < %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 < %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -362,10 +362,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 <= %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 <= %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -396,10 +396,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 > %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 > %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -430,10 +430,10 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b1 := int32(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 >= %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b1 := int(0)\nif %s.data[%s] { b1 = 1 }\n%s[%s] = b1 >= %s.data[%s]", op1, op1Index, res, resIndex, op2, op2Index)}
 						},
 					},
 					{
@@ -481,9 +481,9 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 		},
 	},
 
-	"gdl_series_int32_ops.go": {
-		SeriesName: "SeriesInt32",
-		SeriesType: typesys.Int32Type,
+	"gdl_series_int_ops.go": {
+		SeriesName: "SeriesInt",
+		SeriesType: typesys.IntType,
 		Operations: map[string]Operation{
 			"Mul": {
 				OpCode: typesys.OP_BINARY_MUL,
@@ -496,8 +496,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -530,8 +530,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) / float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -564,8 +564,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = math.Mod(float64(%s.data[%s]), float64(%s.data[%s]))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -598,8 +598,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(math.Pow(float64(%s.data[%s]), float64(%s.data[%s])))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -628,12 +628,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] + b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] + b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] + %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -669,12 +669,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] - b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] - b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] - %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -700,8 +700,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_EQ,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] == %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -727,8 +727,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_NE,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] != %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -757,12 +757,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] < b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] < b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] < %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -791,12 +791,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] <= b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] <= b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] <= %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -825,12 +825,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] > b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] > b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] > %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -859,12 +859,12 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						SeriesName: "SeriesBool",
 						SeriesType: typesys.BoolType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
-							return &ast.Ident{Name: fmt.Sprintf("b2 := int32(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] >= b2", op2, op2Index, res, resIndex, op1, op1Index)}
+							return &ast.Ident{Name: fmt.Sprintf("b2 := int(0)\nif %s.data[%s] { b2 = 1 }\n%s[%s] = %s.data[%s] >= b2", op2, op2Index, res, resIndex, op1, op1Index)}
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] >= %s.data[%s]", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -903,8 +903,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -937,8 +937,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = float64(%s.data[%s]) / float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -971,8 +971,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = math.Mod(float64(%s.data[%s]), float64(%s.data[%s]))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1005,8 +1005,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = int64(math.Pow(float64(%s.data[%s]), float64(%s.data[%s])))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1039,8 +1039,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] + int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1080,8 +1080,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] - int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1107,8 +1107,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_EQ,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] == int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1134,8 +1134,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_NE,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] != int64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1168,8 +1168,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] < int64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1202,8 +1202,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] <= int64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1236,8 +1236,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] > int64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1270,8 +1270,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] >= int64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1310,8 +1310,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] * float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1344,8 +1344,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] / float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1378,8 +1378,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = math.Mod(float64(%s.data[%s]), float64(%s.data[%s]))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1412,8 +1412,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = math.Pow(%s.data[%s], float64(%s.data[%s]))", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1446,8 +1446,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] + float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1487,8 +1487,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.data[%s] - float64(%s.data[%s])", res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1514,8 +1514,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_EQ,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] == float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1541,8 +1541,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 				OpCode: typesys.OP_BINARY_NE,
 				ApplyTo: []OperationApplyTo{
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] != float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1575,8 +1575,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] < float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1609,8 +1609,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] <= float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1643,8 +1643,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] > float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1677,8 +1677,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf(`%s[%s] = %s.data[%s] >= float64(%s.data[%s])`, res, resIndex, op1, op1Index, op2, op2Index)}
 						},
@@ -1717,8 +1717,8 @@ var DATA_OPERATIONS = map[string]SeriesFile{
 						},
 					},
 					{
-						SeriesName: "SeriesInt32",
-						SeriesType: typesys.Int32Type,
+						SeriesName: "SeriesInt",
+						SeriesType: typesys.IntType,
 						MakeOperation: func(res, resIndex, op1, op1Index, op2, op2Index string) ast.Expr {
 							return &ast.Ident{Name: fmt.Sprintf("%s[%s] = %s.pool.Put(*%s.data[%s] + intToString(int64(%s.data[%s])))", res, resIndex, op1, op1, op1Index, op2, op2Index)}
 						},

@@ -7,18 +7,18 @@ import (
 	"typesys"
 )
 
-// SeriesInt32 represents a series of ints.
-type SeriesInt32 struct {
+// SeriesInt represents a series of ints.
+type SeriesInt struct {
 	isNullable bool
 	sorted     SeriesSortOrder
-	data       []int32
+	data       []int
 	nullMask   []uint8
 	pool       *StringPool
-	partition  *SeriesInt32Partition
+	partition  *SeriesIntPartition
 }
 
 // Get the element at index i as a string.
-func (s SeriesInt32) GetString(i int) string {
+func (s SeriesInt) GetString(i int) string {
 	if s.isNullable && s.IsNull(i) {
 		return NULL_STRING
 	}
@@ -26,60 +26,57 @@ func (s SeriesInt32) GetString(i int) string {
 }
 
 // Set the element at index i. The value v can be any belonging to types:
-// int8, int16, int, int32, int64 and their nullable versions.
-func (s SeriesInt32) Set(i int, v any) Series {
+// int8, int16, int, int, int64 and their nullable versions.
+func (s SeriesInt) Set(i int, v any) Series {
 	if s.partition != nil {
-		return SeriesError{"SeriesInt32.Set: cannot set values on a grouped Series"}
+		return SeriesError{"SeriesInt.Set: cannot set values on a grouped Series"}
 	}
 
 	switch val := v.(type) {
 	case nil:
 		if !s.isNullable {
-			s = s.MakeNullable().(SeriesInt32)
+			s = s.MakeNullable().(SeriesInt)
 		}
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
 	case int8:
-		s.data[i] = int32(val)
+		s.data[i] = int(val)
 
 	case int16:
-		s.data[i] = int32(val)
+		s.data[i] = int(val)
 
 	case int:
-		s.data[i] = int32(val)
-
-	case int32:
-		s.data[i] = int32(val)
+		s.data[i] = int(val)
 
 	case NullableInt8:
-		s = s.MakeNullable().(SeriesInt32)
+		s = s.MakeNullable().(SeriesInt)
 		if v.(NullableInt8).Valid {
-			s.data[i] = int32(val.Value)
+			s.data[i] = int(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
 	case NullableInt16:
-		s = s.MakeNullable().(SeriesInt32)
+		s = s.MakeNullable().(SeriesInt)
 		if v.(NullableInt16).Valid {
-			s.data[i] = int32(val.Value)
+			s.data[i] = int(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
-	case NullableInt32:
-		s = s.MakeNullable().(SeriesInt32)
-		if v.(NullableInt32).Valid {
-			s.data[i] = int32(val.Value)
+	case NullableInt:
+		s = s.MakeNullable().(SeriesInt)
+		if v.(NullableInt).Valid {
+			s.data[i] = int(val.Value)
 		} else {
 			s.data[i] = 0
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Set: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -87,27 +84,27 @@ func (s SeriesInt32) Set(i int, v any) Series {
 }
 
 // Append appends a value or a slice of values to the series.
-func (s SeriesInt32) Append(v any) Series {
+func (s SeriesInt) Append(v any) Series {
 	if s.partition != nil {
-		return SeriesError{"SeriesInt32.Append: cannot append values on a grouped Series"}
+		return SeriesError{"SeriesInt.Append: cannot append values on a grouped Series"}
 	}
 
 	switch v := v.(type) {
-	case int32:
+	case int:
 		s.data = append(s.data, v)
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
 
-	case []int32:
+	case []int:
 		s.data = append(s.data, v...)
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 		}
 
-	case NullableInt32:
+	case NullableInt:
 		s.data = append(s.data, v.Value)
-		s = s.MakeNullable().(SeriesInt32)
+		s = s.MakeNullable().(SeriesInt)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -115,10 +112,10 @@ func (s SeriesInt32) Append(v any) Series {
 			s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 		}
 
-	case []NullableInt32:
+	case []NullableInt:
 		ssize := len(s.data)
-		s.data = append(s.data, make([]int32, len(v))...)
-		s = s.MakeNullable().(SeriesInt32)
+		s.data = append(s.data, make([]int, len(v))...)
+		s = s.MakeNullable().(SeriesInt)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
 		}
@@ -129,12 +126,12 @@ func (s SeriesInt32) Append(v any) Series {
 			}
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
 		s.data = append(s.data, v.data...)
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Append: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt.Append: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -143,22 +140,22 @@ func (s SeriesInt32) Append(v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
-// Return the underlying data as a slice of int32.
-func (s SeriesInt32) Int32s() []int32 {
+// Return the underlying data as a slice of int.
+func (s SeriesInt) Ints() []int {
 	return s.data
 }
 
-// Return the underlying data as a slice of NullableInt32.
-func (s SeriesInt32) DataAsNullable() any {
-	data := make([]NullableInt32, len(s.data))
+// Return the underlying data as a slice of NullableInt.
+func (s SeriesInt) DataAsNullable() any {
+	data := make([]NullableInt, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableInt32{Valid: !s.IsNull(i), Value: v}
+		data[i] = NullableInt{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }
 
 // Return the underlying data as a slice of strings.
-func (s SeriesInt32) DataAsString() []string {
+func (s SeriesInt) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
 		for i, v := range s.data {
@@ -177,7 +174,7 @@ func (s SeriesInt32) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesInt32) Cast(t typesys.BaseType) Series {
+func (s SeriesInt) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
 		data := make([]bool, len(s.data))
@@ -194,7 +191,7 @@ func (s SeriesInt32) Cast(t typesys.BaseType) Series {
 			partition:  nil,
 		}
 
-	case typesys.Int32Type:
+	case typesys.IntType:
 		return s
 
 	case typesys.Int64Type:
@@ -229,7 +226,7 @@ func (s SeriesInt32) Cast(t typesys.BaseType) Series {
 
 	case typesys.StringType:
 		if s.pool == nil {
-			return SeriesError{"SeriesInt32.Cast: StringPool is nil"}
+			return SeriesError{"SeriesInt.Cast: StringPool is nil"}
 		}
 
 		data := make([]*string, len(s.data))
@@ -287,24 +284,24 @@ func (s SeriesInt32) Cast(t typesys.BaseType) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesInt.Cast: invalid type %s", t.ToString())}
 	}
 }
 
 ////////////////////////			GROUPING OPERATIONS
 
-// A SeriesInt32Partition is a partition of a SeriesInt32.
+// A SeriesIntPartition is a partition of a SeriesInt.
 // Each key is a hash of a bool value, and each value is a slice of indices
 // of the original series that are set to that value.
-type SeriesInt32Partition struct {
+type SeriesIntPartition struct {
 	partition           map[int64][]int
 	isDense             bool
-	partitionDenseMin   int32
+	partitionDenseMin   int
 	partitionDense      [][]int
 	partitionDenseNulls []int
 }
 
-func (gp *SeriesInt32Partition) getSize() int {
+func (gp *SeriesIntPartition) getSize() int {
 	if gp.isDense {
 		if gp.partitionDenseNulls != nil && len(gp.partitionDenseNulls) > 0 {
 			return len(gp.partitionDense) + 1
@@ -314,7 +311,7 @@ func (gp *SeriesInt32Partition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp *SeriesInt32Partition) getMap() map[int64][]int {
+func (gp *SeriesIntPartition) getMap() map[int64][]int {
 	if gp.isDense {
 		map_ := make(map[int64][]int, len(gp.partitionDense))
 		for i, part := range gp.partitionDense {
@@ -333,10 +330,10 @@ func (gp *SeriesInt32Partition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (s SeriesInt32) group() Series {
+func (s SeriesInt) group() Series {
 	var useDenseMap bool
-	var min, max int32
-	var partition SeriesInt32Partition
+	var min, max int
+	var partition SeriesIntPartition
 
 	// If the number of elements is small,
 	// look for the minimum and maximum values
@@ -383,7 +380,7 @@ func (s SeriesInt32) group() Series {
 			}
 		}
 
-		partition = SeriesInt32Partition{
+		partition = SeriesIntPartition{
 			isDense:             true,
 			partitionDenseMin:   min,
 			partitionDense:      map_,
@@ -431,7 +428,7 @@ func (s SeriesInt32) group() Series {
 			}
 		}
 
-		partition = SeriesInt32Partition{
+		partition = SeriesIntPartition{
 			isDense: false,
 			partition: __series_groupby(
 				THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
@@ -444,7 +441,7 @@ func (s SeriesInt32) group() Series {
 	return s
 }
 
-func (s SeriesInt32) GroupBy(partition SeriesPartition) Series {
+func (s SeriesInt) GroupBy(partition SeriesPartition) Series {
 	if partition == nil {
 		return s
 	}
@@ -484,7 +481,7 @@ func (s SeriesInt32) GroupBy(partition SeriesPartition) Series {
 		}
 	}
 
-	newPartition := SeriesInt32Partition{
+	newPartition := SeriesIntPartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(keys), s.HasNull(),
 			worker, workerNulls),
@@ -497,7 +494,7 @@ func (s SeriesInt32) GroupBy(partition SeriesPartition) Series {
 
 ////////////////////////			SORTING OPERATIONS
 
-func (s SeriesInt32) Less(i, j int) bool {
+func (s SeriesInt) Less(i, j int) bool {
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -510,7 +507,7 @@ func (s SeriesInt32) Less(i, j int) bool {
 	return s.data[i] < s.data[j]
 }
 
-func (s SeriesInt32) equal(i, j int) bool {
+func (s SeriesInt) equal(i, j int) bool {
 	if s.isNullable {
 		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
 			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
@@ -523,7 +520,7 @@ func (s SeriesInt32) equal(i, j int) bool {
 	return s.data[i] == s.data[j]
 }
 
-func (s SeriesInt32) Swap(i, j int) {
+func (s SeriesInt) Swap(i, j int) {
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -541,7 +538,7 @@ func (s SeriesInt32) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s SeriesInt32) Sort() Series {
+func (s SeriesInt) Sort() Series {
 	if s.sorted != SORTED_ASC {
 		sort.Sort(s)
 		s.sorted = SORTED_ASC
@@ -549,7 +546,7 @@ func (s SeriesInt32) Sort() Series {
 	return s
 }
 
-func (s SeriesInt32) SortRev() Series {
+func (s SeriesInt) SortRev() Series {
 	if s.sorted != SORTED_DESC {
 		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC

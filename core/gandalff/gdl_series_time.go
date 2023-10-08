@@ -150,13 +150,13 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 	case typesys.BoolType:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: cannot cast to %s", t.ToString())}
 
-	case typesys.Int32Type:
-		data := make([]int32, len(s.data))
+	case typesys.IntType:
+		data := make([]int, len(s.data))
 		for i, v := range s.data {
-			data[i] = int32(v.UnixNano())
+			data[i] = int(v.UnixNano())
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     s.sorted,
 			data:       data,

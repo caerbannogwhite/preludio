@@ -7,8 +7,8 @@ import (
 	"typesys"
 )
 
-func (s SeriesInt32) printInfo() {
-	fmt.Println("SeriesInt32")
+func (s SeriesInt) printInfo() {
+	fmt.Println("SeriesInt")
 	fmt.Println("==========")
 	fmt.Println("IsGrouped:", s.partition != nil)
 	fmt.Println("IsNullable:", s.isNullable)
@@ -26,63 +26,63 @@ func (s SeriesInt32) printInfo() {
 ////////////////////////			BASIC ACCESSORS
 
 // Return the number of elements in the series.
-func (s SeriesInt32) Len() int {
+func (s SeriesInt) Len() int {
 	return len(s.data)
 }
 
 // Return the StringPool of the series.
-func (s SeriesInt32) StringPool() *StringPool {
+func (s SeriesInt) StringPool() *StringPool {
 	return s.pool
 }
 
 // Set the StringPool for this series.
-func (s SeriesInt32) SetStringPool(pool *StringPool) Series {
+func (s SeriesInt) SetStringPool(pool *StringPool) Series {
 	s.pool = pool
 	return s
 }
 
 // Return the type of the series.
-func (s SeriesInt32) Type() typesys.BaseType {
-	return typesys.Int32Type
+func (s SeriesInt) Type() typesys.BaseType {
+	return typesys.IntType
 }
 
 // Return the type and cardinality of the series.
-func (s SeriesInt32) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.Int32Type, Card: s.Len()}
+func (s SeriesInt) TypeCard() typesys.BaseTypeCard {
+	return typesys.BaseTypeCard{Base: typesys.IntType, Card: s.Len()}
 }
 
 // Return if the series is grouped.
-func (s SeriesInt32) IsGrouped() bool {
+func (s SeriesInt) IsGrouped() bool {
 	return s.partition != nil
 }
 
 // Return if the series admits null values.
-func (s SeriesInt32) IsNullable() bool {
+func (s SeriesInt) IsNullable() bool {
 	return s.isNullable
 }
 
 // Return if the series is sorted.
-func (s SeriesInt32) IsSorted() SeriesSortOrder {
+func (s SeriesInt) IsSorted() SeriesSortOrder {
 	return s.sorted
 }
 
 // Return if the series is error.
-func (s SeriesInt32) IsError() bool {
+func (s SeriesInt) IsError() bool {
 	return false
 }
 
 // Return the error message of the series.
-func (s SeriesInt32) GetError() string {
+func (s SeriesInt) GetError() string {
 	return ""
 }
 
 // Return the partition of the series.
-func (s SeriesInt32) GetPartition() SeriesPartition {
+func (s SeriesInt) GetPartition() SeriesPartition {
 	return s.partition
 }
 
 // Return if the series has null values.
-func (s SeriesInt32) HasNull() bool {
+func (s SeriesInt) HasNull() bool {
 	for _, v := range s.nullMask {
 		if v != 0 {
 			return true
@@ -92,7 +92,7 @@ func (s SeriesInt32) HasNull() bool {
 }
 
 // Return the number of null values in the series.
-func (s SeriesInt32) NullCount() int {
+func (s SeriesInt) NullCount() int {
 	count := 0
 	for _, x := range s.nullMask {
 		for ; x != 0; x >>= 1 {
@@ -103,7 +103,7 @@ func (s SeriesInt32) NullCount() int {
 }
 
 // Return if the element at index i is null.
-func (s SeriesInt32) IsNull(i int) bool {
+func (s SeriesInt) IsNull(i int) bool {
 	if s.isNullable {
 		return s.nullMask[i>>3]&(1<<uint(i%8)) != 0
 	}
@@ -111,7 +111,7 @@ func (s SeriesInt32) IsNull(i int) bool {
 }
 
 // Return the null mask of the series.
-func (s SeriesInt32) GetNullMask() []bool {
+func (s SeriesInt) GetNullMask() []bool {
 	mask := make([]bool, len(s.data))
 	idx := 0
 	for _, v := range s.nullMask {
@@ -124,9 +124,9 @@ func (s SeriesInt32) GetNullMask() []bool {
 }
 
 // Set the null mask of the series.
-func (s SeriesInt32) SetNullMask(mask []bool) Series {
+func (s SeriesInt) SetNullMask(mask []bool) Series {
 	if s.partition != nil {
-		return SeriesError{"SeriesInt32.SetNullMask: cannot set values on a grouped series"}
+		return SeriesError{"SeriesInt.SetNullMask: cannot set values on a grouped series"}
 	}
 
 	if s.isNullable {
@@ -156,7 +156,7 @@ func (s SeriesInt32) SetNullMask(mask []bool) Series {
 }
 
 // Make the series nullable.
-func (s SeriesInt32) MakeNullable() Series {
+func (s SeriesInt) MakeNullable() Series {
 	if !s.isNullable {
 		s.isNullable = true
 		s.nullMask = __binVecInit(len(s.data), false)
@@ -165,7 +165,7 @@ func (s SeriesInt32) MakeNullable() Series {
 }
 
 // Make the series non-nullable.
-func (s SeriesInt32) MakeNonNullable() Series {
+func (s SeriesInt) MakeNonNullable() Series {
 	if s.isNullable {
 		s.isNullable = false
 		s.nullMask = make([]uint8, 0)
@@ -174,13 +174,13 @@ func (s SeriesInt32) MakeNonNullable() Series {
 }
 
 // Get the element at index i.
-func (s SeriesInt32) Get(i int) any {
+func (s SeriesInt) Get(i int) any {
 	return s.data[i]
 }
 
 // Take the elements according to the given interval.
-func (s SeriesInt32) Take(params ...int) Series {
-	indeces, err := seriesTakePreprocess("SeriesInt32", s.Len(), params...)
+func (s SeriesInt) Take(params ...int) Series {
+	indeces, err := seriesTakePreprocess("SeriesInt", s.Len(), params...)
 	if err != nil {
 		return SeriesError{err.Error()}
 	}
@@ -188,18 +188,18 @@ func (s SeriesInt32) Take(params ...int) Series {
 }
 
 // Return the elements of the series as a slice.
-func (s SeriesInt32) Data() any {
+func (s SeriesInt) Data() any {
 	return s.data
 }
 
 // Copy the series.
-func (s SeriesInt32) Copy() Series {
-	data := make([]int32, len(s.data))
+func (s SeriesInt) Copy() Series {
+	data := make([]int, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
 
-	return SeriesInt32{
+	return SeriesInt{
 		isNullable: s.isNullable,
 		sorted:     s.sorted,
 		data:       data,
@@ -209,12 +209,12 @@ func (s SeriesInt32) Copy() Series {
 	}
 }
 
-func (s SeriesInt32) getDataPtr() *[]int32 {
+func (s SeriesInt) getDataPtr() *[]int {
 	return &s.data
 }
 
 // Ungroup the series.
-func (s SeriesInt32) UnGroup() Series {
+func (s SeriesInt) UnGroup() Series {
 	s.partition = nil
 	return s
 }
@@ -223,7 +223,7 @@ func (s SeriesInt32) UnGroup() Series {
 
 // Filters out the elements by the given mask.
 // Mask can be SeriesBool, SeriesBoolMemOpt, bool slice or a int slice.
-func (s SeriesInt32) Filter(mask any) Series {
+func (s SeriesInt) Filter(mask any) Series {
 	switch mask := mask.(type) {
 	case SeriesBool:
 		return s.filterBool(mask)
@@ -234,27 +234,27 @@ func (s SeriesInt32) Filter(mask any) Series {
 	case []int:
 		return s.filterIntSlice(mask, true)
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Filter: invalid type %T", mask)}
+		return SeriesError{fmt.Sprintf("SeriesInt.Filter: invalid type %T", mask)}
 	}
 }
 
-func (s SeriesInt32) filterBool(mask SeriesBool) Series {
+func (s SeriesInt) filterBool(mask SeriesBool) Series {
 	return s.filterBoolSlice(mask.data)
 }
 
-func (s SeriesInt32) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
+func (s SeriesInt) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	if mask.size != s.Len() {
-		return SeriesError{fmt.Sprintf("SeriesInt32.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
+		return SeriesError{fmt.Sprintf("SeriesInt.Filter: mask length (%d) does not match series length (%d)", mask.size, s.Len())}
 	}
 
 	if mask.isNullable {
-		return SeriesError{"SeriesInt32.Filter: mask series cannot be nullable for this operation"}
+		return SeriesError{"SeriesInt.Filter: mask series cannot be nullable for this operation"}
 	}
 
 	elementCount := mask.__trueCount()
 	var nullMask []uint8
 
-	data := make([]int32, elementCount)
+	data := make([]int, elementCount)
 	if s.isNullable {
 		nullMask = __binVecInit(elementCount, false)
 		dstIdx := 0
@@ -286,9 +286,9 @@ func (s SeriesInt32) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	return s
 }
 
-func (s SeriesInt32) filterBoolSlice(mask []bool) Series {
+func (s SeriesInt) filterBoolSlice(mask []bool) Series {
 	if len(mask) != len(s.data) {
-		return SeriesError{fmt.Sprintf("SeriesInt32.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+		return SeriesError{fmt.Sprintf("SeriesInt.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
 	elementCount := 0
@@ -298,10 +298,10 @@ func (s SeriesInt32) filterBoolSlice(mask []bool) Series {
 		}
 	}
 
-	var data []int32
+	var data []int
 	var nullMask []uint8
 
-	data = make([]int32, elementCount)
+	data = make([]int, elementCount)
 
 	if s.isNullable {
 		nullMask = __binVecInit(elementCount, false)
@@ -334,9 +334,9 @@ func (s SeriesInt32) filterBoolSlice(mask []bool) Series {
 	return s
 }
 
-func (s SeriesInt32) filterIntSlice(indexes []int, check bool) Series {
+func (s SeriesInt) filterIntSlice(indexes []int, check bool) Series {
 	if len(indexes) == 0 {
-		s.data = make([]int32, 0)
+		s.data = make([]int, 0)
 		s.nullMask = make([]uint8, 0)
 		return s
 	}
@@ -345,16 +345,16 @@ func (s SeriesInt32) filterIntSlice(indexes []int, check bool) Series {
 	if check {
 		for _, v := range indexes {
 			if v < 0 || v >= len(s.data) {
-				return SeriesError{fmt.Sprintf("SeriesInt32.Filter: index %d is out of range", v)}
+				return SeriesError{fmt.Sprintf("SeriesInt.Filter: index %d is out of range", v)}
 			}
 		}
 	}
 
-	var data []int32
+	var data []int
 	var nullMask []uint8
 
 	size := len(indexes)
-	data = make([]int32, size)
+	data = make([]int, size)
 
 	if s.isNullable {
 		nullMask = __binVecInit(size, false)
@@ -380,7 +380,7 @@ func (s SeriesInt32) filterIntSlice(indexes []int, check bool) Series {
 }
 
 // Apply the given function to each element of the series.
-func (s SeriesInt32) Map(f MapFunc) Series {
+func (s SeriesInt) Map(f MapFunc) Series {
 	if len(s.data) == 0 {
 		return s
 	}
@@ -402,13 +402,13 @@ func (s SeriesInt32) Map(f MapFunc) Series {
 			partition:  nil,
 		}
 
-	case int32:
-		data := make([]int32, len(s.data))
+	case int:
+		data := make([]int, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
+			data[i] = f(s.data[i]).(int)
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -497,18 +497,18 @@ func (s SeriesInt32) Map(f MapFunc) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.Map: Unsupported type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt.Map: Unsupported type %T", v)}
 	}
 }
 
 // Apply the given function to each element of the series.
-func (s SeriesInt32) MapNull(f MapFuncNull) Series {
+func (s SeriesInt) MapNull(f MapFuncNull) Series {
 	if len(s.data) == 0 {
 		return s
 	}
 
 	if !s.isNullable {
-		return SeriesError{"SeriesInt32.MapNull: series is not nullable"}
+		return SeriesError{"SeriesInt.MapNull: series is not nullable"}
 	}
 
 	v, isNull := f(s.Get(0), s.IsNull(0))
@@ -533,18 +533,18 @@ func (s SeriesInt32) MapNull(f MapFuncNull) Series {
 			partition:  nil,
 		}
 
-	case int32:
-		data := make([]int32, len(s.data))
+	case int:
+		data := make([]int, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
 			v, isNull = f(s.data[i], s.IsNull(i))
-			data[i] = v.(int32)
+			data[i] = v.(int)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
 			}
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -658,6 +658,6 @@ func (s SeriesInt32) MapNull(f MapFuncNull) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesInt32.MapNull: Unsupported type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesInt.MapNull: Unsupported type %T", v)}
 	}
 }

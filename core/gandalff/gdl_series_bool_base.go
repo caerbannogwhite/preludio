@@ -402,13 +402,13 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			partition:  nil,
 		}
 
-	case int32:
-		data := make([]int32, len(s.data))
+	case int:
+		data := make([]int, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = f(s.data[i]).(int32)
+			data[i] = f(s.data[i]).(int)
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: s.isNullable,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -533,18 +533,18 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			partition:  nil,
 		}
 
-	case int32:
-		data := make([]int32, len(s.data))
+	case int:
+		data := make([]int, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
 			v, isNull = f(s.data[i], s.IsNull(i))
-			data[i] = v.(int32)
+			data[i] = v.(int)
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
 			}
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,

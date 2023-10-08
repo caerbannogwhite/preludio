@@ -529,8 +529,8 @@ func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) stri
 	switch computeResInnerType(opCode, op1, op2) {
 	case typesys.BoolType:
 		return "SeriesBool"
-	case typesys.Int32Type:
-		return "SeriesInt32"
+	case typesys.IntType:
+		return "SeriesInt"
 	case typesys.Int64Type:
 		return "SeriesInt64"
 	case typesys.Float32Type:

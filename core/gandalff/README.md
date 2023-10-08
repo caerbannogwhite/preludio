@@ -60,7 +60,7 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] Bool
 - [ ] Bool (memory optimized, not fully implemented yet)
 - [ ] Int16
-- [x] Int32
+- [x] Int
 - [x] Int64
 - [ ] Float32
 - [x] Float64
@@ -253,7 +253,7 @@ type Series interface {
 
 ### TODO
 
-- [ ] SetNulls(i []int) Series, Set(i []int, v []any) Series
+- [ ] Set(i []int, v []any) Series
 - [ ] Slice(i []int) Series (use filter)
 - [ ] Implement memory optimized Bool series with uint64.
 - [ ] Using uint64 for null mask.

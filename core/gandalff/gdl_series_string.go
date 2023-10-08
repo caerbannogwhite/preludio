@@ -208,8 +208,8 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			partition:  nil,
 		}
 
-	case typesys.Int32Type:
-		data := make([]int32, len(s.data))
+	case typesys.IntType:
+		data := make([]int, len(s.data))
 		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
 			copy(nullMask, s.nullMask)
@@ -222,7 +222,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 					if err != nil {
 						nullMask[i>>3] |= (1 << uint(i%8))
 					} else {
-						data[i] = int32(d)
+						data[i] = int(d)
 					}
 				}
 			}
@@ -232,12 +232,12 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 				if err != nil {
 					nullMask[i>>3] |= (1 << uint(i%8))
 				} else {
-					data[i] = int32(d)
+					data[i] = int(d)
 				}
 			}
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,

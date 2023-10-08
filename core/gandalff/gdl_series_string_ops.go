@@ -197,7 +197,7 @@ func (s SeriesString) Add(other Series) Series {
 			}
 			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
-	case SeriesInt32:
+	case SeriesInt:
 		if s.Len() == 1 {
 			if o.Len() == 1 {
 				if s.isNullable {

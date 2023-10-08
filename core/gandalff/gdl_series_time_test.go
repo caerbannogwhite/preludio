@@ -28,13 +28,13 @@ func Test_SeriesTime_Map(t *testing.T) {
 		t.Errorf("SeriesTime.Map: expected %v, got %v", expectedBool, resBool.Data())
 	}
 
-	// Map the series to int32.
+	// Map the series to int.
 	resInt := s.Map(func(v any) any {
-		return int32(v.(time.Time).Day())
+		return int(v.(time.Time).Day())
 	})
 
-	expectedInt := []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
-	if !checkEqSliceInt32(resInt.Data().([]int32), expectedInt, nil, "") {
+	expectedInt := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+	if !checkEqSliceInt(resInt.Data().([]int), expectedInt, nil, "") {
 		t.Errorf("SeriesTime.Map: expected %v, got %v", expectedInt, resInt.Data())
 	}
 

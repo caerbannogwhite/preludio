@@ -12,6 +12,8 @@ func checkEqSlice(a, b interface{}, t *testing.T, msg string) bool {
 	switch a.(type) {
 	case []bool:
 		return checkEqSliceBool(a.([]bool), b.([]bool), t, msg)
+	case []int:
+		return checkEqSliceInt(a.([]int), b.([]int), t, msg)
 	case []int32:
 		return checkEqSliceInt32(a.([]int32), b.([]int32), t, msg)
 	case []int64:
@@ -57,7 +59,34 @@ func checkEqSliceBool(a, b []bool, t *testing.T, msg string) bool {
 	return true
 }
 
-func checkEqSliceInt(a, b []int) bool {
+func checkEqSliceInt(a, b []int, t *testing.T, msg string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	if t == nil {
+		for i, x := range a {
+			if x != b[i] {
+				if msg != "" {
+					fmt.Printf("    %s: %4d - expected '%v', got '%v'\n", msg, i, b[i], a[i])
+				} else {
+					fmt.Printf("    checkEqSliceInt: %4d - expected '%v', got '%v'\n", i, b[i], a[i])
+				}
+				return false
+			}
+		}
+	} else {
+		for i, x := range a {
+			if x != b[i] {
+				t.Errorf("%s: %4d - expected '%v', got '%v'", msg, i, b[i], a[i])
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func checkEqSliceIntQuiet(a, b []int, t *testing.T, msg string) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -251,7 +280,7 @@ func checkEqPartitionMap(a, b map[int64][]int, t *testing.T, msg string) bool {
 			found := false
 			vSorted := sort.IntSlice(v)
 			for _, w := range b {
-				if checkEqSliceInt(vSorted, sort.IntSlice(w)) {
+				if checkEqSliceIntQuiet(vSorted, sort.IntSlice(w), t, msg) {
 					found = true
 					break
 				}
@@ -266,7 +295,7 @@ func checkEqPartitionMap(a, b map[int64][]int, t *testing.T, msg string) bool {
 			found := false
 			vSorted := sort.IntSlice(v)
 			for _, w := range b {
-				if checkEqSliceInt(vSorted, sort.IntSlice(w)) {
+				if checkEqSliceIntQuiet(vSorted, sort.IntSlice(w), t, msg) {
 					found = true
 					break
 				}

@@ -136,22 +136,22 @@ func (df BaseDataFrame) AddSeriesFromBools(name string, data []bool, nullMask []
 	return df.AddSeries(name, NewSeriesBool(data, nullMask, makeCopy, df.pool))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt32s(name string, data []int32, nullMask []bool, makeCopy bool) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInts(name string, data []int, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32s: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32s: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(name, NewSeriesInt32(data, nullMask, makeCopy, df.pool))
+	return df.AddSeries(name, NewSeriesInt(data, nullMask, makeCopy, df.pool))
 }
 
 func (df BaseDataFrame) AddSeriesFromInt64s(name string, data []int64, nullMask []bool, makeCopy bool) DataFrame {
@@ -482,13 +482,13 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 				data:       values,
 			})
 
-		case SeriesInt32:
-			values := make([]int32, len(indeces))
+		case SeriesInt:
+			values := make([]int, len(indeces))
 			for i, group := range indeces {
 				values[i] = series.data[group[0]]
 			}
 
-			result.series = append(result.series, SeriesInt32{
+			result.series = append(result.series, SeriesInt{
 				isNullable: series.isNullable,
 				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
@@ -818,8 +818,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = NewSeriesBool(make([]bool, padBlen), nullMask, false, df.pool).
 					Append(ser_)
 
-			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(make([]int32, padBlen), nullMask, false, df.pool).
+			case typesys.IntType:
+				ser_ = NewSeriesInt(make([]int, padBlen), nullMask, false, df.pool).
 					Append(ser_)
 
 			case typesys.Int64Type:
@@ -885,8 +885,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			case typesys.BoolType:
 				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMask, false, df.pool))
 
-			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(make([]int32, padAlen), nullMask, false, df.pool))
+			case typesys.IntType:
+				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMask, false, df.pool))
 
 			case typesys.Int64Type:
 				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMask, false, df.pool))
@@ -975,8 +975,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			case typesys.BoolType:
 				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMaskA, false, df.pool))
 
-			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).Append(NewSeriesInt32(make([]int32, padAlen), nullMaskA, false, df.pool))
+			case typesys.IntType:
+				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMaskA, false, df.pool))
 
 			case typesys.Int64Type:
 				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMaskA, false, df.pool))
@@ -1008,8 +1008,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 				ser_ = NewSeriesBool(make([]bool, padBlen), nullMaskB, false, df.pool).
 					Append(ser_)
 
-			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(make([]int32, padBlen), nullMaskB, false, df.pool).
+			case typesys.IntType:
+				ser_ = NewSeriesInt(make([]int, padBlen), nullMaskB, false, df.pool).
 					Append(ser_)
 
 			case typesys.Int64Type:

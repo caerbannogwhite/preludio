@@ -182,29 +182,29 @@ func (s SeriesNA) Append(v any) Series {
 			partition:  nil,
 		}
 
-	case int32, NullableInt32, []int32, []NullableInt32, SeriesInt32:
-		var data []int32
+	case int, NullableInt, []int, []NullableInt, SeriesInt:
+		var data []int
 		switch v := v.(type) {
-		case int32:
-			data = make([]int32, s.size+1)
+		case int:
+			data = make([]int, s.size+1)
 			data[s.size] = v
 			nullMask = __binVecInit(s.size+1, true)
 			nullMask[s.size>>3] &= ^(1 << uint(s.size%8))
 
-		case NullableInt32:
-			data = make([]int32, s.size+1)
+		case NullableInt:
+			data = make([]int, s.size+1)
 			nullMask = __binVecInit(s.size+1, true)
 			if v.Valid {
 				data[s.size] = v.Value
 				nullMask[s.size>>3] &= ^(1 << uint(s.size%8))
 			}
 
-		case []int32:
-			data = append(make([]int32, s.size), v...)
+		case []int:
+			data = append(make([]int, s.size), v...)
 			_, nullMask = __mergeNullMasks(s.size, true, __binVecInit(s.size, true), len(v), false, make([]uint8, 0))
 
-		case []NullableInt32:
-			data = make([]int32, s.size+len(v))
+		case []NullableInt:
+			data = make([]int, s.size+len(v))
 			nullMask = __binVecInit(len(v), false)
 			for i, v := range v {
 				if v.Valid {
@@ -216,12 +216,12 @@ func (s SeriesNA) Append(v any) Series {
 
 			_, nullMask = __mergeNullMasks(s.size, true, __binVecInit(s.size, true), len(v), true, nullMask)
 
-		case SeriesInt32:
-			data = append(make([]int32, s.size), v.data...)
+		case SeriesInt:
+			data = append(make([]int, s.size), v.data...)
 			_, nullMask = __mergeNullMasks(s.size, true, __binVecInit(s.size, true), v.Len(), v.IsNullable(), v.nullMask)
 		}
 
-		return SeriesInt32{
+		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
 			data:       data,
@@ -428,11 +428,11 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			partition:  nil,
 		}
 
-	case typesys.Int32Type:
-		return SeriesInt32{
+	case typesys.IntType:
+		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
-			data:       make([]int32, s.size),
+			data:       make([]int, s.size),
 			nullMask:   __binVecInit(s.size, true),
 			pool:       s.pool,
 			partition:  nil,

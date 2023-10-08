@@ -223,8 +223,8 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 		switch dataTypes[i] {
 		case typesys.BoolType:
 			values[i] = make([]bool, 0)
-		case typesys.Int32Type:
-			values[i] = make([]int32, 0)
+		case typesys.IntType:
+			values[i] = make([]int, 0)
 		case typesys.Int64Type:
 			values[i] = make([]int64, 0)
 		case typesys.Float64Type:
@@ -248,12 +248,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 							values[i] = append(values[i].([]bool), b)
 						}
 
-					case typesys.Int32Type:
+					case typesys.IntType:
 						if d, err := strconv.Atoi(v); err != nil {
 							nullMasks[i] = append(nullMasks[i], true)
 						} else {
 							nullMasks[i] = append(nullMasks[i], false)
-							values[i] = append(values[i].([]int32), int32(d))
+							values[i] = append(values[i].([]int), int(d))
 						}
 
 					case typesys.Int64Type:
@@ -289,12 +289,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						}
 						values[i] = append(values[i].([]bool), b)
 
-					case typesys.Int32Type:
+					case typesys.IntType:
 						d, err := strconv.Atoi(v)
 						if err != nil {
 							return nil, nil, err
 						}
-						values[i] = append(values[i].([]int32), int32(d))
+						values[i] = append(values[i].([]int), int(d))
 
 					case typesys.Int64Type:
 						d, err := strconv.ParseInt(v, 10, 64)
@@ -337,12 +337,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						values[i] = append(values[i].([]bool), b)
 					}
 
-				case typesys.Int32Type:
+				case typesys.IntType:
 					if d, err := strconv.Atoi(v); err != nil {
 						nullMasks[i] = append(nullMasks[i], true)
 					} else {
 						nullMasks[i] = append(nullMasks[i], false)
-						values[i] = append(values[i].([]int32), int32(d))
+						values[i] = append(values[i].([]int), int(d))
 					}
 
 				case typesys.Int64Type:
@@ -385,12 +385,12 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 					}
 					values[i] = append(values[i].([]bool), b)
 
-				case typesys.Int32Type:
+				case typesys.IntType:
 					d, err := strconv.Atoi(v)
 					if err != nil {
 						return nil, nil, err
 					}
-					values[i] = append(values[i].([]int32), int32(d))
+					values[i] = append(values[i].([]int), int(d))
 
 				case typesys.Int64Type:
 					d, err := strconv.ParseInt(v, 10, 64)
@@ -427,8 +427,8 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 		case typesys.BoolType:
 			series[i] = NewSeriesBool(values[i].([]bool), nullMasks[i], false, stringPool)
 
-		case typesys.Int32Type:
-			series[i] = NewSeriesInt32(values[i].([]int32), nullMasks[i], false, stringPool)
+		case typesys.IntType:
+			series[i] = NewSeriesInt(values[i].([]int), nullMasks[i], false, stringPool)
 
 		case typesys.Int64Type:
 			series[i] = NewSeriesInt64(values[i].([]int64), nullMasks[i], false, stringPool)

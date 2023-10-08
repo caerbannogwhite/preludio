@@ -251,14 +251,14 @@ func Test_SeriesString_Cast(t *testing.T) {
 		}
 	}
 
-	// Cast to int32.
-	resInt := s.Cast(typesys.Int32Type)
-	expectedInt32 := []int32{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
+	// Cast to int.
+	resInt := s.Cast(typesys.IntType)
+	expectedInt := []int{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 
 	// Check the data.
-	for i, v := range resInt.Data().([]int32) {
-		if v != expectedInt32[i] {
-			t.Errorf("Expected %d, got %d at index %d", expectedInt32[i], v, i)
+	for i, v := range resInt.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %d, got %d at index %d", expectedInt[i], v, i)
 		}
 	}
 
@@ -465,14 +465,14 @@ func Test_SeriesString_Map(t *testing.T) {
 		t.Errorf("Expected data of %v, got %v", expectedBool, resBool.Data())
 	}
 
-	// Map the series to int32.
+	// Map the series to int.
 	resInt := s.Map(func(v any) any {
-		return int32(len(v.(string)))
+		return int(len(v.(string)))
 	})
 
-	expectedInt32 := []int32{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 0, 2, 2, 1, 0, 2}
-	if !checkEqSliceInt32(resInt.Data().([]int32), expectedInt32, nil, "SeriesString.Map") {
-		t.Errorf("Expected data of %v, got %v", expectedInt32, resInt.Data())
+	expectedInt := []int{2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 0, 2, 2, 1, 0, 2}
+	if !checkEqSliceInt(resInt.Data().([]int), expectedInt, nil, "SeriesString.Map") {
+		t.Errorf("Expected data of %v, got %v", expectedInt, resInt.Data())
 	}
 
 	// Map the series to int64.
@@ -632,10 +632,10 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32([]int32{2}, nil, true, nil)
-	i32v := NewSeriesInt32([]int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, nil)
-	i32s_ := NewSeriesInt32([]int32{2}, nil, true, nil).SetNullMask([]bool{true})
-	i32v_ := NewSeriesInt32([]int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, nil).
+	i32s := NewSeriesInt([]int{2}, nil, true, nil)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, nil)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, nil).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, nil).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	i64s := NewSeriesInt64([]int64{2}, nil, true, nil)
@@ -670,7 +670,7 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Error in String Add")
 	}
 
-	// scalar | int32
+	// scalar | int
 	if !checkEqSlice(ss.Add(i32s).Data().([]string), []string{"22"}, nil, "String Add") {
 		t.Errorf("Error in String Add")
 	}

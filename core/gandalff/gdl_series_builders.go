@@ -19,11 +19,11 @@ func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, po
 		return NewSeriesBool(data, nullMask, makeCopy, pool)
 		// }
 
-	case []int32:
+	case []int:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesInt32(data, nullMask, makeCopy, pool)
+		return NewSeriesInt(data, nullMask, makeCopy, pool)
 
 	case []int64:
 		if nullMask != nil && len(nullMask) != len(data) {
@@ -119,8 +119,8 @@ func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *Stri
 	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, pool: pool}
 }
 
-// Build a Int32 Series, if nullMask is nil then the series is not nullable
-func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt32 {
+// Build a Int Series, if nullMask is nil then the series is not nullable
+func NewSeriesInt(data []int, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -137,12 +137,12 @@ func NewSeriesInt32(data []int32, nullMask []bool, makeCopy bool, pool *StringPo
 	}
 
 	if makeCopy {
-		actualData := make([]int32, len(data))
+		actualData := make([]int, len(data))
 		copy(actualData, data)
 		data = actualData
 	}
 
-	return SeriesInt32{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesInt{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
 }
 
 // Build a Int64 Series, if nullMask is nil then the series is not nullable
