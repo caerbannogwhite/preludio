@@ -1578,3 +1578,58 @@ func Test_SeriesBool_Arithmetic_Sub(t *testing.T) {
 		t.Errorf("Error in Bool Sub")
 	}
 }
+
+func Test_SeriesBool_Boolean_Or(t *testing.T) {
+	nas := NewSeriesNA(1, nil)
+	nav := NewSeriesNA(10, nil)
+
+	bools := NewSeriesBool([]bool{true}, nil, true, nil)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
+
+	// scalar | bool
+	if !checkEqSlice(bools.Or(bools).Data().([]bool), []bool{true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(bools.Or(boolv).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(bools.Or(bools_).GetNullMask(), []bool{true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(bools.Or(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+
+	// scalar | na
+	if !checkEqSlice(bools.Or(nas).Data().([]bool), []bool{true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(bools.Or(nav).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+
+	// vector | bool
+	if !checkEqSlice(boolv.Or(bools).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(boolv.Or(boolv).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(boolv.Or(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(boolv.Or(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+
+	// vector | na
+	if !checkEqSlice(boolv.Or(nas).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+	if !checkEqSlice(boolv.Or(nav).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
+		t.Errorf("Error in Bool Or")
+	}
+}

@@ -2,6 +2,142 @@ package gandalff
 
 import "fmt"
 
+func (s SeriesNA) Not() Series {
+	return s
+}
+
+func (s SeriesNA) And(other Series) Series {
+	switch o := other.(type) {
+	case SeriesNA:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			} else {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			}
+		} else {
+			if o.Len() == 1 {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			} else if s.Len() == o.Len() {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			}
+			return SeriesError{fmt.Sprintf("Cannot and %s and %s", s.Type().ToString(), o.Type().ToString())}
+		}
+	case SeriesBool:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			} else {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			}
+		} else {
+			if o.Len() == 1 {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			} else if s.Len() == o.Len() {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			}
+			return SeriesError{fmt.Sprintf("Cannot and %s and %s", s.Type().ToString(), o.Type().ToString())}
+		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot and %s and %s", s.Type().ToString(), o.Type().ToString())}
+	}
+
+}
+
+func (s SeriesNA) Or(other Series) Series {
+	switch o := other.(type) {
+	case SeriesNA:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			} else {
+				resultSize := o.Len()
+				return SeriesNA{size: resultSize}
+			}
+		} else {
+			if o.Len() == 1 {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			} else if s.Len() == o.Len() {
+				resultSize := s.Len()
+				return SeriesNA{size: resultSize}
+			}
+			return SeriesError{fmt.Sprintf("Cannot or %s and %s", s.Type().ToString(), o.Type().ToString())}
+		}
+	case SeriesBool:
+		if s.Len() == 1 {
+			if o.Len() == 1 {
+				resultSize := o.Len()
+				result := make([]bool, resultSize)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, o.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
+				result[0] = o.data[0]
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+			} else {
+				resultSize := o.Len()
+				result := make([]bool, resultSize)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, o.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
+				for i := 0; i < resultSize; i++ {
+					result[i] = o.data[i]
+				}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+			}
+		} else {
+			if o.Len() == 1 {
+				resultSize := s.Len()
+				result := make([]bool, resultSize)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, o.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
+				for i := 0; i < resultSize; i++ {
+					result[i] = o.data[0]
+				}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+			} else if s.Len() == o.Len() {
+				resultSize := s.Len()
+				result := make([]bool, resultSize)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, o.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
+				for i := 0; i < resultSize; i++ {
+					result[i] = o.data[i]
+				}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+			}
+			return SeriesError{fmt.Sprintf("Cannot or %s and %s", s.Type().ToString(), o.Type().ToString())}
+		}
+	default:
+		return SeriesError{fmt.Sprintf("Cannot or %s and %s", s.Type().ToString(), o.Type().ToString())}
+	}
+
+}
+
 func (s SeriesNA) Mul(other Series) Series {
 	switch o := other.(type) {
 	case SeriesNA:
@@ -516,13 +652,24 @@ func (s SeriesNA) Add(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := o.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, o.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				result[0] = s.pool.Put(NULL_STRING + *o.data[0])
 				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
 			} else {
 				resultSize := o.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, o.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(NULL_STRING + *o.data[i])
 				}
@@ -532,7 +679,12 @@ func (s SeriesNA) Add(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := s.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, o.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(NULL_STRING + *o.data[0])
 				}
@@ -540,7 +692,13 @@ func (s SeriesNA) Add(other Series) Series {
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if o.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, o.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(NULL_STRING + *o.data[i])
 				}

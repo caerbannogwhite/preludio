@@ -90,34 +90,32 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 		resultGoType = "[]*string"
 	}
 
-	var stmts []ast.Stmt
-	if info.ResInnerType == typesys.NullType {
-		stmts = []ast.Stmt{
+	// assign the result size
+	stmts := []ast.Stmt{&ast.AssignStmt{
+		Lhs: []ast.Expr{
+			&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
+		},
+		Tok: token.DEFINE,
+		Rhs: []ast.Expr{
+			&ast.Ident{Name: fmt.Sprintf("%s.Len()", resSizeVariable)},
+		},
+	}}
 
-			// assign the result size
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{
-					&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
-				},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("%s.Len()", resSizeVariable)},
-				},
-			},
-		}
-	} else {
-		stmts = []ast.Stmt{
+	// One of the operands is SeriesNA, take the null mask of the other operand
+	// if info.Op1InnerType == typesys.NullType || info.Op2InnerType == typesys.NullType {
+	// 	stmts = append(stmts, &ast.AssignStmt{
+	// 		Lhs: []ast.Expr{
+	// 			&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+	// 		},
+	// 		Tok: token.DEFINE,
+	// 		Rhs: []ast.Expr{
+	// 			&ast.Ident{Name: fmt.Sprintf("%s.nullMask", resSizeVariable)},
+	// 		},
+	// 	})
+	// }
 
-			// assign the result size
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{
-					&ast.Ident{Name: RESULT_SIZE_VAR_NAME},
-				},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.Ident{Name: fmt.Sprintf("%s.Len()", resSizeVariable)},
-				},
-			},
+	if info.ResInnerType != typesys.NullType {
+		stmts = append(stmts,
 
 			// make the result array
 			&ast.AssignStmt{
@@ -134,10 +132,97 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 						},
 					},
 				},
-			},
-		}
+			})
 
 		// Make the result null mask
+
+		// Special case: one of the operands is SeriesNA
+		if info.Op1InnerType == typesys.NullType || info.Op2InnerType == typesys.NullType {
+
+			nonNullOperand := info.Op1VarName
+			nonNullOperandIsScalar := info.Op1Scalar
+			if info.Op1InnerType == typesys.NullType {
+				nonNullOperand = info.Op2VarName
+				nonNullOperandIsScalar = info.Op2Scalar
+			}
+
+			stmts = append(stmts, &ast.DeclStmt{
+				Decl: &ast.GenDecl{
+					Tok: token.VAR,
+					Specs: []ast.Spec{
+						&ast.ValueSpec{
+							Names: []*ast.Ident{
+								{Name: RESULT_NULL_MASK_VAR_NAME},
+							},
+							Type: &ast.Ident{Name: "[]uint8"},
+						},
+					},
+				},
+			})
+
+			// The non-null operand is a scalar
+			if nonNullOperandIsScalar {
+				stmts = append(stmts, &ast.IfStmt{
+					Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", nonNullOperand)),
+					Body: &ast.BlockStmt{List: []ast.Stmt{
+						&ast.AssignStmt{
+							Lhs: []ast.Expr{
+								&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+							},
+							Tok: token.ASSIGN,
+							Rhs: []ast.Expr{
+								&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s, %s.nullMask[0] == 1)", RESULT_SIZE_VAR_NAME, nonNullOperand)},
+							}},
+					}},
+					Else: &ast.BlockStmt{List: []ast.Stmt{
+						&ast.AssignStmt{
+							Lhs: []ast.Expr{
+								&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+							},
+							Tok: token.ASSIGN,
+							Rhs: []ast.Expr{
+								&ast.Ident{Name: "make([]uint8, 0)"},
+							}},
+					}},
+				})
+			} else
+
+			// The non-null operand is vector
+			{
+				stmts = append(stmts,
+					&ast.IfStmt{
+						Cond: ast.NewIdent(fmt.Sprintf("%s.isNullable", nonNullOperand)),
+						Body: &ast.BlockStmt{List: []ast.Stmt{
+							&ast.AssignStmt{
+								Lhs: []ast.Expr{
+									&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+								},
+								Tok: token.ASSIGN,
+								Rhs: []ast.Expr{
+									&ast.Ident{Name: fmt.Sprintf("__binVecInit(%s, %s)", RESULT_SIZE_VAR_NAME, "false")},
+								}},
+							&ast.ExprStmt{X: &ast.CallExpr{
+								Fun: &ast.Ident{Name: "copy"},
+								Args: []ast.Expr{
+									&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+									&ast.Ident{Name: fmt.Sprintf("%s.nullMask", nonNullOperand)},
+								}}},
+						}},
+						Else: &ast.BlockStmt{List: []ast.Stmt{
+							&ast.AssignStmt{
+								Lhs: []ast.Expr{
+									&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
+								},
+								Tok: token.ASSIGN,
+								Rhs: []ast.Expr{
+									&ast.Ident{Name: "make([]uint8, 0)"},
+								}},
+						}},
+					})
+			}
+		} else
+
+		// Default: check the nullability of the operands
 		if info.Op1Nullable {
 			if info.Op2Nullable {
 

@@ -1156,13 +1156,23 @@ func (s SeriesString) Add(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := o.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, s.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				result[0] = s.pool.Put(*s.data[0] + NULL_STRING)
 				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: s.pool, data: result}
 			} else {
 				resultSize := o.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, s.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(*s.data[0] + NULL_STRING)
 				}
@@ -1172,7 +1182,13 @@ func (s SeriesString) Add(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := s.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, s.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(*s.data[i] + NULL_STRING)
 				}
@@ -1180,7 +1196,13 @@ func (s SeriesString) Add(other Series) Series {
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
 				result := make([]*string, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, s.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.pool.Put(*s.data[i] + NULL_STRING)
 				}

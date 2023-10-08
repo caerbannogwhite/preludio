@@ -253,8 +253,9 @@ type Series interface {
 
 ### TODO
 
-- [ ] Set(i []int, v []any) Series
-- [ ] Slice(i []int) Series (use filter)
+- [ ] SeriesTime: set time format.
+- [ ] Implement `Set(i []int, v []any) Series`.
+- [ ] Add `Slice(i []int) Series` (using filter?).
 - [ ] Implement memory optimized Bool series with uint64.
 - [ ] Using uint64 for null mask.
 - [ ] Implement chunked series.

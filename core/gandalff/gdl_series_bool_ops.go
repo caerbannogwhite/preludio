@@ -179,36 +179,18 @@ func (s SeriesBool) And(other Series) Series {
 		if s.Len() == 1 {
 			if o.Len() == 1 {
 				resultSize := o.Len()
-				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
-
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesNA{size: resultSize}
 			} else {
 				resultSize := o.Len()
-				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
-				for i := 0; i < resultSize; i++ {
-
-				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesNA{size: resultSize}
 			}
 		} else {
 			if o.Len() == 1 {
 				resultSize := s.Len()
-				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
-				for i := 0; i < resultSize; i++ {
-
-				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesNA{size: resultSize}
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
-				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
-				for i := 0; i < resultSize; i++ {
-
-				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesNA{size: resultSize}
 			}
 			return SeriesError{fmt.Sprintf("Cannot and %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
@@ -384,13 +366,23 @@ func (s SeriesBool) Or(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := o.Len()
 				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, s.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				result[0] = s.data[0]
 				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
 			} else {
 				resultSize := o.Len()
 				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, s.nullMask[0] == 1)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.data[0]
 				}
@@ -400,7 +392,13 @@ func (s SeriesBool) Or(other Series) Series {
 			if o.Len() == 1 {
 				resultSize := s.Len()
 				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, s.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.data[i]
 				}
@@ -408,7 +406,13 @@ func (s SeriesBool) Or(other Series) Series {
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
 				result := make([]bool, resultSize)
-				resultNullMask := __binVecInit(0, false)
+				var resultNullMask []uint8
+				if s.isNullable {
+					resultNullMask = __binVecInit(resultSize, false)
+					copy(resultNullMask, s.nullMask)
+				} else {
+					resultNullMask = make([]uint8, 0)
+				}
 				for i := 0; i < resultSize; i++ {
 					result[i] = s.data[i]
 				}

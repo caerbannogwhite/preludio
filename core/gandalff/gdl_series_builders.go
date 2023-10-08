@@ -97,7 +97,7 @@ func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool
 }
 
 // Build a Bool Series, if nullMask is nil then the series is not nullable
-func NewSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBoolMemOpt {
+func newSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBoolMemOpt {
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
