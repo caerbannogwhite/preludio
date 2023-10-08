@@ -274,7 +274,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_MUL:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: NullType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -354,7 +359,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_DIV:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: NullType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -413,7 +423,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_MOD:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: NullType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -468,7 +483,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_POW:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type:
+				return Primitive{Base: NullType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -527,10 +547,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 		switch lop.Base {
 		case NullType:
 			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type, TimeType, DurationType:
+				return Primitive{Base: NullType, Size: size}
 			case StringType:
 				return Primitive{Base: StringType, Size: size}
 			default:
-				return Primitive{Base: NullType, Size: size}
+				return Primitive{Base: ErrorType}
 			}
 
 		case BoolType:
@@ -643,7 +665,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_SUB:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType, IntType, Int64Type, Float32Type, Float64Type, TimeType, DurationType:
+				return Primitive{Base: NullType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -1186,7 +1213,12 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 	case OP_BINARY_AND:
 		switch lop.Base {
 		case NullType:
-			return Primitive{Base: NullType, Size: size}
+			switch rop.Base {
+			case NullType, BoolType:
+				return Primitive{Base: BoolType, Size: size}
+			default:
+				return Primitive{Base: ErrorType}
+			}
 
 		case BoolType:
 			switch rop.Base {
@@ -1205,6 +1237,8 @@ func (op OPCODE) GetBinaryOpResultType(lop, rop Primitive) Primitive {
 		switch lop.Base {
 		case NullType:
 			switch rop.Base {
+			case NullType:
+				return Primitive{Base: NullType, Size: size}
 			case BoolType:
 				return Primitive{Base: BoolType, Size: size}
 			default:
