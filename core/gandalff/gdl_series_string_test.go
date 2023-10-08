@@ -626,6 +626,9 @@ func Test_SeriesString_Sort(t *testing.T) {
 func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 	pool := NewStringPool()
 
+	nas := NewSeriesNA(1, pool)
+	nav := NewSeriesNA(10, pool)
+
 	bools := NewSeriesBool([]bool{true}, nil, true, nil)
 	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
 	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
@@ -656,74 +659,184 @@ func Test_SeriesString_Arithmetic_Add(t *testing.T) {
 	sv_ := NewSeriesString([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, nil, true, pool).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
+	// scalar | NA
+	if !checkEqSlice(ss.Add(nas).Data().([]string), []string{"2" + NULL_STRING}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"2" + NULL_STRING}, ss.Add(nas).Data().([]string))
+	}
+	if !checkEqSlice(ss.Add(nav).Data().([]string), []string{"2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING, "2" + NULL_STRING}, ss.Add(nav).Data().([]string))
+	}
+	if !checkEqSlice(ss.Add(nas).GetNullMask(), []bool{false}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false}, ss.Add(nas).GetNullMask())
+	}
+	if !checkEqSlice(ss.Add(nav).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, ss.Add(nav).GetNullMask())
+	}
+	if !checkEqSlice(ss_.Add(nas).GetNullMask(), []bool{true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true}, ss_.Add(nas).GetNullMask())
+	}
+	if !checkEqSlice(ss_.Add(nav).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, ss_.Add(nav).GetNullMask())
+	}
+
 	// scalar | bool
 	if !checkEqSlice(ss.Add(bools).Data().([]string), []string{"2true"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"2true"}, ss.Add(bools).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(boolv).Data().([]string), []string{"2true", "2false", "2true", "2false", "2true", "2false", "2true", "2true", "2false", "2false"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"2true", "2false", "2true", "2false", "2true", "2false", "2true", "2true", "2false", "2false"}, ss.Add(boolv).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(bools_).GetNullMask(), []bool{true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{true}, ss.Add(bools_).GetNullMask())
 	}
 	if !checkEqSlice(ss.Add(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, ss.Add(boolv_).GetNullMask())
 	}
 
 	// scalar | int
 	if !checkEqSlice(ss.Add(i32s).Data().([]string), []string{"22"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"22"}, ss.Add(i32s).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(i32v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, ss.Add(i32v).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(i32s_).GetNullMask(), []bool{true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{true}, ss.Add(i32s_).GetNullMask())
 	}
 	if !checkEqSlice(ss.Add(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, ss.Add(i32v_).GetNullMask())
 	}
 
 	// scalar | int64
 	if !checkEqSlice(ss.Add(i64s).Data().([]string), []string{"22"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"22"}, ss.Add(i64s).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(i64v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, ss.Add(i64v).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(i64s_).GetNullMask(), []bool{true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{true}, ss.Add(i64s_).GetNullMask())
 	}
 	if !checkEqSlice(ss.Add(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, ss.Add(i64v_).GetNullMask())
 	}
 
 	// scalar | float64
 	if !checkEqSlice(ss.Add(f64s).Data().([]string), []string{"22"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"22"}, ss.Add(f64s).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(f64v).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, ss.Add(f64v).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(f64s_).GetNullMask(), []bool{true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{true}, ss.Add(f64s_).GetNullMask())
 	}
 	if !checkEqSlice(ss.Add(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, ss.Add(f64v_).GetNullMask())
 	}
 
 	// scalar | string
 	if !checkEqSlice(ss.Add(ss).Data().([]string), []string{"22"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"22"}, ss.Add(ss).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(sv).Data().([]string), []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []string{"21", "22", "23", "24", "25", "26", "27", "28", "29", "210"}, ss.Add(sv).Data().([]string))
 	}
 	if !checkEqSlice(ss.Add(ss_).GetNullMask(), []bool{true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{true}, ss.Add(ss_).GetNullMask())
 	}
 	if !checkEqSlice(ss.Add(sv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
-		t.Errorf("Error in String Add")
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, ss.Add(sv_).GetNullMask())
+	}
+
+	// vector | NA
+	if !checkEqSlice(sv.Add(nas).Data().([]string), []string{"1" + NULL_STRING, "2" + NULL_STRING, "3" + NULL_STRING, "4" + NULL_STRING, "5" + NULL_STRING, "6" + NULL_STRING, "7" + NULL_STRING, "8" + NULL_STRING, "9" + NULL_STRING, "10" + NULL_STRING}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"1" + NULL_STRING, "2" + NULL_STRING, "3" + NULL_STRING, "4" + NULL_STRING, "5" + NULL_STRING, "6" + NULL_STRING, "7" + NULL_STRING, "8" + NULL_STRING, "9" + NULL_STRING, "10" + NULL_STRING}, sv.Add(nas).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(nav).Data().([]string), []string{"1" + NULL_STRING, "2" + NULL_STRING, "3" + NULL_STRING, "4" + NULL_STRING, "5" + NULL_STRING, "6" + NULL_STRING, "7" + NULL_STRING, "8" + NULL_STRING, "9" + NULL_STRING, "10" + NULL_STRING}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"1" + NULL_STRING, "2" + NULL_STRING, "3" + NULL_STRING, "4" + NULL_STRING, "5" + NULL_STRING, "6" + NULL_STRING, "7" + NULL_STRING, "8" + NULL_STRING, "9" + NULL_STRING, "10" + NULL_STRING}, sv.Add(nav).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(nas).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, sv.Add(nas).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(nav).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, sv.Add(nav).GetNullMask())
+	}
+	if !checkEqSlice(sv_.Add(nas).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv_.Add(nas).GetNullMask())
+	}
+	if !checkEqSlice(sv_.Add(nav).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv_.Add(nav).GetNullMask())
+	}
+
+	// vector | bool
+	if !checkEqSlice(sv.Add(bools).Data().([]string), []string{"1true", "2true", "3true", "4true", "5true", "6true", "7true", "8true", "9true", "10true"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"1true", "2true", "3true", "4true", "5true", "6true", "7true", "8true", "9true", "10true"}, sv.Add(bools).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(boolv).Data().([]string), []string{"1true", "2false", "3true", "4false", "5true", "6false", "7true", "8true", "9false", "10false"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"1true", "2false", "3true", "4false", "5true", "6false", "7true", "8true", "9false", "10false"}, sv.Add(boolv).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, sv.Add(bools_).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv.Add(boolv_).GetNullMask())
+	}
+
+	// vector | int
+	if !checkEqSlice(sv.Add(i32s).Data().([]string), []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, sv.Add(i32s).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(i32v).Data().([]string), []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, sv.Add(i32v).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, sv.Add(i32s_).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv.Add(i32v_).GetNullMask())
+	}
+
+	// vector | int64
+	if !checkEqSlice(sv.Add(i64s).Data().([]string), []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, sv.Add(i64s).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(i64v).Data().([]string), []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, sv.Add(i64v).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, sv.Add(i64s_).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv.Add(i64v_).GetNullMask())
+	}
+
+	// vector | float64
+	if !checkEqSlice(sv.Add(f64s).Data().([]string), []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, sv.Add(f64s).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(f64v).Data().([]string), []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, sv.Add(f64v).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, sv.Add(f64s_).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv.Add(f64v_).GetNullMask())
+	}
+
+	// vector | string
+	if !checkEqSlice(sv.Add(ss).Data().([]string), []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"12", "22", "32", "42", "52", "62", "72", "82", "92", "102"}, sv.Add(ss).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(sv).Data().([]string), []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []string{"11", "22", "33", "44", "55", "66", "77", "88", "99", "1010"}, sv.Add(sv).Data().([]string))
+	}
+	if !checkEqSlice(sv.Add(ss_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, sv.Add(ss_).GetNullMask())
+	}
+	if !checkEqSlice(sv.Add(sv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "String Add") {
+		t.Errorf("Expected %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, sv.Add(sv_).GetNullMask())
 	}
 }
 

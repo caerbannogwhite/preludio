@@ -1585,51 +1585,75 @@ func Test_SeriesBool_Boolean_Or(t *testing.T) {
 
 	bools := NewSeriesBool([]bool{true}, nil, true, nil)
 	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
-	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
+	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true}).(SeriesBool)
 	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
 
 	// scalar | bool
 	if !checkEqSlice(bools.Or(bools).Data().([]bool), []bool{true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true}, bools.Or(bools).Data())
 	}
 	if !checkEqSlice(bools.Or(boolv).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, bools.Or(boolv).Data())
 	}
 	if !checkEqSlice(bools.Or(bools_).GetNullMask(), []bool{true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected null mask to be %v, got %v", []bool{true}, bools.Or(bools_).GetNullMask())
 	}
 	if !checkEqSlice(bools.Or(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, bools.Or(boolv_).GetNullMask())
 	}
 
-	// scalar | na
+	// scalar | NA
 	if !checkEqSlice(bools.Or(nas).Data().([]bool), []bool{true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true}, bools.Or(nas).Data())
 	}
 	if !checkEqSlice(bools.Or(nav).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, bools.Or(nav).Data())
+	}
+	if !checkEqSlice(bools.Or(nas).GetNullMask(), []bool{false}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false}, bools.Or(nas).GetNullMask())
+	}
+	if !checkEqSlice(bools.Or(nav).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, bools.Or(nav).GetNullMask())
+	}
+	if !checkEqSlice(bools_.Or(nas).GetNullMask(), []bool{true}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{true}, bools_.Or(nas).GetNullMask())
+	}
+	if !checkEqSlice(bools_.Or(nav).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, bools_.Or(nav).GetNullMask())
 	}
 
 	// vector | bool
 	if !checkEqSlice(boolv.Or(bools).Data().([]bool), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, boolv.Or(bools).Data())
 	}
 	if !checkEqSlice(boolv.Or(boolv).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, false, true, false, true, false, true, true, false, false}, boolv.Or(boolv).Data())
 	}
 	if !checkEqSlice(boolv.Or(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected null mask to be %v, got %v", []bool{true, true, true, true, true, true, true, true, true, true}, boolv.Or(bools_).GetNullMask())
 	}
 	if !checkEqSlice(boolv.Or(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, boolv.Or(boolv_).GetNullMask())
 	}
 
-	// vector | na
+	// vector | NA
 	if !checkEqSlice(boolv.Or(nas).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, false, true, false, true, false, true, true, false, false}, boolv.Or(nas).Data())
 	}
 	if !checkEqSlice(boolv.Or(nav).Data().([]bool), []bool{true, false, true, false, true, false, true, true, false, false}, nil, "Bool Or") {
-		t.Errorf("Error in Bool Or")
+		t.Errorf("Expected data to be %v, got %v", []bool{true, false, true, false, true, false, true, true, false, false}, boolv.Or(nav).Data())
+	}
+	if !checkEqSlice(boolv.Or(nas).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, boolv.Or(nas).GetNullMask())
+	}
+	if !checkEqSlice(boolv.Or(nav).GetNullMask(), []bool{false, false, false, false, false, false, false, false, false, false}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, false, false, false, false, false, false, false, false, false}, boolv.Or(nav).GetNullMask())
+	}
+	if !checkEqSlice(boolv_.Or(nas).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, boolv_.Or(nas).GetNullMask())
+	}
+	if !checkEqSlice(boolv_.Or(nav).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Bool Or") {
+		t.Errorf("Expected null mask to be %v, got %v", []bool{false, true, false, true, false, true, false, true, false, true}, boolv_.Or(nav).GetNullMask())
 	}
 }
