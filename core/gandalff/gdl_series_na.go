@@ -103,7 +103,7 @@ func (s SeriesNA) Get(i int) any {
 	return nil
 }
 
-func (s SeriesNA) GetString(i int) string {
+func (s SeriesNA) GetAsString(i int) string {
 	return NULL_STRING
 }
 

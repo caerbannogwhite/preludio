@@ -18,7 +18,7 @@ type SeriesBool struct {
 }
 
 // Get the element at index i as a string.
-func (s SeriesBool) GetString(i int) string {
+func (s SeriesBool) GetAsString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	} else if s.data[i] {
@@ -36,9 +36,7 @@ func (s SeriesBool) Set(i int, v any) Series {
 
 	switch v := v.(type) {
 	case nil:
-		if !s.isNullable {
-			s = s.MakeNullable().(SeriesBool)
-		}
+		s = s.MakeNullable().(SeriesBool)
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
 	case bool:
@@ -68,6 +66,18 @@ func (s SeriesBool) Append(v any) Series {
 	}
 
 	switch v := v.(type) {
+	case nil:
+		s.data = append(s.data, false)
+		s = s.MakeNullable().(SeriesBool)
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
+
+	case SeriesNA:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, v.Len(), true, __binVecInit(v.Len(), true))
+		s.data = append(s.data, make([]bool, v.Len())...)
+
 	case bool:
 		s.data = append(s.data, v)
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
@@ -87,7 +97,7 @@ func (s SeriesBool) Append(v any) Series {
 			s.nullMask = append(s.nullMask, 0)
 		}
 		if !v.Valid {
-			s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
+			s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
 		}
 
 	case []NullableBool:
@@ -100,7 +110,7 @@ func (s SeriesBool) Append(v any) Series {
 		for i, b := range v {
 			s.data[ssize+i] = b.Value
 			if !b.Valid {
-				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
+				s.nullMask[(ssize+i)>>3] |= 1 << uint8((ssize+i)%8)
 			}
 		}
 

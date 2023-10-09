@@ -19,7 +19,7 @@ type SeriesFloat64 struct {
 }
 
 // Get the element at index i as a string.
-func (s SeriesFloat64) GetString(i int) string {
+func (s SeriesFloat64) GetAsString(i int) string {
 	if s.isNullable && s.IsNull(i) {
 		return NULL_STRING
 	}

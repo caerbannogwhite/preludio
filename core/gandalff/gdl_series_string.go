@@ -20,7 +20,7 @@ type SeriesString struct {
 }
 
 // Get the element at index i as a string.
-func (s SeriesString) GetString(i int) string {
+func (s SeriesString) GetAsString(i int) string {
 	return *s.data[i]
 }
 
@@ -32,9 +32,7 @@ func (s SeriesString) Set(i int, v any) Series {
 
 	switch v := v.(type) {
 	case nil:
-		if !s.isNullable {
-			s = s.MakeNullable().(SeriesString)
-		}
+		s = s.MakeNullable().(SeriesString)
 		s.data[i] = s.ctx.stringPool.nullStringPtr
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
@@ -65,6 +63,20 @@ func (s SeriesString) Append(v any) Series {
 	}
 
 	switch v := v.(type) {
+	case nil:
+		s.data = append(s.data, s.ctx.stringPool.nullStringPtr)
+		s = s.MakeNullable().(SeriesString)
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
+
+	case SeriesNA:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, v.Len(), true, __binVecInit(v.Len(), true))
+		for i := 0; i < v.Len(); i++ {
+			s.data = append(s.data, s.ctx.stringPool.nullStringPtr)
+		}
+
 	case string:
 		s.data = append(s.data, s.ctx.stringPool.Put(v))
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
@@ -105,11 +117,12 @@ func (s SeriesString) Append(v any) Series {
 		}
 
 	case SeriesString:
-		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
-		s.data = append(s.data, make([]*string, len(v.data))...)
-		for i := 0; i < len(v.data); i++ {
-			s.data[len(s.data)-len(v.data)+i] = s.ctx.stringPool.Put(*v.data[i])
+		if s.ctx != v.ctx {
+			return SeriesError{"SeriesString.Append: cannot append SeriesString from different contexts"}
 		}
+
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
 
 	default:
 		return SeriesError{fmt.Sprintf("SeriesString.Append: invalid type %T", v)}

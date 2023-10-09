@@ -49,7 +49,7 @@ type Series interface {
 	// Get the element at index i.
 	Get(i int) any
 	// Get the element at index i as a string.
-	GetString(i int) string
+	GetAsString(i int) string
 	// Set the element at index i.
 	Set(i int, v any) Series
 	// Take the elements according to the given interval.

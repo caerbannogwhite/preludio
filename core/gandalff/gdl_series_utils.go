@@ -82,7 +82,7 @@ func debugPrintPartition(p SeriesPartition, series ...Series) {
 	for k, v := range map_ {
 		vals := ""
 		for _, s := range series {
-			vals += fmt.Sprintf("| %-10s ", s.GetString(v[0]))
+			vals += fmt.Sprintf("| %-10s ", s.GetAsString(v[0]))
 		}
 
 		indeces := ""

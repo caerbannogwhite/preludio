@@ -1269,7 +1269,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	for i := 0 + h; i < df.NRows()+h; i++ {
 		out[i] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[i][j] = df.series[j].GetString(i - h)
+			out[i][j] = df.series[j].GetAsString(i - h)
 		}
 	}
 
@@ -1378,7 +1378,7 @@ func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
 	for i := 0; i < nrows; i++ {
 		fmt.Printf("    ")
 		for _, c := range df.series {
-			fmt.Printf(fmtString, truncate(c.GetString(i), colSize))
+			fmt.Printf(fmtString, truncate(c.GetAsString(i), colSize))
 		}
 		fmt.Println("|")
 	}

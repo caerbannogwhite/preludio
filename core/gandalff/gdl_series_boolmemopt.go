@@ -188,7 +188,7 @@ func (s SeriesBoolMemOpt) Get(i int) any {
 }
 
 // Get the element at index i as a string.
-func (s SeriesBoolMemOpt) GetString(i int) string {
+func (s SeriesBoolMemOpt) GetAsString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	} else if s.data[i>>3]&(1<<uint(i%8)) != 0 {

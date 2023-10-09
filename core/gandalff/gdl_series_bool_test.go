@@ -194,13 +194,13 @@ func Test_SeriesBool_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	dataD := []bool{true, false, true, false, true, false, true, false, true, false}
-	sD := NewSeriesBool(dataD, nil, true, ctx)
+	data := []bool{true, false, true, false, true, false, true, false, true, false}
+	s := NewSeriesBool(data, nil, true, ctx)
 
 	// Check the original data.
-	for i, v := range sD.Data().([]bool) {
-		if v != dataD[i] {
-			t.Errorf("Expected %t, got %t at index %d", dataD[i], v, i)
+	for i, v := range s.Data().([]bool) {
+		if v != data[i] {
+			t.Errorf("Expected %t, got %t at index %d", data[i], v, i)
 		}
 	}
 
@@ -208,33 +208,85 @@ func Test_SeriesBool_Append(t *testing.T) {
 		if rand.Float32() > 0.5 {
 			switch i % 4 {
 			case 0:
-				sD = sD.Append(true).(SeriesBool)
+				s = s.Append(true).(SeriesBool)
 			case 1:
-				sD = sD.Append([]bool{true}).(SeriesBool)
+				s = s.Append([]bool{true}).(SeriesBool)
 			case 2:
-				sD = sD.Append(NullableBool{true, true}).(SeriesBool)
+				s = s.Append(NullableBool{true, true}).(SeriesBool)
 			case 3:
-				sD = sD.Append([]NullableBool{{false, true}}).(SeriesBool)
+				s = s.Append([]NullableBool{{false, true}}).(SeriesBool)
 			}
 
-			if sD.Get(i+10) != true {
-				t.Errorf("Expected %t, got %t at index %d (case %d)", true, sD.Get(i+10), i+10, i%4)
+			if s.Get(i+10) != true {
+				t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i+10), i+10, i%4)
 			}
 		} else {
 			switch i % 4 {
 			case 0:
-				sD = sD.Append(false).(SeriesBool)
+				s = s.Append(false).(SeriesBool)
 			case 1:
-				sD = sD.Append([]bool{false}).(SeriesBool)
+				s = s.Append([]bool{false}).(SeriesBool)
 			case 2:
-				sD = sD.Append(NullableBool{true, false}).(SeriesBool)
+				s = s.Append(NullableBool{true, false}).(SeriesBool)
 			case 3:
-				sD = sD.Append([]NullableBool{{false, false}}).(SeriesBool)
+				s = s.Append([]NullableBool{{false, false}}).(SeriesBool)
 			}
 
-			if sD.Get(i+10) != false {
-				t.Errorf("Expected %t, got %t at index %d (case %d)", false, sD.Get(i+10), i+10, i%4)
+			if s.Get(i+10) != false {
+				t.Errorf("Expected %t, got %t at index %d (case %d)", false, s.Get(i+10), i+10, i%4)
 			}
+		}
+	}
+
+	// Append nil
+	s = NewSeriesBool([]bool{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(nil).(SeriesBool)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesNA
+	s = NewSeriesBool([]bool{}, nil, true, ctx)
+	na := NewSeriesNA(10, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(na).(SeriesBool)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], na.GetNullMask(), nil, "SeriesBool.Append") {
+			t.Errorf("Expected %v, got %v at index %d", na.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+
+	// Append NullableBool
+	s = NewSeriesBool([]bool{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(NullableBool{false, true}).(SeriesBool)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append []NullableBool
+	s = NewSeriesBool([]bool{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append([]NullableBool{{false, true}}).(SeriesBool)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesBool
+	s = NewSeriesBool([]bool{}, nil, true, ctx)
+	b := NewSeriesBool([]bool{true, false, true, false, true, false, true, false, true, false}, []bool{true, true, true, true, true, true, true, true, true, true}, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(b).(SeriesBool)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], b.GetNullMask(), nil, "SeriesBool.Append") {
+			t.Errorf("Expected %v, got %v at index %d", b.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
 		}
 	}
 }

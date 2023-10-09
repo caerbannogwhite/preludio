@@ -18,7 +18,7 @@ type SeriesInt64 struct {
 }
 
 // Get the element at index i as a string.
-func (s SeriesInt64) GetString(i int) string {
+func (s SeriesInt64) GetAsString(i int) string {
 	if s.isNullable && s.IsNull(i) {
 		return NULL_STRING
 	}

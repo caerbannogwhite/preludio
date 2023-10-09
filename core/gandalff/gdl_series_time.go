@@ -18,7 +18,7 @@ type SeriesTime struct {
 }
 
 // Get the element at index i as a string.
-func (s SeriesTime) GetString(i int) string {
+func (s SeriesTime) GetAsString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	}

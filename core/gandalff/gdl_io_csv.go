@@ -543,7 +543,7 @@ func writeCSV(df DataFrame, writer io.Writer, delimiter rune, header bool, nullS
 			if s.IsNull(i) {
 				fmt.Fprintf(writer, "%s", nullString)
 			} else {
-				fmt.Fprintf(writer, "%s", s.GetString(i))
+				fmt.Fprintf(writer, "%s", s.GetAsString(i))
 			}
 		}
 

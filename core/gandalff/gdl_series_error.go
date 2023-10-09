@@ -93,7 +93,7 @@ func (s SeriesError) Get(i int) any {
 	return nil
 }
 
-func (s SeriesError) GetString(i int) string {
+func (s SeriesError) GetAsString(i int) string {
 	return ""
 }
 
