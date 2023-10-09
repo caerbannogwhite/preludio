@@ -13,11 +13,6 @@ type Series interface {
 	// Return the number of elements in the series.
 	Len() int
 
-	// Return the StringPool of the series.
-	StringPool() *StringPool
-	// Set the StringPool for this series.
-	SetStringPool(pool *StringPool) Series
-
 	// Return the type of the series.
 	Type() typesys.BaseType
 	// Return the type and cardinality of the series.

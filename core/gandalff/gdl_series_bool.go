@@ -13,8 +13,8 @@ type SeriesBool struct {
 	sorted     SeriesSortOrder
 	data       []bool
 	nullMask   []uint8
-	pool       *StringPool
 	partition  *SeriesBoolPartition
+	ctx        *Context
 }
 
 // Get the element at index i as a string.
@@ -176,8 +176,8 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -193,8 +193,8 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Float64Type:
@@ -210,32 +210,28 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
-		if s.pool == nil {
-			return SeriesError{"SeriesBool.Cast: StringPool is nil"}
-		}
-
 		data := make([]*string, len(s.data))
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = s.pool.Put(NULL_STRING)
+					data[i] = s.ctx.stringPool.Put(NULL_STRING)
 				} else if v {
-					data[i] = s.pool.Put(BOOL_TRUE_STRING)
+					data[i] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = s.pool.Put(BOOL_FALSE_STRING)
+					data[i] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
 				}
 			}
 		} else {
 			for i, v := range s.data {
 				if v {
-					data[i] = s.pool.Put(BOOL_TRUE_STRING)
+					data[i] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = s.pool.Put(BOOL_FALSE_STRING)
+					data[i] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
 				}
 			}
 		}
@@ -245,8 +241,8 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:

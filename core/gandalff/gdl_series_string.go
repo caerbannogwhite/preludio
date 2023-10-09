@@ -15,8 +15,8 @@ type SeriesString struct {
 	sorted     SeriesSortOrder
 	data       []*string
 	nullMask   []uint8
-	pool       *StringPool
 	partition  *SeriesStringPartition
+	ctx        *Context
 }
 
 // Get the element at index i as a string.
@@ -35,18 +35,18 @@ func (s SeriesString) Set(i int, v any) Series {
 		if !s.isNullable {
 			s = s.MakeNullable().(SeriesString)
 		}
-		s.data[i] = s.pool.nullStringPtr
+		s.data[i] = s.ctx.stringPool.nullStringPtr
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
 	case string:
-		s.data[i] = s.pool.Put(v)
+		s.data[i] = s.ctx.stringPool.Put(v)
 
 	case NullableString:
 		s = s.MakeNullable().(SeriesString)
 		if v.Valid {
-			s.data[i] = s.pool.Put(v.Value)
+			s.data[i] = s.ctx.stringPool.Put(v.Value)
 		} else {
-			s.data[i] = s.pool.nullStringPtr
+			s.data[i] = s.ctx.stringPool.nullStringPtr
 			s.nullMask[i>>3] |= 1 << uint(i%8)
 		}
 
@@ -66,7 +66,7 @@ func (s SeriesString) Append(v any) Series {
 
 	switch v := v.(type) {
 	case string:
-		s.data = append(s.data, s.pool.Put(v))
+		s.data = append(s.data, s.ctx.stringPool.Put(v))
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
 		}
@@ -74,14 +74,14 @@ func (s SeriesString) Append(v any) Series {
 	case []string:
 		s.data = append(s.data, make([]*string, len(v))...)
 		for i, str := range v {
-			s.data[len(s.data)-len(v)+i] = s.pool.Put(str)
+			s.data[len(s.data)-len(v)+i] = s.ctx.stringPool.Put(str)
 		}
 		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
 		}
 
 	case NullableString:
-		s.data = append(s.data, s.pool.Put(v.Value))
+		s.data = append(s.data, s.ctx.stringPool.Put(v.Value))
 		s = s.MakeNullable().(SeriesString)
 		if len(s.data) > len(s.nullMask)<<3 {
 			s.nullMask = append(s.nullMask, 0)
@@ -95,7 +95,7 @@ func (s SeriesString) Append(v any) Series {
 		s.data = append(s.data, make([]*string, len(v))...)
 		s = s.MakeNullable().(SeriesString)
 		for i, b := range v {
-			s.data[ssize+i] = s.pool.Put(b.Value)
+			s.data[ssize+i] = s.ctx.stringPool.Put(b.Value)
 			if !b.Valid {
 				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
 			}
@@ -108,7 +108,7 @@ func (s SeriesString) Append(v any) Series {
 		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
 		s.data = append(s.data, make([]*string, len(v.data))...)
 		for i := 0; i < len(v.data); i++ {
-			s.data[len(s.data)-len(v.data)+i] = s.pool.Put(*v.data[i])
+			s.data[len(s.data)-len(v.data)+i] = s.ctx.stringPool.Put(*v.data[i])
 		}
 
 	default:
@@ -204,8 +204,8 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.IntType:
@@ -242,8 +242,8 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -280,8 +280,8 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Float64Type:
@@ -318,8 +318,8 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
@@ -337,7 +337,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 // of the original series that are set to that value.
 type SeriesStringPartition struct {
 	partition map[int64][]int
-	pool      *StringPool
+	ctx       *Context
 }
 
 func (gp *SeriesStringPartition) getSize() int {
@@ -373,10 +373,10 @@ func (s SeriesString) group() Series {
 	}
 
 	partition := SeriesStringPartition{
-		pool: s.pool,
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(s.data), s.HasNull(),
 			worker, workerNulls),
+		ctx: s.ctx,
 	}
 
 	s.partition = &partition
@@ -425,10 +425,10 @@ func (s SeriesString) GroupBy(partition SeriesPartition) Series {
 	}
 
 	newPartition := SeriesStringPartition{
-		pool: s.pool,
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),
+		ctx: s.ctx,
 	}
 
 	s.partition = &newPartition
@@ -506,7 +506,7 @@ func (s SeriesString) ToUpper() Series {
 	}
 
 	for i := 0; i < len(s.data); i++ {
-		s.data[i] = s.pool.Put(strings.ToUpper(*s.data[i]))
+		s.data[i] = s.ctx.stringPool.Put(strings.ToUpper(*s.data[i]))
 	}
 
 	return s
@@ -518,7 +518,7 @@ func (s SeriesString) ToLower() Series {
 	}
 
 	for i := 0; i < len(s.data); i++ {
-		s.data[i] = s.pool.Put(strings.ToLower(*s.data[i]))
+		s.data[i] = s.ctx.stringPool.Put(strings.ToLower(*s.data[i]))
 	}
 
 	return s
@@ -530,7 +530,7 @@ func (s SeriesString) TrimSpace() Series {
 	}
 
 	for i := 0; i < len(s.data); i++ {
-		s.data[i] = s.pool.Put(strings.TrimSpace(*s.data[i]))
+		s.data[i] = s.ctx.stringPool.Put(strings.TrimSpace(*s.data[i]))
 	}
 
 	return s
@@ -542,7 +542,7 @@ func (s SeriesString) Trim(cutset string) Series {
 	}
 
 	for i := 0; i < len(s.data); i++ {
-		s.data[i] = s.pool.Put(strings.Trim(*s.data[i], cutset))
+		s.data[i] = s.ctx.stringPool.Put(strings.Trim(*s.data[i], cutset))
 	}
 
 	return s
@@ -554,7 +554,7 @@ func (s SeriesString) Replace(old, new string, n int) Series {
 	}
 
 	for i := 0; i < len(s.data); i++ {
-		s.data[i] = s.pool.Put(strings.Replace(*s.data[i], old, new, n))
+		s.data[i] = s.ctx.stringPool.Put(strings.Replace(*s.data[i], old, new, n))
 	}
 
 	return s

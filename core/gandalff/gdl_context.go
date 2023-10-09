@@ -5,6 +5,16 @@ import (
 	"sync"
 )
 
+type Context struct {
+	// StringPool is a pool of strings that are used by the series.
+	// This is used to reduce the number of allocations and to allow for fast comparisons.
+	stringPool *StringPool
+}
+
+func NewContext() *Context {
+	return &Context{stringPool: NewStringPool()}
+}
+
 type StringPool struct {
 	sync.RWMutex
 	pool          map[string]*string

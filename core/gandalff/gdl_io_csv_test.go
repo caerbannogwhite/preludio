@@ -126,7 +126,7 @@ Charlie,33,95.0,t
 `
 
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -259,7 +259,7 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 			b.Error(err)
 		}
 
-		df = NewBaseDataFrame().FromCSV().
+		df = NewBaseDataFrame(ctx).FromCSV().
 			SetReader(f).
 			SetDelimiter(',').
 			SetHeader(true).
@@ -342,7 +342,7 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 			b.Error(err)
 		}
 
-		df = NewBaseDataFrame().FromCSV().
+		df = NewBaseDataFrame(ctx).FromCSV().
 			SetReader(f).
 			SetDelimiter(',').
 			SetHeader(true).

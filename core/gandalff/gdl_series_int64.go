@@ -13,8 +13,8 @@ type SeriesInt64 struct {
 	sorted     SeriesSortOrder
 	data       []int64
 	nullMask   []uint8
-	pool       *StringPool
 	partition  *SeriesInt64Partition
+	ctx        *Context
 }
 
 // Get the element at index i as a string.
@@ -202,8 +202,8 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.IntType:
@@ -217,8 +217,8 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -235,12 +235,12 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
-		if s.pool == nil {
+		if s.ctx.stringPool == nil {
 			return SeriesError{"SeriesInt64.Cast: StringPool is nil"}
 		}
 
@@ -248,14 +248,14 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = s.pool.Put(NULL_STRING)
+					data[i] = s.ctx.stringPool.Put(NULL_STRING)
 				} else {
-					data[i] = s.pool.Put(intToString(v))
+					data[i] = s.ctx.stringPool.Put(intToString(v))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = s.pool.Put(intToString(v))
+				data[i] = s.ctx.stringPool.Put(intToString(v))
 			}
 		}
 
@@ -264,8 +264,8 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.TimeType:
@@ -279,8 +279,8 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.DurationType:
@@ -294,8 +294,8 @@ func (s SeriesInt64) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:

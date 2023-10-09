@@ -14,20 +14,19 @@ type SeriesBoolMemOpt struct {
 	size       int
 	data       []uint8
 	nullMask   []uint8
-	pool       *StringPool
 	partition  *SeriesBoolMemOptPartition
+	ctx        *Context
 }
 
 func (s SeriesBoolMemOpt) printInfo() {
-	fmt.Println("SeriesBoolMemOpt")
+	fmt.Println("{{.SeriesName}}")
 	fmt.Println("==========")
-	fmt.Println("IsGrouped:", s.partition != nil)
 	fmt.Println("IsNullable:", s.isNullable)
-	fmt.Println("Sorted:", s.sorted)
-	fmt.Println("Data:", s.data)
-	fmt.Println("NullMask:", s.nullMask)
-	fmt.Println("Pool:", s.pool.ToString())
-	fmt.Println("Partition:", s.partition)
+	fmt.Println("Sorted:    ", s.sorted)
+	fmt.Println("Data:      ", s.data)
+	fmt.Println("NullMask:  ", s.nullMask)
+	fmt.Println("Partition: ", s.partition)
+	fmt.Println("Context:   ", s.ctx)
 }
 
 ////////////////////////			BASIC ACCESSORS
@@ -45,16 +44,6 @@ func (s SeriesBoolMemOpt) __trueCount() int {
 // Returns the number of elements in the series.
 func (s SeriesBoolMemOpt) Len() int {
 	return s.size
-}
-
-// Return the StringPool of the series.
-func (s SeriesBoolMemOpt) StringPool() *StringPool {
-	return s.pool
-}
-
-// Set the StringPool for this series.
-func (s SeriesBoolMemOpt) SetStringPool(pool *StringPool) Series {
-	return s
 }
 
 // Returns the type of the series.
@@ -556,8 +545,8 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -575,8 +564,8 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Float64Type:
@@ -594,26 +583,22 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
-		if s.pool == nil {
-			return SeriesError{"SeriesBoolMemOpt.Cast: StringPool is nil"}
-		}
-
 		data := make([]*string, s.size)
 		if s.isNullable {
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if s.nullMask[i]&(1<<uint(j)) != 0 {
-						data[i*8+j] = s.pool.Put(NULL_STRING)
+						data[i*8+j] = s.ctx.stringPool.Put(NULL_STRING)
 					} else {
 						if v&(1<<uint(j)) != 0 {
-							data[i*8+j] = s.pool.Put(BOOL_TRUE_STRING)
+							data[i*8+j] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
 						} else {
-							data[i*8+j] = s.pool.Put(BOOL_FALSE_STRING)
+							data[i*8+j] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
 						}
 					}
 				}
@@ -622,9 +607,9 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			for i, v := range s.data {
 				for j := 0; j < 8 && i*8+j < s.size; j++ {
 					if v&(1<<uint(j)) != 0 {
-						data[i*8+j] = s.pool.Put(BOOL_TRUE_STRING)
+						data[i*8+j] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
 					} else {
-						data[i*8+j] = s.pool.Put(BOOL_FALSE_STRING)
+						data[i*8+j] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
 					}
 				}
 			}
@@ -635,8 +620,8 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:
@@ -657,6 +642,7 @@ func (s SeriesBoolMemOpt) Copy() Series {
 		data:       data,
 		nullMask:   nullMask,
 		partition:  s.partition,
+		ctx:        s.ctx,
 	}
 }
 
@@ -860,8 +846,8 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			size:       s.size,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int:
@@ -875,8 +861,8 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int64:
@@ -890,8 +876,8 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case float64:
@@ -905,18 +891,14 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesBoolMemOpt.Map: StringPool is nil"}
-		}
-
 		data := make([]*string, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = s.pool.Put(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
+			data[i] = s.ctx.stringPool.Put(f(s.data[i>>3]&(1<<uint(i%8)) != 0).(string))
 		}
 
 		return SeriesString{
@@ -924,8 +906,8 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case time.Time:
@@ -939,8 +921,8 @@ func (s SeriesBoolMemOpt) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 	}
 

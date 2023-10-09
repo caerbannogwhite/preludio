@@ -85,7 +85,7 @@ func (s SeriesNA) Or(other Series) Series {
 					resultNullMask = make([]uint8, 0)
 				}
 				result[0] = o.data[0]
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			} else {
 				resultSize := o.Len()
 				result := make([]bool, resultSize)
@@ -99,7 +99,7 @@ func (s SeriesNA) Or(other Series) Series {
 				for i := 0; i < resultSize; i++ {
 					result[i] = o.data[i]
 				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			}
 		} else {
 			if o.Len() == 1 {
@@ -114,7 +114,7 @@ func (s SeriesNA) Or(other Series) Series {
 				for i := 0; i < resultSize; i++ {
 					result[i] = o.data[0]
 				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
 				result := make([]bool, resultSize)
@@ -128,7 +128,7 @@ func (s SeriesNA) Or(other Series) Series {
 				for i := 0; i < resultSize; i++ {
 					result[i] = o.data[i]
 				}
-				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+				return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			}
 			return SeriesError{fmt.Sprintf("Cannot or %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}
@@ -658,8 +658,8 @@ func (s SeriesNA) Add(other Series) Series {
 				} else {
 					resultNullMask = make([]uint8, 0)
 				}
-				result[0] = s.pool.Put(NULL_STRING + *o.data[0])
-				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+				result[0] = s.ctx.stringPool.Put(NULL_STRING + *o.data[0])
+				return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			} else {
 				resultSize := o.Len()
 				result := make([]*string, resultSize)
@@ -671,9 +671,9 @@ func (s SeriesNA) Add(other Series) Series {
 					resultNullMask = make([]uint8, 0)
 				}
 				for i := 0; i < resultSize; i++ {
-					result[i] = s.pool.Put(NULL_STRING + *o.data[i])
+					result[i] = s.ctx.stringPool.Put(NULL_STRING + *o.data[i])
 				}
-				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+				return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			}
 		} else {
 			if o.Len() == 1 {
@@ -686,9 +686,9 @@ func (s SeriesNA) Add(other Series) Series {
 					resultNullMask = make([]uint8, 0)
 				}
 				for i := 0; i < resultSize; i++ {
-					result[i] = s.pool.Put(NULL_STRING + *o.data[0])
+					result[i] = s.ctx.stringPool.Put(NULL_STRING + *o.data[0])
 				}
-				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+				return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			} else if s.Len() == o.Len() {
 				resultSize := s.Len()
 				result := make([]*string, resultSize)
@@ -700,9 +700,9 @@ func (s SeriesNA) Add(other Series) Series {
 					resultNullMask = make([]uint8, 0)
 				}
 				for i := 0; i < resultSize; i++ {
-					result[i] = s.pool.Put(NULL_STRING + *o.data[i])
+					result[i] = s.ctx.stringPool.Put(NULL_STRING + *o.data[i])
 				}
-				return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+				return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 			}
 			return SeriesError{fmt.Sprintf("Cannot sum %s and %s", s.Type().ToString(), o.Type().ToString())}
 		}

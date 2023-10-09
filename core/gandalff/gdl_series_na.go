@@ -9,8 +9,8 @@ import (
 // SeriesNA represents a series with no data.
 type SeriesNA struct {
 	size      int
-	pool      *StringPool
 	partition *SeriesNAPartition
+	ctx       *Context
 }
 
 func (s SeriesNA) printInfo() {}
@@ -51,16 +51,6 @@ func (s SeriesNA) MakeNullable() Series {
 
 // Make the series non-nullable.
 func (s SeriesNA) MakeNonNullable() Series {
-	return s
-}
-
-// Return the StringPool of the series.
-func (s SeriesNA) StringPool() *StringPool {
-	return s.pool
-}
-
-// Set the StringPool for this series.
-func (s SeriesNA) SetStringPool(pool *StringPool) Series {
 	return s
 }
 
@@ -178,8 +168,8 @@ func (s SeriesNA) Append(v any) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int, NullableInt, []int, []NullableInt, SeriesInt:
@@ -226,8 +216,8 @@ func (s SeriesNA) Append(v any) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int64, NullableInt64, []int64, []NullableInt64, SeriesInt64:
@@ -274,8 +264,8 @@ func (s SeriesNA) Append(v any) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case float64, NullableFloat64, []float64, []NullableFloat64, SeriesFloat64:
@@ -322,39 +312,35 @@ func (s SeriesNA) Append(v any) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case string, NullableString, []string, []NullableString, SeriesString:
-		if s.pool == nil {
-			return SeriesError{"SeriesNA.Append: StringPool is nil"}
-		}
-
 		data := make([]*string, s.size)
 		for i := 0; i < s.size; i++ {
-			data[i] = s.pool.nullStringPtr
+			data[i] = s.ctx.stringPool.nullStringPtr
 		}
 
 		switch v := v.(type) {
 		case string:
-			data = append(data, s.pool.Put(v))
+			data = append(data, s.ctx.stringPool.Put(v))
 			nullMask = __binVecInit(s.size+1, true)
 			nullMask[s.size>>3] &= ^(1 << uint(s.size%8))
 
 		case NullableString:
 			nullMask = __binVecInit(s.size+1, true)
 			if v.Valid {
-				data = append(data, s.pool.Put(v.Value))
+				data = append(data, s.ctx.stringPool.Put(v.Value))
 				nullMask[s.size>>3] &= ^(1 << uint(s.size%8))
 			} else {
-				data = append(data, s.pool.nullStringPtr)
+				data = append(data, s.ctx.stringPool.nullStringPtr)
 			}
 
 		case []string:
 			data = append(data, make([]*string, len(v))...)
 			for i, v := range v {
-				data[s.size+i] = s.pool.Put(v)
+				data[s.size+i] = s.ctx.stringPool.Put(v)
 			}
 			_, nullMask = __mergeNullMasks(s.size, true, __binVecInit(s.size, true), len(v), false, make([]uint8, 0))
 
@@ -363,10 +349,10 @@ func (s SeriesNA) Append(v any) Series {
 			nullMask = __binVecInit(len(v), false)
 			for i, v := range v {
 				if v.Valid {
-					data[s.size+i] = s.pool.Put(v.Value)
+					data[s.size+i] = s.ctx.stringPool.Put(v.Value)
 				} else {
 					nullMask[i>>3] |= 1 << uint(i%8)
-					data[s.size+i] = s.pool.nullStringPtr
+					data[s.size+i] = s.ctx.stringPool.nullStringPtr
 				}
 			}
 
@@ -382,8 +368,8 @@ func (s SeriesNA) Append(v any) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:
@@ -424,8 +410,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]bool, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.IntType:
@@ -434,8 +420,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]int, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -444,8 +430,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]int64, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Float64Type:
@@ -454,8 +440,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]float64, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
@@ -464,8 +450,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]*string, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.TimeType:
@@ -474,8 +460,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]time.Time, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.DurationType:
@@ -484,8 +470,8 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			sorted:     SORTED_NONE,
 			data:       make([]time.Duration, s.size),
 			nullMask:   __binVecInit(s.size, true),
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:

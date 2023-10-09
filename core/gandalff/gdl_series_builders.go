@@ -5,55 +5,59 @@ import (
 	"time"
 )
 
-func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, pool *StringPool) Series {
+func NewSeries(data interface{}, nullMask []bool, makeCopy bool, memOpt bool, ctx *Context) Series {
+	if ctx == nil {
+		return SeriesError{"NewSeries: context is nil"}
+	}
+
 	switch data := data.(type) {
 	case nil:
-		return NewSeriesNA(1, pool)
+		return NewSeriesNA(1, ctx)
 	case []bool:
 		// if memOpt {
-		// 	return NewSeriesBoolMemOpt(isNullable, makeCopy, data, pool)
+		// 	return NewSeriesBoolMemOpt(isNullable, makeCopy, data, ctx)
 		// } else {
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesBool(data, nullMask, makeCopy, pool)
+		return NewSeriesBool(data, nullMask, makeCopy, ctx)
 		// }
 
 	case []int:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesInt(data, nullMask, makeCopy, pool)
+		return NewSeriesInt(data, nullMask, makeCopy, ctx)
 
 	case []int64:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesInt64(data, nullMask, makeCopy, pool)
+		return NewSeriesInt64(data, nullMask, makeCopy, ctx)
 
 	case []float64:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesFloat64(data, nullMask, makeCopy, pool)
+		return NewSeriesFloat64(data, nullMask, makeCopy, ctx)
 
 	case []string:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesString(data, nullMask, makeCopy, pool)
+		return NewSeriesString(data, nullMask, makeCopy, ctx)
 
 	case []time.Time:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesTime(data, nullMask, makeCopy, pool)
+		return NewSeriesTime(data, nullMask, makeCopy, ctx)
 
 	case []time.Duration:
 		if nullMask != nil && len(nullMask) != len(data) {
 			return SeriesError{fmt.Sprintf("NewSeries: null mask length %d does not match data length %d", len(nullMask), len(data))}
 		}
-		return NewSeriesDuration(data, nullMask, makeCopy, pool)
+		return NewSeriesDuration(data, nullMask, makeCopy, ctx)
 
 	default:
 		return SeriesError{fmt.Sprintf("NewSeries: unsupported type %T", data)}
@@ -66,12 +70,24 @@ func NewSeriesError(err string) SeriesError {
 }
 
 // Build an NA Series
-func NewSeriesNA(size int, pool *StringPool) SeriesNA {
-	return SeriesNA{size: size, pool: pool}
+func NewSeriesNA(size int, ctx *Context) SeriesNA {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesNA: context is nil")
+	}
+
+	if size < 0 {
+		size = 0
+	}
+
+	return SeriesNA{size: size, ctx: ctx}
 }
 
 // Build a Bool Series, if nullMask is nil then the series is not nullable
-func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBool {
+func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, ctx *Context) SeriesBool {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesBool: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -93,11 +109,15 @@ func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, pool *StringPool
 		data = actualData
 	}
 
-	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Bool Series, if nullMask is nil then the series is not nullable
-func newSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *StringPool) SeriesBoolMemOpt {
+func newSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, ctx *Context) SeriesBoolMemOpt {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesBoolMemOpt: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -116,11 +136,15 @@ func newSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, pool *Stri
 	size := len(data)
 	actualData := __binVecFromBools(data)
 
-	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, pool: pool}
+	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Int Series, if nullMask is nil then the series is not nullable
-func NewSeriesInt(data []int, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt {
+func NewSeriesInt(data []int, nullMask []bool, makeCopy bool, ctx *Context) SeriesInt {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesInt: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -142,11 +166,15 @@ func NewSeriesInt(data []int, nullMask []bool, makeCopy bool, pool *StringPool) 
 		data = actualData
 	}
 
-	return SeriesInt{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesInt{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Int64 Series, if nullMask is nil then the series is not nullable
-func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesInt64 {
+func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, ctx *Context) SeriesInt64 {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesInt64: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -168,11 +196,15 @@ func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, pool *StringPo
 		data = actualData
 	}
 
-	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Float64 Series, if nullMask is nil then the series is not nullable
-func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *StringPool) SeriesFloat64 {
+func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, ctx *Context) SeriesFloat64 {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesFloat64: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -194,11 +226,15 @@ func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, pool *Stri
 		data = actualData
 	}
 
-	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a String Series, if nullMask is nil then the series is not nullable
-func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *StringPool) SeriesString {
+func NewSeriesString(data []string, nullMask []bool, makeCopy bool, ctx *Context) SeriesString {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesString: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -218,22 +254,26 @@ func NewSeriesString(data []string, nullMask []bool, makeCopy bool, pool *String
 	if nullMask != nil {
 		for i, v := range data {
 			if nullMask[i] {
-				actualData[i] = pool.nullStringPtr
+				actualData[i] = ctx.stringPool.nullStringPtr
 				continue
 			}
-			actualData[i] = pool.Put(v)
+			actualData[i] = ctx.stringPool.Put(v)
 		}
 	} else {
 		for i, v := range data {
-			actualData[i] = pool.Put(v)
+			actualData[i] = ctx.stringPool.Put(v)
 		}
 	}
 
-	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, pool: pool}
+	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Time Series, if nullMask is nil then the series is not nullable
-func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *StringPool) SeriesTime {
+func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, ctx *Context) SeriesTime {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesTime: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -255,11 +295,15 @@ func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, pool *Strin
 		data = actualData
 	}
 
-	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }
 
 // Build a Duration Series, if nullMask is nil then the series is not nullable
-func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, pool *StringPool) SeriesDuration {
+func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, ctx *Context) SeriesDuration {
+	if ctx == nil {
+		fmt.Println("WARNING: NewSeriesDuration: context is nil")
+	}
+
 	var isNullable bool
 	var nullMask_ []uint8
 	if nullMask != nil {
@@ -281,5 +325,5 @@ func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, poo
 		data = actualData
 	}
 
-	return SeriesDuration{isNullable: isNullable, data: data, nullMask: nullMask_, pool: pool}
+	return SeriesDuration{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
 }

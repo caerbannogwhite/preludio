@@ -450,30 +450,16 @@ func generateOperation(info BuildInfo) []ast.Stmt {
 			Value: &ast.Ident{Name: RESULT_SIZE_VAR_NAME},
 		})
 
-	// STRING Memory optimized: add the pool to the result string series
-	case "SeriesString":
-		if info.Op1SeriesType == "SeriesString" {
-			params = append(params, &ast.KeyValueExpr{
-				Key:   &ast.Ident{Name: "pool"},
-				Value: &ast.Ident{Name: fmt.Sprintf("%s.pool", info.Op1VarName)},
-			})
-		} else {
-			params = append(params, &ast.KeyValueExpr{
-				Key:   &ast.Ident{Name: "pool"},
-				Value: &ast.Ident{Name: fmt.Sprintf("%s.pool", info.Op2VarName)},
-			})
-		}
-
-		params = append(params, &ast.KeyValueExpr{
-			Key:   &ast.Ident{Name: "data"},
-			Value: &ast.Ident{Name: RESULT_VAR_NAME},
-		})
-
 	// Default: just add the data to the result series
 	default:
 		params = append(params, &ast.KeyValueExpr{
 			Key:   &ast.Ident{Name: "data"},
 			Value: &ast.Ident{Name: RESULT_VAR_NAME},
+		})
+
+		params = append(params, &ast.KeyValueExpr{
+			Key:   &ast.Ident{Name: "ctx"},
+			Value: &ast.Ident{Name: fmt.Sprintf("%s.ctx", info.Op1VarName)},
 		})
 	}
 

@@ -26,7 +26,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						if o.data[0] {
 							result[0] = s.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -34,7 +34,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						if o.data[0] {
 							result[0] = s.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -44,7 +44,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						if o.data[0] {
 							result[0] = s.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -52,7 +52,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						if o.data[0] {
 							result[0] = s.data[0]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -67,7 +67,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[0]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -77,7 +77,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[0]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -90,7 +90,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[0]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -100,7 +100,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[0]
 							}
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -117,7 +117,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -128,7 +128,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -140,7 +140,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -150,7 +150,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -165,7 +165,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -176,7 +176,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -189,7 +189,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -199,7 +199,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 								result[i] = s.data[i]
 							}
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -215,13 +215,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] * int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] * int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -229,13 +229,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] * int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] * int64(o.data[0])
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -248,7 +248,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -256,7 +256,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -267,7 +267,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -275,7 +275,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -290,7 +290,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -299,7 +299,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -309,7 +309,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -317,7 +317,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -330,7 +330,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -339,7 +339,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -350,7 +350,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -358,7 +358,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -374,13 +374,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] * o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] * o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -388,13 +388,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] * o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] * o.data[0]
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -407,7 +407,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -415,7 +415,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -426,7 +426,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -434,7 +434,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] * o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -449,7 +449,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -458,7 +458,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -468,7 +468,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -476,7 +476,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[0]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -489,7 +489,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -498,7 +498,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -509,7 +509,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -517,7 +517,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] * o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -533,13 +533,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) * o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) * o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -547,13 +547,13 @@ func (s SeriesInt64) Mul(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) * o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) * o.data[0]
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -566,7 +566,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -574,7 +574,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -585,7 +585,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -593,7 +593,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -608,7 +608,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -617,7 +617,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -627,7 +627,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -635,7 +635,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[0]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -648,7 +648,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -657,7 +657,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -668,7 +668,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -676,7 +676,7 @@ func (s SeriesInt64) Mul(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) * o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -723,7 +723,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							b2 = 1
 						}
 						result[0] = float64(s.data[0]) / b2
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -733,7 +733,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							b2 = 1
 						}
 						result[0] = float64(s.data[0]) / b2
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -745,7 +745,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							b2 = 1
 						}
 						result[0] = float64(s.data[0]) / b2
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -755,7 +755,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							b2 = 1
 						}
 						result[0] = float64(s.data[0]) / b2
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -772,7 +772,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[0]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -784,7 +784,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[0]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -799,7 +799,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[0]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -811,7 +811,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[0]) / b2
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -830,7 +830,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -843,7 +843,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -857,7 +857,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -869,7 +869,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -886,7 +886,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -899,7 +899,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -914,7 +914,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -926,7 +926,7 @@ func (s SeriesInt64) Div(other Series) Series {
 							}
 							result[i] = float64(s.data[i]) / b2
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -942,13 +942,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -956,13 +956,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -975,7 +975,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -983,7 +983,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -994,7 +994,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1002,7 +1002,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1017,7 +1017,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1026,7 +1026,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1036,7 +1036,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1044,7 +1044,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1057,7 +1057,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1066,7 +1066,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1077,7 +1077,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1085,7 +1085,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1101,13 +1101,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1115,13 +1115,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) / float64(o.data[0])
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -1134,7 +1134,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1142,7 +1142,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1153,7 +1153,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1161,7 +1161,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1176,7 +1176,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1185,7 +1185,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1195,7 +1195,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1203,7 +1203,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[0])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1216,7 +1216,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1225,7 +1225,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1236,7 +1236,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1244,7 +1244,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / float64(o.data[i])
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1260,13 +1260,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) / o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1274,13 +1274,13 @@ func (s SeriesInt64) Div(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) / o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) / o.data[0]
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -1293,7 +1293,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1301,7 +1301,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1312,7 +1312,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1320,7 +1320,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1335,7 +1335,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1344,7 +1344,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1354,7 +1354,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1362,7 +1362,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[0]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1375,7 +1375,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1384,7 +1384,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1395,7 +1395,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1403,7 +1403,7 @@ func (s SeriesInt64) Div(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) / o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1431,7 +1431,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							b2 = 1
 						}
 						result[0] = math.Mod(float64(s.data[0]), b2)
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1441,7 +1441,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							b2 = 1
 						}
 						result[0] = math.Mod(float64(s.data[0]), b2)
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1453,7 +1453,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							b2 = 1
 						}
 						result[0] = math.Mod(float64(s.data[0]), b2)
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1463,7 +1463,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							b2 = 1
 						}
 						result[0] = math.Mod(float64(s.data[0]), b2)
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -1480,7 +1480,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[0]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1492,7 +1492,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[0]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1507,7 +1507,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[0]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1519,7 +1519,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[0]), b2)
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1538,7 +1538,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1551,7 +1551,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1565,7 +1565,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1577,7 +1577,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1594,7 +1594,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1607,7 +1607,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1622,7 +1622,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1634,7 +1634,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 							}
 							result[i] = math.Mod(float64(s.data[i]), b2)
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1650,13 +1650,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1664,13 +1664,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -1683,7 +1683,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1691,7 +1691,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1702,7 +1702,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1710,7 +1710,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1725,7 +1725,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1734,7 +1734,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1744,7 +1744,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1752,7 +1752,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1765,7 +1765,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1774,7 +1774,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1785,7 +1785,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1793,7 +1793,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1809,13 +1809,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1823,13 +1823,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -1842,7 +1842,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1850,7 +1850,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1861,7 +1861,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -1869,7 +1869,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1884,7 +1884,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1893,7 +1893,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1903,7 +1903,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1911,7 +1911,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -1924,7 +1924,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1933,7 +1933,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1944,7 +1944,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -1952,7 +1952,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -1968,13 +1968,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -1982,13 +1982,13 @@ func (s SeriesInt64) Mod(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = math.Mod(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2001,7 +2001,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -2009,7 +2009,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2020,7 +2020,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -2028,7 +2028,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2043,7 +2043,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2052,7 +2052,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2062,7 +2062,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2070,7 +2070,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -2083,7 +2083,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2092,7 +2092,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2103,7 +2103,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2111,7 +2111,7 @@ func (s SeriesInt64) Mod(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Mod(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2139,7 +2139,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							b2 = 1
 						}
 						result[0] = int64(math.Pow(float64(s.data[0]), b2))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2149,7 +2149,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							b2 = 1
 						}
 						result[0] = int64(math.Pow(float64(s.data[0]), b2))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2161,7 +2161,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							b2 = 1
 						}
 						result[0] = int64(math.Pow(float64(s.data[0]), b2))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2171,7 +2171,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							b2 = 1
 						}
 						result[0] = int64(math.Pow(float64(s.data[0]), b2))
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2188,7 +2188,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[0]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2200,7 +2200,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[0]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2215,7 +2215,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[0]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2227,7 +2227,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[0]), b2))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2246,7 +2246,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2259,7 +2259,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2273,7 +2273,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2285,7 +2285,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -2302,7 +2302,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2315,7 +2315,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2330,7 +2330,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2342,7 +2342,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 							}
 							result[i] = int64(math.Pow(float64(s.data[i]), b2))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2358,13 +2358,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2372,13 +2372,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2391,7 +2391,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2399,7 +2399,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2410,7 +2410,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2418,7 +2418,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2433,7 +2433,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2442,7 +2442,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2452,7 +2452,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2460,7 +2460,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -2473,7 +2473,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2482,7 +2482,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2493,7 +2493,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2501,7 +2501,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2517,13 +2517,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2531,13 +2531,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = int64(math.Pow(float64(s.data[0]), float64(o.data[0])))
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2550,7 +2550,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2558,7 +2558,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2569,7 +2569,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2577,7 +2577,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[0]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2592,7 +2592,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2601,7 +2601,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2611,7 +2611,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2619,7 +2619,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[0])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -2632,7 +2632,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2641,7 +2641,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2652,7 +2652,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2660,7 +2660,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = int64(math.Pow(float64(s.data[i]), float64(o.data[i])))
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2676,13 +2676,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = math.Pow(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = math.Pow(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2690,13 +2690,13 @@ func (s SeriesInt64) Exp(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = math.Pow(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = math.Pow(float64(s.data[0]), float64(o.data[0]))
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2709,7 +2709,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -2717,7 +2717,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2728,7 +2728,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -2736,7 +2736,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[0]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2751,7 +2751,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2760,7 +2760,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2770,7 +2770,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2778,7 +2778,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[0]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -2791,7 +2791,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2800,7 +2800,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2811,7 +2811,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -2819,7 +2819,7 @@ func (s SeriesInt64) Exp(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = math.Pow(float64(s.data[i]), float64(o.data[i]))
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2847,7 +2847,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] + b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2857,7 +2857,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] + b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2869,7 +2869,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] + b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2879,7 +2879,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] + b2
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -2896,7 +2896,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[0] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2908,7 +2908,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[0] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2923,7 +2923,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[0] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -2935,7 +2935,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[0] + b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -2954,7 +2954,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2967,7 +2967,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -2981,7 +2981,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -2993,7 +2993,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3010,7 +3010,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3023,7 +3023,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3038,7 +3038,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3050,7 +3050,7 @@ func (s SeriesInt64) Add(other Series) Series {
 							}
 							result[i] = s.data[i] + b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3066,13 +3066,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] + int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] + int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3080,13 +3080,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] + int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] + int64(o.data[0])
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3099,7 +3099,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3107,7 +3107,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3118,7 +3118,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3126,7 +3126,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3141,7 +3141,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3150,7 +3150,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3160,7 +3160,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3168,7 +3168,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3181,7 +3181,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3190,7 +3190,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3201,7 +3201,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3209,7 +3209,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3225,13 +3225,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] + o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] + o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3239,13 +3239,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] + o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] + o.data[0]
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3258,7 +3258,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3266,7 +3266,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3277,7 +3277,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3285,7 +3285,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] + o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3300,7 +3300,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3309,7 +3309,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3319,7 +3319,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3327,7 +3327,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[0]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3340,7 +3340,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3349,7 +3349,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3360,7 +3360,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3368,7 +3368,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] + o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3384,13 +3384,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) + o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) + o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3398,13 +3398,13 @@ func (s SeriesInt64) Add(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) + o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) + o.data[0]
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3417,7 +3417,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -3425,7 +3425,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3436,7 +3436,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -3444,7 +3444,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3459,7 +3459,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -3468,7 +3468,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3478,7 +3478,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -3486,7 +3486,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[0]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3499,7 +3499,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -3508,7 +3508,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3519,7 +3519,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -3527,7 +3527,7 @@ func (s SeriesInt64) Add(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) + o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3542,28 +3542,28 @@ func (s SeriesInt64) Add(other Series) Series {
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
-						result[0] = o.pool.Put(intToString(s.data[0]) + *o.data[0])
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						result[0] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[0])
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
-						result[0] = o.pool.Put(intToString(s.data[0]) + *o.data[0])
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						result[0] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[0])
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
 						resultSize := o.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
-						result[0] = o.pool.Put(intToString(s.data[0]) + *o.data[0])
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						result[0] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[0])
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0, false)
-						result[0] = o.pool.Put(intToString(s.data[0]) + *o.data[0])
-						return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+						result[0] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[0])
+						return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3574,17 +3574,17 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSV(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[0]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[0]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3593,17 +3593,17 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[0]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[0]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[0]) + *o.data[i])
 						}
-						return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3616,18 +3616,18 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrVS(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[0])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[0])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[0])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[0])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3635,17 +3635,17 @@ func (s SeriesInt64) Add(other Series) Series {
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[0])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[0])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[0])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[0])
 						}
-						return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3656,18 +3656,18 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrVV(s.nullMask, o.nullMask, resultNullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, s.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3676,17 +3676,17 @@ func (s SeriesInt64) Add(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						copy(resultNullMask, o.nullMask)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[i])
 						}
-						return SeriesString{isNullable: true, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]*string, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						for i := 0; i < resultSize; i++ {
-							result[i] = o.pool.Put(intToString(s.data[i]) + *o.data[i])
+							result[i] = o.ctx.stringPool.Put(intToString(s.data[i]) + *o.data[i])
 						}
-						return SeriesString{isNullable: false, nullMask: resultNullMask, pool: o.pool, data: result}
+						return SeriesString{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3733,7 +3733,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] - b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3743,7 +3743,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] - b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3755,7 +3755,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] - b2
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3765,7 +3765,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] - b2
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3782,7 +3782,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[0] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3794,7 +3794,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[0] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3809,7 +3809,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[0] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3821,7 +3821,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[0] - b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3840,7 +3840,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3853,7 +3853,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3867,7 +3867,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3879,7 +3879,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -3896,7 +3896,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3909,7 +3909,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3924,7 +3924,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -3936,7 +3936,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 							}
 							result[i] = s.data[i] - b2
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -3952,13 +3952,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] - int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] - int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -3966,13 +3966,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] - int64(o.data[0])
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] - int64(o.data[0])
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -3985,7 +3985,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -3993,7 +3993,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4004,7 +4004,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -4012,7 +4012,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4027,7 +4027,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4036,7 +4036,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4046,7 +4046,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4054,7 +4054,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[0])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4067,7 +4067,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4076,7 +4076,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4087,7 +4087,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4095,7 +4095,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - int64(o.data[i])
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4111,13 +4111,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] - o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] - o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4125,13 +4125,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] - o.data[0]
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] - o.data[0]
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4144,7 +4144,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -4152,7 +4152,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4163,7 +4163,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]int64, resultSize)
@@ -4171,7 +4171,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] - o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4186,7 +4186,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4195,7 +4195,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4205,7 +4205,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[0]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4213,7 +4213,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[0]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4226,7 +4226,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4235,7 +4235,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4246,7 +4246,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[i]
 						}
-						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]int64, resultSize)
@@ -4254,7 +4254,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] - o.data[i]
 						}
-						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesInt64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4270,13 +4270,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) - o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) - o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4284,13 +4284,13 @@ func (s SeriesInt64) Sub(other Series) Series {
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) - o.data[0]
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) - o.data[0]
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4303,7 +4303,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -4311,7 +4311,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4322,7 +4322,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]float64, resultSize)
@@ -4330,7 +4330,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4345,7 +4345,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -4354,7 +4354,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4364,7 +4364,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[0]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -4372,7 +4372,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[0]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4385,7 +4385,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -4394,7 +4394,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4405,7 +4405,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]float64, resultSize)
@@ -4413,7 +4413,7 @@ func (s SeriesInt64) Sub(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) - o.data[i]
 						}
-						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesFloat64{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4437,13 +4437,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] == int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] == int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4451,13 +4451,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] == int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] == int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4470,7 +4470,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4478,7 +4478,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4489,7 +4489,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4497,7 +4497,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4512,7 +4512,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4521,7 +4521,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4531,7 +4531,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4539,7 +4539,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4552,7 +4552,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4561,7 +4561,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4572,7 +4572,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4580,7 +4580,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4596,13 +4596,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4610,13 +4610,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] == o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4629,7 +4629,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4637,7 +4637,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4648,7 +4648,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4656,7 +4656,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] == o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4671,7 +4671,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4680,7 +4680,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4690,7 +4690,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4698,7 +4698,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4711,7 +4711,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4720,7 +4720,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4731,7 +4731,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4739,7 +4739,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] == o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4755,13 +4755,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4769,13 +4769,13 @@ func (s SeriesInt64) Eq(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) == o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) == o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4788,7 +4788,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4796,7 +4796,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4807,7 +4807,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4815,7 +4815,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) == o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4830,7 +4830,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4839,7 +4839,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4849,7 +4849,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4857,7 +4857,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -4870,7 +4870,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4879,7 +4879,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4890,7 +4890,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -4898,7 +4898,7 @@ func (s SeriesInt64) Eq(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) == o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -4941,13 +4941,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] != int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] != int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4955,13 +4955,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] != int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] != int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -4974,7 +4974,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -4982,7 +4982,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -4993,7 +4993,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5001,7 +5001,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5016,7 +5016,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5025,7 +5025,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5035,7 +5035,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5043,7 +5043,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5056,7 +5056,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5065,7 +5065,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5076,7 +5076,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5084,7 +5084,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5100,13 +5100,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5114,13 +5114,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] != o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -5133,7 +5133,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5141,7 +5141,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5152,7 +5152,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5160,7 +5160,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] != o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5175,7 +5175,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5184,7 +5184,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5194,7 +5194,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5202,7 +5202,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5215,7 +5215,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5224,7 +5224,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5235,7 +5235,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5243,7 +5243,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] != o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5259,13 +5259,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5273,13 +5273,13 @@ func (s SeriesInt64) Ne(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) != o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) != o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -5292,7 +5292,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5300,7 +5300,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5311,7 +5311,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5319,7 +5319,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) != o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5334,7 +5334,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5343,7 +5343,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5353,7 +5353,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5361,7 +5361,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5374,7 +5374,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5383,7 +5383,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5394,7 +5394,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5402,7 +5402,7 @@ func (s SeriesInt64) Ne(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) != o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5449,7 +5449,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] > b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5459,7 +5459,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] > b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5471,7 +5471,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] > b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5481,7 +5481,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] > b2
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -5498,7 +5498,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[0] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5510,7 +5510,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[0] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5525,7 +5525,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[0] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5537,7 +5537,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[0] > b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5556,7 +5556,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5569,7 +5569,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5583,7 +5583,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5595,7 +5595,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5612,7 +5612,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5625,7 +5625,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5640,7 +5640,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5652,7 +5652,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 							}
 							result[i] = s.data[i] > b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5668,13 +5668,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] > int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] > int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5682,13 +5682,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] > int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] > int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -5701,7 +5701,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5709,7 +5709,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5720,7 +5720,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5728,7 +5728,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5743,7 +5743,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5752,7 +5752,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5762,7 +5762,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5770,7 +5770,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5783,7 +5783,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5792,7 +5792,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5803,7 +5803,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5811,7 +5811,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5827,13 +5827,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5841,13 +5841,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] > o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -5860,7 +5860,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5868,7 +5868,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5879,7 +5879,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -5887,7 +5887,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] > o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5902,7 +5902,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5911,7 +5911,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5921,7 +5921,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5929,7 +5929,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -5942,7 +5942,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5951,7 +5951,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -5962,7 +5962,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -5970,7 +5970,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] > o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -5986,13 +5986,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6000,13 +6000,13 @@ func (s SeriesInt64) Gt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) > o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) > o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6019,7 +6019,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6027,7 +6027,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6038,7 +6038,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6046,7 +6046,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) > o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6061,7 +6061,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6070,7 +6070,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6080,7 +6080,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6088,7 +6088,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -6101,7 +6101,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6110,7 +6110,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6121,7 +6121,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6129,7 +6129,7 @@ func (s SeriesInt64) Gt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) > o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6157,7 +6157,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] >= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6167,7 +6167,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] >= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6179,7 +6179,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] >= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6189,7 +6189,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] >= b2
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6206,7 +6206,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[0] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6218,7 +6218,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[0] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6233,7 +6233,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[0] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6245,7 +6245,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[0] >= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6264,7 +6264,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6277,7 +6277,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6291,7 +6291,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6303,7 +6303,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -6320,7 +6320,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6333,7 +6333,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6348,7 +6348,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6360,7 +6360,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 							}
 							result[i] = s.data[i] >= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6376,13 +6376,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] >= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] >= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6390,13 +6390,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] >= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] >= int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6409,7 +6409,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6417,7 +6417,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6428,7 +6428,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6436,7 +6436,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6451,7 +6451,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6460,7 +6460,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6470,7 +6470,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6478,7 +6478,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -6491,7 +6491,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6500,7 +6500,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6511,7 +6511,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6519,7 +6519,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6535,13 +6535,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6549,13 +6549,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] >= o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6568,7 +6568,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6576,7 +6576,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6587,7 +6587,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6595,7 +6595,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] >= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6610,7 +6610,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6619,7 +6619,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6629,7 +6629,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6637,7 +6637,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -6650,7 +6650,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6659,7 +6659,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6670,7 +6670,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6678,7 +6678,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] >= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6694,13 +6694,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6708,13 +6708,13 @@ func (s SeriesInt64) Ge(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) >= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) >= o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6727,7 +6727,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6735,7 +6735,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6746,7 +6746,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6754,7 +6754,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6769,7 +6769,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6778,7 +6778,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6788,7 +6788,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6796,7 +6796,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -6809,7 +6809,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6818,7 +6818,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6829,7 +6829,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6837,7 +6837,7 @@ func (s SeriesInt64) Ge(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) >= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6865,7 +6865,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] < b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6875,7 +6875,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] < b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6887,7 +6887,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] < b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6897,7 +6897,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] < b2
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -6914,7 +6914,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[0] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6926,7 +6926,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[0] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6941,7 +6941,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[0] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -6953,7 +6953,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[0] < b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -6972,7 +6972,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -6985,7 +6985,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -6999,7 +6999,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7011,7 +7011,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7028,7 +7028,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7041,7 +7041,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7056,7 +7056,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7068,7 +7068,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 							}
 							result[i] = s.data[i] < b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7084,13 +7084,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] < int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] < int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7098,13 +7098,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] < int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] < int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7117,7 +7117,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7125,7 +7125,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7136,7 +7136,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7144,7 +7144,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7159,7 +7159,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7168,7 +7168,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7178,7 +7178,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7186,7 +7186,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7199,7 +7199,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7208,7 +7208,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7219,7 +7219,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7227,7 +7227,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7243,13 +7243,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7257,13 +7257,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] < o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7276,7 +7276,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7284,7 +7284,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7295,7 +7295,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7303,7 +7303,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] < o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7318,7 +7318,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7327,7 +7327,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7337,7 +7337,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7345,7 +7345,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7358,7 +7358,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7367,7 +7367,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7378,7 +7378,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7386,7 +7386,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] < o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7402,13 +7402,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7416,13 +7416,13 @@ func (s SeriesInt64) Lt(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) < o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) < o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7435,7 +7435,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7443,7 +7443,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7454,7 +7454,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7462,7 +7462,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) < o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7477,7 +7477,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7486,7 +7486,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7496,7 +7496,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7504,7 +7504,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7517,7 +7517,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7526,7 +7526,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7537,7 +7537,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7545,7 +7545,7 @@ func (s SeriesInt64) Lt(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) < o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7573,7 +7573,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] <= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7583,7 +7583,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] <= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7595,7 +7595,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] <= b2
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7605,7 +7605,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							b2 = 1
 						}
 						result[0] = s.data[0] <= b2
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7622,7 +7622,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[0] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7634,7 +7634,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[0] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7649,7 +7649,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[0] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7661,7 +7661,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[0] <= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7680,7 +7680,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7693,7 +7693,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7707,7 +7707,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7719,7 +7719,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7736,7 +7736,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7749,7 +7749,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7764,7 +7764,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7776,7 +7776,7 @@ func (s SeriesInt64) Le(other Series) Series {
 							}
 							result[i] = s.data[i] <= b2
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7792,13 +7792,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] <= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] <= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7806,13 +7806,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] <= int64(o.data[0])
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] <= int64(o.data[0])
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7825,7 +7825,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7833,7 +7833,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7844,7 +7844,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7852,7 +7852,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7867,7 +7867,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7876,7 +7876,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7886,7 +7886,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7894,7 +7894,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[0])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -7907,7 +7907,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7916,7 +7916,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7927,7 +7927,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -7935,7 +7935,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= int64(o.data[i])
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -7951,13 +7951,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = s.data[0] <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = s.data[0] <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -7965,13 +7965,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = s.data[0] <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = s.data[0] <= o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -7984,7 +7984,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -7992,7 +7992,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8003,7 +8003,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -8011,7 +8011,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[0] <= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -8026,7 +8026,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8035,7 +8035,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8045,7 +8045,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8053,7 +8053,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -8066,7 +8066,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8075,7 +8075,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8086,7 +8086,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8094,7 +8094,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = s.data[i] <= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -8110,13 +8110,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						resultNullMask := __binVecInit(resultSize, false)
 						__binVecOrSS(s.nullMask, o.nullMask, resultNullMask)
 						result[0] = float64(s.data[0]) <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, s.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8124,13 +8124,13 @@ func (s SeriesInt64) Le(other Series) Series {
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(resultSize, o.nullMask[0] == 1)
 						result[0] = float64(s.data[0]) <= o.data[0]
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
 						resultNullMask := __binVecInit(0, false)
 						result[0] = float64(s.data[0]) <= o.data[0]
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else {
@@ -8143,7 +8143,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -8151,7 +8151,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8162,7 +8162,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := o.Len()
 						result := make([]bool, resultSize)
@@ -8170,7 +8170,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[0]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}
@@ -8185,7 +8185,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8194,7 +8194,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8204,7 +8204,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[0]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8212,7 +8212,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[0]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			} else if s.Len() == o.Len() {
@@ -8225,7 +8225,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8234,7 +8234,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				} else {
 					if o.isNullable {
@@ -8245,7 +8245,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: true, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					} else {
 						resultSize := s.Len()
 						result := make([]bool, resultSize)
@@ -8253,7 +8253,7 @@ func (s SeriesInt64) Le(other Series) Series {
 						for i := 0; i < resultSize; i++ {
 							result[i] = float64(s.data[i]) <= o.data[i]
 						}
-						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result}
+						return SeriesBool{isNullable: false, nullMask: resultNullMask, data: result, ctx: s.ctx}
 					}
 				}
 			}

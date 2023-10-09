@@ -10,17 +10,12 @@ import (
 func (s SeriesBool) printInfo() {
 	fmt.Println("SeriesBool")
 	fmt.Println("==========")
-	fmt.Println("IsGrouped:", s.partition != nil)
 	fmt.Println("IsNullable:", s.isNullable)
-	fmt.Println("Sorted:", s.sorted)
-	fmt.Println("Data:", s.data)
-	fmt.Println("NullMask:", s.nullMask)
-	if s.pool != nil {
-		fmt.Println("Pool:", s.pool.ToString())
-	} else {
-		fmt.Println("Pool:", s.pool)
-	}
-	fmt.Println("Partition:", s.partition)
+	fmt.Println("Sorted:    ", s.sorted)
+	fmt.Println("Data:      ", s.data)
+	fmt.Println("NullMask:  ", s.nullMask)
+	fmt.Println("Partition: ", s.partition)
+	fmt.Println("Context:   ", s.ctx)
 }
 
 ////////////////////////			BASIC ACCESSORS
@@ -28,17 +23,6 @@ func (s SeriesBool) printInfo() {
 // Return the number of elements in the series.
 func (s SeriesBool) Len() int {
 	return len(s.data)
-}
-
-// Return the StringPool of the series.
-func (s SeriesBool) StringPool() *StringPool {
-	return s.pool
-}
-
-// Set the StringPool for this series.
-func (s SeriesBool) SetStringPool(pool *StringPool) Series {
-	s.pool = pool
-	return s
 }
 
 // Return the type of the series.
@@ -204,8 +188,8 @@ func (s SeriesBool) Copy() Series {
 		sorted:     s.sorted,
 		data:       data,
 		nullMask:   nullMask,
-		pool:       s.pool,
 		partition:  s.partition,
+		ctx:        s.ctx,
 	}
 }
 
@@ -398,8 +382,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int:
@@ -413,8 +397,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int64:
@@ -428,8 +412,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case float64:
@@ -443,18 +427,14 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesTime.Map: StringPool is nil"}
-		}
-
 		data := make([]*string, len(s.data))
 		for i := 0; i < len(s.data); i++ {
-			data[i] = s.pool.Put(f(s.data[i]).(string))
+			data[i] = s.ctx.stringPool.Put(f(s.data[i]).(string))
 		}
 
 		return SeriesString{
@@ -462,8 +442,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case time.Time:
@@ -477,8 +457,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case time.Duration:
@@ -492,8 +472,8 @@ func (s SeriesBool) Map(f MapFunc) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:
@@ -529,8 +509,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int:
@@ -549,8 +529,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case int64:
@@ -569,8 +549,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case float64:
@@ -589,20 +569,16 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case string:
-		if s.pool == nil {
-			return SeriesError{"SeriesTime.MapNull: StringPool is nil"}
-		}
-
 		data := make([]*string, len(s.data))
 		nullMask := make([]uint8, len(s.nullMask))
 		for i := 0; i < len(s.data); i++ {
 			v, isNull = f(s.data[i], s.IsNull(i))
-			data[i] = s.pool.Put(v.(string))
+			data[i] = s.ctx.stringPool.Put(v.(string))
 			if isNull {
 				nullMask[i>>3] |= 1 << uint(i%8)
 			}
@@ -613,8 +589,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case time.Time:
@@ -633,8 +609,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case time.Duration:
@@ -653,8 +629,8 @@ func (s SeriesBool) MapNull(f MapFuncNull) Series {
 			sorted:     SORTED_NONE,
 			data:       data,
 			nullMask:   nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	default:

@@ -7,13 +7,12 @@ import (
 func Test_SeriesNA_Append(t *testing.T) {
 	var res Series
 	var baseMask, expectedMask []bool
-	pool := NewStringPool()
 
-	nas := NewSeriesNA(10, pool)
+	nas := NewSeriesNA(10, ctx)
 
 	baseMask = []bool{true, true, true, true, true, true, true, true, true, true}
-	int64s := NewSeriesInt64([]int64{1, 2, 3, 4, 5}, []bool{false, true, false, true, false}, false, pool)
-	strings := NewSeriesString([]string{"a", "b", "c", "d", "e"}, []bool{false, true, false, true, false}, false, pool)
+	int64s := NewSeriesInt64([]int64{1, 2, 3, 4, 5}, []bool{false, true, false, true, false}, false, ctx)
+	strings := NewSeriesString([]string{"a", "b", "c", "d", "e"}, []bool{false, true, false, true, false}, false, ctx)
 
 	// Append nil
 	res = nas.Append(nil)
@@ -26,7 +25,7 @@ func Test_SeriesNA_Append(t *testing.T) {
 	}
 
 	// Append SeriesNA
-	res = nas.Append(NewSeriesNA(5, pool))
+	res = nas.Append(NewSeriesNA(5, ctx))
 	expectedMask = append(baseMask, true, true, true, true, true)
 	if res.Len() != 15 {
 		t.Errorf("Expected length 15, got %d", res.Len())
@@ -301,21 +300,19 @@ func Test_SeriesNA_Arithmetic_Mul(t *testing.T) {
 }
 
 func Test_SeriesNA_Arithmetic_Add(t *testing.T) {
-	pool := NewStringPool()
+	nas := NewSeriesNA(1, ctx)
+	nav := NewSeriesNA(10, ctx)
 
-	nas := NewSeriesNA(1, pool)
-	nav := NewSeriesNA(10, pool)
-
-	ints := NewSeriesInt64([]int64{1}, nil, false, pool)
-	intv := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, pool)
-	ints_ := NewSeriesInt64([]int64{1}, nil, false, pool).SetNullMask([]bool{true})
-	intv_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, pool).
+	ints := NewSeriesInt64([]int64{1}, nil, false, ctx)
+	intv := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx)
+	ints_ := NewSeriesInt64([]int64{1}, nil, false, ctx).SetNullMask([]bool{true})
+	intv_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	strings := NewSeriesString([]string{"a"}, nil, false, pool)
-	stringv := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}, nil, false, pool)
-	strings_ := NewSeriesString([]string{"a"}, nil, false, pool).SetNullMask([]bool{true})
-	stringv_ := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}, nil, false, pool).
+	strings := NewSeriesString([]string{"a"}, nil, false, ctx)
+	stringv := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}, nil, false, ctx)
+	strings_ := NewSeriesString([]string{"a"}, nil, false, ctx).SetNullMask([]bool{true})
+	stringv_ := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}, nil, false, ctx).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | na

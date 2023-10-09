@@ -11,11 +11,10 @@ import (
 type SeriesTime struct {
 	isNullable bool
 	sorted     SeriesSortOrder
-	name       string
 	data       []time.Time
 	nullMask   []uint8
-	pool       *StringPool
 	partition  *SeriesTimePartition
+	ctx        *Context
 }
 
 // Get the element at index i as a string.
@@ -161,8 +160,8 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Int64Type:
@@ -176,8 +175,8 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.Float64Type:
@@ -191,27 +190,23 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.StringType:
-		if s.pool == nil {
-			return SeriesError{"SeriesTime.Cast: StringPool is nil"}
-		}
-
 		data := make([]*string, len(s.data))
 		if s.isNullable {
 			for i, v := range s.data {
 				if s.IsNull(i) {
-					data[i] = s.pool.Put(NULL_STRING)
+					data[i] = s.ctx.stringPool.Put(NULL_STRING)
 				} else {
-					data[i] = s.pool.Put(v.String())
+					data[i] = s.ctx.stringPool.Put(v.String())
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = s.pool.Put(v.String())
+				data[i] = s.ctx.stringPool.Put(v.String())
 			}
 		}
 
@@ -220,8 +215,8 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
-			pool:       s.pool,
 			partition:  nil,
+			ctx:        s.ctx,
 		}
 
 	case typesys.TimeType:

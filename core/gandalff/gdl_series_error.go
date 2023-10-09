@@ -48,16 +48,6 @@ func (s SeriesError) MakeNonNullable() Series {
 	return s
 }
 
-// Return the StringPool of the series.
-func (s SeriesError) StringPool() *StringPool {
-	return nil
-}
-
-// Set the StringPool for this series.
-func (s SeriesError) SetStringPool(pool *StringPool) Series {
-	return s
-}
-
 // Returns the type of the series.
 func (s SeriesError) Type() typesys.BaseType {
 	return typesys.ErrorType

@@ -11,7 +11,7 @@ func Test_SeriesBoolMemOpt_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesBoolMemOpt.
-	s := newSeriesBoolMemOpt(data, mask, true, nil)
+	s := newSeriesBoolMemOpt(data, mask, true, ctx)
 
 	// Check the length.
 	if s.Len() != 10 {
@@ -243,7 +243,7 @@ func Test_SeriesBoolMemOpt_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := newSeriesBoolMemOpt(data, mask, true, NewStringPool())
+	s := newSeriesBoolMemOpt(data, mask, true, ctx)
 
 	// Cast to int.
 	castInt := s.Cast(typesys.IntType)
@@ -565,7 +565,7 @@ func Test_SeriesBoolMemOpt_Map(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false, false, true, true}
 
 	// Create a new series.
-	s := newSeriesBoolMemOpt(data, mask, true, NewStringPool())
+	s := newSeriesBoolMemOpt(data, mask, true, ctx)
 
 	// MAP TO BOOL
 

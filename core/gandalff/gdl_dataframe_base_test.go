@@ -40,7 +40,7 @@ func Test_BaseDataFrame_Base(t *testing.T) {
 
 func Test_BaseDataFrame_Filter(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -86,7 +86,7 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -112,7 +112,7 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 
 func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -289,7 +289,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -307,7 +307,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 
 func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -362,7 +362,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 // func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -417,7 +417,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 // func Test_BaseDataFrame_GroupBy_Max(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -472,7 +472,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -532,7 +532,7 @@ func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -555,7 +555,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -573,7 +573,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
 // func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -627,11 +627,11 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 // }
 
 func Test_BaseDataFrame_Join(t *testing.T) {
-	dfx := NewBaseDataFrame().
+	dfx := NewBaseDataFrame(ctx).
 		AddSeriesFromInt64s("A", []int64{1, 1, 2, 3, 4, 5, 5}, nil, false).
 		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g"}, nil, false)
 
-	dfy := NewBaseDataFrame().
+	dfy := NewBaseDataFrame(ctx).
 		AddSeriesFromInt64s("A", []int64{4, 5, 6, 6}, nil, false).
 		AddSeriesFromStrings("C", []string{"h", "i", "j", "k"}, nil, false)
 
@@ -759,7 +759,7 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 func Test_BaseDataFrame_Sort(t *testing.T) {
 	var res DataFrame
 
-	df := NewBaseDataFrame().
+	df := NewBaseDataFrame(ctx).
 		AddSeriesFromInt64s("A", []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}, nil, false).
 		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, false).
 		AddSeriesFromFloat64s("C", []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, false).
@@ -937,16 +937,16 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	var res DataFrame
 
-	a := NewSeriesInt64([]int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil, true, nil).
+	a := NewSeriesInt64([]int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	b := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, true, NewStringPool()).
+	b := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, true, ctx).
 		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
-	c := NewSeriesFloat64([]float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, true, nil).
+	c := NewSeriesFloat64([]float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	d := NewSeriesBool([]bool{true, false, true, true, false, true, true, false, true, false}, nil, true, nil).
+	d := NewSeriesBool([]bool{true, false, true, true, false, true, true, false, true, false}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 
-	df := NewBaseDataFrame().
+	df := NewBaseDataFrame(ctx).
 		AddSeries("A", a).
 		AddSeries("B", b).
 		AddSeries("C", c).

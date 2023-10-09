@@ -18,6 +18,9 @@ type DataFrame interface {
 
 	// Basic accessors.
 
+	// GetContext returns the context of the dataframe.
+	GetContext() *Context
+
 	// Names returns the names of the series in the dataframe.
 	Names() []string
 	// Types returns the types of the series in the dataframe.
@@ -32,9 +35,6 @@ type DataFrame interface {
 	IsGrouped() bool
 
 	GetError() error
-
-	GetStringPool() *StringPool
-	SetStringPool(pool *StringPool) DataFrame
 
 	GetSeriesIndex(name string) int
 

@@ -4,6 +4,12 @@ import (
 	"testing"
 )
 
+var ctx *Context
+
+func init() {
+	ctx = NewContext()
+}
+
 func Test_Series(t *testing.T) {
 
 	s := NewSeries([]bool{true, false, true, false, true, false, true, false, true, false}, nil, true, false, nil)
