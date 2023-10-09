@@ -17,7 +17,7 @@ func (s SeriesNA) printInfo() {}
 
 // Return the context of the series.
 func (s SeriesNA) GetContext() *Context {
-	return nil
+	return s.ctx
 }
 
 // Returns the length of the series.

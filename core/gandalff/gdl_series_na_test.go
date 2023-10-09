@@ -187,19 +187,19 @@ func Test_SeriesNA_Append(t *testing.T) {
 }
 
 func Test_SeriesNA_Arithmetic_Mul(t *testing.T) {
-	nas := NewSeriesNA(1, nil)
-	nav := NewSeriesNA(10, nil)
+	nas := NewSeriesNA(1, ctx)
+	nav := NewSeriesNA(10, ctx)
 
-	int64s := NewSeriesInt64([]int64{1}, nil, false, nil)
-	int64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, nil)
-	int64s_ := NewSeriesInt64([]int64{1}, nil, false, nil).SetNullMask([]bool{true})
-	int64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, nil).
+	int64s := NewSeriesInt64([]int64{1}, nil, false, ctx)
+	int64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx)
+	int64s_ := NewSeriesInt64([]int64{1}, nil, false, ctx).SetNullMask([]bool{true})
+	int64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	float64s := NewSeriesFloat64([]float64{1}, nil, false, nil)
-	float64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, nil)
-	float64s_ := NewSeriesFloat64([]float64{1}, nil, false, nil).SetNullMask([]bool{true})
-	float64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, nil).
+	float64s := NewSeriesFloat64([]float64{1}, nil, false, ctx)
+	float64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx)
+	float64s_ := NewSeriesFloat64([]float64{1}, nil, false, ctx).SetNullMask([]bool{true})
+	float64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, false, ctx).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | na
@@ -413,13 +413,13 @@ func Test_SeriesNA_Arithmetic_Add(t *testing.T) {
 }
 
 func Test_SeriesNA_Boolean_Or(t *testing.T) {
-	nas := NewSeriesNA(1, nil)
-	nav := NewSeriesNA(10, nil)
+	nas := NewSeriesNA(1, ctx)
+	nav := NewSeriesNA(10, ctx)
 
-	bools := NewSeriesBool([]bool{true}, nil, true, nil)
-	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil)
-	bools_ := NewSeriesBool([]bool{true}, nil, true, nil).SetNullMask([]bool{true})
-	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, nil).
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
 		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | na

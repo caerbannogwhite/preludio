@@ -60,7 +60,7 @@ func Test_SeriesString_Base(t *testing.T) {
 
 	// Check the Set() with null values.
 	for i := range s.Data().([]string) {
-		s.Set(i, ctx)
+		s.Set(i, nil)
 	}
 
 	// Check the null values.
@@ -104,9 +104,9 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Set values to null.
-	p.Set(1, ctx)
-	p.Set(3, ctx)
-	p.Set(5, ctx)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 0 {
@@ -126,9 +126,9 @@ func Test_SeriesString_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 0, got %d", p.NullCount())
 	}
 
-	p.Set(1, ctx)
-	p.Set(3, ctx)
-	p.Set(5, ctx)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 3 {
