@@ -6,6 +6,9 @@ import (
 )
 
 func (s SeriesTime) Mul(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	default:
 		return SeriesError{fmt.Sprintf("Cannot multiply %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -14,6 +17,9 @@ func (s SeriesTime) Mul(other Series) Series {
 }
 
 func (s SeriesTime) Div(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	default:
 		return SeriesError{fmt.Sprintf("Cannot divide %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -22,6 +28,9 @@ func (s SeriesTime) Div(other Series) Series {
 }
 
 func (s SeriesTime) Mod(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	default:
 		return SeriesError{fmt.Sprintf("Cannot use modulo %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -30,6 +39,9 @@ func (s SeriesTime) Mod(other Series) Series {
 }
 
 func (s SeriesTime) Exp(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	default:
 		return SeriesError{fmt.Sprintf("Cannot use exponentiation %s and %s", s.Type().ToString(), o.Type().ToString())}
@@ -38,6 +50,9 @@ func (s SeriesTime) Exp(other Series) Series {
 }
 
 func (s SeriesTime) Add(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesString:
 		if s.Len() == 1 {
@@ -542,6 +557,9 @@ func (s SeriesTime) Add(other Series) Series {
 }
 
 func (s SeriesTime) Sub(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -868,6 +886,9 @@ func (s SeriesTime) Sub(other Series) Series {
 }
 
 func (s SeriesTime) Eq(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -1054,6 +1075,9 @@ func (s SeriesTime) Eq(other Series) Series {
 }
 
 func (s SeriesTime) Ne(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -1240,6 +1264,9 @@ func (s SeriesTime) Ne(other Series) Series {
 }
 
 func (s SeriesTime) Gt(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -1407,6 +1434,9 @@ func (s SeriesTime) Gt(other Series) Series {
 }
 
 func (s SeriesTime) Ge(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -1574,6 +1604,9 @@ func (s SeriesTime) Ge(other Series) Series {
 }
 
 func (s SeriesTime) Lt(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {
@@ -1741,6 +1774,9 @@ func (s SeriesTime) Lt(other Series) Series {
 }
 
 func (s SeriesTime) Le(other Series) Series {
+	if s.ctx != other.GetContext() {
+		return SeriesError{fmt.Sprintf("Cannot operate on series with different contexts: %v and %v", s.ctx, other.GetContext())}
+	}
 	switch o := other.(type) {
 	case SeriesTime:
 		if s.Len() == 1 {

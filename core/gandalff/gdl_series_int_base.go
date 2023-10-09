@@ -20,6 +20,11 @@ func (s SeriesInt) printInfo() {
 
 ////////////////////////			BASIC ACCESSORS
 
+// Return the context of the series.
+func (s SeriesInt) GetContext() *Context {
+	return s.ctx
+}
+
 // Return the number of elements in the series.
 func (s SeriesInt) Len() int {
 	return len(s.data)

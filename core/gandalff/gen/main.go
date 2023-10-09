@@ -587,11 +587,28 @@ func generateSizeCheck(info BuildInfo, defaultReturn ast.Stmt) ast.Stmt {
 // Generate the switch statement to handle the different types of the second operand
 func generateSwitchType(
 	operation Operation, op1SeriesType string, op1InnerType typesys.BaseType,
-	op1VarName, op2VarName string, defaultReturn ast.Stmt) ast.Stmt {
+	op1VarName, op2VarName string, defaultReturn ast.Stmt) []ast.Stmt {
 
+	// Generate the context check
+	contextCheck := &ast.IfStmt{
+		Cond: &ast.BinaryExpr{
+			X:  &ast.Ident{Name: fmt.Sprintf("%s.ctx", op1VarName)},
+			Op: token.NEQ,
+			Y:  &ast.Ident{Name: fmt.Sprintf("%s.GetContext()", op2VarName)},
+		},
+		Body: &ast.BlockStmt{
+			List: []ast.Stmt{
+				&ast.ReturnStmt{
+					Results: []ast.Expr{ast.NewIdent(fmt.Sprintf("SeriesError{fmt.Sprintf(\"Cannot operate on series with different contexts: %%v and %%v\", s.ctx, %s.GetContext())}", op2VarName))},
+				},
+			},
+		},
+	}
+
+	op2VarNameTyped := "o"
 	bigSwitch := &ast.TypeSwitchStmt{
 		Assign: &ast.AssignStmt{
-			Lhs: []ast.Expr{ast.NewIdent("o")},
+			Lhs: []ast.Expr{ast.NewIdent(op2VarNameTyped)},
 			Tok: token.DEFINE,
 			Rhs: []ast.Expr{ast.NewIdent(fmt.Sprintf("%s.(type)", op2VarName))},
 		},
@@ -600,6 +617,7 @@ func generateSwitchType(
 		},
 	}
 
+	// Generate the switch cases for each type of the second operand
 	for _, op2 := range operation.ApplyTo {
 		bigSwitch.Body.List = append(bigSwitch.Body.List,
 			&ast.CaseClause{
@@ -610,7 +628,7 @@ func generateSwitchType(
 						Op1VarName:    op1VarName,
 						Op1SeriesType: op1SeriesType,
 						Op1InnerType:  op1InnerType,
-						Op2VarName:    "o",
+						Op2VarName:    op2VarNameTyped,
 						Op2SeriesType: op2.SeriesName,
 						Op2InnerType:  op2.SeriesType,
 						ResInnerType:  ComputeResInnerType(operation.OpCode, op1InnerType, op2.SeriesType),
@@ -626,7 +644,7 @@ func generateSwitchType(
 		Body: []ast.Stmt{defaultReturn},
 	})
 
-	return bigSwitch
+	return []ast.Stmt{contextCheck, bigSwitch}
 }
 
 func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) string {
@@ -676,130 +694,102 @@ func generateOperations() {
 			if funcDecl, ok := decl.(*ast.FuncDecl); ok {
 				switch funcDecl.Name.Name {
 				case "Mul":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Mul"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Mul"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "multiply"))},
+						})
 
 				case "Div":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Div"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Div"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "divide"))},
+						})
 
 				case "Mod":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Mod"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use modulo"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Mod"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use modulo"))},
+						})
 
 				case "Exp":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Exp"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use exponentiation"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Exp"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "use exponentiation"))},
+						})
 
 				case "Add":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Add"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Add"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "sum"))},
+						})
 
 				case "Sub":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Sub"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Sub"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "subtract"))},
+						})
 
 				case "And":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["And"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "and"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["And"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "and"))},
+						})
 
 				case "Or":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Or"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "or"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Or"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "or"))},
+						})
 
 				case "Eq":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Eq"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for equality"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Eq"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for equality"))},
+						})
 
 				case "Ne":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Ne"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for inequality"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Ne"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for inequality"))},
+						})
 
 				case "Lt":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Lt"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Lt"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than"))},
+						})
 
 				case "Le":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Le"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than or equal to"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Le"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for less than or equal to"))},
+						})
 
 				case "Gt":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Gt"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Gt"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than"))},
+						})
 
 				case "Ge":
-					fast.Decls[i].(*ast.FuncDecl).Body.List = []ast.Stmt{
-						generateSwitchType(
-							info.Operations["Ge"], info.SeriesName, info.SeriesType, "s", "other",
-							&ast.ReturnStmt{
-								Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than or equal to"))},
-							}),
-					}
+					fast.Decls[i].(*ast.FuncDecl).Body.List = generateSwitchType(
+						info.Operations["Ge"], info.SeriesName, info.SeriesType, "s", "other",
+						&ast.ReturnStmt{
+							Results: []ast.Expr{ast.NewIdent(fmt.Sprintf(FINAL_RETURN_FMT, "compare for greater than or equal to"))},
+						})
 				}
 			}
 

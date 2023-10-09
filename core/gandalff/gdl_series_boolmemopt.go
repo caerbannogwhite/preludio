@@ -41,6 +41,11 @@ func (s SeriesBoolMemOpt) __trueCount() int {
 	return count
 }
 
+// Return the context of the series.
+func (s SeriesBoolMemOpt) GetContext() *Context {
+	return s.ctx
+}
+
 // Returns the number of elements in the series.
 func (s SeriesBoolMemOpt) Len() int {
 	return s.size

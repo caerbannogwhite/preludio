@@ -9,6 +9,11 @@ type SeriesError struct {
 
 func (s SeriesError) printInfo() {}
 
+// Return the context of the series.
+func (s SeriesError) GetContext() *Context {
+	return nil
+}
+
 // Returns the length of the series.
 func (s SeriesError) Len() int {
 	return 0

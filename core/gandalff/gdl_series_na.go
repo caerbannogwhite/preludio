@@ -15,6 +15,11 @@ type SeriesNA struct {
 
 func (s SeriesNA) printInfo() {}
 
+// Return the context of the series.
+func (s SeriesNA) GetContext() *Context {
+	return nil
+}
+
 // Returns the length of the series.
 func (s SeriesNA) Len() int {
 	return s.size

@@ -10,14 +10,14 @@ type Series interface {
 
 	// Basic accessors.
 
+	// Return the context of the series.
+	GetContext() *Context
 	// Return the number of elements in the series.
 	Len() int
-
 	// Return the type of the series.
 	Type() typesys.BaseType
 	// Return the type and cardinality of the series.
 	TypeCard() typesys.BaseTypeCard
-
 	// Return if the series is grouped.
 	IsGrouped() bool
 	// Return if the series admits null values.

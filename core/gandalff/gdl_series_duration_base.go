@@ -20,6 +20,11 @@ func (s SeriesDuration) printInfo() {
 
 ////////////////////////			BASIC ACCESSORS
 
+// Return the context of the series.
+func (s SeriesDuration) GetContext() *Context {
+	return s.ctx
+}
+
 // Return the number of elements in the series.
 func (s SeriesDuration) Len() int {
 	return len(s.data)
