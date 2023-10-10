@@ -1276,7 +1276,25 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	return out
 }
 
-func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
+type PrettyPrintParams struct {
+	minColWidth int
+	maxColWidth int
+	width       int
+	nrows       int
+	indent      string
+}
+
+func NewPrettyPrintParams() PrettyPrintParams {
+	return PrettyPrintParams{
+		minColWidth: 10,
+		maxColWidth: 20,
+		width:       80,
+		nrows:       10,
+		indent:      "",
+	}
+}
+
+func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return df
@@ -1299,100 +1317,59 @@ func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
 	fmtString := fmt.Sprintf("| %%%ds ", colSize)
 
 	// header
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	buffer := params.indent + "╭"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┬"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
-
-	// column names
-	// check if there are any column names
-	colNames := false
-	for _, name := range df.names {
-		if name != "" {
-			colNames = true
-			break
-		}
-	}
-
-	// only print column names if there are any
-	if colNames {
-		fmt.Printf("    ")
-		for _, name := range df.names {
-			fmt.Printf(fmtString, truncate(name, colSize))
-		}
-		fmt.Println("|")
-
-		// separator
-		fmt.Printf("    ")
-		for i := 0; i < len(df.series)*actualColSize; i++ {
-			if i%actualColSize == 0 {
-				fmt.Print("+")
-			} else {
-				fmt.Print("-")
-			}
-		}
-		fmt.Println("+")
-	}
+	buffer += "╮\n"
 
 	// column types
-	fmt.Printf("    ")
+	buffer += params.indent + "│"
 	for _, c := range df.series {
-		fmt.Printf(fmtString, truncate(c.Type().ToString(), colSize))
+		buffer += fmt.Sprintf(fmtString, c.Type().ToString())
 	}
-	fmt.Println("|")
+	buffer += "\n"
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	buffer += params.indent + "├"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┼"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
-	}
-	fmt.Println("+")
-
-	var nrows int
-	if len(nrowsParam) == 0 {
-		if df.NRows() < 20 {
-			nrows = df.NRows()
-		} else {
-			nrows = 10
-		}
-	} else {
-		nrows = nrowsParam[0]
 	}
 
 	// data
-	if nrows >= 0 {
-		nrows = int(math.Min(float64(nrows), float64(df.NRows())))
-	} else {
-		nrows = df.NRows()
+
+	nrows := int(math.Min(10, float64(df.NRows())))
+	if params.nrows > 0 {
+		params.nrows = int(math.Min(float64(params.nrows), float64(df.NRows())))
 	}
 
 	for i := 0; i < nrows; i++ {
-		fmt.Printf("    ")
+		buffer += "┤\n"
 		for _, c := range df.series {
-			fmt.Printf(fmtString, truncate(c.GetAsString(i), colSize))
+			buffer += fmt.Sprintf(fmtString, truncate(c.GetAsString(i), colSize))
 		}
-		fmt.Println("|")
+		buffer += "\n"
 	}
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	buffer += params.indent + "├"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┼"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+
+	fmt.Println(buffer)
 
 	return df
 }

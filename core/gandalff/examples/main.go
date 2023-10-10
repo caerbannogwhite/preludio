@@ -31,16 +31,16 @@ Operations,4,250000
 func Example01() {
 	// f, _ := os.Create("test.csv")
 
-	NewBaseDataFrame().
+	NewBaseDataFrame(NewContext()).
 		FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read().
 		Select("department", "age", "weight", "junior").
-		GroupBy("department").
-		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
-		PrettyPrint(20)
+		PrettyPrint(NewPrettyPrintParams())
+	// GroupBy("department").
+	// Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 	// ToCSV().
 	// SetDelimiter('\t').
 	// SetWriter(f).
@@ -59,47 +59,46 @@ func Example01() {
 }
 
 func Example02() {
-	pool := NewStringPool()
+	ctx := NewContext()
+	ppp := NewPrettyPrintParams()
 
-	employees := NewBaseDataFrame().
-		SetStringPool(pool).
+	employees := NewBaseDataFrame(ctx).
 		FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read()
 
-	departments := NewBaseDataFrame().
-		SetStringPool(pool).
+	departments := NewBaseDataFrame(ctx).
 		FromCSV().
 		SetReader(strings.NewReader(data2)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read()
 
-	departments.PrettyPrint(20)
+	departments.PrettyPrint(ppp)
 
 	employees.Join(LEFT_JOIN, departments, "department").
-		PrettyPrint(20)
+		PrettyPrint(ppp)
 }
 
-func Example03() {
-	s := NewSeriesInt64("nums", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9}).
-		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesInt64).
-		Mul(NewSeriesInt32("nums2", false, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9})).(SeriesInt64).
-		Add(NewSeriesInt64("scalar", false, false, []int64{1})).
-		Gt(NewSeriesFloat64("nums", false, false, []float64{20}))
+// func Example03() {
+// 	s := NewSeriesInt64("nums", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9}).
+// 		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesInt64).
+// 		Mul(NewSeriesInt32("nums2", false, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9})).(SeriesInt64).
+// 		Add(NewSeriesInt64("scalar", false, false, []int64{1})).
+// 		Gt(NewSeriesFloat64("nums", false, false, []float64{20}))
 
-	p := NewSeriesString("nums", true, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()).
-		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesString).
-		Add(NewSeriesString("nums2", false, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()))
+// 	p := NewSeriesString("nums", true, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()).
+// 		SetNullMask([]bool{true, false, false, true, false, false, true, false, false}).(SeriesString).
+// 		Add(NewSeriesString("nums2", false, []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}, NewStringPool()))
 
-	fmt.Println(s.Data())
-	fmt.Println(s.GetNullMask())
+// 	fmt.Println(s.Data())
+// 	fmt.Println(s.GetNullMask())
 
-	fmt.Println(p.Data())
-	fmt.Println(p.GetNullMask())
-}
+// 	fmt.Println(p.Data())
+// 	fmt.Println(p.GetNullMask())
+// }
 
 func Example04() {
 	x := `
@@ -120,14 +119,17 @@ a,b
 4,4
 `
 
-	dfX := NewBaseDataFrame().
+	ctx := NewContext()
+	ppp := NewPrettyPrintParams()
+
+	dfX := NewBaseDataFrame(ctx).
 		FromCSV().
 		SetReader(strings.NewReader(x)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read()
 
-	dfY := NewBaseDataFrame().
+	dfY := NewBaseDataFrame(ctx).
 		FromCSV().
 		SetReader(strings.NewReader(y)).
 		SetDelimiter(',').
@@ -135,28 +137,28 @@ a,b
 		Read()
 
 	dfX.Join(INNER_JOIN, dfY, "a", "b").
-		PrettyPrint(20)
+		PrettyPrint(ppp)
 
 	dfX.Join(LEFT_JOIN, dfY, "a", "b").
-		PrettyPrint(20)
+		PrettyPrint(ppp)
 
 	dfX.Join(RIGHT_JOIN, dfY, "a", "b").
-		PrettyPrint(20)
+		PrettyPrint(ppp)
 
 	dfX.Join(OUTER_JOIN, dfY, "a", "b").
-		PrettyPrint(20)
+		PrettyPrint(ppp)
 }
 
 func main() {
 	fmt.Println("Example01:")
 	Example01()
 
-	fmt.Println("Example02:")
-	Example02()
+	// fmt.Println("Example02:")
+	// Example02()
 
-	fmt.Println("Example03:")
-	Example03()
+	// fmt.Println("Example03:")
+	// Example03()
 
-	fmt.Println("Example04:")
-	Example04()
+	// fmt.Println("Example04:")
+	// Example04()
 }
