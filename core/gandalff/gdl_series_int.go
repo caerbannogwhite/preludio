@@ -34,9 +34,7 @@ func (s SeriesInt) Set(i int, v any) Series {
 
 	switch val := v.(type) {
 	case nil:
-		if !s.isNullable {
-			s = s.MakeNullable().(SeriesInt)
-		}
+		s = s.MakeNullable().(SeriesInt)
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
 	case int8:
@@ -77,61 +75,6 @@ func (s SeriesInt) Set(i int, v any) Series {
 
 	default:
 		return SeriesError{fmt.Sprintf("SeriesInt.Set: invalid type %T", v)}
-	}
-
-	s.sorted = SORTED_NONE
-	return s
-}
-
-// Append appends a value or a slice of values to the series.
-func (s SeriesInt) Append(v any) Series {
-	if s.partition != nil {
-		return SeriesError{"SeriesInt.Append: cannot append values on a grouped Series"}
-	}
-
-	switch v := v.(type) {
-	case int:
-		s.data = append(s.data, v)
-		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
-			s.nullMask = append(s.nullMask, 0)
-		}
-
-	case []int:
-		s.data = append(s.data, v...)
-		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
-			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
-		}
-
-	case NullableInt:
-		s.data = append(s.data, v.Value)
-		s = s.MakeNullable().(SeriesInt)
-		if len(s.data) > len(s.nullMask)<<3 {
-			s.nullMask = append(s.nullMask, 0)
-		}
-		if !v.Valid {
-			s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
-		}
-
-	case []NullableInt:
-		ssize := len(s.data)
-		s.data = append(s.data, make([]int, len(v))...)
-		s = s.MakeNullable().(SeriesInt)
-		if len(s.data) > len(s.nullMask)<<3 {
-			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
-		}
-		for i, b := range v {
-			s.data[ssize+i] = b.Value
-			if !b.Valid {
-				s.nullMask[len(s.data)>>3] |= 1 << uint(len(s.data)%8)
-			}
-		}
-
-	case SeriesInt:
-		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
-		s.data = append(s.data, v.data...)
-
-	default:
-		return SeriesError{fmt.Sprintf("SeriesInt.Append: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE

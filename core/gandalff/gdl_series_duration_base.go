@@ -1,4 +1,3 @@
-
 package gandalff
 
 import (
@@ -165,6 +164,77 @@ func (s SeriesDuration) MakeNonNullable() Series {
 // Get the element at index i.
 func (s SeriesDuration) Get(i int) any {
 	return s.data[i]
+}
+
+// Append appends a value or a slice of values to the series.
+func (s SeriesDuration) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"SeriesDuration.Append: cannot append values to a grouped series"}
+	}
+
+	switch v := v.(type) {
+	case nil:
+		s.data = append(s.data, time.Duration(0))
+		s = s.MakeNullable().(SeriesDuration)
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
+
+	case SeriesNA:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, v.Len(), true, __binVecInit(v.Len(), true))
+		s.data = append(s.data, make([]time.Duration, v.Len())...)
+
+	case time.Duration:
+		s.data = append(s.data, v)
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+
+	case []time.Duration:
+		s.data = append(s.data, v...)
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
+		}
+
+	case NullableDuration:
+		s.data = append(s.data, v.Value)
+		s = s.MakeNullable().(SeriesDuration)
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		if !v.Valid {
+			s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
+		}
+
+	case []NullableDuration:
+		ssize := len(s.data)
+		s.data = append(s.data, make([]time.Duration, len(v))...)
+		s = s.MakeNullable().(SeriesDuration)
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
+		}
+		for i, b := range v {
+			s.data[ssize+i] = b.Value
+			if !b.Valid {
+				s.nullMask[(ssize+i)>>3] |= 1 << uint8((ssize+i)%8)
+			}
+		}
+
+	case SeriesDuration:
+		if s.ctx != v.ctx {
+			return SeriesError{"SeriesDuration.Append: cannot append SeriesDuration from different contexts"}
+		}
+
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
+
+	default:
+		return SeriesError{fmt.Sprintf("SeriesDuration.Append: invalid type %T", v)}
+	}
+
+	s.sorted = SORTED_NONE
+	return s
 }
 
 // Take the elements according to the given interval.

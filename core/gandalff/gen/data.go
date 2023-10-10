@@ -20,58 +20,82 @@ type Operation struct {
 }
 
 type SeriesFile struct {
-	SeriesName      string
-	SeriesType      typesys.BaseType
-	SeriesTypeStr   string
-	SeriesGoTypeStr string
-	IsGoTypePtr     bool
-	IsTimeType      bool
-	Operations      map[string]Operation
+	SeriesName            string
+	SeriesType            typesys.BaseType
+	SeriesTypeStr         string
+	SeriesGoTypeStr       string
+	SeriesGoOuterTypeStr  string
+	SeriesNullableTypeStr string
+	DefaultValue          string
+	IsGoTypePtr           bool
+	IsTimeType            bool
+	Operations            map[string]Operation
 }
 
 var DATA_BASE_METHODS = map[string]SeriesFile{
 	"gdl_series_bool_base.go": {
-		SeriesName:      "SeriesBool",
-		SeriesTypeStr:   "BoolType",
-		SeriesGoTypeStr: "bool",
+		SeriesName:            "SeriesBool",
+		SeriesTypeStr:         "BoolType",
+		SeriesGoTypeStr:       "bool",
+		SeriesGoOuterTypeStr:  "bool",
+		SeriesNullableTypeStr: "NullableBool",
+		DefaultValue:          "false",
 	},
 
 	"gdl_series_int_base.go": {
-		SeriesName:      "SeriesInt",
-		SeriesTypeStr:   "IntType",
-		SeriesGoTypeStr: "int",
+		SeriesName:            "SeriesInt",
+		SeriesTypeStr:         "IntType",
+		SeriesGoTypeStr:       "int",
+		SeriesGoOuterTypeStr:  "int",
+		SeriesNullableTypeStr: "NullableInt",
+		DefaultValue:          "0",
 	},
 
 	"gdl_series_int64_base.go": {
-		SeriesName:      "SeriesInt64",
-		SeriesTypeStr:   "Int64Type",
-		SeriesGoTypeStr: "int64",
+		SeriesName:            "SeriesInt64",
+		SeriesTypeStr:         "Int64Type",
+		SeriesGoTypeStr:       "int64",
+		SeriesGoOuterTypeStr:  "int64",
+		SeriesNullableTypeStr: "NullableInt64",
+		DefaultValue:          "0",
 	},
 
 	"gdl_series_float64_base.go": {
-		SeriesName:      "SeriesFloat64",
-		SeriesTypeStr:   "Float64Type",
-		SeriesGoTypeStr: "float64",
+		SeriesName:            "SeriesFloat64",
+		SeriesTypeStr:         "Float64Type",
+		SeriesGoTypeStr:       "float64",
+		SeriesGoOuterTypeStr:  "float64",
+		SeriesNullableTypeStr: "NullableFloat64",
+		DefaultValue:          "0",
 	},
 
 	"gdl_series_string_base.go": {
-		SeriesName:      "SeriesString",
-		SeriesTypeStr:   "StringType",
-		SeriesGoTypeStr: "*string",
-		IsGoTypePtr:     true,
+		SeriesName:            "SeriesString",
+		SeriesTypeStr:         "StringType",
+		SeriesGoTypeStr:       "*string",
+		SeriesGoOuterTypeStr:  "string",
+		SeriesNullableTypeStr: "NullableString",
+		DefaultValue:          "s.ctx.stringPool.nullStringPtr",
+		IsGoTypePtr:           true,
 	},
 
 	"gdl_series_time_base.go": {
-		SeriesName:      "SeriesTime",
-		SeriesTypeStr:   "TimeType",
-		SeriesGoTypeStr: "time.Time",
-		IsTimeType:      true,
+		SeriesName:            "SeriesTime",
+		SeriesTypeStr:         "TimeType",
+		SeriesGoTypeStr:       "time.Time",
+		SeriesGoOuterTypeStr:  "time.Time",
+		SeriesNullableTypeStr: "NullableTime",
+		DefaultValue:          "time.Time{}",
+		IsTimeType:            true,
 	},
 
 	"gdl_series_duration_base.go": {
-		SeriesName:      "SeriesDuration",
-		SeriesTypeStr:   "DurationType",
-		SeriesGoTypeStr: "time.Duration",
+		SeriesName:            "SeriesDuration",
+		SeriesTypeStr:         "DurationType",
+		SeriesGoTypeStr:       "time.Duration",
+		SeriesGoOuterTypeStr:  "time.Duration",
+		SeriesNullableTypeStr: "NullableDuration",
+		DefaultValue:          "time.Duration(0)",
 	},
 }
 

@@ -206,9 +206,7 @@ func (s SeriesBoolMemOpt) Set(i int, v any) Series {
 
 	switch v := v.(type) {
 	case nil:
-		if !s.isNullable {
-			s = s.MakeNullable().(SeriesBoolMemOpt)
-		}
+		s = s.MakeNullable().(SeriesBoolMemOpt)
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
 	case bool:

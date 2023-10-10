@@ -808,14 +808,6 @@ func generateOperations() {
 }
 
 func generateBase() {
-	type Vals struct {
-		SeriesName   string
-		SeriesType   string
-		SeriesGoType string
-		IsGoTypePtr  bool
-		IsTimeType   bool
-	}
-
 	for filename, info := range DATA_BASE_METHODS {
 		tmplBase, err := template.New("base").Parse(TEMPLATE_BASIC_ACCESSORS)
 		if err != nil {
@@ -832,31 +824,23 @@ func generateBase() {
 			panic(err)
 		}
 
-		vals := Vals{
-			SeriesName:   info.SeriesName,
-			SeriesType:   info.SeriesTypeStr,
-			SeriesGoType: info.SeriesGoTypeStr,
-			IsGoTypePtr:  info.IsGoTypePtr,
-			IsTimeType:   info.IsTimeType,
-		}
-
 		f, err := os.Create(filepath.Join("..", filename))
 		if err != nil {
 			panic(err)
 		}
 		defer f.Close()
 
-		err = tmplBase.Execute(f, vals)
+		err = tmplBase.Execute(f, info)
 		if err != nil {
 			panic(err)
 		}
 
-		err = tmplFilters.Execute(f, vals)
+		err = tmplFilters.Execute(f, info)
 		if err != nil {
 			panic(err)
 		}
 
-		err = tmplMaps.Execute(f, vals)
+		err = tmplMaps.Execute(f, info)
 		if err != nil {
 			panic(err)
 		}

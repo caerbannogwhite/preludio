@@ -1,7 +1,6 @@
 package main
 
-var TEMPLATE_BASIC_ACCESSORS = `
-package gandalff
+var TEMPLATE_BASIC_ACCESSORS = `package gandalff
 
 import (
 	"fmt"
@@ -34,12 +33,12 @@ func (s {{.SeriesName}}) Len() int {
 
 // Return the type of the series.
 func (s {{.SeriesName}}) Type() typesys.BaseType {
-	return typesys.{{.SeriesType}}
+	return typesys.{{.SeriesTypeStr}}
 }
 
 // Return the type and cardinality of the series.
 func (s {{.SeriesName}}) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.{{.SeriesType}}, Card: s.Len()}
+	return typesys.BaseTypeCard{Base: typesys.{{.SeriesTypeStr}}, Card: s.Len()}
 }
 
 // Return if the series is grouped.
@@ -169,6 +168,96 @@ func (s {{.SeriesName}}) Get(i int) any {
 	return {{if .IsGoTypePtr}}*{{end}}s.data[i]
 }
 
+// Append appends a value or a slice of values to the series.
+func (s {{.SeriesName}}) Append(v any) Series {
+	if s.partition != nil {
+		return SeriesError{"{{.SeriesName}}.Append: cannot append values to a grouped series"}
+	}
+
+	switch v := v.(type) {
+	case nil:
+		s.data = append(s.data, {{.DefaultValue}})
+		s = s.MakeNullable().({{.SeriesName}})
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
+
+	case SeriesNA:
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, v.Len(), true, __binVecInit(v.Len(), true))
+		s.data = append(s.data, make([]{{.SeriesGoTypeStr}}, v.Len())...)
+
+	case {{.SeriesGoOuterTypeStr}}:
+		{{if eq .SeriesName "SeriesString" -}}
+		s.data = append(s.data, s.ctx.stringPool.Put(v))
+		{{- else -}}
+		s.data = append(s.data, v)
+		{{- end}}
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+
+	case []{{.SeriesGoOuterTypeStr}}:
+		{{if eq .SeriesName "SeriesString" -}}
+		s.data = append(s.data, make([]*string, len(v))...)
+		for i, str := range v {
+			s.data[len(s.data)-len(v)+i] = s.ctx.stringPool.Put(str)
+		}
+		{{- else -}}
+		s.data = append(s.data, v...)
+		{{- end}}
+		if s.isNullable && len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask))...)
+		}
+
+	case {{.SeriesNullableTypeStr}}:
+		{{if eq .SeriesName "SeriesString" -}}
+		s.data = append(s.data, s.ctx.stringPool.Put(v.Value))
+		{{- else -}}
+		s.data = append(s.data, v.Value)
+		{{- end}}
+		s = s.MakeNullable().({{.SeriesName}})
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, 0)
+		}
+		if !v.Valid {
+			s.nullMask[(len(s.data)-1)>>3] |= 1 << uint8((len(s.data)-1)%8)
+		}
+
+	case []{{.SeriesNullableTypeStr}}:
+		ssize := len(s.data)
+		s.data = append(s.data, make([]{{.SeriesGoTypeStr}}, len(v))...)
+		s = s.MakeNullable().({{.SeriesName}})
+		if len(s.data) > len(s.nullMask)<<3 {
+			s.nullMask = append(s.nullMask, make([]uint8, (len(s.data)>>3)-len(s.nullMask)+1)...)
+		}
+		for i, b := range v {
+			{{if eq .SeriesName "SeriesString" -}}
+			s.data[ssize+i] = s.ctx.stringPool.Put(b.Value)
+			{{- else -}}
+			s.data[ssize+i] = b.Value
+			{{- end}}
+			if !b.Valid {
+				s.nullMask[(ssize+i)>>3] |= 1 << uint8((ssize+i)%8)
+			}
+		}
+
+	case {{.SeriesName}}:
+		if s.ctx != v.ctx {
+			return SeriesError{"{{.SeriesName}}.Append: cannot append {{.SeriesName}} from different contexts"}
+		}
+
+		s.isNullable, s.nullMask = __mergeNullMasks(len(s.data), s.isNullable, s.nullMask, len(v.data), v.isNullable, v.nullMask)
+		s.data = append(s.data, v.data...)
+
+	default:
+		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Append: invalid type %T", v)}
+	}
+
+	s.sorted = SORTED_NONE
+	return s
+}
+
 // Take the elements according to the given interval.
 func (s {{.SeriesName}}) Take(params ...int) Series {
 	indeces, err := seriesTakePreprocess("{{.SeriesName}}", s.Len(), params...)
@@ -193,7 +282,7 @@ func (s {{.SeriesName}}) Data() any {
 
 // Copy the series.
 func (s {{.SeriesName}}) Copy() Series {
-	data := make([]{{.SeriesGoType}}, len(s.data))
+	data := make([]{{.SeriesGoTypeStr}}, len(s.data))
 	copy(data, s.data)
 	nullMask := make([]uint8, len(s.nullMask))
 	copy(nullMask, s.nullMask)
@@ -208,7 +297,7 @@ func (s {{.SeriesName}}) Copy() Series {
 	}
 }
 
-func (s {{.SeriesName}}) getDataPtr() *[]{{.SeriesGoType}} {
+func (s {{.SeriesName}}) getDataPtr() *[]{{.SeriesGoTypeStr}} {
 	return &s.data
 }
 
@@ -255,7 +344,7 @@ func (s {{.SeriesName}}) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 	elementCount := mask.__trueCount()
 	var nullMask []uint8
 
-	data := make([]{{.SeriesGoType}}, elementCount)
+	data := make([]{{.SeriesGoTypeStr}}, elementCount)
 	if s.isNullable {
 		nullMask = __binVecInit(elementCount, false)
 		dstIdx := 0
@@ -299,10 +388,10 @@ func (s {{.SeriesName}}) filterBoolSlice(mask []bool) Series {
 		}
 	}
 
-	var data []{{.SeriesGoType}}
+	var data []{{.SeriesGoTypeStr}}
 	var nullMask []uint8
 
-	data = make([]{{.SeriesGoType}}, elementCount)
+	data = make([]{{.SeriesGoTypeStr}}, elementCount)
 
 	if s.isNullable {
 		nullMask = __binVecInit(elementCount, false)
@@ -337,7 +426,7 @@ func (s {{.SeriesName}}) filterBoolSlice(mask []bool) Series {
 
 func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 	if len(indexes) == 0 {
-		s.data = make([]{{.SeriesGoType}}, 0)
+		s.data = make([]{{.SeriesGoTypeStr}}, 0)
 		s.nullMask = make([]uint8, 0)
 		return s
 	}
@@ -351,11 +440,11 @@ func (s {{.SeriesName}}) filterIntSlice(indexes []int, check bool) Series {
 		}
 	}
 
-	var data []{{.SeriesGoType}}
+	var data []{{.SeriesGoTypeStr}}
 	var nullMask []uint8
 
 	size := len(indexes)
-	data = make([]{{.SeriesGoType}}, size)
+	data = make([]{{.SeriesGoTypeStr}}, size)
 
 	if s.isNullable {
 		nullMask = __binVecInit(size, false)
