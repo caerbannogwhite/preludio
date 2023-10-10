@@ -5,6 +5,136 @@ import (
 	"time"
 )
 
+func Test_SeriesTime_Append(t *testing.T) {
+	dataA := []time.Time{time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 3, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 4, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 5, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 6, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 7, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 8, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 9, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 10, 0, 0, 0, 0, time.UTC)}
+	dataB := []time.Time{time.Date(2020, 1, 11, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 12, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 13, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 14, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 15, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 16, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 17, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 18, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 19, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 20, 0, 0, 0, 0, time.UTC)}
+	dataC := []time.Time{time.Date(2020, 1, 21, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 22, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 23, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 24, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 25, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 26, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 27, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 28, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 29, 0, 0, 0, 0, time.UTC), time.Date(2020, 1, 30, 0, 0, 0, 0, time.UTC)}
+
+	maskA := []bool{false, false, true, false, false, true, false, false, true, false}
+	maskB := []bool{false, false, false, false, true, false, true, false, false, true}
+	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
+
+	// Create two new series.
+	sA := NewSeriesTime(dataA, maskA, true, ctx)
+	sB := NewSeriesTime(dataB, maskB, true, ctx)
+	sC := NewSeriesTime(dataC, maskC, true, ctx)
+
+	// Append the series.
+	result := sA.Append(sB).Append(sC)
+
+	// Check the length.
+	if result.Len() != 30 {
+		t.Errorf("Expected length of 30, got %d", result.Len())
+	}
+
+	// Check the data.
+	for i, v := range result.Data().([]time.Time) {
+		if i < 10 {
+			if v != dataA[i] {
+				t.Errorf("Expected %v, got %v at index %d", dataA[i], v, i)
+			}
+		} else if i < 20 {
+			if v != dataB[i-10] {
+				t.Errorf("Expected %v, got %v at index %d", dataB[i-10], v, i)
+			}
+		} else {
+			if v != dataC[i-20] {
+				t.Errorf("Expected %v, got %v at index %d", dataC[i-20], v, i)
+			}
+		}
+	}
+
+	// Check the null mask.
+	for i, v := range result.GetNullMask() {
+		if i < 10 {
+			if v != maskA[i] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskA[i], v, i)
+			}
+		} else if i < 20 {
+			if v != maskB[i-10] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskB[i-10], v, i)
+			}
+		} else {
+			if v != maskC[i-20] {
+				t.Errorf("Expected nullMask %t, got %t at index %d", maskC[i-20], v, i)
+			}
+		}
+	}
+
+	// Append time.Time, []time.Time, NullableTime, []NullableTime
+	s := NewSeriesTime([]time.Time{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		tm := time.Date(2020, 1, i, 0, 0, 0, 0, time.UTC)
+		switch i % 4 {
+		case 0:
+			s = s.Append(tm).(SeriesTime)
+		case 1:
+			s = s.Append([]time.Time{tm}).(SeriesTime)
+		case 2:
+			s = s.Append(NullableTime{true, tm}).(SeriesTime)
+		case 3:
+			s = s.Append([]NullableTime{{false, tm}}).(SeriesTime)
+		}
+
+		if s.Get(i) != tm {
+			t.Errorf("Expected %v, got %t at index %d (case %d)", tm, s.Get(i), i, i%4)
+		}
+	}
+
+	// Append nil
+	s = NewSeriesTime([]time.Time{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(nil).(SeriesTime)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesNA
+	s = NewSeriesTime([]time.Time{}, nil, true, ctx)
+	na := NewSeriesNA(10, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(na).(SeriesTime)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], na.GetNullMask(), nil, "SeriesTime.Append") {
+			t.Errorf("Expected %v, got %v at index %d", na.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+
+	// Append NullableTime
+	s = NewSeriesTime([]time.Time{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(NullableTime{false, time.Now()}).(SeriesTime)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append []NullableTime
+	s = NewSeriesTime([]time.Time{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append([]NullableTime{{false, time.Now()}}).(SeriesTime)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesTime
+	s = NewSeriesTime([]time.Time{}, nil, true, ctx)
+	b := NewSeriesTime(dataA, []bool{true, true, true, true, true, true, true, true, true, true}, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(b).(SeriesTime)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], b.GetNullMask(), nil, "SeriesTime.Append") {
+			t.Errorf("Expected %v, got %v at index %d", b.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+}
+
 func Test_SeriesTime_Map(t *testing.T) {
 
 	baseTime := time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)

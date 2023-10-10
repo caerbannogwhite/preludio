@@ -1,6 +1,6 @@
 ## GANDALFF: Golang, ANother DAta Library For Fun
 
-Or Gdl: Golang Data Library
+Or, for short, GDL: Golang Data Library
 
 ### What is it?
 
@@ -74,9 +74,10 @@ The data types not checked are not yet supported, but might be in the future.
 
 - [x] Filter
 
-  - [x] Filter (by Bool series)
-  - [x] FilterByMask
-  - [x] FilterByIndex
+  - [x] filter by bool slice
+  - [x] filter by int slice
+  - [x] filter by bool series
+  - [x] filter by int series
 
 - [x] Group
 

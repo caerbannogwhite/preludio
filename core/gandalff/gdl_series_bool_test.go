@@ -193,16 +193,8 @@ func Test_SeriesBool_Append(t *testing.T) {
 		}
 	}
 
-	// Append random values.
-	data := []bool{true, false, true, false, true, false, true, false, true, false}
-	s := NewSeriesBool(data, nil, true, ctx)
-
-	// Check the original data.
-	for i, v := range s.Data().([]bool) {
-		if v != data[i] {
-			t.Errorf("Expected %t, got %t at index %d", data[i], v, i)
-		}
-	}
+	// Append bool, []bool, NullableBool, []NullableBool
+	s := NewSeriesBool([]bool{}, nil, true, ctx)
 
 	for i := 0; i < 100; i++ {
 		if rand.Float32() > 0.5 {
@@ -217,8 +209,8 @@ func Test_SeriesBool_Append(t *testing.T) {
 				s = s.Append([]NullableBool{{false, true}}).(SeriesBool)
 			}
 
-			if s.Get(i+10) != true {
-				t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i+10), i+10, i%4)
+			if s.Get(i) != true {
+				t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i), i, i%4)
 			}
 		} else {
 			switch i % 4 {
@@ -232,8 +224,8 @@ func Test_SeriesBool_Append(t *testing.T) {
 				s = s.Append([]NullableBool{{false, false}}).(SeriesBool)
 			}
 
-			if s.Get(i+10) != false {
-				t.Errorf("Expected %t, got %t at index %d (case %d)", false, s.Get(i+10), i+10, i%4)
+			if s.Get(i) != false {
+				t.Errorf("Expected %t, got %t at index %d (case %d)", false, s.Get(i), i, i%4)
 			}
 		}
 	}
@@ -553,7 +545,7 @@ func Test_SeriesBool_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBool.FilterByMask: mask length (13) does not match series length (9)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesBool.Filter: mask length (13) does not match series length (9)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 

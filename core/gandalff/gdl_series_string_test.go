@@ -176,33 +176,76 @@ func Test_SeriesString_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	dataD := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
-	sD := NewSeriesString(dataD, nil, true, ctx)
-
-	// Check the original data.
-	for i, v := range sD.Data().([]string) {
-		if v != dataD[i] {
-			t.Errorf("Expected %s, got %s at index %d", dataD[i], v, i)
-		}
-	}
+	s := NewSeriesString([]string{}, nil, true, ctx)
 
 	alpha := "abcdefghijklmnopqrstuvwxyz0123456789"
-
 	for i := 0; i < 100; i++ {
 		r := string(alpha[rand.Intn(len(alpha))])
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(SeriesString)
+			s = s.Append(r).(SeriesString)
 		case 1:
-			sD = sD.Append([]string{r}).(SeriesString)
+			s = s.Append([]string{r}).(SeriesString)
 		case 2:
-			sD = sD.Append(NullableString{true, r}).(SeriesString)
+			s = s.Append(NullableString{true, r}).(SeriesString)
 		case 3:
-			sD = sD.Append([]NullableString{{false, r}}).(SeriesString)
+			s = s.Append([]NullableString{{false, r}}).(SeriesString)
 		}
 
-		if sD.Get(i+10) != r {
-			t.Errorf("Expected %t, got %t at index %d (case %d)", true, sD.Get(i+10), i+10, i%4)
+		if s.Get(i) != r {
+			t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i), i, i%4)
+		}
+	}
+
+	// Append nil
+	s = NewSeriesString([]string{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(nil).(SeriesString)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesNA
+	s = NewSeriesString([]string{}, nil, true, ctx)
+	na := NewSeriesNA(10, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(na).(SeriesString)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], na.GetNullMask(), nil, "SeriesString.Append") {
+			t.Errorf("Expected %v, got %v at index %d", na.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+
+	// Append NullableString
+	s = NewSeriesString([]string{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(NullableString{false, "a"}).(SeriesString)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append []NullableString
+	s = NewSeriesString([]string{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append([]NullableString{{false, "a"}}).(SeriesString)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesString
+	s = NewSeriesString([]string{}, nil, true, ctx)
+	b := NewSeriesString(dataA, []bool{true, true, true, true, true, true, true, true, true, true}, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(b).(SeriesString)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], b.GetNullMask(), nil, "SeriesString.Append") {
+			t.Errorf("Expected %v, got %v at index %d", b.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
 		}
 	}
 }
@@ -386,7 +429,7 @@ func Test_SeriesString_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.FilterByMask: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesString.Filter: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 

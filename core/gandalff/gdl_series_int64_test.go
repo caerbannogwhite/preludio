@@ -292,31 +292,75 @@ func Test_SeriesInt64_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	dataD := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	sD := NewSeriesInt64(dataD, nil, true, ctx)
-
-	// Check the original data.
-	for i, v := range sD.Data().([]int64) {
-		if v != dataD[i] {
-			t.Errorf("Expected %d, got %d at index %d", dataD[i], v, i)
-		}
-	}
+	s := NewSeriesInt64([]int64{}, nil, true, ctx)
 
 	for i := 0; i < 100; i++ {
 		r := int64(rand.Intn(100))
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(SeriesInt64)
+			s = s.Append(r).(SeriesInt64)
 		case 1:
-			sD = sD.Append([]int64{r}).(SeriesInt64)
+			s = s.Append([]int64{r}).(SeriesInt64)
 		case 2:
-			sD = sD.Append(NullableInt64{true, r}).(SeriesInt64)
+			s = s.Append(NullableInt64{true, r}).(SeriesInt64)
 		case 3:
-			sD = sD.Append([]NullableInt64{{false, r}}).(SeriesInt64)
+			s = s.Append([]NullableInt64{{false, r}}).(SeriesInt64)
 		}
 
-		if sD.Get(i+10) != r {
-			t.Errorf("Expected %t, got %t at index %d (case %d)", true, sD.Get(i+10), i+10, i%4)
+		if s.Get(i) != r {
+			t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i), i, i%4)
+		}
+	}
+
+	// Append nil
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(nil).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesNA
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+	na := NewSeriesNA(10, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(na).(SeriesInt64)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], na.GetNullMask(), nil, "SeriesInt64.Append") {
+			t.Errorf("Expected %v, got %v at index %d", na.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+
+	// Append NullableInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(NullableInt64{false, 1}).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append []NullableInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append([]NullableInt64{{false, 1}}).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+	b := NewSeriesInt64(dataA, []bool{true, true, true, true, true, true, true, true, true, true}, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(b).(SeriesInt64)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], b.GetNullMask(), nil, "SeriesInt64.Append") {
+			t.Errorf("Expected %v, got %v at index %d", b.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
 		}
 	}
 }
@@ -498,7 +542,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.FilterByMask: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.Filter: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
