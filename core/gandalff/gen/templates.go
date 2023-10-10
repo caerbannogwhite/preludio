@@ -312,13 +312,15 @@ var TEMPLATE_FILTERS = `
 ////////////////////////			FILTER OPERATIONS
 
 // Filters out the elements by the given mask.
-// Mask can be SeriesBool, SeriesBoolMemOpt, bool slice or a int slice.
+// Mask can be SeriesBool, SeriesBoolMemOpt, SeriesInt, bool slice or a int slice.
 func (s {{.SeriesName}}) Filter(mask any) Series {
 	switch mask := mask.(type) {
 	case SeriesBool:
-		return s.filterBool(mask)
+		return s.filterBoolSlice(mask.data)
 	case SeriesBoolMemOpt:
 		return s.filterBoolMemOpt(mask)
+	case SeriesInt:
+		return s.filterIntSlice(mask.data, true)
 	case []bool:
 		return s.filterBoolSlice(mask)
 	case []int:
@@ -326,10 +328,6 @@ func (s {{.SeriesName}}) Filter(mask any) Series {
 	default:
 		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Filter: invalid type %T", mask)}
 	}
-}
-
-func (s {{.SeriesName}}) filterBool(mask SeriesBool) Series {
-	return s.filterBoolSlice(mask.data)
 }
 
 func (s {{.SeriesName}}) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
@@ -378,7 +376,7 @@ func (s {{.SeriesName}}) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 
 func (s {{.SeriesName}}) filterBoolSlice(mask []bool) Series {
 	if len(mask) != len(s.data) {
-		return SeriesError{fmt.Sprintf("{{.SeriesName}}.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+		return SeriesError{fmt.Sprintf("{{.SeriesName}}.Filter: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
 	elementCount := 0

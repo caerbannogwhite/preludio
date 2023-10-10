@@ -281,13 +281,15 @@ func (s SeriesBool) UnGroup() Series {
 ////////////////////////			FILTER OPERATIONS
 
 // Filters out the elements by the given mask.
-// Mask can be SeriesBool, SeriesBoolMemOpt, bool slice or a int slice.
+// Mask can be SeriesBool, SeriesBoolMemOpt, SeriesInt, bool slice or a int slice.
 func (s SeriesBool) Filter(mask any) Series {
 	switch mask := mask.(type) {
 	case SeriesBool:
-		return s.filterBool(mask)
+		return s.filterBoolSlice(mask.data)
 	case SeriesBoolMemOpt:
 		return s.filterBoolMemOpt(mask)
+	case SeriesInt:
+		return s.filterIntSlice(mask.data, true)
 	case []bool:
 		return s.filterBoolSlice(mask)
 	case []int:
@@ -295,10 +297,6 @@ func (s SeriesBool) Filter(mask any) Series {
 	default:
 		return SeriesError{fmt.Sprintf("SeriesBool.Filter: invalid type %T", mask)}
 	}
-}
-
-func (s SeriesBool) filterBool(mask SeriesBool) Series {
-	return s.filterBoolSlice(mask.data)
 }
 
 func (s SeriesBool) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
@@ -347,7 +345,7 @@ func (s SeriesBool) filterBoolMemOpt(mask SeriesBoolMemOpt) Series {
 
 func (s SeriesBool) filterBoolSlice(mask []bool) Series {
 	if len(mask) != len(s.data) {
-		return SeriesError{fmt.Sprintf("SeriesBool.FilterByMask: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
+		return SeriesError{fmt.Sprintf("SeriesBool.Filter: mask length (%d) does not match series length (%d)", len(mask), len(s.data))}
 	}
 
 	elementCount := 0
