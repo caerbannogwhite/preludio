@@ -36,7 +36,7 @@ type ByteEater struct {
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                typesys.PreludioOutput
-	__stringPool            *gandalff.StringPool
+	__context               *gandalff.Context
 	__currentDataFrame      gandalff.DataFrame
 	__currentResult         *__p_intern__
 }
@@ -113,7 +113,7 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
 
-	vm.__stringPool = gandalff.NewStringPool()
+	vm.__context = gandalff.NewContext()
 
 	return vm
 }

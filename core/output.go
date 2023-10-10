@@ -5,9 +5,9 @@ import (
 	"typesys"
 )
 
-func seriesToColumnar(fullOutput bool, outputSnippetLength int, series gandalff.Series) typesys.Columnar {
+func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series gandalff.Series) typesys.Columnar {
 	col := typesys.Columnar{}
-	col.Name = series.Name()
+	col.Name = name
 	col.Type = series.Type().ToString()
 	col.ActualLength = series.Len()
 
@@ -23,7 +23,7 @@ func seriesToColumnar(fullOutput bool, outputSnippetLength int, series gandalff.
 func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) []typesys.Columnar {
 	columns := make([]typesys.Columnar, (*df).NCols())
 	for i, name := range (*df).Names() {
-		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, (*df).Series(name))
+		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).Series(name))
 	}
 	return columns
 }

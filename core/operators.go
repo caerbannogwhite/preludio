@@ -102,7 +102,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 			case typesys.OP_UNARY_SUB:
 				switch s1 := t1.(type) {
-				case gandalff.SeriesInt32:
+				case gandalff.SeriesInt:
 					result = s1.Neg()
 				case gandalff.SeriesInt64:
 					result = s1.Neg()
@@ -145,7 +145,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				result = s1.Mod(s2)
 
 			case typesys.OP_BINARY_POW:
-				result = s1.Pow(s2)
+				result = s1.Exp(s2)
 
 			case typesys.OP_BINARY_ADD:
 				result = s1.Add(s2)
