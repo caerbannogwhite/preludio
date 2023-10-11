@@ -38,9 +38,9 @@ func Example01() {
 		SetHeader(true).
 		Read().
 		Select("department", "age", "weight", "junior").
+		GroupBy("department").
+		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 		PrettyPrint(NewPrettyPrintParams())
-	// GroupBy("department").
-	// Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
 	// ToCSV().
 	// SetDelimiter('\t').
 	// SetWriter(f).

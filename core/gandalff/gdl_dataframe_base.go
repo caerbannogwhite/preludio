@@ -294,6 +294,14 @@ func (df BaseDataFrame) SeriesAt(index int) Series {
 	return df.series[index]
 }
 
+// Returns the series with the given name as a bool series.
+func (df BaseDataFrame) NameAt(index int) string {
+	if index < 0 || index >= len(df.names) {
+		return ""
+	}
+	return df.names[index]
+}
+
 func (df BaseDataFrame) Select(names ...string) DataFrame {
 	if df.err != nil {
 		return df
@@ -312,6 +320,7 @@ func (df BaseDataFrame) Select(names ...string) DataFrame {
 	}
 
 	return BaseDataFrame{
+		names:  names,
 		series: seriesList,
 		ctx:    df.ctx,
 	}
@@ -1300,24 +1309,24 @@ func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 		return df
 	}
 
-	if df.isGrouped {
-		fmt.Printf("    GROUPED BY")
-		for i, p := range df.partitions {
-			if i != len(df.partitions)-1 {
-				fmt.Printf(" %s,", p.name)
-			} else {
-				fmt.Printf(" %s", p.name)
-			}
-		}
-		fmt.Printf("\n\n")
-	}
-
 	colSize := 10
 	actualColSize := colSize + 3
-	fmtString := fmt.Sprintf("| %%%ds ", colSize)
+	fmtString := fmt.Sprintf(" %%%ds ", colSize)
+	buffer := ""
+
+	if df.isGrouped {
+		buffer += "GROUP BY: "
+		for i, p := range df.partitions {
+			if i > 0 {
+				buffer += ", "
+			}
+			buffer += p.name
+		}
+		buffer += "\n"
+	}
 
 	// header
-	buffer := params.indent + "╭"
+	buffer += params.indent + "╭"
 	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
 			buffer += "┬"
@@ -1327,10 +1336,10 @@ func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 	}
 	buffer += "╮\n"
 
-	// column types
+	// column names
 	buffer += params.indent + "│"
-	for _, c := range df.series {
-		buffer += fmt.Sprintf(fmtString, c.Type().ToString())
+	for _, name := range df.names {
+		buffer += fmt.Sprintf(fmtString, truncate(name, colSize)) + "│"
 	}
 	buffer += "\n"
 
@@ -1343,21 +1352,14 @@ func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 			buffer += "─"
 		}
 	}
+	buffer += "┤\n"
 
-	// data
-
-	nrows := int(math.Min(10, float64(df.NRows())))
-	if params.nrows > 0 {
-		params.nrows = int(math.Min(float64(params.nrows), float64(df.NRows())))
+	// column types
+	buffer += params.indent + "│"
+	for _, c := range df.series {
+		buffer += fmt.Sprintf(fmtString, c.Type().ToString()) + "│"
 	}
-
-	for i := 0; i < nrows; i++ {
-		buffer += "┤\n"
-		for _, c := range df.series {
-			buffer += fmt.Sprintf(fmtString, truncate(c.GetAsString(i), colSize))
-		}
-		buffer += "\n"
-	}
+	buffer += "\n"
 
 	// separator
 	buffer += params.indent + "├"
@@ -1368,6 +1370,32 @@ func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 			buffer += "─"
 		}
 	}
+	buffer += "┤\n"
+
+	// data
+	nrows := int(math.Min(10, float64(df.NRows())))
+	if params.nrows > 0 {
+		params.nrows = int(math.Min(float64(params.nrows), float64(df.NRows())))
+	}
+
+	for i := 0; i < nrows; i++ {
+		buffer += params.indent + "│"
+		for _, c := range df.series {
+			buffer += fmt.Sprintf(fmtString, truncate(c.GetAsString(i), colSize)) + "│"
+		}
+		buffer += "\n"
+	}
+
+	// end
+	buffer += params.indent + "╰"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			buffer += "┴"
+		} else {
+			buffer += "─"
+		}
+	}
+	buffer += "╯\n"
 
 	fmt.Println(buffer)
 
