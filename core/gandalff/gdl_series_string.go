@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"typesys"
 	"unsafe"
 )
@@ -262,8 +263,41 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 	case typesys.StringType:
 		return s
 
+	case typesys.TimeType:
+		return SeriesError{"SeriesString.Cast: cannot cast to Time, use SeriesString.ParseTime(layout) instead"}
+
 	default:
 		return SeriesError{fmt.Sprintf("SeriesString.Cast: invalid type %s", t.ToString())}
+	}
+}
+
+// Parse the series as a time series.
+func (s SeriesString) ParseTime(layout string) Series {
+	data := make([]time.Time, len(s.data))
+	nullMask := __binVecInit(len(s.data), false)
+	if s.isNullable {
+		copy(nullMask, s.nullMask)
+	}
+
+	for i, v := range s.data {
+		if s.isNullable && s.IsNull(i) {
+			continue
+		}
+		t, err := time.Parse(layout, *v)
+		if err != nil {
+			nullMask[i>>3] |= (1 << uint(i%8))
+		} else {
+			data[i] = t
+		}
+	}
+
+	return SeriesTime{
+		isNullable: true,
+		sorted:     SORTED_NONE,
+		data:       data,
+		nullMask:   nullMask,
+		partition:  nil,
+		ctx:        s.ctx,
 	}
 }
 

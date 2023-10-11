@@ -109,7 +109,12 @@ func NewSeriesBool(data []bool, nullMask []bool, makeCopy bool, ctx *Context) Se
 		data = actualData
 	}
 
-	return SeriesBool{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesBool{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Bool Series, if nullMask is nil then the series is not nullable
@@ -136,7 +141,13 @@ func newSeriesBoolMemOpt(data []bool, nullMask []bool, makeCopy bool, ctx *Conte
 	size := len(data)
 	actualData := __binVecFromBools(data)
 
-	return SeriesBoolMemOpt{isNullable: isNullable, size: size, data: actualData, nullMask: nullMask_, ctx: ctx}
+	return SeriesBoolMemOpt{
+		isNullable: isNullable,
+		size:       size,
+		data:       actualData,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Int Series, if nullMask is nil then the series is not nullable
@@ -166,7 +177,12 @@ func NewSeriesInt(data []int, nullMask []bool, makeCopy bool, ctx *Context) Seri
 		data = actualData
 	}
 
-	return SeriesInt{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesInt{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Int64 Series, if nullMask is nil then the series is not nullable
@@ -196,7 +212,12 @@ func NewSeriesInt64(data []int64, nullMask []bool, makeCopy bool, ctx *Context) 
 		data = actualData
 	}
 
-	return SeriesInt64{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesInt64{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Float64 Series, if nullMask is nil then the series is not nullable
@@ -226,7 +247,12 @@ func NewSeriesFloat64(data []float64, nullMask []bool, makeCopy bool, ctx *Conte
 		data = actualData
 	}
 
-	return SeriesFloat64{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesFloat64{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a String Series, if nullMask is nil then the series is not nullable
@@ -265,7 +291,12 @@ func NewSeriesString(data []string, nullMask []bool, makeCopy bool, ctx *Context
 		}
 	}
 
-	return SeriesString{isNullable: isNullable, data: actualData, nullMask: nullMask_, ctx: ctx}
+	return SeriesString{
+		isNullable: isNullable,
+		data:       actualData,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Time Series, if nullMask is nil then the series is not nullable
@@ -295,7 +326,12 @@ func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, ctx *Contex
 		data = actualData
 	}
 
-	return SeriesTime{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesTime{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }
 
 // Build a Duration Series, if nullMask is nil then the series is not nullable
@@ -325,5 +361,10 @@ func NewSeriesDuration(data []time.Duration, nullMask []bool, makeCopy bool, ctx
 		data = actualData
 	}
 
-	return SeriesDuration{isNullable: isNullable, data: data, nullMask: nullMask_, ctx: ctx}
+	return SeriesDuration{
+		isNullable: isNullable,
+		data:       data,
+		nullMask:   nullMask_,
+		ctx:        ctx,
+	}
 }

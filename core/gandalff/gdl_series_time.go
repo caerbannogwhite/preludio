@@ -15,6 +15,18 @@ type SeriesTime struct {
 	nullMask   []uint8
 	partition  *SeriesTimePartition
 	ctx        *Context
+	timeFormat string
+}
+
+// Get the time format of the series.
+func (s SeriesTime) GetTimeFormat() string {
+	return s.timeFormat
+}
+
+// Set the time format of the series.
+func (s SeriesTime) SetTimeFormat(format string) Series {
+	s.timeFormat = format
+	return s
 }
 
 // Get the element at index i as a string.
@@ -22,7 +34,7 @@ func (s SeriesTime) GetAsString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	}
-	return s.data[i].String()
+	return s.data[i].Format(s.timeFormat)
 }
 
 // Set the element at index i. The value v must be of type time.Time or NullableTime.
@@ -80,12 +92,12 @@ func (s SeriesTime) DataAsString() []string {
 			if s.IsNull(i) {
 				data[i] = NULL_STRING
 			} else {
-				data[i] = v.String()
+				data[i] = v.Format(s.timeFormat)
 			}
 		}
 	} else {
 		for i, v := range s.data {
-			data[i] = v.String()
+			data[i] = v.Format(s.timeFormat)
 		}
 	}
 	return data
@@ -150,12 +162,12 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 				if s.IsNull(i) {
 					data[i] = s.ctx.stringPool.Put(NULL_STRING)
 				} else {
-					data[i] = s.ctx.stringPool.Put(v.String())
+					data[i] = s.ctx.stringPool.Put(v.Format(s.timeFormat))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = s.ctx.stringPool.Put(v.String())
+				data[i] = s.ctx.stringPool.Put(v.Format(s.timeFormat))
 			}
 		}
 
@@ -170,6 +182,21 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 
 	case typesys.TimeType:
 		return s
+
+	case typesys.DurationType:
+		data := make([]time.Duration, len(s.data))
+		for i, v := range s.data {
+			data[i] = v.Sub(time.Time{})
+		}
+
+		return SeriesDuration{
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+			ctx:        s.ctx,
+		}
 
 	default:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %T", t)}
