@@ -105,7 +105,6 @@ func (s SeriesTime) DataAsString() []string {
 
 // Casts the series to a given type.
 func (s SeriesTime) Cast(t typesys.BaseType) Series {
-
 	switch t {
 	case typesys.BoolType:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: cannot cast to %s", t.ToString())}

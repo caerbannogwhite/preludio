@@ -25,6 +25,10 @@ const (
 	HASH_MAGIC_NUMBER      = int64(0xa8f4979b77e3f93)
 	HASH_MAGIC_NUMBER_NULL = int64(0x7fff4979b77e3f93)
 	HASH_NULL_KEY          = int64(0x7ff8000000000001)
+
+	NULL_STRING       = "NA"
+	BOOL_TRUE_STRING  = "true"
+	BOOL_FALSE_STRING = "false"
 )
 
 ////////////////////////////////			ENUMS
@@ -48,10 +52,6 @@ type MapFuncNull func(v any, isNull bool) (any, bool)
 ////////////////////////////////			ERRORS
 
 ////////////////////////////////			TO STRING
-
-const NULL_STRING = "NA"
-const BOOL_TRUE_STRING = "true"
-const BOOL_FALSE_STRING = "false"
 
 func boolToString(b bool) string {
 	if b {

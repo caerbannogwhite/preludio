@@ -9,10 +9,43 @@ type Context struct {
 	// StringPool is a pool of strings that are used by the series.
 	// This is used to reduce the number of allocations and to allow for fast comparisons.
 	stringPool *StringPool
+
+	threadsNumber int
+	nullString    string
+	timeFormat    string
 }
 
 func NewContext() *Context {
-	return &Context{stringPool: NewStringPool()}
+	return &Context{
+		stringPool:    NewStringPool(),
+		threadsNumber: THREADS_NUMBER,
+		nullString:    NULL_STRING,
+		timeFormat:    "2006-01-02 15:04:05",
+	}
+}
+
+func (ctx *Context) GetThreadsNumber() int {
+	return ctx.threadsNumber
+}
+
+func (ctx *Context) SetThreadsNumber(n int) {
+	ctx.threadsNumber = n
+}
+
+func (ctx *Context) GetNullString() string {
+	return ctx.nullString
+}
+
+func (ctx *Context) SetNullString(s string) {
+	ctx.nullString = s
+}
+
+func (ctx *Context) GetTimeFormat() string {
+	return ctx.timeFormat
+}
+
+func (ctx *Context) SetTimeFormat(s string) {
+	ctx.timeFormat = s
 }
 
 type StringPool struct {

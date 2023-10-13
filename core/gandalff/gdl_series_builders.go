@@ -331,6 +331,7 @@ func NewSeriesTime(data []time.Time, nullMask []bool, makeCopy bool, ctx *Contex
 		data:       data,
 		nullMask:   nullMask_,
 		ctx:        ctx,
+		timeFormat: ctx.timeFormat,
 	}
 }
 

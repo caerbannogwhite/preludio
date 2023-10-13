@@ -3,6 +3,7 @@ package gandalff
 import (
 	"math/rand"
 	"testing"
+	"time"
 	"typesys"
 )
 
@@ -259,53 +260,31 @@ func Test_SeriesString_Cast(t *testing.T) {
 
 	// Cast to bool.
 	resBool := s.Cast(typesys.BoolType)
+	expectedMask := []bool{false, false, true, true, true, true, true, true, true, true}
 
 	// Check the data.
-	for i, v := range resBool.Data().([]bool) {
-		switch i {
-		case 0:
-			if v != true {
-				t.Errorf("Expected %t, got %t at index %d", true, v, i)
-			}
-		default:
-			if v != false {
-				t.Errorf("Expected %t, got %t at index %d", false, v, i)
-			}
-		}
+	if !checkEqSlice(resBool.Data().([]bool), []bool{true, false, false, false, false, false, false, false, false, false}, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", []bool{true, false, false, false, false, false, false, false, false, false}, resBool.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range resBool.GetNullMask() {
-		switch i {
-		case 0, 1:
-			if v != false {
-				t.Errorf("Expected nullMask %t, got %t at index %d", false, v, i)
-			}
-		default:
-			if v != true {
-				t.Errorf("Expected nullMask %t, got %t at index %d", true, v, i)
-			}
-		}
+	if !checkEqSlice(resBool.GetNullMask(), expectedMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", mask, resBool.GetNullMask())
 	}
 
 	// Cast to int.
 	resInt := s.Cast(typesys.IntType)
 	expectedInt := []int{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
+	expectedMask = []bool{true, true, true, false, false, true, true, false, true, true}
 
 	// Check the data.
-	for i, v := range resInt.Data().([]int) {
-		if v != expectedInt[i] {
-			t.Errorf("Expected %d, got %d at index %d", expectedInt[i], v, i)
-		}
+	if !checkEqSlice(resInt.Data().([]int), expectedInt, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expectedInt, resInt.Data())
 	}
 
-	expectedMask := []bool{true, true, true, false, false, true, true, false, true, true}
-
 	// Check the null mask.
-	for i, v := range resInt.GetNullMask() {
-		if v != expectedMask[i] {
-			t.Errorf("Expected nullMask %t, got %t at index %d", expectedMask[i], v, i)
-		}
+	if !checkEqSlice(resInt.GetNullMask(), expectedMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", expectedMask, resInt.GetNullMask())
 	}
 
 	// Cast to int64.
@@ -313,17 +292,13 @@ func Test_SeriesString_Cast(t *testing.T) {
 	expectedInt64 := []int64{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 
 	// Check the data.
-	for i, v := range resInt64.Data().([]int64) {
-		if v != expectedInt64[i] {
-			t.Errorf("Expected %d, got %d at index %d", expectedInt64[i], v, i)
-		}
+	if !checkEqSlice(resInt64.Data().([]int64), expectedInt64, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expectedInt64, resInt64.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range resInt64.GetNullMask() {
-		if v != expectedMask[i] {
-			t.Errorf("Expected nullMask %t, got %t at index %d", expectedMask[i], v, i)
-		}
+	if !checkEqSlice(resInt64.GetNullMask(), expectedMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", expectedMask, resInt64.GetNullMask())
 	}
 
 	// Cast to float64.
@@ -331,17 +306,32 @@ func Test_SeriesString_Cast(t *testing.T) {
 	expectedFloat64 := []float64{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 
 	// Check the data.
-	for i, v := range resFloat64.Data().([]float64) {
-		if v != expectedFloat64[i] {
-			t.Errorf("Expected %f, got %f at index %d", expectedFloat64[i], v, i)
-		}
+	if !checkEqSlice(resFloat64.Data().([]float64), expectedFloat64, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expectedFloat64, resFloat64.Data())
 	}
 
 	// Check the null mask.
-	for i, v := range resFloat64.GetNullMask() {
-		if v != expectedMask[i] {
-			t.Errorf("Expected nullMask %t, got %t at index %d", expectedMask[i], v, i)
-		}
+	if !checkEqSlice(resFloat64.GetNullMask(), expectedMask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", expectedMask, resFloat64.GetNullMask())
+	}
+
+	// Cast to string.
+	resString := s.Cast(typesys.StringType)
+	expectedString := []string{"true", "false", NULL_STRING, "3", "4", NULL_STRING, "hello", "7", NULL_STRING, "world"}
+
+	// Check the data.
+	if !checkEqSlice(resString.Data().([]string), expectedString, nil, "SeriesString.Data") {
+		t.Errorf("Expected data of %v, got %v", expectedString, resString.Data())
+	}
+
+	// Check the null mask.
+	if !checkEqSlice(resString.GetNullMask(), mask, nil, "SeriesString.GetNullMask") {
+		t.Errorf("Expected null mask of %v, got %v", mask, resString.GetNullMask())
+	}
+
+	// Cast to time.
+	if s.Cast(typesys.TimeType).(SeriesError).GetError() != "SeriesString.Cast: cannot cast to Time, use SeriesString.ParseTime(layout) instead" {
+		t.Errorf("Expected error, got %v", s.Cast(typesys.TimeType))
 	}
 
 	// Cast to error.
@@ -350,6 +340,19 @@ func Test_SeriesString_Cast(t *testing.T) {
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesString.Cast: invalid type Error" {
 		t.Errorf("Expected error, got %v", castError)
+	}
+
+	// Parse time.
+	s = NewSeriesString([]string{"2019-01-01", "2019-01-02", "2019-01-03", "2019-01-04"}, nil, true, ctx)
+	expectedTime := []time.Time{
+		time.Date(2019, 1, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2019, 1, 2, 0, 0, 0, 0, time.UTC),
+		time.Date(2019, 1, 3, 0, 0, 0, 0, time.UTC),
+		time.Date(2019, 1, 4, 0, 0, 0, 0, time.UTC),
+	}
+
+	if !checkEqSlice(s.ParseTime("2006-01-02").Data().([]time.Time), expectedTime, nil, "SeriesString.ParseTime") {
+		t.Errorf("Expected data of %v, got %v", expectedTime, s.ParseTime("2006-01-02").Data())
 	}
 }
 
