@@ -3,56 +3,53 @@ package gandalff
 import (
 	"fmt"
 	"sort"
+	"time"
 	"typesys"
 )
 
-// SeriesBool represents a series of bools.
-// The data is stored as a byte array, with each bit representing a bool.
-type SeriesBool struct {
+// SeriesDuration represents a duration series.
+type SeriesDuration struct {
 	isNullable bool
 	sorted     SeriesSortOrder
-	data       []bool
+	data       []time.Duration
 	nullMask   []uint8
-	partition  *SeriesBoolPartition
+	partition  *SeriesDurationPartition
 	ctx        *Context
 }
 
 // Get the element at index i as a string.
-func (s SeriesBool) GetAsString(i int) string {
+func (s SeriesDuration) GetAsString(i int) string {
 	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
-	} else if s.data[i] {
-		return BOOL_TRUE_STRING
-	} else {
-		return BOOL_FALSE_STRING
 	}
+	return s.data[i].String()
 }
 
-// Set the element at index i. The value must be of type bool or NullableBool.
-func (s SeriesBool) Set(i int, v any) Series {
+// Set the element at index i. The value v must be of type time.Duration or NullableDuration.
+func (s SeriesDuration) Set(i int, v any) Series {
 	if s.partition != nil {
-		return SeriesError{"SeriesBool.Set: cannot set values in a grouped series"}
+		return SeriesError{"SeriesDuration.Set: cannot set values on a grouped Series"}
 	}
 
 	switch v := v.(type) {
 	case nil:
-		s = s.MakeNullable().(SeriesBool)
+		s = s.MakeNullable().(SeriesDuration)
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
-	case bool:
+	case time.Duration:
 		s.data[i] = v
 
-	case NullableBool:
-		s = s.MakeNullable().(SeriesBool)
+	case NullableDuration:
+		s = s.MakeNullable().(SeriesDuration)
 		if v.Valid {
 			s.data[i] = v.Value
 		} else {
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-			s.data[i] = false
+			s.data[i] = time.Duration(0)
+			s.nullMask[i/8] |= 1 << uint(i%8)
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesBool.Set: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesDuration.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -61,57 +58,50 @@ func (s SeriesBool) Set(i int, v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
-// Return the underlying data as a slice of bools.
-func (s SeriesBool) Bools() []bool {
+// Return the underlying data as a slice of time.Duration.
+func (s SeriesDuration) Times() []time.Duration {
 	return s.data
 }
 
-// Return the underlying data as a slice of NullableBool.
-func (s SeriesBool) DataAsNullable() any {
-	data := make([]NullableBool, len(s.data))
+// Return the underlying data as a slice of NullableDuration.
+func (s SeriesDuration) DataAsNullable() any {
+	data := make([]NullableDuration, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableBool{Valid: !s.IsNull(i), Value: v}
+		data[i] = NullableDuration{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }
 
-// Return the data as a slice of strings.
-func (s SeriesBool) DataAsString() []string {
+// Return the underlying data as a slice of strings.
+func (s SeriesDuration) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
 		for i, v := range s.data {
 			if s.IsNull(i) {
 				data[i] = NULL_STRING
-			} else if v {
-				data[i] = BOOL_TRUE_STRING
 			} else {
-				data[i] = BOOL_FALSE_STRING
+				data[i] = v.String()
 			}
 		}
 	} else {
 		for i, v := range s.data {
-			if v {
-				data[i] = BOOL_TRUE_STRING
-			} else {
-				data[i] = BOOL_FALSE_STRING
-			}
+			data[i] = v.String()
 		}
 	}
 	return data
 }
 
-// Cast the series to a given type.
-func (s SeriesBool) Cast(t typesys.BaseType) Series {
+// Casts the series to a given type.
+func (s SeriesDuration) Cast(t typesys.BaseType) Series {
+
 	switch t {
 	case typesys.BoolType:
-		return s
+		return SeriesError{fmt.Sprintf("SeriesDuration.Cast: cannot cast to %s", t.ToString())}
 
 	case typesys.IntType:
 		data := make([]int, len(s.data))
 		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
+			data[i] = int(v.Nanoseconds())
 		}
 
 		return SeriesInt{
@@ -126,9 +116,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	case typesys.Int64Type:
 		data := make([]int64, len(s.data))
 		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
+			data[i] = v.Nanoseconds()
 		}
 
 		return SeriesInt64{
@@ -143,9 +131,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 	case typesys.Float64Type:
 		data := make([]float64, len(s.data))
 		for i, v := range s.data {
-			if v {
-				data[i] = 1
-			}
+			data[i] = float64(v.Nanoseconds())
 		}
 
 		return SeriesFloat64{
@@ -163,19 +149,13 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			for i, v := range s.data {
 				if s.IsNull(i) {
 					data[i] = s.ctx.stringPool.Put(NULL_STRING)
-				} else if v {
-					data[i] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
 				} else {
-					data[i] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
+					data[i] = s.ctx.stringPool.Put(v.String())
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				if v {
-					data[i] = s.ctx.stringPool.Put(BOOL_TRUE_STRING)
-				} else {
-					data[i] = s.ctx.stringPool.Put(BOOL_FALSE_STRING)
-				}
+				data[i] = s.ctx.stringPool.Put(v.String())
 			}
 		}
 
@@ -189,37 +169,33 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesBool.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesDuration.Cast: invalid type %T", t)}
 	}
 }
 
 ////////////////////////			GROUPING OPERATIONS
 
-// A SeriesBoolPartition is a partition of a SeriesBool.
+// A SeriesDurationPartition is a partition of a SeriesDuration.
 // Each key is a hash of a bool value, and each value is a slice of indices
 // of the original series that are set to that value.
-type SeriesBoolPartition struct {
+type SeriesDurationPartition struct {
 	partition map[int64][]int
 }
 
-func (gp *SeriesBoolPartition) getSize() int {
+func (gp *SeriesDurationPartition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp *SeriesBoolPartition) getMap() map[int64][]int {
+func (gp *SeriesDurationPartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (s SeriesBool) group() Series {
+func (s SeriesDuration) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		for i := start; i < end; i++ {
-			if s.data[i] {
-				map_[1] = append(map_[1], i)
-			} else {
-				map_[0] = append(map_[0], i)
-			}
+			map_[s.data[i].Nanoseconds()] = append(map_[s.data[i].Nanoseconds()], i)
 		}
 	}
 
@@ -228,16 +204,13 @@ func (s SeriesBool) group() Series {
 		for i := start; i < end; i++ {
 			if s.IsNull(i) {
 				(*nulls) = append((*nulls), i)
-			} else if s.data[i] {
-				map_[1] = append(map_[1], i)
 			} else {
-				map_[0] = append(map_[0], i)
+				map_[s.data[i].Nanoseconds()] = append(map_[s.data[i].Nanoseconds()], i)
 			}
-
 		}
 	}
 
-	partition := SeriesBoolPartition{
+	partition := SeriesDurationPartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, s.Len(), s.HasNull(),
 			worker, workerNulls),
@@ -248,7 +221,7 @@ func (s SeriesBool) group() Series {
 	return s
 }
 
-func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
+func (s SeriesDuration) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -263,11 +236,7 @@ func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				if s.data[index] {
-					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
-				} else {
-					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
-				}
+				newHash = s.data[index].Nanoseconds() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -280,17 +249,15 @@ func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
 				if s.IsNull(index) {
 					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
-				} else if s.data[index] {
-					newHash = (1 + HASH_MAGIC_NUMBER) + (h << 13) + (h >> 4)
 				} else {
-					newHash = HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					newHash = s.data[index].Nanoseconds() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				}
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
 	}
 
-	newPartition := SeriesBoolPartition{
+	newPartition := SeriesDurationPartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),
@@ -303,7 +270,7 @@ func (s SeriesBool) GroupBy(partition SeriesPartition) Series {
 
 ////////////////////////			SORTING OPERATIONS
 
-func (s SeriesBool) Less(i, j int) bool {
+func (s SeriesDuration) Less(i, j int) bool {
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -312,10 +279,11 @@ func (s SeriesBool) Less(i, j int) bool {
 			return true
 		}
 	}
-	return !s.data[i] && s.data[j]
+
+	return s.data[i] < s.data[j]
 }
 
-func (s SeriesBool) equal(i, j int) bool {
+func (s SeriesDuration) equal(i, j int) bool {
 	if s.isNullable {
 		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
 			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
@@ -328,7 +296,7 @@ func (s SeriesBool) equal(i, j int) bool {
 	return s.data[i] == s.data[j]
 }
 
-func (s SeriesBool) Swap(i, j int) {
+func (s SeriesDuration) Swap(i, j int) {
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -346,7 +314,7 @@ func (s SeriesBool) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s SeriesBool) Sort() Series {
+func (s SeriesDuration) Sort() Series {
 	if s.sorted != SORTED_ASC {
 		sort.Sort(s)
 		s.sorted = SORTED_ASC
@@ -354,7 +322,7 @@ func (s SeriesBool) Sort() Series {
 	return s
 }
 
-func (s SeriesBool) SortRev() Series {
+func (s SeriesDuration) SortRev() Series {
 	if s.sorted != SORTED_DESC {
 		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC

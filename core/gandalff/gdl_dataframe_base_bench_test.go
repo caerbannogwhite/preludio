@@ -19,7 +19,7 @@ var G1_1e7_1e2_10_0_df *DataFrame
 func read_G1_1e4_1e2_0_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e4_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -36,7 +36,7 @@ func read_G1_1e4_1e2_0_0() {
 func read_G1_1e5_1e2_0_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e5_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -53,7 +53,7 @@ func read_G1_1e5_1e2_0_0() {
 func read_G1_1e6_1e2_0_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e6_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -70,7 +70,7 @@ func read_G1_1e6_1e2_0_0() {
 func read_G1_1e7_1e2_0_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e7_1e2_0_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -87,7 +87,7 @@ func read_G1_1e7_1e2_0_0() {
 func read_G1_1e4_1e2_10_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e4_1e2_10_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -104,7 +104,7 @@ func read_G1_1e4_1e2_10_0() {
 func read_G1_1e5_1e2_10_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e5_1e2_10_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -121,7 +121,7 @@ func read_G1_1e5_1e2_10_0() {
 func read_G1_1e6_1e2_10_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e6_1e2_10_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -138,7 +138,7 @@ func read_G1_1e6_1e2_10_0() {
 func read_G1_1e7_1e2_10_0() {
 	f, err := os.OpenFile(filepath.Join("testdata", "G1_1e7_1e2_10_0.csv"), os.O_RDONLY, 0666)
 	if err == nil {
-		df := NewBaseDataFrame().
+		df := NewBaseDataFrame(ctx).
 			FromCSV().
 			SetDelimiter(',').
 			SetReader(f).
@@ -176,10 +176,10 @@ func Benchmark_Filter_Q1_1e5(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).Or(
+			}).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool)).(SeriesBool))
+				}).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -197,10 +197,10 @@ func Benchmark_Filter_Q1_1e6(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).Or(
+			}).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool)).(SeriesBool))
+				}).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -218,10 +218,10 @@ func Benchmark_Filter_Q1_1e7(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).Or(
+			}).(SeriesBool).Or(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool)).(SeriesBool))
+				}).(SeriesBool)).(SeriesBool))
 	}
 	b.StopTimer()
 }
@@ -239,26 +239,26 @@ func Benchmark_Filter_Q2_1e5(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).And(
+			}).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool).Or(
+				}).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(SeriesBool),
+					}).(SeriesBool),
 				),
 			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int64) == 5
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int64) == 1
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool),
 		)
 	}
@@ -278,26 +278,26 @@ func Benchmark_Filter_Q2_1e6(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).And(
+			}).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool).Or(
+				}).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(SeriesBool),
+					}).(SeriesBool),
 				),
 			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int64) == 5
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int64) == 1
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool),
 		)
 	}
@@ -317,26 +317,26 @@ func Benchmark_Filter_Q2_1e7(b *testing.B) {
 		df.Filter(
 			df.Series("id6").Map(func(v any) any {
 				return v.(int64) > 500
-			}, nil).(SeriesBool).And(
+			}).(SeriesBool).And(
 				df.Series("v3").Map(func(v any) any {
 					return v.(float64) < 50
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("id1").Map(func(v any) any {
 					return v.(string) == "id024"
-				}, nil).(SeriesBool).Or(
+				}).(SeriesBool).Or(
 					df.Series("id2").Map(func(v any) any {
 						return v.(string) == "id024"
-					}, nil).(SeriesBool),
+					}).(SeriesBool),
 				),
 			).(SeriesBool).And(
 				df.Series("v1").Map(func(v any) any {
 					return v.(int64) == 5
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool).And(
 				df.Series("v2").Map(func(v any) any {
 					return v.(int64) == 1
-				}, nil).(SeriesBool),
+				}).(SeriesBool),
 			).(SeriesBool),
 		)
 	}

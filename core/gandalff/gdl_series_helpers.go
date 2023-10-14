@@ -1,7 +1,85 @@
 package gandalff
 
-func __binVecInit(size int) []uint8 {
-	return make([]uint8, (size+7)>>3)
+// This function merges two null masks into one.
+// Any of the two masks can be empty.
+func __mergeNullMasks(s1Len int, s1Nullable bool, s1Mask []uint8, s2Len int, s2Nullable bool, s2Mask []uint8) (bool, []uint8) {
+	dataLen := s1Len + s2Len
+
+	if s1Nullable {
+		if dataLen > len(s1Mask)<<3 {
+			s1Mask = append(s1Mask, make([]uint8, (dataLen>>3)-len(s1Mask)+1)...)
+		}
+
+		if s2Nullable {
+
+			sIdx := s1Len
+			oIdx := 0
+			for _, v := range s2Mask {
+				for j := 0; j < 8; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s1Mask[sIdx>>3] |= 1 << uint(sIdx%8)
+					}
+					sIdx++
+					oIdx++
+				}
+			}
+
+			return true, s1Mask
+		} else {
+			return true, s1Mask
+		}
+	} else {
+		if s2Nullable {
+			s1Mask = make([]uint8, (dataLen>>3)+1)
+
+			sIdx := s1Len
+			oIdx := 0
+			for _, v := range s2Mask {
+				for j := 0; j < 8; j++ {
+					if v&(1<<uint(j)) != 0 {
+						s1Mask[sIdx>>3] |= 1 << uint(sIdx%8)
+					}
+					sIdx++
+					oIdx++
+				}
+			}
+
+			return true, s1Mask
+		} else {
+			return false, make([]uint8, 0)
+		}
+	}
+}
+
+func __binVecInit(size int, flag bool) []uint8 {
+	vec := make([]uint8, (size+7)>>3)
+	if flag {
+		for i := range vec {
+			vec[i] = 0xFF
+		}
+		if size%8 != 0 {
+			vec[len(vec)-1] >>= uint(8 - (size % 8))
+		}
+	}
+	return vec
+}
+
+func __binVecFromBools(v []bool) []uint8 {
+	binVec := make([]uint8, (len(v)+7)>>3)
+	for i := 0; i < len(v); i++ {
+		if v[i] {
+			binVec[i>>3] |= 1 << uint(i%8)
+		}
+	}
+	return binVec
+}
+
+func __binVecSet(v []uint8, i int, flag bool) {
+	if flag {
+		v[i>>3] |= 1 << uint(i%8)
+	} else {
+		v[i>>3] &= ^(1 << uint(i%8))
+	}
 }
 
 func __binVecResize(v []uint8, size int) []uint8 {
@@ -72,14 +150,4 @@ func __binVecOrVV(a, b, res []uint8) {
 	for i := range res {
 		res[i] = a[i] | b[i]
 	}
-}
-
-func boolVecToBinVec(v []bool) []uint8 {
-	actualData := make([]uint8, (len(v)+7)>>3)
-	for i := 0; i < len(v); i++ {
-		if v[i] {
-			actualData[i>>3] |= 1 << uint(i%8)
-		}
-	}
-	return actualData
 }

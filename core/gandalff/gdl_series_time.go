@@ -5,116 +5,63 @@ import (
 	"sort"
 	"time"
 	"typesys"
-	"unsafe"
 )
 
-// SeriesFloat64 represents a series of floats.
-type SeriesFloat64 struct {
+// SeriesTime represents a datetime series.
+type SeriesTime struct {
 	isNullable bool
 	sorted     SeriesSortOrder
-	data       []float64
+	data       []time.Time
 	nullMask   []uint8
-	partition  *SeriesFloat64Partition
+	partition  *SeriesTimePartition
 	ctx        *Context
+	timeFormat string
+}
+
+// Get the time format of the series.
+func (s SeriesTime) GetTimeFormat() string {
+	return s.timeFormat
+}
+
+// Set the time format of the series.
+func (s SeriesTime) SetTimeFormat(format string) Series {
+	s.timeFormat = format
+	return s
 }
 
 // Get the element at index i as a string.
-func (s SeriesFloat64) GetAsString(i int) string {
-	if s.isNullable && s.IsNull(i) {
+func (s SeriesTime) GetAsString(i int) string {
+	if s.isNullable && s.nullMask[i>>3]&(1<<uint(i%8)) != 0 {
 		return NULL_STRING
 	}
-	return floatToString(s.data[i])
+	return s.data[i].Format(s.timeFormat)
 }
 
-// Set the element at index i. The value v can be any belonging to types:
-// int8, int16, int, int, int64, float32, float64 and their nullable versions.
-func (s SeriesFloat64) Set(i int, v any) Series {
+// Set the element at index i. The value v must be of type time.Time or NullableTime.
+func (s SeriesTime) Set(i int, v any) Series {
 	if s.partition != nil {
-		return SeriesError{"SeriesFloat64.Set: cannot set values in a grouped series"}
+		return SeriesError{"SeriesTime.Set: cannot set values on a grouped Series"}
 	}
 
-	switch val := v.(type) {
+	switch v := v.(type) {
 	case nil:
-		s = s.MakeNullable().(SeriesFloat64)
+		s = s.MakeNullable().(SeriesTime)
 		s.nullMask[i>>3] |= 1 << uint(i%8)
 
-	case int8:
-		s.data[i] = float64(val)
+	case time.Time:
+		s.data[i] = v
 
-	case int16:
-		s.data[i] = float64(val)
-
-	case int:
-		s.data[i] = float64(val)
-
-	case int32:
-		s.data[i] = float64(val)
-
-	case int64:
-		s.data[i] = float64(val)
-
-	case float32:
-		s.data[i] = float64(val)
-
-	case float64:
-		s.data[i] = val
-
-	case NullableInt8:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableInt8).Valid {
-			s.data[i] = float64(val.Value)
+	case NullableTime:
+		s = s.MakeNullable().(SeriesTime)
+		if v.Valid {
+			s.data[i] = v.Value
 		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
-	case NullableInt16:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableInt16).Valid {
-			s.data[i] = float64(val.Value)
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
-	case NullableInt:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableInt).Valid {
-			s.data[i] = float64(val.Value)
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
-	case NullableInt64:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableInt64).Valid {
-			s.data[i] = float64(val.Value)
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
-	case NullableFloat32:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableFloat32).Valid {
-			s.data[i] = float64(val.Value)
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
-		}
-
-	case NullableFloat64:
-		s = s.MakeNullable().(SeriesFloat64)
-		if v.(NullableFloat64).Valid {
-			s.data[i] = val.Value
-		} else {
-			s.data[i] = 0
-			s.nullMask[i>>3] |= 1 << uint(i%8)
+			s.data[i] = time.Time{}
+			s.nullMask[i/8] |= 1 << uint(i%8)
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Set: invalid type %T", v)}
+		return SeriesError{fmt.Sprintf("SeriesTime.Set: invalid type %T", v)}
 	}
 
 	s.sorted = SORTED_NONE
@@ -123,66 +70,54 @@ func (s SeriesFloat64) Set(i int, v any) Series {
 
 ////////////////////////			ALL DATA ACCESSORS
 
-// Return the underlying data as a slice of float64.
-func (s SeriesFloat64) Float64s() []float64 {
+// Return the underlying data as a slice of time.Time.
+func (s SeriesTime) Times() []time.Time {
 	return s.data
 }
 
-// Return the underlying data as a slice of NullableFloat64.
-func (s SeriesFloat64) DataAsNullable() any {
-	data := make([]NullableFloat64, len(s.data))
+// Return the underlying data as a slice of NullableTime.
+func (s SeriesTime) DataAsNullable() any {
+	data := make([]NullableTime, len(s.data))
 	for i, v := range s.data {
-		data[i] = NullableFloat64{Valid: !s.IsNull(i), Value: v}
+		data[i] = NullableTime{Valid: !s.IsNull(i), Value: v}
 	}
 	return data
 }
 
 // Return the underlying data as a slice of strings.
-func (s SeriesFloat64) DataAsString() []string {
+func (s SeriesTime) DataAsString() []string {
 	data := make([]string, len(s.data))
 	if s.isNullable {
 		for i, v := range s.data {
 			if s.IsNull(i) {
 				data[i] = NULL_STRING
 			} else {
-				data[i] = floatToString(v)
+				data[i] = v.Format(s.timeFormat)
 			}
 		}
 	} else {
 		for i, v := range s.data {
-			data[i] = floatToString(v)
+			data[i] = v.Format(s.timeFormat)
 		}
 	}
 	return data
 }
 
 // Casts the series to a given type.
-func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
+func (s SeriesTime) Cast(t typesys.BaseType) Series {
 	switch t {
 	case typesys.BoolType:
-		data := make([]bool, len(s.data))
-		for i, v := range s.data {
-			data[i] = v != 0
-		}
-
-		return SeriesBool{
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			data:       data,
-			nullMask:   s.nullMask,
-			partition:  nil,
-			ctx:        s.ctx,
-		}
+		return SeriesError{fmt.Sprintf("SeriesTime.Cast: cannot cast to %s", t.ToString())}
 
 	case typesys.IntType:
 		data := make([]int, len(s.data))
 		for i, v := range s.data {
-			data[i] = int(v)
+			data[i] = int(v.UnixNano())
 		}
 
 		return SeriesInt{
 			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
+			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
 			partition:  nil,
@@ -192,12 +127,12 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 	case typesys.Int64Type:
 		data := make([]int64, len(s.data))
 		for i, v := range s.data {
-			data[i] = int64(v)
+			data[i] = v.UnixNano()
 		}
 
 		return SeriesInt64{
 			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
+			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
 			partition:  nil,
@@ -205,7 +140,19 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 		}
 
 	case typesys.Float64Type:
-		return s
+		data := make([]float64, len(s.data))
+		for i, v := range s.data {
+			data[i] = float64(v.UnixNano())
+		}
+
+		return SeriesFloat64{
+			isNullable: s.isNullable,
+			sorted:     s.sorted,
+			data:       data,
+			nullMask:   s.nullMask,
+			partition:  nil,
+			ctx:        s.ctx,
+		}
 
 	case typesys.StringType:
 		data := make([]*string, len(s.data))
@@ -214,18 +161,18 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 				if s.IsNull(i) {
 					data[i] = s.ctx.stringPool.Put(NULL_STRING)
 				} else {
-					data[i] = s.ctx.stringPool.Put(floatToString(v))
+					data[i] = s.ctx.stringPool.Put(v.Format(s.timeFormat))
 				}
 			}
 		} else {
 			for i, v := range s.data {
-				data[i] = s.ctx.stringPool.Put(floatToString(v))
+				data[i] = s.ctx.stringPool.Put(v.Format(s.timeFormat))
 			}
 		}
 
 		return SeriesString{
 			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
+			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
 			partition:  nil,
@@ -233,29 +180,17 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 		}
 
 	case typesys.TimeType:
-		data := make([]time.Time, len(s.data))
-		for i, v := range s.data {
-			data[i] = time.Unix(0, int64(v))
-		}
-
-		return SeriesTime{
-			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
-			data:       data,
-			nullMask:   s.nullMask,
-			partition:  nil,
-			ctx:        s.ctx,
-		}
+		return s
 
 	case typesys.DurationType:
 		data := make([]time.Duration, len(s.data))
 		for i, v := range s.data {
-			data[i] = time.Duration(v)
+			data[i] = v.Sub(time.Time{})
 		}
 
 		return SeriesDuration{
 			isNullable: s.isNullable,
-			sorted:     SORTED_NONE,
+			sorted:     s.sorted,
 			data:       data,
 			nullMask:   s.nullMask,
 			partition:  nil,
@@ -263,34 +198,33 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 		}
 
 	default:
-		return SeriesError{fmt.Sprintf("SeriesFloat64.Cast: invalid type %s", t.ToString())}
+		return SeriesError{fmt.Sprintf("SeriesTime.Cast: invalid type %T", t)}
 	}
 }
 
 ////////////////////////			GROUPING OPERATIONS
 
-// A SeriesFloat64Partition is a partition of a SeriesFloat64.
+// A SeriesTimePartition is a partition of a SeriesTime.
 // Each key is a hash of a bool value, and each value is a slice of indices
 // of the original series that are set to that value.
-type SeriesFloat64Partition struct {
-	partition    map[int64][]int
-	indexToGroup []int
+type SeriesTimePartition struct {
+	partition map[int64][]int
 }
 
-func (gp *SeriesFloat64Partition) getSize() int {
+func (gp *SeriesTimePartition) getSize() int {
 	return len(gp.partition)
 }
 
-func (gp *SeriesFloat64Partition) getMap() map[int64][]int {
+func (gp *SeriesTimePartition) getMap() map[int64][]int {
 	return gp.partition
 }
 
-func (s SeriesFloat64) group() Series {
+func (s SeriesTime) group() Series {
 
 	// Define the worker callback
 	worker := func(threadNum, start, end int, map_ map[int64][]int) {
 		for i := start; i < end; i++ {
-			map_[*(*int64)(unsafe.Pointer((&s.data[i])))] = append(map_[*(*int64)(unsafe.Pointer((&s.data[i])))], i)
+			map_[s.data[i].UnixNano()] = append(map_[s.data[i].UnixNano()], i)
 		}
 	}
 
@@ -300,14 +234,14 @@ func (s SeriesFloat64) group() Series {
 			if s.IsNull(i) {
 				(*nulls) = append((*nulls), i)
 			} else {
-				map_[*(*int64)(unsafe.Pointer((&s.data[i])))] = append(map_[*(*int64)(unsafe.Pointer((&s.data[i])))], i)
+				map_[s.data[i].UnixNano()] = append(map_[s.data[i].UnixNano()], i)
 			}
 		}
 	}
 
-	partition := SeriesFloat64Partition{
+	partition := SeriesTimePartition{
 		partition: __series_groupby(
-			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_2, len(s.data), s.HasNull(),
+			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, s.Len(), s.HasNull(),
 			worker, workerNulls),
 	}
 
@@ -316,7 +250,7 @@ func (s SeriesFloat64) group() Series {
 	return s
 }
 
-func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
+func (s SeriesTime) GroupBy(partition SeriesPartition) Series {
 	// collect all keys
 	otherIndeces := partition.getMap()
 	keys := make([]int64, len(otherIndeces))
@@ -331,7 +265,7 @@ func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
 		var newHash int64
 		for _, h := range keys[start:end] { // keys is defined outside the function
 			for _, index := range otherIndeces[h] { // otherIndeces is defined outside the function
-				newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+				newHash = s.data[index].UnixNano() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
@@ -345,14 +279,14 @@ func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
 				if s.IsNull(index) {
 					newHash = HASH_MAGIC_NUMBER_NULL + (h << 13) + (h >> 4)
 				} else {
-					newHash = *(*int64)(unsafe.Pointer((&(s.data)[index]))) + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
+					newHash = s.data[index].UnixNano() + HASH_MAGIC_NUMBER + (h << 13) + (h >> 4)
 				}
 				map_[newHash] = append(map_[newHash], index)
 			}
 		}
 	}
 
-	newPartition := SeriesFloat64Partition{
+	newPartition := SeriesTimePartition{
 		partition: __series_groupby(
 			THREADS_NUMBER, MINIMUM_PARALLEL_SIZE_1, len(keys), s.HasNull(),
 			worker, workerNulls),
@@ -365,7 +299,7 @@ func (s SeriesFloat64) GroupBy(partition SeriesPartition) Series {
 
 ////////////////////////			SORTING OPERATIONS
 
-func (s SeriesFloat64) Less(i, j int) bool {
+func (s SeriesTime) Less(i, j int) bool {
 	if s.isNullable {
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 {
 			return false
@@ -374,11 +308,10 @@ func (s SeriesFloat64) Less(i, j int) bool {
 			return true
 		}
 	}
-
-	return s.data[i] < s.data[j]
+	return s.data[i].Compare(s.data[j]) < 0
 }
 
-func (s SeriesFloat64) equal(i, j int) bool {
+func (s SeriesTime) equal(i, j int) bool {
 	if s.isNullable {
 		if (s.nullMask[i>>3] & (1 << uint(i%8))) > 0 {
 			return (s.nullMask[j>>3] & (1 << uint(j%8))) > 0
@@ -391,7 +324,7 @@ func (s SeriesFloat64) equal(i, j int) bool {
 	return s.data[i] == s.data[j]
 }
 
-func (s SeriesFloat64) Swap(i, j int) {
+func (s SeriesTime) Swap(i, j int) {
 	if s.isNullable {
 		// i is null, j is not null
 		if s.nullMask[i>>3]&(1<<uint(i%8)) > 0 && s.nullMask[j>>3]&(1<<uint(j%8)) == 0 {
@@ -409,7 +342,7 @@ func (s SeriesFloat64) Swap(i, j int) {
 	s.data[i], s.data[j] = s.data[j], s.data[i]
 }
 
-func (s SeriesFloat64) Sort() Series {
+func (s SeriesTime) Sort() Series {
 	if s.sorted != SORTED_ASC {
 		sort.Sort(s)
 		s.sorted = SORTED_ASC
@@ -417,7 +350,7 @@ func (s SeriesFloat64) Sort() Series {
 	return s
 }
 
-func (s SeriesFloat64) SortRev() Series {
+func (s SeriesTime) SortRev() Series {
 	if s.sorted != SORTED_DESC {
 		sort.Sort(sort.Reverse(s))
 		s.sorted = SORTED_DESC

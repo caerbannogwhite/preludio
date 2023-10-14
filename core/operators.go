@@ -30,9 +30,9 @@ func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 			} else if series.Type() == v.Type() {
 				series = series.Append(v)
 			} else if series.Type().CanCoerceTo(v.Type()) {
-				series = series.Cast(v.Type(), vm.__stringPool).Append(v)
+				series = series.Cast(v.Type()).Append(v)
 			} else if v.Type().CanCoerceTo(series.Type()) {
-				series = series.Append(v.Cast(series.Type(), vm.__stringPool))
+				series = series.Append(v.Cast(series.Type()))
 			} else {
 				return list, fmt.Errorf("cannot append %s to %s", v.Type().ToString(), series.Type().ToString())
 			}
@@ -102,7 +102,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 			case typesys.OP_UNARY_SUB:
 				switch s1 := t1.(type) {
-				case gandalff.SeriesInt32:
+				case gandalff.SeriesInt:
 					result = s1.Neg()
 				case gandalff.SeriesInt64:
 					result = s1.Neg()
@@ -145,7 +145,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				result = s1.Mod(s2)
 
 			case typesys.OP_BINARY_EXP:
-				result = s1.Pow(s2)
+				result = s1.Exp(s2)
 
 			case typesys.OP_BINARY_ADD:
 				result = s1.Add(s2)

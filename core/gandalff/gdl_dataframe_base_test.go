@@ -40,7 +40,7 @@ func Test_BaseDataFrame_Base(t *testing.T) {
 
 func Test_BaseDataFrame_Filter(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -54,11 +54,11 @@ func Test_BaseDataFrame_Filter(t *testing.T) {
 	mask := df.Series("department").
 		Map(func(v any) any {
 			return v.(string) == "IT"
-		}, nil).(SeriesBool).
+		}).(SeriesBool).
 		And(
 			df.Series("age").Map(func(v any) any {
 				return v.(int64) >= 30
-			}, nil).(SeriesBool),
+			}).(SeriesBool),
 		)
 
 	res := df.Filter(mask.(SeriesBool))
@@ -86,7 +86,7 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -100,11 +100,11 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		df.Filter(
-			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }, nil).(SeriesBool).
+			df.Series("Country").Map(func(v any) any { return v.(string) == "United States of America" }).(SeriesBool).
 				And(
-					df.Series("Founded").Map(func(v any) any { return v.(int64) >= 2000 }, nil)).(SeriesBool).
+					df.Series("Founded").Map(func(v any) any { return v.(int64) >= 2000 })).(SeriesBool).
 				And(
-					df.Series("Number of employees").Map(func(v any) any { return v.(int64) < 1000 }, nil)).(SeriesBool),
+					df.Series("Number of employees").Map(func(v any) any { return v.(int64) < 1000 })).(SeriesBool),
 		)
 	}
 	b.StopTimer()
@@ -112,7 +112,7 @@ func Benchmark_100000Rows_Filter(b *testing.B) {
 
 func Test_BaseDataFrame_GroupBy_Count(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -289,7 +289,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -307,7 +307,7 @@ func Benchmark_100000Rows_GroupBy_Count(b *testing.B) {
 
 func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -362,7 +362,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 // func Test_BaseDataFrame_GroupBy_Min(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -417,7 +417,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 // func Test_BaseDataFrame_GroupBy_Max(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -472,7 +472,7 @@ func Test_BaseDataFrame_GroupBy_Sum(t *testing.T) {
 
 func Test_BaseDataFrame_GroupBy_Mean(t *testing.T) {
 	// Create a new dataframe from the CSV data.
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -532,7 +532,7 @@ func Benchmark_100000Rows_GroupBy_Mean(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -555,7 +555,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 		b.Error(err)
 	}
 
-	df := NewBaseDataFrame().FromCSV().
+	df := NewBaseDataFrame(ctx).FromCSV().
 		SetReader(f).
 		SetDelimiter(',').
 		SetHeader(true).
@@ -573,7 +573,7 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 
 // func Test_BaseDataFrame_GroupBy_Std(t *testing.T) {
 // 	// Create a new dataframe from the CSV data.
-// 	df := NewBaseDataFrame().FromCSV().
+// 	df := NewBaseDataFrame(ctx).FromCSV().
 // 		SetReader(strings.NewReader(data1)).
 // 		SetDelimiter(',').
 // 		SetHeader(true).
@@ -627,13 +627,13 @@ func Benchmark_500000Rows_GroupBy_Mean(b *testing.B) {
 // }
 
 func Test_BaseDataFrame_Join(t *testing.T) {
-	dfx := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{1, 1, 2, 3, 4, 5, 5}).
-		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g"})
+	dfx := NewBaseDataFrame(ctx).
+		AddSeriesFromInt64s("A", []int64{1, 1, 2, 3, 4, 5, 5}, nil, false).
+		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g"}, nil, false)
 
-	dfy := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{4, 5, 6, 6}).
-		AddSeriesFromString("C", false, []string{"h", "i", "j", "k"})
+	dfy := NewBaseDataFrame(ctx).
+		AddSeriesFromInt64s("A", []int64{4, 5, 6, 6}, nil, false).
+		AddSeriesFromStrings("C", []string{"h", "i", "j", "k"}, nil, false)
 
 	///////////////////			INNER JOIN
 
@@ -655,9 +655,15 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	resBexp := []string{"e", "f", "g"}
 	resCexp := []string{"h", "i", "i"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Inner Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Inner Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Inner Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Inner Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			LEFT JOIN
 
@@ -677,11 +683,17 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 
 	resAexp = []int64{1, 1, 2, 3, 4, 5, 5}
 	resBexp = []string{"a", "b", "c", "d", "e", "f", "g"}
-	resCexp = []string{"", "", "", "", "h", "i", "i"}
+	resCexp = []string{NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, "h", "i", "i"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Left Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Left Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Left Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Left Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			RIGHT JOIN
 
@@ -700,12 +712,18 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	resAexp = []int64{4, 5, 5, 6, 6}
-	resBexp = []string{"e", "f", "g", "", ""}
+	resBexp = []string{"e", "f", "g", NULL_STRING, NULL_STRING}
 	resCexp = []string{"h", "i", "i", "j", "k"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Right Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Right Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Right Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Right Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 
 	///////////////////			FULL JOIN
 
@@ -724,22 +742,28 @@ func Test_BaseDataFrame_Join(t *testing.T) {
 	}
 
 	resAexp = []int64{1, 1, 2, 3, 4, 5, 5, 6, 6}
-	resBexp = []string{"a", "b", "c", "d", "e", "f", "g", "", ""}
-	resCexp = []string{"", "", "", "", "h", "i", "i", "j", "k"}
+	resBexp = []string{"a", "b", "c", "d", "e", "f", "g", NULL_STRING, NULL_STRING}
+	resCexp = []string{NULL_STRING, NULL_STRING, NULL_STRING, NULL_STRING, "h", "i", "i", "j", "k"}
 
-	checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), t, "Full Join")
-	checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), t, "Full Join")
-	checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), t, "Full Join")
+	if !checkEqSliceInt64(resAexp, res.SeriesAt(0).Data().([]int64), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resAexp, res.SeriesAt(0).Data().([]int64))
+	}
+	if !checkEqSliceString(resBexp, res.SeriesAt(1).Data().([]string), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resBexp, res.SeriesAt(1).Data().([]string))
+	}
+	if !checkEqSliceString(resCexp, res.SeriesAt(2).Data().([]string), nil, "Full Join") {
+		t.Errorf("Expected %v, got %v", resCexp, res.SeriesAt(2).Data().([]string))
+	}
 }
 
 func Test_BaseDataFrame_Sort(t *testing.T) {
 	var res DataFrame
 
-	df := NewBaseDataFrame().
-		AddSeriesFromInt64("A", false, false, []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}).
-		AddSeriesFromString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}).
-		AddSeriesFromFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
-		AddSeriesFromBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false})
+	df := NewBaseDataFrame(ctx).
+		AddSeriesFromInt64s("A", []int64{1, 5, 2, 1, 4, 1, 5, 1, 2, 1}, nil, false).
+		AddSeriesFromStrings("B", []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, false).
+		AddSeriesFromFloat64s("C", []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, false).
+		AddSeriesFromBools("D", []bool{true, false, true, true, false, true, true, false, true, false}, nil, false)
 
 	res = df.OrderBy(Asc("A"))
 	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 1, 1, 2, 2, 4, 5, 5}, nil, "") {
@@ -913,17 +937,20 @@ func Test_BaseDataFrame_Sort(t *testing.T) {
 func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 	var res DataFrame
 
-	a := NewSeriesInt64("A", false, false, []int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}).
+	a := NewSeriesInt64([]int64{1, 4, 2, 1, 4, 1, 4, 1, 2, 1}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	b := NewSeriesString("B", false, []string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, NewStringPool()).
+	b := NewSeriesString([]string{"a", "b", "c", "d", "e", "f", "g", "a", "b", "c"}, nil, true, ctx).
 		SetNullMask([]bool{true, true, false, false, false, true, false, false, false, false})
-	c := NewSeriesFloat64("C", false, false, []float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}).
+	c := NewSeriesFloat64([]float64{1.2, 2.3, 3.4, 4.5, 5.6, 7.8, 8.9, 1.2, 2.3, 3.4}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
-	d := NewSeriesBool("D", false, false, []bool{true, false, true, true, false, true, true, false, true, false}).
+	d := NewSeriesBool([]bool{true, false, true, true, false, true, true, false, true, false}, nil, true, ctx).
 		SetNullMask([]bool{false, false, false, false, false, true, false, false, true, true})
 
-	df := NewBaseDataFrame().
-		AddSeries(a, b, c, d)
+	df := NewBaseDataFrame(ctx).
+		AddSeries("A", a).
+		AddSeries("B", b).
+		AddSeries("C", c).
+		AddSeries("D", d)
 
 	res = df.OrderBy(Asc("A"))
 	if !checkEqSliceInt64(res.Series("A").(SeriesInt64).Int64s(), []int64{1, 1, 1, 2, 4, 4, 4, 1, 2, 1}, nil, "") {
@@ -949,7 +976,7 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
 	}
 
-	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "e", "g", "b", "b", "c", "f"}, nil, "") {
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", NULL_STRING, "c", "e", "g", NULL_STRING, "b", "c", NULL_STRING}, nil, "") {
 		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
 	}
 	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{false, false, true, false, false, false, true, false, false, true}, nil, "") {
@@ -964,7 +991,7 @@ func Test_BaseDataFrame_Sort_Nulls(t *testing.T) {
 		t.Error("BaseDataFrame Sort A asc: A nullmask failed")
 	}
 
-	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{"a", "d", "a", "c", "b", "g", "e", "f", "c", "b"}, nil, "") {
+	if !checkEqSliceString(res.Series("B").(SeriesString).Strings(), []string{NULL_STRING, "d", "a", "c", NULL_STRING, "g", "e", NULL_STRING, "c", "b"}, nil, "") {
 		t.Error("BaseDataFrame Sort A asc, B asc: B failed")
 	}
 	if !checkEqSliceBool(res.Series("B").GetNullMask(), []bool{true, false, false, false, true, false, false, true, false, false}, nil, "") {

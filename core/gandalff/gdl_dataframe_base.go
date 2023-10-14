@@ -5,6 +5,7 @@ import (
 	"math"
 	"sort"
 	"sync"
+	"time"
 	"typesys"
 )
 
@@ -17,28 +18,34 @@ type BaseDataFramePartitionEntry struct {
 type BaseDataFrame struct {
 	isGrouped  bool
 	err        error
+	names      []string
 	series     []Series
-	pool       *StringPool
 	partitions []BaseDataFramePartitionEntry
 	sortParams []SortParam
+	ctx        *Context
 }
 
-func NewBaseDataFrame() DataFrame {
+func NewBaseDataFrame(ctx *Context) DataFrame {
+	if ctx == nil {
+		return BaseDataFrame{err: fmt.Errorf("NewBaseDataFrame: context is nil")}
+	}
+
 	return &BaseDataFrame{
 		series: make([]Series, 0),
-		pool:   NewStringPool(),
+		ctx:    ctx,
 	}
 }
 
 ////////////////////////			BASIC ACCESSORS
 
+// GetContext returns the context of the dataframe.
+func (df BaseDataFrame) GetContext() *Context {
+	return df.ctx
+}
+
 // Names returns the names of the series in the dataframe.
 func (df BaseDataFrame) Names() []string {
-	names := make([]string, len(df.series))
-	for i, series := range df.series {
-		names[i] = series.Name()
-	}
-	return names
+	return df.names
 }
 
 // Types returns the types of the series in the dataframe.
@@ -75,31 +82,16 @@ func (df BaseDataFrame) GetError() error {
 	return df.err
 }
 
-func (df BaseDataFrame) GetStringPool() *StringPool {
-	return df.pool
-}
-
-func (df BaseDataFrame) SetStringPool(pool *StringPool) DataFrame {
-	for i, series := range df.series {
-		if s, ok := series.(SeriesString); ok {
-			df.series[i] = s.SetStringPool(pool)
-		}
-	}
-
-	df.pool = pool
-	return df
-}
-
 func (df BaseDataFrame) GetSeriesIndex(name string) int {
-	for i, series := range df.series {
-		if series.Name() == name {
+	for i, name_ := range df.names {
+		if name_ == name {
 			return i
 		}
 	}
 	return -1
 }
 
-func (df BaseDataFrame) AddSeries(series ...Series) DataFrame {
+func (df BaseDataFrame) AddSeries(name string, series Series) DataFrame {
 	if df.err != nil {
 		return df
 	}
@@ -109,105 +101,141 @@ func (df BaseDataFrame) AddSeries(series ...Series) DataFrame {
 		return df
 	}
 
-	for _, series_ := range series {
-		if df.NCols() > 0 && series_.Len() != df.NRows() {
-			df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series_.Len(), df.NRows())
-			return df
-		}
-
-		df.series = append(df.series, series_)
+	if df.NCols() > 0 && series.Len() != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeries: series length (%d) does not match dataframe length (%d)", series.Len(), df.NRows())
+		return df
 	}
+
+	df.names = append(df.names, name)
+	df.series = append(df.series, series)
+
 	return df
 }
 
-func (df BaseDataFrame) AddSeriesFromBool(name string, isNullable, makeCopy bool, data []bool) DataFrame {
+func (df BaseDataFrame) AddSeriesFromBools(name string, data []bool, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBool: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBool: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromBools: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(NewSeriesBool(name, isNullable, makeCopy, data))
+	return df.AddSeries(name, NewSeriesBool(data, nullMask, makeCopy, df.ctx))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt32(name string, isNullable, makeCopy bool, data []int32) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInts(name string, data []int, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt32: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInts: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(NewSeriesInt32(name, isNullable, makeCopy, data))
+	return df.AddSeries(name, NewSeriesInt(data, nullMask, makeCopy, df.ctx))
 }
 
-func (df BaseDataFrame) AddSeriesFromInt64(name string, isNullable, makeCopy bool, data []int64) DataFrame {
+func (df BaseDataFrame) AddSeriesFromInt64s(name string, data []int64, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64s: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromInt64s: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(NewSeriesInt64(name, isNullable, makeCopy, data))
+	return df.AddSeries(name, NewSeriesInt64(data, nullMask, makeCopy, df.ctx))
 }
 
-func (df BaseDataFrame) AddSeriesFromFloat64(name string, isNullable, makeCopy bool, data []float64) DataFrame {
+func (df BaseDataFrame) AddSeriesFromFloat64s(name string, data []float64, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64s: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromFloat64s: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(NewSeriesFloat64(name, isNullable, makeCopy, data))
+	return df.AddSeries(name, NewSeriesFloat64(data, nullMask, makeCopy, df.ctx))
 }
 
-func (df BaseDataFrame) AddSeriesFromString(name string, isNullable bool, data []string) DataFrame {
+func (df BaseDataFrame) AddSeriesFromStrings(name string, data []string, nullMask []bool, makeCopy bool) DataFrame {
 	if df.err != nil {
 		return df
 	}
 
 	if df.isGrouped {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromString: cannot add series to a grouped dataframe")
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: cannot add series to a grouped dataframe")
 		return df
 	}
 
 	if df.NCols() > 0 && len(data) != df.NRows() {
-		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromString: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromStrings: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
 		return df
 	}
 
-	return df.AddSeries(NewSeriesString(name, isNullable, data, df.pool))
+	return df.AddSeries(name, NewSeriesString(data, nullMask, makeCopy, df.ctx))
+}
+
+func (df BaseDataFrame) AddSeriesFromTimes(name string, data []time.Time, nullMask []bool, makeCopy bool) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromTimes: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromTimes: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
+	return df.AddSeries(name, NewSeriesTime(data, nullMask, makeCopy, df.ctx))
+}
+
+func (df BaseDataFrame) AddSeriesFromDurations(name string, data []time.Duration, nullMask []bool, makeCopy bool) DataFrame {
+	if df.err != nil {
+		return df
+	}
+
+	if df.isGrouped {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromDurations: cannot add series to a grouped dataframe")
+		return df
+	}
+
+	if df.NCols() > 0 && len(data) != df.NRows() {
+		df.err = fmt.Errorf("BaseDataFrame.AddSeriesFromDurations: series length (%d) does not match dataframe length (%d)", len(data), df.NRows())
+		return df
+	}
+
+	return df.AddSeries(name, NewSeriesDuration(data, nullMask, makeCopy, df.ctx))
 }
 
 func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
@@ -231,28 +259,30 @@ func (df BaseDataFrame) Replace(name string, s Series) DataFrame {
 		return df
 	}
 
-	df.series[index] = s.SetName(name)
+	df.series[index] = s
 	return df
 }
 
 // Returns the series with the given name.
 func (df BaseDataFrame) Series(name string) Series {
-	for _, series := range df.series {
-		if series.Name() == name {
-			return series
+	for i, name_ := range df.names {
+		if name_ == name {
+			return df.series[i]
 		}
 	}
+
 	return SeriesError{msg: fmt.Sprintf("BaseDataFrame.Series: series \"%s\" not found", name)}
 }
 
 // Returns the series with the given name.
 // For internal use only: returns nil if the series is not found.
 func (df BaseDataFrame) __series(name string) Series {
-	for _, series := range df.series {
-		if series.Name() == name {
-			return series
+	for i, name_ := range df.names {
+		if name_ == name {
+			return df.series[i]
 		}
 	}
+
 	return nil
 }
 
@@ -262,6 +292,14 @@ func (df BaseDataFrame) SeriesAt(index int) Series {
 		return SeriesError{msg: fmt.Sprintf("BaseDataFrame.SeriesAt: index %d out of bounds", index)}
 	}
 	return df.series[index]
+}
+
+// Returns the series with the given name as a bool series.
+func (df BaseDataFrame) NameAt(index int) string {
+	if index < 0 || index >= len(df.names) {
+		return ""
+	}
+	return df.names[index]
 }
 
 func (df BaseDataFrame) Select(names ...string) DataFrame {
@@ -282,8 +320,9 @@ func (df BaseDataFrame) Select(names ...string) DataFrame {
 	}
 
 	return BaseDataFrame{
+		names:  names,
 		series: seriesList,
-		pool:   df.pool,
+		ctx:    df.ctx,
 	}
 }
 
@@ -292,10 +331,10 @@ func (df BaseDataFrame) SelectAt(indices ...int) DataFrame {
 		return df
 	}
 
-	selected := NewBaseDataFrame()
+	selected := NewBaseDataFrame(df.ctx)
 	for _, index := range indices {
 		if index < 0 || index >= len(df.series) {
-			selected.AddSeries(df.series[index])
+			selected.AddSeries(df.names[index], df.series[index])
 		} else {
 			return BaseDataFrame{err: fmt.Errorf("BaseDataFrame.SelectAt: index %d out of bounds", index)}
 		}
@@ -320,8 +359,9 @@ func (df BaseDataFrame) Filter(mask SeriesBool) DataFrame {
 	}
 
 	return BaseDataFrame{
+		names:  df.names,
 		series: seriesList,
-		pool:   df.pool,
+		ctx:    df.ctx,
 	}
 }
 
@@ -338,12 +378,13 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 		// Check that all the group by columns exist
 		for _, name := range by {
 			found := false
-			for _, series := range df.series {
-				if series.Name() == name {
+			for _, name_ := range df.names {
+				if name_ == name {
 					found = true
 					break
 				}
 			}
+
 			if !found {
 				df.err = fmt.Errorf("BaseDataFrame.GroupBy: column \"%s\" not found", name)
 				return df
@@ -354,7 +395,6 @@ func (df BaseDataFrame) GroupBy(by ...string) DataFrame {
 		df.partitions = make([]BaseDataFramePartitionEntry, len(by))
 
 		for partitionsIndex, name := range by {
-
 			i := df.GetSeriesIndex(name)
 			series := df.series[i]
 
@@ -415,7 +455,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		seriesIndices[i] = true
 	}
 
-	result := NewBaseDataFrame().(*BaseDataFrame)
+	result := NewBaseDataFrame(df.ctx).(*BaseDataFrame)
 
 	// The last partition tells us how many groups there are
 	// and how many rows are in each group
@@ -430,6 +470,7 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 		old := df.series[partition.index]
 
 		// TODO: null masks, null values are all mapped to the same group
+		result.names = append(result.names, partition.name)
 
 		switch series := old.(type) {
 		case SeriesBool:
@@ -437,23 +478,22 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			for i, group := range indeces {
 				values[i] = series.data[group[0]]
 			}
+
 			result.series = append(result.series, SeriesBool{
-				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
-		case SeriesInt32:
-			values := make([]int32, len(indeces))
+		case SeriesInt:
+			values := make([]int, len(indeces))
 			for i, group := range indeces {
 				values[i] = series.data[group[0]]
 			}
 
-			result.series = append(result.series, SeriesInt32{
-				name:       series.name,
+			result.series = append(result.series, SeriesInt{
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -464,9 +504,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			}
 
 			result.series = append(result.series, SeriesInt64{
-				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -477,9 +516,8 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			}
 
 			result.series = append(result.series, SeriesFloat64{
-				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
 			})
 
@@ -490,11 +528,10 @@ func (df BaseDataFrame) groupHelper() (DataFrame, *[][]int, *[]int) {
 			}
 
 			result.series = append(result.series, SeriesString{
-				name:       series.name,
 				isNullable: series.isNullable,
-				nullMask:   __binVecInit(len(indeces)),
+				nullMask:   __binVecInit(len(indeces), false),
 				data:       values,
-				pool:       series.pool,
+				ctx:        series.ctx,
 			})
 		}
 	}
@@ -518,6 +555,12 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		return df
 	}
 
+	// CASE: the dataframes have different contexts
+	if df.ctx != other.GetContext() {
+		df.err = fmt.Errorf("BaseDataFrame.Join: dataframes have different contexts")
+		return df
+	}
+
 	if df.isGrouped {
 		df.err = fmt.Errorf("BaseDataFrame.Join: cannot join a grouped dataframe")
 		return df
@@ -535,8 +578,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Series A
 		found := false
-		for _, series := range df.series {
-			if series.Name() == name {
+		for idx, series := range df.series {
+			if df.names[idx] == name {
 				found = true
 
 				// keep track of the types
@@ -551,8 +594,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Series B
 		found = false
-		for _, series := range other.(BaseDataFrame).series {
-			if series.Name() == name {
+		for idx, series := range other.(BaseDataFrame).series {
+			if df.names[idx] == name {
 				found = true
 
 				// CHECK: the types must match
@@ -589,15 +632,6 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		if df.Series(name).Type() != other.Series(name).Type() {
 			df.err = fmt.Errorf("BaseDataFrame.Join: columns \"%s\" have different types", name)
 			return df
-		}
-	}
-
-	// CASE: the dataframes have different string pools
-	if df.GetStringPool() != other.GetStringPool() {
-		if df.NRows() < other.NRows() {
-			df = df.SetStringPool(other.GetStringPool()).(BaseDataFrame)
-		} else {
-			other = other.SetStringPool(df.GetStringPool())
 		}
 	}
 
@@ -646,7 +680,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 	}
 
-	joined := NewBaseDataFrame()
+	joined := NewBaseDataFrame(df.ctx)
 
 	pA := dfGrouped.getPartitions()
 	pB := otherGrouped.getPartitions()
@@ -715,8 +749,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// Join columns
-		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).Filter(indicesA))
+		for i, name := range on {
+			joined = joined.AddSeries(name, dfGrouped.Series(on[i]).Filter(indicesA))
 		}
 
 		// A columns
@@ -724,18 +758,18 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffA {
 			ser_ = df.Series(name).Filter(indicesA)
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_x")
+				name += "_x"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
 			ser_ = other.Series(name).Filter(indicesB)
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_y")
+				name += "_y"
 			}
-			joined = joined.AddSeries(ser_.Filter(indicesB))
+			joined = joined.AddSeries(name, ser_.Filter(indicesB))
 		}
 
 	case LEFT_JOIN:
@@ -756,8 +790,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// Join columns
-		for i := range on {
-			joined = joined.AddSeries(dfGrouped.Series(on[i]).Filter(indicesA))
+		for i, name := range on {
+			joined = joined.AddSeries(name, dfGrouped.Series(on[i]).Filter(indicesA))
 		}
 
 		// A columns
@@ -765,9 +799,9 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffA {
 			ser_ = df.Series(name).Filter(indicesA)
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_x")
+				name += "_x"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 		padBlen := len(indicesA) - len(indicesB)
@@ -781,35 +815,38 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
-					SetNullMask(nullMask).(SeriesBool).
-					appendSeries(ser_)
+				ser_ = NewSeriesBool(make([]bool, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
 
-			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
-					SetNullMask(nullMask).(SeriesInt32).
-					appendSeries(ser_)
+			case typesys.IntType:
+				ser_ = NewSeriesInt(make([]int, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
-					SetNullMask(nullMask).(SeriesInt64).
-					appendSeries(ser_)
+				ser_ = NewSeriesInt64(make([]int64, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
-					SetNullMask(nullMask).(SeriesFloat64).
-					appendSeries(ser_)
+				ser_ = NewSeriesFloat64(make([]float64, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
-					SetNullMask(nullMask).(SeriesString).
-					appendSeries(ser_)
+				ser_ = NewSeriesString(make([]string, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
+
+			case typesys.TimeType:
+				ser_ = NewSeriesTime(make([]time.Time, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
+
+			case typesys.DurationType:
+				ser_ = NewSeriesDuration(make([]time.Duration, padBlen), nullMask, false, df.ctx).
+					Append(ser_)
 			}
 
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_y")
+				name += "_y"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 	case RIGHT_JOIN:
@@ -830,8 +867,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		}
 
 		// Join columns
-		for i := range on {
-			joined = joined.AddSeries(otherGrouped.Series(on[i]).Filter(indicesB))
+		for i, name := range on {
+			joined = joined.AddSeries(name, otherGrouped.Series(on[i]).Filter(indicesB))
 		}
 
 		padAlen := len(indicesB) - len(indicesA)
@@ -846,34 +883,40 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMask, false, df.ctx))
 
-			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).appendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMask))
+			case typesys.IntType:
+				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMask, false, df.ctx))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).appendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMask, false, df.ctx))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).appendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(make([]float64, padAlen), nullMask, false, df.ctx))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMask))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(make([]string, padAlen), nullMask, false, df.ctx))
+
+			case typesys.TimeType:
+				ser_ = ser_.(SeriesTime).Append(NewSeriesTime(make([]time.Time, padAlen), nullMask, false, df.ctx))
+
+			case typesys.DurationType:
+				ser_ = ser_.(SeriesDuration).Append(NewSeriesDuration(make([]time.Duration, padAlen), nullMask, false, df.ctx))
 			}
 
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_x")
+				name += "_x"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 		// B columns
 		for _, name := range colsDiffB {
 			ser_ = other.Series(name).Filter(indicesB)
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_y")
+				name += "_y"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 	case OUTER_JOIN:
@@ -906,8 +949,8 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 		// Join columns
 		indicesBOnly := indicesB[intersectionLen:]
-		for i := range on {
-			joined = joined.AddSeries(
+		for i, name := range on {
+			joined = joined.AddSeries(name,
 				dfGrouped.Series(on[i]).
 					Filter(indicesA).Append(
 					otherGrouped.Series(on[i]).
@@ -930,25 +973,31 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = ser_.(SeriesBool).appendSeries(NewSeriesBool(ser_.Name(), true, false, make([]bool, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.Int32Type:
-				ser_ = ser_.(SeriesInt32).appendSeries(NewSeriesInt32(ser_.Name(), true, false, make([]int32, padAlen)).SetNullMask(nullMaskA))
+			case typesys.IntType:
+				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMaskA, false, df.ctx))
 
 			case typesys.Int64Type:
-				ser_ = ser_.(SeriesInt64).appendSeries(NewSeriesInt64(ser_.Name(), true, false, make([]int64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMaskA, false, df.ctx))
 
 			case typesys.Float64Type:
-				ser_ = ser_.(SeriesFloat64).appendSeries(NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padAlen)).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(make([]float64, padAlen), nullMaskA, false, df.ctx))
 
 			case typesys.StringType:
-				ser_ = ser_.(SeriesString).appendSeries(NewSeriesString(ser_.Name(), true, make([]string, padAlen), df.pool).SetNullMask(nullMaskA))
+				ser_ = ser_.(SeriesString).Append(NewSeriesString(make([]string, padAlen), nullMaskA, false, df.ctx))
+
+			case typesys.TimeType:
+				ser_ = ser_.(SeriesTime).Append(NewSeriesTime(make([]time.Time, padAlen), nullMaskA, false, df.ctx))
+
+			case typesys.DurationType:
+				ser_ = ser_.(SeriesDuration).Append(NewSeriesDuration(make([]time.Duration, padAlen), nullMaskA, false, df.ctx))
 			}
 
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_x")
+				name += "_x"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 
 		// B columns
@@ -956,35 +1005,38 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
 			case typesys.BoolType:
-				ser_ = NewSeriesBool(ser_.Name(), true, false, make([]bool, padBlen)).
-					SetNullMask(nullMaskB).(SeriesBool).
-					appendSeries(ser_)
+				ser_ = NewSeriesBool(make([]bool, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
 
-			case typesys.Int32Type:
-				ser_ = NewSeriesInt32(ser_.Name(), true, false, make([]int32, padBlen)).
-					SetNullMask(nullMaskB).(SeriesInt32).
-					appendSeries(ser_)
+			case typesys.IntType:
+				ser_ = NewSeriesInt(make([]int, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
 
 			case typesys.Int64Type:
-				ser_ = NewSeriesInt64(ser_.Name(), true, false, make([]int64, padBlen)).
-					SetNullMask(nullMaskB).(SeriesInt64).
-					appendSeries(ser_)
+				ser_ = NewSeriesInt64(make([]int64, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
 
 			case typesys.Float64Type:
-				ser_ = NewSeriesFloat64(ser_.Name(), true, false, make([]float64, padBlen)).
-					SetNullMask(nullMaskB).(SeriesFloat64).
-					appendSeries(ser_)
+				ser_ = NewSeriesFloat64(make([]float64, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
 
 			case typesys.StringType:
-				ser_ = NewSeriesString(ser_.Name(), true, make([]string, padBlen), df.pool).
-					SetNullMask(nullMaskB).(SeriesString).
-					appendSeries(ser_)
+				ser_ = NewSeriesString(make([]string, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
+
+			case typesys.TimeType:
+				ser_ = NewSeriesTime(make([]time.Time, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
+
+			case typesys.DurationType:
+				ser_ = NewSeriesDuration(make([]time.Duration, padBlen), nullMaskB, false, df.ctx).
+					Append(ser_)
 			}
 
 			if commonCols[name] {
-				ser_ = ser_.SetName(name + "_y")
+				name += "_y"
 			}
-			joined = joined.AddSeries(ser_)
+			joined = joined.AddSeries(name, ser_)
 		}
 	}
 
@@ -996,15 +1048,15 @@ func (df BaseDataFrame) Take(params ...int) DataFrame {
 		return df
 	}
 
-	indeces, err := seriesTakePreprocess(df.NRows(), params...)
+	indeces, err := seriesTakePreprocess("BaseDataFrame", df.NRows(), params...)
 	if err != nil {
 		df.err = err
 		return df
 	}
 
-	taken := NewBaseDataFrame()
-	for _, series := range df.series {
-		taken = taken.AddSeries(series.filterIntSlice(indeces))
+	taken := NewBaseDataFrame(df.ctx)
+	for idx, series := range df.series {
+		taken = taken.AddSeries(df.names[idx], series.filterIntSlice(indeces, false))
 	}
 
 	return taken
@@ -1080,15 +1132,15 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 	for _, agg := range aggregators {
 
 		// CASE: aggregator count has a default name
-		if agg.getAggregateType() != AGGREGATE_COUNT {
-			if aggNames[agg.getSeriesName()] {
+		if agg.type_ != AGGREGATE_COUNT {
+			if aggNames[agg.name] {
 				df.err = fmt.Errorf("BaseDataFrame.Agg: aggregator names must be unique")
 				return df
 			}
-			aggNames[agg.getSeriesName()] = true
+			aggNames[agg.name] = true
 
-			if df.__series(agg.getSeriesName()) == nil {
-				df.err = fmt.Errorf("BaseDataFrame.Agg: series \"%s\" not found", agg.getSeriesName())
+			if df.__series(agg.name) == nil {
+				df.err = fmt.Errorf("BaseDataFrame.Agg: series \"%s\" not found", agg.name)
 				return df
 			}
 		}
@@ -1096,39 +1148,37 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 	var result DataFrame
 	if df.isGrouped {
-
 		var indeces *[][]int
 		result, indeces, _ = df.groupHelper()
-
 		if df.NRows() < MINIMUM_PARALLEL_SIZE_2 {
 			for _, agg := range aggregators {
-				series := df.__series(agg.getSeriesName())
+				series := df.__series(agg.name)
 
-				switch agg.getAggregateType() {
+				switch agg.type_ {
 				case AGGREGATE_COUNT:
 					counts := make([]int64, len(*indeces))
 					for i, group := range *indeces {
 						counts[i] = int64(len(group))
 					}
-					result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, counts))
+					result = result.AddSeries(agg.name, NewSeriesInt64(counts, nil, false, df.ctx))
 
 				case AGGREGATE_SUM:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_sum_grouped__(series, *indeces)))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(__gdl_sum_grouped__(series, *indeces), nil, false, df.ctx))
 
 				case AGGREGATE_MIN:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_min_grouped__(series, *indeces)))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(__gdl_min_grouped__(series, *indeces), nil, false, df.ctx))
 
 				case AGGREGATE_MAX:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_max_grouped__(series, *indeces)))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(__gdl_max_grouped__(series, *indeces), nil, false, df.ctx))
 
 				case AGGREGATE_MEAN:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_mean_grouped__(series, *indeces)))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(__gdl_mean_grouped__(series, *indeces), nil, false, df.ctx))
 
 				case AGGREGATE_MEDIAN:
 					// TODO: implement
 
 				case AGGREGATE_STD:
-					result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, __gdl_std_grouped__(series, *indeces)))
+					result = result.AddSeries(agg.name, NewSeriesFloat64(__gdl_std_grouped__(series, *indeces), nil, false, df.ctx))
 				}
 			}
 		} else {
@@ -1142,13 +1192,13 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 			}
 
 			for _, agg := range aggregators {
-				series := df.__series(agg.getSeriesName())
+				series := df.__series(agg.name)
 
 				resultData := make([]float64, len(*indeces))
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, resultData))
+				result = result.AddSeries(agg.name, NewSeriesFloat64(resultData, nil, false, df.ctx))
 				for gi, group := range *indeces {
 					buffer <- __stats_thread_data{
-						op:      agg.getAggregateType(),
+						op:      agg.type_,
 						gi:      gi,
 						indeces: group,
 						series:  series,
@@ -1160,35 +1210,33 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 			close(buffer)
 			wg.Wait()
 		}
-
 	} else {
-
-		result = NewBaseDataFrame()
+		result = NewBaseDataFrame(df.ctx)
 
 		for _, agg := range aggregators {
-			series := df.__series(agg.getSeriesName())
+			series := df.__series(agg.name)
 
-			switch agg.getAggregateType() {
+			switch agg.type_ {
 			case AGGREGATE_COUNT:
-				result = result.AddSeries(NewSeriesInt64(agg.getSeriesName(), false, false, []int64{int64(df.NRows())}))
+				result = result.AddSeries(agg.name, NewSeriesInt64([]int64{int64(df.NRows())}, nil, false, df.ctx))
 
 			case AGGREGATE_SUM:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_sum__(series)}))
+				result = result.AddSeries(agg.name, NewSeriesFloat64([]float64{__gdl_sum__(series)}, nil, false, df.ctx))
 
 			case AGGREGATE_MIN:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_min__(series)}))
+				result = result.AddSeries(agg.name, NewSeriesFloat64([]float64{__gdl_min__(series)}, nil, false, df.ctx))
 
 			case AGGREGATE_MAX:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_max__(series)}))
+				result = result.AddSeries(agg.name, NewSeriesFloat64([]float64{__gdl_max__(series)}, nil, false, df.ctx))
 
 			case AGGREGATE_MEAN:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_mean__(series)}))
+				result = result.AddSeries(agg.name, NewSeriesFloat64([]float64{__gdl_mean__(series)}, nil, false, df.ctx))
 
 			case AGGREGATE_MEDIAN:
 				// TODO: implement
 
 			case AGGREGATE_STD:
-				result = result.AddSeries(NewSeriesFloat64(series.Name(), false, false, []float64{__gdl_std__(series)}))
+				result = result.AddSeries(agg.name, NewSeriesFloat64([]float64{__gdl_std__(series)}, nil, false, df.ctx))
 			}
 		}
 	}
@@ -1198,15 +1246,15 @@ func (df BaseDataFrame) Agg(aggregators ...aggregator) DataFrame {
 
 ////////////////////////			PRINTING
 
+func (df BaseDataFrame) Describe() string {
+	return ""
+}
+
 func truncate(s string, n int) string {
 	if len(s) > n {
 		return s[:n-3] + "..."
 	}
 	return s
-}
-
-func (df BaseDataFrame) Describe() string {
-	return ""
 }
 
 func (df BaseDataFrame) Records(header bool) [][]string {
@@ -1221,7 +1269,7 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	if header {
 		out[0] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[0][j] = df.series[j].Name()
+			out[0][j] = df.names[j]
 		}
 
 		h = 1
@@ -1230,130 +1278,126 @@ func (df BaseDataFrame) Records(header bool) [][]string {
 	for i := 0 + h; i < df.NRows()+h; i++ {
 		out[i] = make([]string, df.NCols())
 		for j := 0; j < df.NCols(); j++ {
-			out[i][j] = df.series[j].GetString(i - h)
+			out[i][j] = df.series[j].GetAsString(i - h)
 		}
 	}
 
 	return out
 }
 
-func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
+type PrettyPrintParams struct {
+	minColWidth int
+	maxColWidth int
+	width       int
+	nrows       int
+	indent      string
+}
+
+func NewPrettyPrintParams() PrettyPrintParams {
+	return PrettyPrintParams{
+		minColWidth: 10,
+		maxColWidth: 20,
+		width:       80,
+		nrows:       10,
+		indent:      "",
+	}
+}
+
+func (df BaseDataFrame) PrettyPrint(params PrettyPrintParams) DataFrame {
 	if df.err != nil {
 		fmt.Println(df.err)
 		return df
 	}
 
-	if df.isGrouped {
-		fmt.Printf("    GROUPED BY")
-		for i, p := range df.partitions {
-			if i != len(df.partitions)-1 {
-				fmt.Printf(" %s,", p.name)
-			} else {
-				fmt.Printf(" %s", p.name)
-			}
-		}
-		fmt.Printf("\n\n")
-	}
-
 	colSize := 10
 	actualColSize := colSize + 3
-	fmtString := fmt.Sprintf("| %%%ds ", colSize)
+	fmtString := fmt.Sprintf(" %%%ds ", colSize)
+	buffer := ""
+
+	if df.isGrouped {
+		buffer += "GROUP BY: "
+		for i, p := range df.partitions {
+			if i > 0 {
+				buffer += ", "
+			}
+			buffer += p.name
+		}
+		buffer += "\n"
+	}
 
 	// header
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	buffer += params.indent + "╭"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┬"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╮\n"
 
 	// column names
-	// check if there are any column names
-	colNames := false
-	for _, c := range df.series {
-		if c.Name() != "" {
-			colNames = true
-			break
-		}
+	buffer += params.indent + "│"
+	for _, name := range df.names {
+		buffer += fmt.Sprintf(fmtString, truncate(name, colSize)) + "│"
 	}
-
-	// only print column names if there are any
-	if colNames {
-		fmt.Printf("    ")
-		for _, c := range df.series {
-			fmt.Printf(fmtString, truncate(c.Name(), colSize))
-		}
-		fmt.Println("|")
-
-		// separator
-		fmt.Printf("    ")
-		for i := 0; i < len(df.series)*actualColSize; i++ {
-			if i%actualColSize == 0 {
-				fmt.Print("+")
-			} else {
-				fmt.Print("-")
-			}
-		}
-		fmt.Println("+")
-	}
-
-	// column types
-	fmt.Printf("    ")
-	for _, c := range df.series {
-		fmt.Printf(fmtString, truncate(c.Type().ToString(), colSize))
-	}
-	fmt.Println("|")
+	buffer += "\n"
 
 	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	buffer += params.indent + "├"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┼"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "┤\n"
 
-	var nrows int
-	if len(nrowsParam) == 0 {
-		if df.NRows() < 20 {
-			nrows = df.NRows()
-		} else {
-			nrows = 10
-		}
-	} else {
-		nrows = nrowsParam[0]
+	// column types
+	buffer += params.indent + "│"
+	for _, c := range df.series {
+		buffer += fmt.Sprintf(fmtString, c.Type().ToString()) + "│"
 	}
+	buffer += "\n"
+
+	// separator
+	buffer += params.indent + "├"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
+		if i%actualColSize == 0 {
+			buffer += "┼"
+		} else {
+			buffer += "─"
+		}
+	}
+	buffer += "┤\n"
 
 	// data
-	if nrows >= 0 {
-		nrows = int(math.Min(float64(nrows), float64(df.NRows())))
-	} else {
-		nrows = df.NRows()
+	nrows := int(math.Min(10, float64(df.NRows())))
+	if params.nrows > 0 {
+		params.nrows = int(math.Min(float64(params.nrows), float64(df.NRows())))
 	}
 
 	for i := 0; i < nrows; i++ {
-		fmt.Printf("    ")
+		buffer += params.indent + "│"
 		for _, c := range df.series {
-			fmt.Printf(fmtString, truncate(c.GetString(i), colSize))
+			buffer += fmt.Sprintf(fmtString, truncate(c.GetAsString(i), colSize)) + "│"
 		}
-		fmt.Println("|")
+		buffer += "\n"
 	}
 
-	// separator
-	fmt.Printf("    ")
-	for i := 0; i < len(df.series)*actualColSize; i++ {
+	// end
+	buffer += params.indent + "╰"
+	for i := 1; i < df.NCols()*actualColSize; i++ {
 		if i%actualColSize == 0 {
-			fmt.Print("+")
+			buffer += "┴"
 		} else {
-			fmt.Print("-")
+			buffer += "─"
 		}
 	}
-	fmt.Println("+")
+	buffer += "╯\n"
+
+	fmt.Println(buffer)
 
 	return df
 }
@@ -1361,7 +1405,7 @@ func (df BaseDataFrame) PrettyPrint(nrowsParam ...int) DataFrame {
 ////////////////////////			IO
 
 func (df BaseDataFrame) FromCSV() *CsvReader {
-	return NewCsvReader(df.pool)
+	return NewCsvReader(df.ctx)
 }
 
 func (df BaseDataFrame) ToCSV() *CsvWriter {

@@ -7,6 +7,13 @@ type SeriesError struct {
 	msg string
 }
 
+func (s SeriesError) printInfo() {}
+
+// Return the context of the series.
+func (s SeriesError) GetContext() *Context {
+	return nil
+}
+
 // Returns the length of the series.
 func (s SeriesError) Len() int {
 	return 0
@@ -41,13 +48,8 @@ func (s SeriesError) MakeNullable() Series {
 	return s
 }
 
-// Returns the name of the series.
-func (s SeriesError) Name() string {
-	return ""
-}
-
-// Sets the name of the series.
-func (s SeriesError) SetName(name string) Series {
+// Make the series non-nullable.
+func (s SeriesError) MakeNonNullable() Series {
 	return s
 }
 
@@ -71,19 +73,9 @@ func (s SeriesError) NullCount() int {
 	return 0
 }
 
-// Returns the number of non-null values in the series.
-func (s SeriesError) NonNullCount() int {
-	return 0
-}
-
 // Returns if the element at index i is null.
 func (s SeriesError) IsNull(i int) bool {
 	return false
-}
-
-// Sets the element at index i to null.
-func (s SeriesError) SetNull(i int) Series {
-	return nil
 }
 
 // Returns the null mask of the series.
@@ -93,7 +85,7 @@ func (s SeriesError) GetNullMask() []bool {
 
 // Sets the null mask of the series.
 func (s SeriesError) SetNullMask(mask []bool) Series {
-	return nil
+	return s
 }
 
 // Get the element at index i.
@@ -101,7 +93,7 @@ func (s SeriesError) Get(i int) any {
 	return nil
 }
 
-func (s SeriesError) GetString(i int) string {
+func (s SeriesError) GetAsString(i int) string {
 	return ""
 }
 
@@ -124,21 +116,21 @@ func (s SeriesError) Append(v any) Series {
 
 // Returns the actual data of the series.
 func (s SeriesError) Data() any {
-	return nil
+	return s
 }
 
 // Returns the nullable data of the series.
 func (s SeriesError) DataAsNullable() any {
-	return nil
+	return s
 }
 
 // Returns the data of the series as a slice of strings.
 func (s SeriesError) DataAsString() []string {
-	return []string{}
+	return []string{s.msg}
 }
 
 // Casts the series to a given type.
-func (s SeriesError) Cast(t typesys.BaseType, stringPool *StringPool) Series {
+func (s SeriesError) Cast(t typesys.BaseType) Series {
 	return s
 }
 
@@ -155,21 +147,25 @@ func (s SeriesError) Filter(mask any) Series {
 	return s
 }
 
-func (s SeriesError) filterIntSlice(mask []int) Series {
+func (s SeriesError) filterIntSlice(mask []int, check bool) Series {
 	return s
 }
 
-func (s SeriesError) Map(f GDLMapFunc, stringPool *StringPool) Series {
+func (s SeriesError) Map(f MapFunc) Series {
+	return s
+}
+
+func (s SeriesError) MapNull(f MapFuncNull) Series {
 	return s
 }
 
 // Group the elements in the series.
 func (s SeriesError) group() Series {
-	return nil
+	return s
 }
 
 func (s SeriesError) GroupBy(gp SeriesPartition) Series {
-	return nil
+	return s
 }
 
 func (s SeriesError) UnGroup() Series {
@@ -213,7 +209,7 @@ func (s SeriesError) Mod(other Series) Series {
 	return s
 }
 
-func (s SeriesError) Pow(other Series) Series {
+func (s SeriesError) Exp(other Series) Series {
 	return s
 }
 

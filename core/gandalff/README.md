@@ -1,17 +1,11 @@
 ## GANDALFF: Golang, ANother DAta Library For Fun
 
-Or Gdl: Golang Data Library
+Or, for short, GDL: Golang Data Library
 
 ### What is it?
 
-Gandalff is a library for data manipulation in Go. It is inspired by the R language and the dplyr package.
+Gandalff is a library for data manipulation in Go.
 It supports nullable types: null data is optimized for memory usage.
-`GDLSeriesBool` stores the boolean data as bits, and `GDLSeriesString` stores the string data in a string pool.
-
-### Why?
-
-The primary purpose of this library is to have an easy-to-use data manipulation library for Go and to be as close as possible to the R language and the Dplyr package.
-It also has to be performant; hopefully, it will become as fast as Polars.
 
 ### Examples
 
@@ -29,27 +23,27 @@ Ursula,27,65.0,f,Business,4
 Charlie,33,60.0,t,Business,2
 `
 
-	NewBaseDataFrame().
+	NewBaseDataFrame(NewContext()).
 		FromCSV().
-		SetReader(strings.NewReader(data)).
+		SetReader(strings.NewReader(data1)).
 		SetDelimiter(',').
 		SetHeader(true).
 		Read().
 		Select("department", "age", "weight", "junior").
 		GroupBy("department").
 		Agg(Min("age"), Max("weight"), Mean("junior"), Count()).
-		PrettyPrint()
+		PrettyPrint(NewPrettyPrintParams())
 
 	// Output:
-	// +------------+------------+------------+------------+------------+
-	// | department |        age |     weight |     junior |          n |
-	// +------------+------------+------------+------------+------------+
-	// |     String |    Float64 |    Float64 |    Float64 |      Int32 |
-	// +------------+------------+------------+------------+------------+
-	// |         HR |         29 |         90 |        0.5 |          2 |
-	// |         IT |         25 |         85 |        0.5 |          4 |
-	// |   Business |         27 |         65 |        0.5 |          2 |
-	// +------------+------------+------------+------------+------------+
+	// ╭────────────┬────────────┬────────────┬────────────┬────────────╮
+	// │ department │        age │     weight │     junior │          n │
+	// ├────────────┼────────────┼────────────┼────────────┼────────────┤
+	// │     String │    Float64 │    Float64 │    Float64 │      Int64 │
+	// ├────────────┼────────────┼────────────┼────────────┼────────────┤
+	// │         HR │         29 │         90 │        0.5 │          2 │
+	// │         IT │         25 │         85 │        0.5 │          4 │
+	// │   Business │         27 │         65 │        0.5 │          2 │
+	// ╰────────────┴────────────┴────────────┴────────────┴────────────╯
 }
 ```
 
@@ -60,23 +54,24 @@ The data types not checked are not yet supported, but might be in the future.
 - [x] Bool
 - [ ] Bool (memory optimized, not fully implemented yet)
 - [ ] Int16
-- [x] Int32
+- [x] Int
 - [x] Int64
 - [ ] Float32
 - [x] Float64
 - [ ] Complex64
 - [ ] Complex128
 - [x] String
-- [ ] Time
-- [ ] Duration
+- [x] Time
+- [x] Duration
 
 ### Supported operations for Series
 
 - [x] Filter
 
-  - [x] Filter (by Bool series)
-  - [x] FilterByMask
-  - [x] FilterByIndex
+  - [x] filter by bool slice
+  - [x] filter by int slice
+  - [x] filter by bool series
+  - [x] filter by int series
 
 - [x] Group
 
@@ -126,133 +121,126 @@ The data types not checked are not yet supported, but might be in the future.
 
 ### Implementation details
 
-This is how the interface for the Series type currently looks like
-with all the methods that are currently implemented.
+This is how the interface for the Series type currently looks like:
 
 ```go
-type Series interface {
+// Basic accessors.
 
-	// Basic accessors.
+// Return the context of the series.
+GetContext() *Context
+// Return the number of elements in the series.
+Len() int
+// Return the type of the series.
+Type() typesys.BaseType
+// Return the type and cardinality of the series.
+TypeCard() typesys.BaseTypeCard
+// Return if the series is grouped.
+IsGrouped() bool
+// Return if the series admits null values.
+IsNullable() bool
+// Return if the series is sorted.
+IsSorted() SeriesSortOrder
+// Return if the series is error.
+IsError() bool
+// Return the error message of the series.
+GetError() string
 
-	// Returns the number of elements in the series.
-	Len() int
-	// Returns the name of the series.
-	Name() string
-	// Sets the name of the series.
-	SetName(name string) Series
+// Nullability operations.
 
-	// Returns the type of the series.
-	Type() typesys.BaseType
-	// Returns the type and cardinality of the series.
-	TypeCard() typesys.BaseTypeCard
+// Return if the series has null values.
+HasNull() bool
+// Return the number of null values in the series.
+NullCount() int
+// Return if the element at index i is null.
+IsNull(i int) bool
+// Return the null mask of the series.
+GetNullMask() []bool
+// Set the null mask of the series.
+SetNullMask(mask []bool) Series
+// Make the series nullable.
+MakeNullable() Series
+// Make the series non-nullable.
+MakeNonNullable() Series
 
-	// Returns if the series is grouped.
-	IsGrouped() bool
-	// Returns if the series admits null values.
-	IsNullable() bool
-	// Returns if the series is sorted.
-	IsSorted() SeriesSortOrder
-	// Returns if the series is error.
-	IsError() bool
-	// Returns the error message of the series.
-	GetError() string
+// Get the element at index i.
+Get(i int) any
+// Get the element at index i as a string.
+GetAsString(i int) string
+// Set the element at index i.
+Set(i int, v any) Series
+// Take the elements according to the given interval.
+Take(params ...int) Series
 
-	// Nullability operations.
+// Append elements to the series.
+// Value can be a single value, slice of values,
+// a nullable value, a slice of nullable values or a series.
+Append(v any) Series
 
-	// Returns if the series has null values.
-	HasNull() bool
-	// Returns the number of null values in the series.
-	NullCount() int
-	// Returns the number of non-null values in the series.
-	NonNullCount() int
-	// Returns if the element at index i is null.
-	IsNull(i int) bool
-	// Sets the element at index i to null.
-	SetNull(i int) Series
-	// Returns the null mask of the series.
-	GetNullMask() []bool
-	// Sets the null mask of the series.
-	SetNullMask(mask []bool) Series
-	// Makes the series nullable.
-	MakeNullable() Series
+// All-data accessors.
 
-	// Get the element at index i.
-	Get(i int) any
-	// Get the element at index i as a string.
-	GetString(i int) string
-	// Set the element at index i.
-	Set(i int, v any) Series
-	// Take the elements according to the given interval.
-	Take(params ...int) Series
+// Return the actual data of the series.
+Data() any
+// Return the nullable data of the series.
+DataAsNullable() any
+// Return the data of the series as a slice of strings.
+DataAsString() []string
 
-	// Append elements to the series.
-	// Value can be a single value, slice of values,
-	// a nullable value, a slice of nullable values or a series.
-	Append(v any) Series
+// Cast the series to a given type.
+Cast(t typesys.BaseType) Series
+// Copie the series.
+Copy() Series
 
-	// All-data accessors.
+// Series operations.
 
-	// Returns the actual data of the series.
-	Data() any
-	// Returns the nullable data of the series.
-	DataAsNullable() any
-	// Returns the data of the series as a slice of strings.
-	DataAsString() []string
+// Filter out the elements by the given mask.
+// Mask can be a bool series, a slice of bools or a slice of ints.
+Filter(mask any) Series
 
-	// Casts the series to a given type.
-	Cast(t typesys.BaseType, stringPool *StringPool) Series
-	// Copies the series.
-	Copy() Series
+// Apply the given function to each element of the series.
+Map(f MapFunc) Series
+MapNull(f MapFuncNull) Series
 
-	// Series operations.
+// Group the elements in the series.
+GroupBy(gp SeriesPartition) Series
+UnGroup() Series
 
-	// Filters out the elements by the given mask.
-	// Mask can be a bool series, a slice of bools or a slice of ints.
-	Filter(mask any) Series
-	filterIntSlice(mask []int) Series
+// Get the partition of the series.
+GetPartition() SeriesPartition
 
-	// Maps the elements of the series.
-	Map(f GDLMapFunc, stringPool *StringPool) Series
+// Sort Interface.
+Less(i, j int) bool
+Swap(i, j int)
 
-	// Group the elements in the series.
-	group() Series
-	GroupBy(gp SeriesPartition) Series
-	UnGroup() Series
+// Sort the elements of the series.
+Sort() Series
+SortRev() Series
 
-	// Get the partition of the series.
-	GetPartition() SeriesPartition
+// Arithmetic operations.
+Mul(other Series) Series
+Div(other Series) Series
+Mod(other Series) Series
+Exp(other Series) Series
+Add(other Series) Series
+Sub(other Series) Series
 
-	// Sort Interface.
-	Less(i, j int) bool
-	equal(i, j int) bool
-	Swap(i, j int)
-
-	// Sorts the elements of the series.
-	Sort() Series
-	SortRev() Series
-
-	// Arithmetic operations.
-	Mul(other Series) Series
-	Div(other Series) Series
-	Mod(other Series) Series
-	Pow(other Series) Series
-	Add(other Series) Series
-	Sub(other Series) Series
-
-	// Logical operations.
-	Eq(other Series) Series
-	Ne(other Series) Series
-	Gt(other Series) Series
-	Ge(other Series) Series
-	Lt(other Series) Series
-	Le(other Series) Series
-}
+// Logical operations.
+Eq(other Series) Series
+Ne(other Series) Series
+Gt(other Series) Series
+Ge(other Series) Series
+Lt(other Series) Series
+Le(other Series) Series
 ```
 
 ### TODO
 
+- [ ] Improve dataframe PrettyPrint: add parameters, optimize data display, use lipgloss.
+- [ ] Implement string factors.
+- [ ] SeriesTime: set time format.
+- [ ] Implement `Set(i []int, v []any) Series`.
+- [ ] Add `Slice(i []int) Series` (using filter?).
 - [ ] Implement memory optimized Bool series with uint64.
-- [ ] Using uint64 for null mask.
+- [ ] Use uint64 for null mask.
 - [ ] Implement chunked series.
 - [ ] Implement Excel reader and writer (https://github.com/tealeg/xlsx).
 - [ ] Implement JSON reader and writer.

@@ -1,6 +1,9 @@
 package gandalff
 
-import "strconv"
+import (
+	"strconv"
+	"time"
+)
 
 const (
 	// The default capacity of a series.
@@ -22,6 +25,10 @@ const (
 	HASH_MAGIC_NUMBER      = int64(0xa8f4979b77e3f93)
 	HASH_MAGIC_NUMBER_NULL = int64(0x7fff4979b77e3f93)
 	HASH_NULL_KEY          = int64(0x7ff8000000000001)
+
+	NULL_STRING       = "NA"
+	BOOL_TRUE_STRING  = "true"
+	BOOL_FALSE_STRING = "false"
 )
 
 ////////////////////////////////			ENUMS
@@ -37,13 +44,14 @@ const (
 	SORTED_DESC
 )
 
+type any interface{}
+
+type MapFunc func(v any) any
+type MapFuncNull func(v any, isNull bool) (any, bool)
+
 ////////////////////////////////			ERRORS
 
 ////////////////////////////////			TO STRING
-
-const NULL_STRING = "NA"
-const BOOL_TRUE_STRING = "true"
-const BOOL_FALSE_STRING = "false"
 
 func boolToString(b bool) string {
 	if b {
@@ -61,8 +69,6 @@ func floatToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
 }
 
-type any interface{}
-
 ////////////////////////////////			NULLABLE TYPES
 
 type NullableBool struct {
@@ -78,6 +84,11 @@ type NullableInt8 struct {
 type NullableInt16 struct {
 	Valid bool
 	Value int16
+}
+
+type NullableInt struct {
+	Valid bool
+	Value int
 }
 
 type NullableInt32 struct {
@@ -105,4 +116,12 @@ type NullableString struct {
 	Value string
 }
 
-type GDLMapFunc func(any) any
+type NullableTime struct {
+	Valid bool
+	Value time.Time
+}
+
+type NullableDuration struct {
+	Valid bool
+	Value time.Duration
+}

@@ -33,13 +33,13 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		for _, val := range v {
 			switch col := val.getValue().(type) {
 			case gandalff.SeriesBool:
-				df = df.AddSeries(col.SetName(val.name))
+				df = df.AddSeries(val.name, col)
 			case gandalff.SeriesInt64:
-				df = df.AddSeries(col.SetName(val.name))
+				df = df.AddSeries(val.name, col)
 			case gandalff.SeriesFloat64:
-				df = df.AddSeries(col.SetName(val.name))
+				df = df.AddSeries(val.name, col)
 			case gandalff.SeriesString:
-				df = df.AddSeries(col.SetName(val.name))
+				df = df.AddSeries(val.name, col)
 			default:
 				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %T", funcName, val))
 				return
@@ -48,13 +48,13 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 
 	// Derive: single column
 	case gandalff.SeriesBool:
-		df = df.AddSeries(v.SetName(positional[1].name))
+		df = df.AddSeries(positional[1].name, v)
 	case gandalff.SeriesInt64:
-		df = df.AddSeries(v.SetName(positional[1].name))
+		df = df.AddSeries(positional[1].name, v)
 	case gandalff.SeriesFloat64:
-		df = df.AddSeries(v.SetName(positional[1].name))
+		df = df.AddSeries(positional[1].name, v)
 	case gandalff.SeriesString:
-		df = df.AddSeries(v.SetName(positional[1].name))
+		df = df.AddSeries(positional[1].name, v)
 
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, v))
@@ -310,8 +310,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := gandalff.NewBaseDataFrame().
-		SetStringPool(vm.__stringPool).
+	df := gandalff.NewBaseDataFrame(vm.__context).
 		FromCSV().
 		SetReader(inputFile).
 		SetDelimiter(del).
@@ -372,11 +371,11 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				return
 			}
 
-			df = gandalff.NewBaseDataFrame().SetStringPool(vm.__stringPool)
+			df = gandalff.NewBaseDataFrame(vm.__context)
 			for _, p := range list {
 				switch v := p.expr[0].(type) {
 				case gandalff.Series:
-					df = df.AddSeries(v.SetName(p.name))
+					df = df.AddSeries(p.name, v)
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: exprecting list of assignments for building a new dataframe, got %T", funcName, p.expr[0]))
 					return
@@ -722,26 +721,26 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 
 		// BASE TYPES
 		case []bool:
-			series_[positional[0].name] = gandalff.NewSeriesBool(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesBool(v, nil, false, vm.__context)
 		case []int64:
-			series_[positional[0].name] = gandalff.NewSeriesInt64(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesInt64(v, nil, false, vm.__context)
 		case []float64:
-			series_[positional[0].name] = gandalff.NewSeriesFloat64(positional[0].name, true, false, v)
+			series_[positional[0].name] = gandalff.NewSeriesFloat64(v, nil, false, vm.__context)
 		case []string:
-			series_[positional[0].name] = gandalff.NewSeriesString(positional[0].name, true, v, vm.__stringPool)
+			series_[positional[0].name] = gandalff.NewSeriesString(v, nil, false, vm.__context)
 
 		// LIST
 		case __p_list__:
 			for _, e := range v {
 				switch t := e.getValue().(type) {
 				case []bool:
-					series_[e.name] = gandalff.NewSeriesBool(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesBool(t, nil, false, vm.__context)
 				case []int64:
-					series_[e.name] = gandalff.NewSeriesInt64(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesInt64(t, nil, false, vm.__context)
 				case []float64:
-					series_[e.name] = gandalff.NewSeriesFloat64(e.name, true, false, t)
+					series_[e.name] = gandalff.NewSeriesFloat64(t, nil, false, vm.__context)
 				case []string:
-					series_[e.name] = gandalff.NewSeriesString(e.name, true, t, vm.__stringPool)
+					series_[e.name] = gandalff.NewSeriesString(t, nil, false, vm.__context)
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
 					return
@@ -800,15 +799,20 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 		switch v := positional[0].getValue().(type) {
 		case gandalff.DataFrame:
 
+			var names []string
 			var series []gandalff.Series
+
 			switch t := positional[1].getValue().(type) {
 			case gandalff.Series:
+				names = []string{positional[1].name}
 				series = []gandalff.Series{t}
 			case __p_list__:
+				names = make([]string, len(t))
 				series = make([]gandalff.Series, len(t))
 				for i, e := range t {
 					switch s := e.getValue().(type) {
 					case gandalff.Series:
+						names[i] = e.name
 						series[i] = s
 					default:
 						vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, s))
@@ -820,8 +824,8 @@ func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType)
 				return
 			}
 
-			for _, s := range series {
-				v = v.Replace(s.Name(), s.Cast(coerceType, vm.__stringPool))
+			for i, s := range series {
+				v = v.Replace(names[i], s.Cast(coerceType))
 			}
 
 			vm.stackPush(vm.newPInternTerm(v))
@@ -924,7 +928,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 
 		switch v := positional[1].expr[0].(type) {
 		case gandalff.SeriesString:
-			df = df.Replace(v.Name(), v.Replace(strOld, strNew, int(num)))
+			df = df.Replace(positional[1].name, v.Replace(strOld, strNew, int(num)))
 			vm.stackPush(vm.newPInternTerm(df))
 
 		case gandalff.SeriesError:
@@ -935,7 +939,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			for _, e := range v {
 				switch t := e.getValue().(type) {
 				case gandalff.SeriesString:
-					df = df.Replace(t.Name(), t.Replace(strOld, strNew, int(num)))
+					df = df.Replace(e.name, t.Replace(strOld, strNew, int(num)))
 				case gandalff.SeriesError:
 					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, t.GetError()))
 					return

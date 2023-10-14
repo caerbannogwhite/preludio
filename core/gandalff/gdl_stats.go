@@ -20,8 +20,8 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 			switch series := td.series.(type) {
 			case SeriesBool:
 
-			case SeriesInt32:
-				sum_ := int32(0)
+			case SeriesInt:
+				sum_ := int(0)
 				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
@@ -52,8 +52,8 @@ func __stats_worker(wg *sync.WaitGroup, buffer <-chan __stats_thread_data) {
 			switch series := td.series.(type) {
 			case SeriesBool:
 
-			case SeriesInt32:
-				sum_ := int32(0)
+			case SeriesInt:
+				sum_ := int(0)
 				data := series.getDataPtr()
 				for _, i := range td.indeces {
 					sum_ += (*data)[i]
@@ -93,9 +93,17 @@ func __gdl_sum__(s Series) float64 {
 		}
 		return sum
 
-	case SeriesInt32:
+	case SeriesInt:
 		data := *series.getDataPtr()
-		sum_ := int32(0)
+		sum_ := int(0)
+		for i := 0; i < series.Len(); i++ {
+			sum_ += data[i]
+		}
+		return float64(sum_)
+
+	case SeriesInt64:
+		data := *series.getDataPtr()
+		sum_ := int64(0)
 		for i := 0; i < series.Len(); i++ {
 			sum_ += data[i]
 		}
@@ -127,13 +135,13 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 		}
 		return sum
 
-	case SeriesInt32:
+	case SeriesInt:
 		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
-				sum_ := int32(0)
+				sum_ := int(0)
 				for _, i := range group {
 					sum_ += data[i]
 				}
@@ -154,7 +162,7 @@ func __gdl_sum_grouped__(s Series, groups [][]int) []float64 {
 
 		worker := func() {
 			for td := range buffer {
-				sum_ := int32(0)
+				sum_ := int(0)
 				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
@@ -302,17 +310,32 @@ func __gdl_min__(s Series) float64 {
 			return min
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for i := 0; i < series.Len(); i++ {
 				if !series.IsNull(i) {
-					min = math.Min(min, float64(series.Get(i).(int32)))
+					min = math.Min(min, float64(series.Get(i).(int)))
 				}
 			}
 			return min
 		} else {
 			for i := 0; i < series.Len(); i++ {
-				min = math.Min(min, float64(series.Get(i).(int32)))
+				min = math.Min(min, float64(series.Get(i).(int)))
+			}
+			return min
+		}
+
+	case SeriesInt64:
+		if series.isNullable {
+			for i := 0; i < series.Len(); i++ {
+				if !series.IsNull(i) {
+					min = math.Min(min, float64(series.Get(i).(int64)))
+				}
+			}
+			return min
+		} else {
+			for i := 0; i < series.Len(); i++ {
+				min = math.Min(min, float64(series.Get(i).(int64)))
 			}
 			return min
 		}
@@ -366,7 +389,7 @@ func __gdl_min_grouped__(s Series, groups [][]int) []float64 {
 			return min
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for gi, group := range groups {
 				for _, i := range group {
@@ -380,6 +403,25 @@ func __gdl_min_grouped__(s Series, groups [][]int) []float64 {
 			for gi, group := range groups {
 				for _, i := range group {
 					min[gi] = math.Min(min[gi], float64(series.Get(i).(int)))
+				}
+			}
+			return min
+		}
+
+	case SeriesInt64:
+		if series.isNullable {
+			for gi, group := range groups {
+				for _, i := range group {
+					if !series.IsNull(i) {
+						min[gi] = math.Min(min[gi], float64(series.Get(i).(int64)))
+					}
+				}
+			}
+			return min
+		} else {
+			for gi, group := range groups {
+				for _, i := range group {
+					min[gi] = math.Min(min[gi], float64(series.Get(i).(int64)))
 				}
 			}
 			return min
@@ -434,17 +476,32 @@ func __gdl_max__(s Series) float64 {
 			return max
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for i := 0; i < series.Len(); i++ {
 				if !series.IsNull(i) {
-					max = math.Max(max, float64(series.Get(i).(int32)))
+					max = math.Max(max, float64(series.Get(i).(int)))
 				}
 			}
 			return max
 		} else {
 			for i := 0; i < series.Len(); i++ {
-				max = math.Max(max, float64(series.Get(i).(int32)))
+				max = math.Max(max, float64(series.Get(i).(int)))
+			}
+			return max
+		}
+
+	case SeriesInt64:
+		if series.isNullable {
+			for i := 0; i < series.Len(); i++ {
+				if !series.IsNull(i) {
+					max = math.Max(max, float64(series.Get(i).(int64)))
+				}
+			}
+			return max
+		} else {
+			for i := 0; i < series.Len(); i++ {
+				max = math.Max(max, float64(series.Get(i).(int64)))
 			}
 			return max
 		}
@@ -498,7 +555,7 @@ func __gdl_max_grouped__(s Series, groups [][]int) []float64 {
 			return max
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for gi, group := range groups {
 				for _, i := range group {
@@ -512,6 +569,25 @@ func __gdl_max_grouped__(s Series, groups [][]int) []float64 {
 			for gi, group := range groups {
 				for _, i := range group {
 					max[gi] = math.Max(max[gi], float64(series.Get(i).(int)))
+				}
+			}
+			return max
+		}
+
+	case SeriesInt64:
+		if series.isNullable {
+			for gi, group := range groups {
+				for _, i := range group {
+					if !series.IsNull(i) {
+						max[gi] = math.Max(max[gi], float64(series.Get(i).(int64)))
+					}
+				}
+			}
+			return max
+		} else {
+			for gi, group := range groups {
+				for _, i := range group {
+					max[gi] = math.Max(max[gi], float64(series.Get(i).(int64)))
 				}
 			}
 			return max
@@ -556,10 +632,17 @@ func __gdl_mean__(s Series) float64 {
 		}
 		return sum / float64(series.Len())
 
-	case SeriesInt32:
+	case SeriesInt:
 		sum_ := int(0)
 		for i := 0; i < series.Len(); i++ {
 			sum_ += series.Get(i).(int)
+		}
+		return float64(sum_) / float64(series.Len())
+
+	case SeriesInt64:
+		sum_ := int64(0)
+		for i := 0; i < series.Len(); i++ {
+			sum_ += series.Get(i).(int64)
 		}
 		return float64(sum_) / float64(series.Len())
 
@@ -590,13 +673,13 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 		}
 		return sum
 
-	case SeriesInt32:
+	case SeriesInt:
 		data := *series.getDataPtr()
 
 		// SINGLE THREAD
 		if len(data) < MINIMUM_PARALLEL_SIZE_2 || len(groups) < THREADS_NUMBER {
 			for gi, group := range groups {
-				sum_ := int32(0)
+				sum_ := int(0)
 				for _, i := range group {
 					sum_ += data[i]
 				}
@@ -618,7 +701,7 @@ func __gdl_mean_grouped__(s Series, groups [][]int) []float64 {
 
 		worker := func() {
 			for td := range buffer {
-				sum_ := int32(0)
+				sum_ := int(0)
 				for _, i := range td.indeces {
 					sum_ += data[i]
 				}
@@ -772,17 +855,17 @@ func __gdl_std__(s Series) float64 {
 			return math.Sqrt(sum / float64(series.Len()))
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for i := 0; i < series.Len(); i++ {
 				if !series.IsNull(i) {
-					sum += math.Pow(float64(series.Get(i).(int32))-mean, 2)
+					sum += math.Pow(float64(series.Get(i).(int))-mean, 2)
 				}
 			}
 			return math.Sqrt(sum / float64(series.Len()))
 		} else {
 			for i := 0; i < series.Len(); i++ {
-				sum += math.Pow(float64(series.Get(i).(int32))-mean, 2)
+				sum += math.Pow(float64(series.Get(i).(int))-mean, 2)
 			}
 			return math.Sqrt(sum / float64(series.Len()))
 		}
@@ -845,7 +928,7 @@ func __gdl_std_grouped__(s Series, groups [][]int) []float64 {
 			return stddev
 		}
 
-	case SeriesInt32:
+	case SeriesInt:
 		if series.isNullable {
 			for gi, group := range groups {
 				sum := 0.0

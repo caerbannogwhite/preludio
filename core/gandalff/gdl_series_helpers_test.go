@@ -4,6 +4,90 @@ import (
 	"testing"
 )
 
+func Test_BinVec_Init(t *testing.T) {
+	var vecA, vecB []uint8
+
+	// 6
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, false})
+	vecB = __binVecInit(6, true)
+	__binVecSet(vecB, 5, false)
+	if vecA[0] != 0x1F {
+		t.Errorf("Expected 0x1F, got %x", vecA[0])
+	}
+	if vecB[0] != 0x1F {
+		t.Errorf("Expected 0x1F, got %x", vecB[0])
+	}
+
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true})
+	vecB = __binVecInit(6, true)
+	if vecA[0] != 0x3F {
+		t.Errorf("Expected 0x3F, got %x", vecA[0])
+	}
+	if vecB[0] != 0x3F {
+		t.Errorf("Expected 0x3F, got %x", vecB[0])
+	}
+
+	// 7
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, false})
+	vecB = __binVecInit(7, true)
+	__binVecSet(vecB, 6, false)
+	if vecA[0] != 0x3F {
+		t.Errorf("Expected 0x6F, got %x", vecA[0])
+	}
+	if vecB[0] != 0x3F {
+		t.Errorf("Expected 0x6F, got %x", vecB[0])
+	}
+
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, true})
+	vecB = __binVecInit(7, true)
+	if vecA[0] != 0x7F {
+		t.Errorf("Expected 0x7F, got %x", vecA[0])
+	}
+	if vecB[0] != 0x7F {
+		t.Errorf("Expected 0x7F, got %x", vecB[0])
+	}
+
+	// 8
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, true, false})
+	vecB = __binVecInit(8, true)
+	__binVecSet(vecB, 7, false)
+	if vecA[0] != 0x7F {
+		t.Errorf("Expected 0x7F, got %x", vecA[0])
+	}
+	if vecB[0] != 0x7F {
+		t.Errorf("Expected 0x7F, got %x", vecB[0])
+	}
+
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, true, true})
+	vecB = __binVecInit(8, true)
+	if vecA[0] != 0xFF {
+		t.Errorf("Expected 0xFF, got %x", vecA[0])
+	}
+	if vecB[0] != 0xFF {
+		t.Errorf("Expected 0xFF, got %x", vecB[0])
+	}
+
+	// 9
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, true, true, false})
+	vecB = __binVecInit(9, true)
+	__binVecSet(vecB, 8, false)
+	if vecA[0] != 0xFF || vecA[1] != 0x00 {
+		t.Errorf("Expected 0xFF 0x00, got %x %x", vecA[0], vecA[1])
+	}
+	if vecB[0] != 0xFF || vecB[1] != 0x00 {
+		t.Errorf("Expected 0xFF 0x00, got %x %x", vecB[0], vecB[1])
+	}
+
+	vecA = __binVecFromBools([]bool{true, true, true, true, true, true, true, true, true})
+	vecB = __binVecInit(9, true)
+	if vecA[0] != 0xFF || vecA[1] != 0x01 {
+		t.Errorf("Expected 0xFF 0x01, got %x %x", vecA[0], vecA[1])
+	}
+	if vecB[0] != 0xFF || vecB[1] != 0x01 {
+		t.Errorf("Expected 0xFF 0x01, got %x %x", vecB[0], vecB[1])
+	}
+}
+
 func Test_BinVec_Count(t *testing.T) {
 
 	var v []uint8

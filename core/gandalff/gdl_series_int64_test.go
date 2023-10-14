@@ -13,19 +13,11 @@ func Test_SeriesInt64_Base(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt64.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s := NewSeriesInt64(data, mask, true, ctx)
 
 	// Check the length.
 	if s.Len() != 10 {
 		t.Errorf("Expected length of 10, got %d", s.Len())
-	}
-
-	// Check the name.
-	if s.Name() != "test" {
-		t.Errorf("Expected name of \"test\", got %s", s.Name())
 	}
 
 	// Check the type.
@@ -69,9 +61,9 @@ func Test_SeriesInt64_Base(t *testing.T) {
 		t.Errorf("Expected HasNull() to be true, got false")
 	}
 
-	// Check the SetNull method.
+	// Check the Set() with a null value.
 	for i := range s.Data().([]int64) {
-		s.SetNull(i)
+		s.Set(i, nil)
 	}
 
 	// Check the null values.
@@ -106,7 +98,7 @@ func Test_SeriesInt64_Base(t *testing.T) {
 	}
 
 	// Check the MakeNullable() method.
-	p := NewSeriesInt64("test", false, true, data)
+	p := NewSeriesInt64(data, nil, true, ctx)
 
 	// Check the nullability.
 	if p.IsNullable() {
@@ -114,9 +106,9 @@ func Test_SeriesInt64_Base(t *testing.T) {
 	}
 
 	// Set values to null.
-	p.SetNull(1)
-	p.SetNull(3)
-	p.SetNull(5)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 0 {
@@ -136,9 +128,9 @@ func Test_SeriesInt64_Base(t *testing.T) {
 		t.Errorf("Expected NullCount() to be 0, got %d", p.NullCount())
 	}
 
-	p.SetNull(1)
-	p.SetNull(3)
-	p.SetNull(5)
+	p.Set(1, nil)
+	p.Set(3, nil)
+	p.Set(5, nil)
 
 	// Check the null count.
 	if p.NullCount() != 3 {
@@ -152,10 +144,7 @@ func Test_SeriesInt64_Take(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new SeriesInt64.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s := NewSeriesInt64(data, mask, true, ctx)
 
 	// Take the first 5 values.
 	result := s.Take(0, 5, 1)
@@ -256,22 +245,12 @@ func Test_SeriesInt64_Append(t *testing.T) {
 	maskC := []bool{true, true, true, true, true, true, true, true, true, true}
 
 	// Create two new series.
-	sA := NewSeriesInt64("testA", true, true, dataA)
-	sB := NewSeriesInt64("testB", true, true, dataB)
-	sC := NewSeriesInt64("testC", true, true, dataC)
-
-	// Set the null masks.
-	sA.SetNullMask(maskA)
-	sB.SetNullMask(maskB)
-	sC.SetNullMask(maskC)
+	sA := NewSeriesInt64(dataA, maskA, true, ctx)
+	sB := NewSeriesInt64(dataB, maskB, true, ctx)
+	sC := NewSeriesInt64(dataC, maskC, true, ctx)
 
 	// Append the series.
 	result := sA.Append(sB).Append(sC)
-
-	// Check the name.
-	if result.Name() != "testA" {
-		t.Errorf("Expected name of \"testA\", got %s", result.Name())
-	}
 
 	// Check the length.
 	if result.Len() != 30 {
@@ -313,31 +292,75 @@ func Test_SeriesInt64_Append(t *testing.T) {
 	}
 
 	// Append random values.
-	dataD := []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	sD := NewSeriesInt64("testD", true, true, dataD)
-
-	// Check the original data.
-	for i, v := range sD.Data().([]int64) {
-		if v != dataD[i] {
-			t.Errorf("Expected %d, got %d at index %d", dataD[i], v, i)
-		}
-	}
+	s := NewSeriesInt64([]int64{}, nil, true, ctx)
 
 	for i := 0; i < 100; i++ {
 		r := int64(rand.Intn(100))
 		switch i % 4 {
 		case 0:
-			sD = sD.Append(r).(SeriesInt64)
+			s = s.Append(r).(SeriesInt64)
 		case 1:
-			sD = sD.Append([]int64{r}).(SeriesInt64)
+			s = s.Append([]int64{r}).(SeriesInt64)
 		case 2:
-			sD = sD.Append(NullableInt64{true, r}).(SeriesInt64)
+			s = s.Append(NullableInt64{true, r}).(SeriesInt64)
 		case 3:
-			sD = sD.Append([]NullableInt64{{false, r}}).(SeriesInt64)
+			s = s.Append([]NullableInt64{{false, r}}).(SeriesInt64)
 		}
 
-		if sD.Get(i+10) != r {
-			t.Errorf("Expected %t, got %t at index %d (case %d)", true, sD.Get(i+10), i+10, i%4)
+		if s.Get(i) != r {
+			t.Errorf("Expected %t, got %t at index %d (case %d)", true, s.Get(i), i, i%4)
+		}
+	}
+
+	// Append nil
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(nil).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesNA
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+	na := NewSeriesNA(10, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(na).(SeriesInt64)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], na.GetNullMask(), nil, "SeriesInt64.Append") {
+			t.Errorf("Expected %v, got %v at index %d", na.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
+		}
+	}
+
+	// Append NullableInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(NullableInt64{false, 1}).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append []NullableInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append([]NullableInt64{{false, 1}}).(SeriesInt64)
+		if !s.IsNull(i) {
+			t.Errorf("Expected %t, got %t at index %d", true, s.IsNull(i), i)
+		}
+	}
+
+	// Append SeriesInt64
+	s = NewSeriesInt64([]int64{}, nil, true, ctx)
+	b := NewSeriesInt64(dataA, []bool{true, true, true, true, true, true, true, true, true, true}, true, ctx)
+
+	for i := 0; i < 100; i++ {
+		s = s.Append(b).(SeriesInt64)
+		if !checkEqSlice(s.GetNullMask()[s.Len()-10:], b.GetNullMask(), nil, "SeriesInt64.Append") {
+			t.Errorf("Expected %v, got %v at index %d", b.GetNullMask(), s.GetNullMask()[s.Len()-10:], i)
 		}
 	}
 }
@@ -347,13 +370,10 @@ func Test_SeriesInt64_Cast(t *testing.T) {
 	mask := []bool{false, false, true, false, false, true, false, false, true, false}
 
 	// Create a new series.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s := NewSeriesInt64(data, mask, true, ctx)
 
 	// Cast to bool.
-	result := s.Cast(typesys.BoolType, nil)
+	result := s.Cast(typesys.BoolType)
 
 	// Check the data.
 	expected := []bool{false, true, false, true, true, true, true, true, true, true}
@@ -370,14 +390,14 @@ func Test_SeriesInt64_Cast(t *testing.T) {
 		}
 	}
 
-	// Cast to int32.
-	result = s.Cast(typesys.Int32Type, nil)
+	// Cast to int.
+	result = s.Cast(typesys.IntType)
 
 	// Check the data.
-	expectedInt32 := []int32{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
-	for i, v := range result.Data().([]int32) {
-		if v != expectedInt32[i] {
-			t.Errorf("Expected %d, got %d at index %d", expectedInt32[i], v, i)
+	expectedInt := []int{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
+	for i, v := range result.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %d, got %d at index %d", expectedInt[i], v, i)
 		}
 	}
 
@@ -389,7 +409,7 @@ func Test_SeriesInt64_Cast(t *testing.T) {
 	}
 
 	// Cast to float64.
-	result = s.Cast(typesys.Float64Type, nil)
+	result = s.Cast(typesys.Float64Type)
 
 	// Check the data.
 	expectedFloat := []float64{0, 1, 0, 3, 4, 5, 6, 7, 8, 9}
@@ -407,7 +427,7 @@ func Test_SeriesInt64_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	result = s.Cast(typesys.StringType, NewStringPool())
+	result = s.Cast(typesys.StringType)
 
 	// Check the data.
 	expectedString := []string{"0", "1", NULL_STRING, "3", "4", NULL_STRING, "6", "7", NULL_STRING, "9"}
@@ -426,7 +446,7 @@ func Test_SeriesInt64_Cast(t *testing.T) {
 	}
 
 	// Cast to error.
-	castError := s.Cast(typesys.ErrorType, nil)
+	castError := s.Cast(typesys.ErrorType)
 
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesInt64.Cast: invalid type Error" {
@@ -439,10 +459,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	mask := []bool{false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s := NewSeriesInt64(data, mask, true, ctx)
 
 	// Filter mask.
 	filterMask := []bool{true, false, true, true, false, true, true, false, true, true, true, false, true, true, false, true, true, false, true, true}
@@ -453,7 +470,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// 							Check the Filter() method.
-	filtered := s.Filter(NewSeriesBool("filter", false, true, filterMask).(SeriesBool))
+	filtered := s.Filter(NewSeriesBool(filterMask, nil, true, ctx))
 
 	// Check the length.
 	if filtered.Len() != len(result) {
@@ -525,7 +542,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	// try to filter by a series with a different length.
 	filtered = filtered.Filter(filterMask)
 
-	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.FilterByMask: mask length (20) does not match series length (14)" {
+	if e, ok := filtered.(SeriesError); !ok || e.GetError() != "SeriesInt64.Filter: mask length (20) does not match series length (14)" {
 		t.Errorf("Expected SeriesError, got %v", filtered)
 	}
 
@@ -534,10 +551,7 @@ func Test_SeriesInt64_Filter(t *testing.T) {
 	mask = []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true}
 
 	// Create a new series.
-	s = NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(mask)
+	s = NewSeriesInt64(data, mask, true, ctx)
 
 	// Filter mask.
 	filterMask = []bool{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, true}
@@ -597,10 +611,7 @@ func Test_SeriesInt64_Map(t *testing.T) {
 	nullMask := []bool{true, true, true, true, true, true, true, true, true, true, true, true, true, false, true, true, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt64("test", true, true, data)
-
-	// Set the null mask.
-	s.SetNullMask(nullMask)
+	s := NewSeriesInt64(data, nullMask, true, ctx)
 
 	// Map the series to bool.
 	resBool := s.Map(func(v any) any {
@@ -608,7 +619,7 @@ func Test_SeriesInt64_Map(t *testing.T) {
 			return true
 		}
 		return false
-	}, nil)
+	})
 
 	expectedBool := []bool{false, false, false, false, false, false, true, true, true, true, false, false, true, false, false, true, false, false, true}
 	for i, v := range resBool.Data().([]bool) {
@@ -617,18 +628,18 @@ func Test_SeriesInt64_Map(t *testing.T) {
 		}
 	}
 
-	// Map the series to int32.
+	// Map the series to int.
 	resInt := s.Map(func(v any) any {
 		if v.(int64) < 0 {
-			return int32(-(v.(int64)) % 7)
+			return int(-(v.(int64)) % 7)
 		}
-		return int32(v.(int64) % 7)
-	}, nil)
+		return int(v.(int64) % 7)
+	})
 
-	expectedInt32 := []int32{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
-	for i, v := range resInt.Data().([]int32) {
-		if v != expectedInt32[i] {
-			t.Errorf("Expected %v, got %v at index %d", expectedInt32[i], v, i)
+	expectedInt := []int{1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 2, 1, 3, 2, 4, 0, 5, 6, 0}
+	for i, v := range resInt.Data().([]int) {
+		if v != expectedInt[i] {
+			t.Errorf("Expected %v, got %v at index %d", expectedInt[i], v, i)
 		}
 	}
 
@@ -638,7 +649,7 @@ func Test_SeriesInt64_Map(t *testing.T) {
 			return float64(-v.(int64))
 		}
 		return float64(v.(int64))
-	}, nil)
+	})
 
 	expectedFloat64 := []float64{-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -2, -323, -24, -23, -4, -42, -5, -6, -7}
 	for i, v := range resFloat64.Data().([]float64) {
@@ -653,7 +664,7 @@ func Test_SeriesInt64_Map(t *testing.T) {
 			return "pos"
 		}
 		return "neg"
-	}, NewStringPool())
+	})
 
 	expectedString := []string{"pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "pos", "neg", "pos", "pos", "neg", "pos", "pos", "pos", "neg", "pos"}
 	for i, v := range resString.Data().([]string) {
@@ -674,8 +685,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	data3Mask := []bool{false, false, false, false, false, true, true, true, true, true}
 
 	// Test 1
-	s1 := NewSeriesInt64("s1", true, true, data1).
-		SetNullMask(data1Mask).
+	s1 := NewSeriesInt64(data1, data1Mask, true, ctx).
 		group()
 
 	p1 := s1.GetPartition().getMap()
@@ -692,8 +702,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	}
 
 	// Test 2
-	s2 := NewSeriesInt64("s2", true, true, data2).
-		SetNullMask(data2Mask).
+	s2 := NewSeriesInt64(data2, data2Mask, true, ctx).
 		GroupBy(s1.GetPartition())
 
 	p2 := s2.GetPartition().getMap()
@@ -714,8 +723,7 @@ func Test_SeriesInt64_Group(t *testing.T) {
 	}
 
 	// Test 3
-	s3 := NewSeriesInt64("test", true, true, data3).
-		SetNullMask(data3Mask).
+	s3 := NewSeriesInt64(data3, data3Mask, true, ctx).
 		GroupBy(s2.GetPartition())
 
 	p3 := s3.GetPartition().getMap()
@@ -749,7 +757,7 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 	mask := []bool{false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true, false, true}
 
 	// Create a new series.
-	s := NewSeriesInt64("test", false, true, data)
+	s := NewSeriesInt64(data, nil, true, ctx)
 
 	// Sort the series.
 	sorted := s.Sort()
@@ -761,8 +769,7 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 	}
 
 	// Create a new series.
-	s = NewSeriesInt64("test", true, true, data).
-		SetNullMask(mask)
+	s = NewSeriesInt64(data, mask, true, ctx)
 
 	// Sort the series.
 	sorted = s.Sort()
@@ -781,29 +788,29 @@ func Test_SeriesInt64_Sort(t *testing.T) {
 }
 
 func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
 	if !checkEqSlice(i64s.Mul(bools).Data().([]int64), []int64{2}, nil, "Int64 Mul") {
@@ -819,7 +826,7 @@ func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {
 		t.Errorf("Error in Int64 Mul")
 	}
 
-	// scalar | int32
+	// scalar | int
 	if !checkEqSlice(i64s.Mul(i32s).Data().([]int64), []int64{4}, nil, "Int64 Mul") {
 		t.Errorf("Error in Int64 Mul")
 	}
@@ -875,7 +882,7 @@ func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {
 		t.Errorf("Error in Int64 Mul")
 	}
 
-	// vector | int32
+	// vector | int
 	if !checkEqSlice(i64v.Mul(i32s).Data().([]int64), []int64{2, 4, 6, 8, 10, 12, 14, 16, 18, 20}, nil, "Int64 Mul") {
 		t.Errorf("Error in Int64 Mul")
 	}
@@ -919,167 +926,167 @@ func Test_SeriesInt64_Arithmetic_Mul(t *testing.T) {
 }
 
 func Test_SeriesInt64_Arithmetic_Div(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
-	if !checkEqSlice(i64s.Div(bools).Data().([]float64), []float64{2}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(bools).Data().([]float64), []float64{2}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(boolv).Data().([]float64), []float64{2, math.Inf(1), 2, math.Inf(1), 2, math.Inf(1), 2, 2, math.Inf(1), math.Inf(1)}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(boolv).Data().([]float64), []float64{2, math.Inf(1), 2, math.Inf(1), 2, math.Inf(1), 2, 2, math.Inf(1), math.Inf(1)}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(bools_).GetNullMask(), []bool{true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(bools_).GetNullMask(), []bool{true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
-	// scalar | int32
-	if !checkEqSlice(i64s.Div(i32s).Data().([]float64), []float64{1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	// scalar | int
+	if !checkEqSlice(i64s.Div(i32s).Data().([]float64), []float64{1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i32v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i32v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i32s_).GetNullMask(), []bool{true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i32s_).GetNullMask(), []bool{true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
 	// scalar | int64
-	if !checkEqSlice(i64s.Div(i64s).Data().([]float64), []float64{1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i64s).Data().([]float64), []float64{1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i64v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i64v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i64s_).GetNullMask(), []bool{true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i64s_).GetNullMask(), []bool{true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
 	// scalar | float64
-	if !checkEqSlice(i64s.Div(f64s).Data().([]float64), []float64{1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(f64s).Data().([]float64), []float64{1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(f64v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(f64v).Data().([]float64), []float64{2, 1, 0.6666666666666666, 0.5, 0.4, 0.3333333333333333, 0.2857142857142857, 0.25, 0.2222222222222222, 0.2}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(f64s_).GetNullMask(), []bool{true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(f64s_).GetNullMask(), []bool{true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64s.Div(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64s.Div(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
 	// vector | bool
-	if !checkEqSlice(i64v.Div(bools).Data().([]float64), []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(bools).Data().([]float64), []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(boolv).Data().([]float64), []float64{1, math.Inf(1), 3, math.Inf(1), 5, math.Inf(1), 7, 8, math.Inf(1), math.Inf(1)}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(boolv).Data().([]float64), []float64{1, math.Inf(1), 3, math.Inf(1), 5, math.Inf(1), 7, 8, math.Inf(1), math.Inf(1)}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
-	// vector | int32
-	if !checkEqSlice(i64v.Div(i32s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	// vector | int
+	if !checkEqSlice(i64v.Div(i32s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i32v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i32v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
 	// vector | int64
-	if !checkEqSlice(i64v.Div(i64s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i64s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 
 	// vector | float64
-	if !checkEqSlice(i64v.Div(f64s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(f64s).Data().([]float64), []float64{0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(f64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(f64v).Data().([]float64), []float64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
-	if !checkEqSlice(i64v.Div(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int32 Div") {
-		t.Errorf("Error in Int32 Div")
+	if !checkEqSlice(i64v.Div(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int Div") {
+		t.Errorf("Error in Int Div")
 	}
 }
 
 func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
 	if !checkEqSlice(i64s.Mod(bools).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
@@ -1095,7 +1102,7 @@ func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
 		t.Errorf("Error in Int64 Mod")
 	}
 
-	// scalar | int32
+	// scalar | int
 	if !checkEqSlice(i64s.Mod(i32s).Data().([]float64), []float64{0}, nil, "Int64 Mod") {
 		t.Errorf("Error in Int64 Mod")
 	}
@@ -1151,7 +1158,7 @@ func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
 		t.Errorf("Error in Int64 Mod")
 	}
 
-	// vector | int32
+	// vector | int
 	if !checkEqSlice(i64v.Mod(i32s).Data().([]float64), []float64{1, 0, 1, 0, 1, 0, 1, 0, 1, 0}, nil, "Int64 Mod") {
 		t.Errorf("Error in Int64 Mod")
 	}
@@ -1194,176 +1201,174 @@ func Test_SeriesInt64_Arithmetic_Mod(t *testing.T) {
 	}
 }
 
-func Test_SeriesInt64_Arithmetic_Pow(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+func Test_SeriesInt64_Arithmetic_Exp(t *testing.T) {
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
-	if !checkEqSlice(i64s.Pow(bools).Data().([]int64), []int64{2}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(bools).Data().([]int64), []int64{2}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(boolv).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(boolv).Data().([]int64), []int64{2, 1, 2, 1, 2, 1, 2, 2, 1, 1}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(bools_).GetNullMask(), []bool{true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(bools_).GetNullMask(), []bool{true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
-	// scalar | int32
-	if !checkEqSlice(i64s.Pow(i32s).Data().([]int64), []int64{4}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	// scalar | int
+	if !checkEqSlice(i64s.Exp(i32s).Data().([]int64), []int64{4}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i32v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i32v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i32s_).GetNullMask(), []bool{true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i32s_).GetNullMask(), []bool{true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
 	// scalar | int64
-	if !checkEqSlice(i64s.Pow(i64s).Data().([]int64), []int64{4}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i64s).Data().([]int64), []int64{4}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i64v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i64v).Data().([]int64), []int64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i64s_).GetNullMask(), []bool{true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i64s_).GetNullMask(), []bool{true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
 	// scalar | float64
-	if !checkEqSlice(i64s.Pow(f64s).Data().([]float64), []float64{4}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(f64s).Data().([]float64), []float64{4}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(f64v).Data().([]float64), []float64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(f64v).Data().([]float64), []float64{2, 4, 8, 16, 32, 64, 128, 256, 512, 1024}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(f64s_).GetNullMask(), []bool{true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(f64s_).GetNullMask(), []bool{true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64s.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64s.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
 	// vector | bool
-	if !checkEqSlice(i64v.Pow(bools).Data().([]int64), []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(bools).Data().([]int64), []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(boolv).Data().([]int64), []int64{1, 1, 3, 1, 5, 1, 7, 8, 1, 1}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(boolv).Data().([]int64), []int64{1, 1, 3, 1, 5, 1, 7, 8, 1, 1}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(bools_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(boolv_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
-	// vector | int32
-	if !checkEqSlice(i64v.Pow(i32s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	// vector | int
+	if !checkEqSlice(i64v.Exp(i32s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i32v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i32v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i32s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i32v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
 	// vector | int64
-	if !checkEqSlice(i64v.Pow(i64s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i64s).Data().([]int64), []int64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i64v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i64v).Data().([]int64), []int64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(i64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 
 	// vector | float64
-	if !checkEqSlice(i64v.Pow(f64s).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(f64s).Data().([]float64), []float64{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(f64v).Data().([]float64), []float64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(f64v).Data().([]float64), []float64{1, 4, 27, 256, 3125, 46656, 823543, 16777216, 387420489, 10000000000}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(f64s_).GetNullMask(), []bool{true, true, true, true, true, true, true, true, true, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
-	if !checkEqSlice(i64v.Pow(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Pow") {
-		t.Errorf("Error in Int64 Pow")
+	if !checkEqSlice(i64v.Exp(f64v_).GetNullMask(), []bool{false, true, false, true, false, true, false, true, false, true}, nil, "Int64 Exp") {
+		t.Errorf("Error in Int64 Exp")
 	}
 }
 
 func Test_SeriesInt64_Arithmetic_Add(t *testing.T) {
-	pool := NewStringPool()
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
-
-	ss := NewSeriesString("test", true, []string{"2"}, pool).(SeriesString)
-	sv := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).(SeriesString)
-	ss_ := NewSeriesString("test", true, []string{"2"}, pool).SetNullMask([]bool{true}).(SeriesString)
-	sv_ := NewSeriesString("test", true, []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, pool).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesString)
+	ss := NewSeriesString([]string{"2"}, nil, true, ctx)
+	sv := NewSeriesString([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, nil, true, ctx)
+	ss_ := NewSeriesString([]string{"2"}, nil, true, ctx).SetNullMask([]bool{true})
+	sv_ := NewSeriesString([]string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
 	if !checkEqSlice(i64s.Add(bools).Data().([]int64), []int64{3}, nil, "Int64 Add") {
@@ -1379,7 +1384,7 @@ func Test_SeriesInt64_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Error in Int64 Add")
 	}
 
-	// scalar | int32
+	// scalar | int
 	if !checkEqSlice(i64s.Add(i32s).Data().([]int64), []int64{4}, nil, "Int64 Add") {
 		t.Errorf("Error in Int64 Add")
 	}
@@ -1449,7 +1454,7 @@ func Test_SeriesInt64_Arithmetic_Add(t *testing.T) {
 		t.Errorf("Error in Int64 Add")
 	}
 
-	// vector | int32
+	// vector | int
 	if !checkEqSlice(i64v.Add(i32s).Data().([]int64), []int64{3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, nil, "Int64 Add") {
 		t.Errorf("Error in Int64 Add")
 	}
@@ -1507,29 +1512,29 @@ func Test_SeriesInt64_Arithmetic_Add(t *testing.T) {
 }
 
 func Test_SeriesInt64_Arithmetic_Sub(t *testing.T) {
-	bools := NewSeriesBool("test", true, false, []bool{true}).(SeriesBool)
-	boolv := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).(SeriesBool)
-	bools_ := NewSeriesBool("test", true, false, []bool{true}).SetNullMask([]bool{true}).(SeriesBool)
-	boolv_ := NewSeriesBool("test", true, false, []bool{true, false, true, false, true, false, true, true, false, false}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesBool)
+	bools := NewSeriesBool([]bool{true}, nil, true, ctx)
+	boolv := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx)
+	bools_ := NewSeriesBool([]bool{true}, nil, true, ctx).SetNullMask([]bool{true})
+	boolv_ := NewSeriesBool([]bool{true, false, true, false, true, false, true, true, false, false}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i32s := NewSeriesInt32("test", true, false, []int32{2}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{2}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{2}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{2}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{2}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{2}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{2}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{2}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}).
-		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{2}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{2}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil, true, ctx).
+		SetNullMask([]bool{false, true, false, true, false, true, false, true, false, true})
 
 	// scalar | bool
 	if !checkEqSlice(i64s.Sub(bools).Data().([]int64), []int64{1}, nil, "Int64 Sub") {
@@ -1545,7 +1550,7 @@ func Test_SeriesInt64_Arithmetic_Sub(t *testing.T) {
 		t.Errorf("Error in Int64 Sub")
 	}
 
-	// scalar | int32
+	// scalar | int
 	if !checkEqSlice(i64s.Sub(i32s).Data().([]int64), []int64{0}, nil, "Int64 Sub") {
 		t.Errorf("Error in Int64 Sub")
 	}
@@ -1601,7 +1606,7 @@ func Test_SeriesInt64_Arithmetic_Sub(t *testing.T) {
 		t.Errorf("Error in Int64 Sub")
 	}
 
-	// vector | int32
+	// vector | int
 	if !checkEqSlice(i64v.Sub(i32s).Data().([]int64), []int64{-1, 0, 1, 2, 3, 4, 5, 6, 7, 8}, nil, "Int64 Sub") {
 		t.Errorf("Error in Int64 Sub")
 	}
@@ -1655,22 +1660,22 @@ func Test_SeriesInt64_Logical_Ne(t *testing.T) {
 func Test_SeriesInt64_Logical_Lt(t *testing.T) {
 	var res Series
 
-	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{1}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{1}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{1}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{1}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{1.0}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1.0, 2.0, 3.0}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{1.0}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1.0, 2.0, 3.0}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	// scalar | int32
+	// scalar | int
 	res = i64s.Lt(i32s)
 	if res.Data().([]bool)[0] != false {
 		t.Errorf("Expected %v, got %v", []bool{false}, res.Data().([]bool))
@@ -1733,7 +1738,7 @@ func Test_SeriesInt64_Logical_Lt(t *testing.T) {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
 
-	// vector | int32
+	// vector | int
 	res = i64v.Lt(i32s)
 	if res.Data().([]bool)[0] != false || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
 		t.Errorf("Expected %v, got %v", []bool{false, false, false}, res.Data().([]bool))
@@ -1800,22 +1805,22 @@ func Test_SeriesInt64_Logical_Lt(t *testing.T) {
 func Test_SeriesInt64_Logical_Le(t *testing.T) {
 	var res Series
 
-	i32s := NewSeriesInt32("test", true, false, []int32{1}).(SeriesInt32)
-	i32v := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).(SeriesInt32)
-	i32s_ := NewSeriesInt32("test", true, false, []int32{1}).SetNullMask([]bool{true}).(SeriesInt32)
-	i32v_ := NewSeriesInt32("test", true, false, []int32{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt32)
+	i32s := NewSeriesInt([]int{1}, nil, true, ctx)
+	i32v := NewSeriesInt([]int{1, 2, 3}, nil, true, ctx)
+	i32s_ := NewSeriesInt([]int{1}, nil, true, ctx).SetNullMask([]bool{true})
+	i32v_ := NewSeriesInt([]int{1, 2, 3}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	i64s := NewSeriesInt64("test", true, false, []int64{1}).(SeriesInt64)
-	i64v := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).(SeriesInt64)
-	i64s_ := NewSeriesInt64("test", true, false, []int64{1}).SetNullMask([]bool{true}).(SeriesInt64)
-	i64v_ := NewSeriesInt64("test", true, false, []int64{1, 2, 3}).SetNullMask([]bool{true, true, false}).(SeriesInt64)
+	i64s := NewSeriesInt64([]int64{1}, nil, true, ctx)
+	i64v := NewSeriesInt64([]int64{1, 2, 3}, nil, true, ctx)
+	i64s_ := NewSeriesInt64([]int64{1}, nil, true, ctx).SetNullMask([]bool{true})
+	i64v_ := NewSeriesInt64([]int64{1, 2, 3}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	f64s := NewSeriesFloat64("test", true, false, []float64{1.0}).(SeriesFloat64)
-	f64v := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).(SeriesFloat64)
-	f64s_ := NewSeriesFloat64("test", true, false, []float64{1.0}).SetNullMask([]bool{true}).(SeriesFloat64)
-	f64v_ := NewSeriesFloat64("test", true, false, []float64{1.0, 2.0, 3.0}).SetNullMask([]bool{true, true, false}).(SeriesFloat64)
+	f64s := NewSeriesFloat64([]float64{1.0}, nil, true, ctx)
+	f64v := NewSeriesFloat64([]float64{1.0, 2.0, 3.0}, nil, true, ctx)
+	f64s_ := NewSeriesFloat64([]float64{1.0}, nil, true, ctx).SetNullMask([]bool{true})
+	f64v_ := NewSeriesFloat64([]float64{1.0, 2.0, 3.0}, nil, true, ctx).SetNullMask([]bool{true, true, false})
 
-	// scalar | int32
+	// scalar | int
 	res = i64s.Le(i32s)
 	if res.Data().([]bool)[0] != true {
 		t.Errorf("Expected %v, got %v", []bool{true}, res.Data().([]bool))
@@ -1878,7 +1883,7 @@ func Test_SeriesInt64_Logical_Le(t *testing.T) {
 		t.Errorf("Expected %v, got %v", []bool{true, true, false}, res.GetNullMask())
 	}
 
-	// vector | int32
+	// vector | int
 	res = i64v.Le(i32s)
 	if res.Data().([]bool)[0] != true || res.Data().([]bool)[1] != false || res.Data().([]bool)[2] != false {
 		t.Errorf("Expected %v, got %v", []bool{true, false, false}, res.Data().([]bool))
