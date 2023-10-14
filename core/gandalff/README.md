@@ -61,7 +61,7 @@ The data types not checked are not yet supported, but might be in the future.
 - [ ] Complex64
 - [ ] Complex128
 - [x] String
-- [x] DateTime
+- [x] Time
 - [x] Duration
 
 ### Supported operations for Series
