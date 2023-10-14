@@ -1,4 +1,4 @@
-package typesys
+package preludiometa
 
 import (
 	"testing"
@@ -9,16 +9,16 @@ func TestTypeSystem(t *testing.T) {
 	var res Primitive
 
 	res = OP_BINARY_MUL.GetBinaryOpResultType(
-		Primitive{Base: Int32Type},
-		Primitive{Base: Int32Type},
+		Primitive{Base: IntType},
+		Primitive{Base: IntType},
 	)
 
-	if res.Base != Int32Type {
-		t.Errorf("Expected Int32Type, got %v", res.Base)
+	if res.Base != IntType {
+		t.Errorf("Expected IntType, got %v", res.Base)
 	}
 
 	res = OP_BINARY_MUL.GetBinaryOpResultType(
-		Primitive{Base: Int32Type},
+		Primitive{Base: IntType},
 		Primitive{Base: Float64Type},
 	)
 
@@ -28,7 +28,7 @@ func TestTypeSystem(t *testing.T) {
 
 	res = OP_BINARY_MUL.GetBinaryOpResultType(
 		Primitive{Base: Float64Type},
-		Primitive{Base: Int32Type},
+		Primitive{Base: IntType},
 	)
 
 	if res.Base != Float64Type {

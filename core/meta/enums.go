@@ -1,6 +1,7 @@
-package typesys
+package preludiometa
 
 type OPCODE uint8
+type PARAM1 uint8
 
 const (
 	OP_START_STMT OPCODE = iota
@@ -51,8 +52,6 @@ const (
 
 	NO_OP = 255
 )
-
-type PARAM1 uint8
 
 const (
 	TERM_NULL PARAM1 = iota

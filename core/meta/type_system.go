@@ -1,4 +1,4 @@
-package typesys
+package preludiometa
 
 import (
 	"fmt"
