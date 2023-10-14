@@ -2,9 +2,9 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"sort"
 	"time"
-	"typesys"
 	"unsafe"
 )
 
@@ -157,9 +157,9 @@ func (s SeriesFloat64) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
+func (s SeriesFloat64) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		data := make([]bool, len(s.data))
 		for i, v := range s.data {
 			data[i] = v != 0
@@ -174,7 +174,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		data := make([]int, len(s.data))
 		for i, v := range s.data {
 			data[i] = int(v)
@@ -189,7 +189,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		data := make([]int64, len(s.data))
 		for i, v := range s.data {
 			data[i] = int64(v)
@@ -204,10 +204,10 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		return s
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		data := make([]*string, len(s.data))
 		if s.isNullable {
 			for i, v := range s.data {
@@ -232,7 +232,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.TimeType:
+	case preludiometa.TimeType:
 		data := make([]time.Time, len(s.data))
 		for i, v := range s.data {
 			data[i] = time.Unix(0, int64(v))
@@ -247,7 +247,7 @@ func (s SeriesFloat64) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.DurationType:
+	case preludiometa.DurationType:
 		data := make([]time.Duration, len(s.data))
 		for i, v := range s.data {
 			data[i] = time.Duration(v)

@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"io"
+	"preludiometa"
 	"regexp"
 	"strconv"
-	"typesys"
 )
 
 const CSV_READER_DEFAULT_DELIMITER = ','
@@ -22,7 +22,7 @@ type CsvReader struct {
 	path             string
 	nullValues       bool
 	reader           io.Reader
-	schema           *typesys.Schema
+	schema           *preludiometa.Schema
 	ctx              *Context
 }
 
@@ -69,7 +69,7 @@ func (r *CsvReader) SetReader(reader io.Reader) *CsvReader {
 	return r
 }
 
-func (r *CsvReader) SetSchema(schema *typesys.Schema) *CsvReader {
+func (r *CsvReader) SetSchema(schema *preludiometa.Schema) *CsvReader {
 	r.schema = schema
 	return r
 }
@@ -130,15 +130,15 @@ func newTypeGuesser() typeGuesser {
 	return typeGuesser{boolRegex, boolTrueRegex, boolFalseRegex, intRegex, floatRegex}
 }
 
-func (tg typeGuesser) guessType(s string) typesys.BaseType {
+func (tg typeGuesser) guessType(s string) preludiometa.BaseType {
 	if tg.boolRegex.MatchString(s) {
-		return typesys.BoolType
+		return preludiometa.BoolType
 	} else if tg.intRegex.MatchString(s) {
-		return typesys.Int64Type
+		return preludiometa.Int64Type
 	} else if tg.floatRegex.MatchString(s) {
-		return typesys.Float64Type
+		return preludiometa.Float64Type
 	}
-	return typesys.StringType
+	return preludiometa.StringType
 }
 
 func (tg typeGuesser) atoBool(s string) (bool, error) {
@@ -151,7 +151,7 @@ func (tg typeGuesser) atoBool(s string) (bool, error) {
 }
 
 // ReadCSV reads a CSV file and returns a GDLDataFrame.
-func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, guessDataTypeLen int, schema *typesys.Schema, ctx *Context) ([]string, []Series, error) {
+func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, guessDataTypeLen int, schema *preludiometa.Schema, ctx *Context) ([]string, []Series, error) {
 
 	// TODO: Add support for Time and Duration types (defined in a schema)
 	// TODO: Optimize null masks (use bit vectors)?
@@ -180,7 +180,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 		}
 	}
 
-	var dataTypes []typesys.BaseType
+	var dataTypes []preludiometa.BaseType
 	var recordsForGuessing [][]string
 
 	// Guess data types
@@ -200,11 +200,11 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 				if i == 0 {
 					dataTypes = append(dataTypes, tg.guessType(v))
 				} else {
-					if dataTypes[j] == typesys.StringType {
+					if dataTypes[j] == preludiometa.StringType {
 						continue
 					}
 					if tg.guessType(v) != dataTypes[j] {
-						dataTypes[j] = typesys.StringType
+						dataTypes[j] = preludiometa.StringType
 					}
 				}
 			}
@@ -226,15 +226,15 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 	values := make([]interface{}, len(dataTypes))
 	for i := range values {
 		switch dataTypes[i] {
-		case typesys.BoolType:
+		case preludiometa.BoolType:
 			values[i] = make([]bool, 0)
-		case typesys.IntType:
+		case preludiometa.IntType:
 			values[i] = make([]int, 0)
-		case typesys.Int64Type:
+		case preludiometa.Int64Type:
 			values[i] = make([]int64, 0)
-		case typesys.Float64Type:
+		case preludiometa.Float64Type:
 			values[i] = make([]float64, 0)
-		case typesys.StringType:
+		case preludiometa.StringType:
 			values[i] = make([]*string, 0)
 		}
 	}
@@ -245,7 +245,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 			for _, record := range recordsForGuessing {
 				for i, v := range record {
 					switch dataTypes[i] {
-					case typesys.BoolType:
+					case preludiometa.BoolType:
 						if b, err := tg.atoBool(v); err != nil {
 							nullMasks[i] = append(nullMasks[i], true)
 						} else {
@@ -253,7 +253,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 							values[i] = append(values[i].([]bool), b)
 						}
 
-					case typesys.IntType:
+					case preludiometa.IntType:
 						if d, err := strconv.Atoi(v); err != nil {
 							nullMasks[i] = append(nullMasks[i], true)
 						} else {
@@ -261,7 +261,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 							values[i] = append(values[i].([]int), int(d))
 						}
 
-					case typesys.Int64Type:
+					case preludiometa.Int64Type:
 						if d, err := strconv.ParseInt(v, 10, 64); err != nil {
 							return nil, nil, err
 						} else {
@@ -269,7 +269,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 							values[i] = append(values[i].([]int64), d)
 						}
 
-					case typesys.Float64Type:
+					case preludiometa.Float64Type:
 						if f, err := strconv.ParseFloat(v, 64); err != nil {
 							return nil, nil, err
 						} else {
@@ -277,7 +277,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 							values[i] = append(values[i].([]float64), f)
 						}
 
-					case typesys.StringType:
+					case preludiometa.StringType:
 						nullMasks[i] = append(nullMasks[i], false)
 						values[i] = append(values[i].([]*string), ctx.stringPool.Put(v))
 					}
@@ -287,35 +287,35 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 			for _, record := range recordsForGuessing {
 				for i, v := range record {
 					switch dataTypes[i] {
-					case typesys.BoolType:
+					case preludiometa.BoolType:
 						b, err := tg.atoBool(v)
 						if err != nil {
 							return nil, nil, err
 						}
 						values[i] = append(values[i].([]bool), b)
 
-					case typesys.IntType:
+					case preludiometa.IntType:
 						d, err := strconv.Atoi(v)
 						if err != nil {
 							return nil, nil, err
 						}
 						values[i] = append(values[i].([]int), int(d))
 
-					case typesys.Int64Type:
+					case preludiometa.Int64Type:
 						d, err := strconv.ParseInt(v, 10, 64)
 						if err != nil {
 							return nil, nil, err
 						}
 						values[i] = append(values[i].([]int64), d)
 
-					case typesys.Float64Type:
+					case preludiometa.Float64Type:
 						f, err := strconv.ParseFloat(v, 64)
 						if err != nil {
 							return nil, nil, err
 						}
 						values[i] = append(values[i].([]float64), f)
 
-					case typesys.StringType:
+					case preludiometa.StringType:
 						values[i] = append(values[i].([]*string), ctx.stringPool.Put(v))
 					}
 				}
@@ -334,7 +334,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 
 			for i, v := range record {
 				switch dataTypes[i] {
-				case typesys.BoolType:
+				case preludiometa.BoolType:
 					if b, err := tg.atoBool(v); err != nil {
 						nullMasks[i] = append(nullMasks[i], true)
 					} else {
@@ -342,7 +342,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						values[i] = append(values[i].([]bool), b)
 					}
 
-				case typesys.IntType:
+				case preludiometa.IntType:
 					if d, err := strconv.Atoi(v); err != nil {
 						nullMasks[i] = append(nullMasks[i], true)
 					} else {
@@ -350,7 +350,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						values[i] = append(values[i].([]int), int(d))
 					}
 
-				case typesys.Int64Type:
+				case preludiometa.Int64Type:
 					if d, err := strconv.ParseInt(v, 10, 64); err != nil {
 						nullMasks[i] = append(nullMasks[i], true)
 					} else {
@@ -358,7 +358,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						values[i] = append(values[i].([]int64), d)
 					}
 
-				case typesys.Float64Type:
+				case preludiometa.Float64Type:
 					if f, err := strconv.ParseFloat(v, 64); err != nil {
 						nullMasks[i] = append(nullMasks[i], true)
 					} else {
@@ -366,7 +366,7 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 						values[i] = append(values[i].([]float64), f)
 					}
 
-				case typesys.StringType:
+				case preludiometa.StringType:
 					nullMasks[i] = append(nullMasks[i], false)
 					values[i] = append(values[i].([]*string), ctx.stringPool.Put(v))
 				}
@@ -383,35 +383,35 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 
 			for i, v := range record {
 				switch dataTypes[i] {
-				case typesys.BoolType:
+				case preludiometa.BoolType:
 					b, err := tg.atoBool(v)
 					if err != nil {
 						return nil, nil, err
 					}
 					values[i] = append(values[i].([]bool), b)
 
-				case typesys.IntType:
+				case preludiometa.IntType:
 					d, err := strconv.Atoi(v)
 					if err != nil {
 						return nil, nil, err
 					}
 					values[i] = append(values[i].([]int), int(d))
 
-				case typesys.Int64Type:
+				case preludiometa.Int64Type:
 					d, err := strconv.ParseInt(v, 10, 64)
 					if err != nil {
 						return nil, nil, err
 					}
 					values[i] = append(values[i].([]int64), d)
 
-				case typesys.Float64Type:
+				case preludiometa.Float64Type:
 					f, err := strconv.ParseFloat(v, 64)
 					if err != nil {
 						return nil, nil, err
 					}
 					values[i] = append(values[i].([]float64), f)
 
-				case typesys.StringType:
+				case preludiometa.StringType:
 					values[i] = append(values[i].([]*string), ctx.stringPool.Put(v))
 				}
 			}
@@ -429,19 +429,19 @@ func readCSV(reader io.Reader, delimiter rune, header bool, nullValues bool, gue
 	series := make([]Series, len(names))
 	for i := range names {
 		switch dataTypes[i] {
-		case typesys.BoolType:
+		case preludiometa.BoolType:
 			series[i] = NewSeriesBool(values[i].([]bool), nullMasks[i], false, ctx)
 
-		case typesys.IntType:
+		case preludiometa.IntType:
 			series[i] = NewSeriesInt(values[i].([]int), nullMasks[i], false, ctx)
 
-		case typesys.Int64Type:
+		case preludiometa.Int64Type:
 			series[i] = NewSeriesInt64(values[i].([]int64), nullMasks[i], false, ctx)
 
-		case typesys.Float64Type:
+		case preludiometa.Float64Type:
 			series[i] = NewSeriesFloat64(values[i].([]float64), nullMasks[i], false, ctx)
 
-		case typesys.StringType:
+		case preludiometa.StringType:
 			series[i] = SeriesString{
 				isNullable: nullValues,
 				data:       values[i].([]*string),

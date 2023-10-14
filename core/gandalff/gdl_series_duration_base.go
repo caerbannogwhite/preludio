@@ -3,7 +3,7 @@ package gandalff
 import (
 	"fmt"
 	"time"
-	"typesys"
+	"preludiometa"
 )
 
 func (s SeriesDuration) printInfo() {
@@ -30,13 +30,13 @@ func (s SeriesDuration) Len() int {
 }
 
 // Return the type of the series.
-func (s SeriesDuration) Type() typesys.BaseType {
-	return typesys.DurationType
+func (s SeriesDuration) Type() preludiometa.BaseType {
+	return preludiometa.DurationType
 }
 
 // Return the type and cardinality of the series.
-func (s SeriesDuration) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.DurationType, Card: s.Len()}
+func (s SeriesDuration) TypeCard() preludiometa.BaseTypeCard {
+	return preludiometa.BaseTypeCard{Base: preludiometa.DurationType, Card: s.Len()}
 }
 
 // Return if the series is grouped.

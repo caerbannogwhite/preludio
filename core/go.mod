@@ -6,12 +6,12 @@ replace bytefeeder => ./bytefeeder
 
 replace gandalff => ./gandalff
 
-replace typesys => ./typesys
+replace preludiometa => ./meta
 
 require (
 	bytefeeder v0.0.0-00010101000000-000000000000
 	gandalff v0.0.0-00010101000000-000000000000
-	typesys v0.0.0-00010101000000-000000000000
+	preludiometa v0.0.0-00010101000000-000000000000
 
 )
 

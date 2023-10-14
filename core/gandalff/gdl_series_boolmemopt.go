@@ -2,8 +2,8 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"time"
-	"typesys"
 )
 
 // SeriesBoolMemOpt represents a series of bools.
@@ -52,13 +52,13 @@ func (s SeriesBoolMemOpt) Len() int {
 }
 
 // Returns the type of the series.
-func (s SeriesBoolMemOpt) Type() typesys.BaseType {
-	return typesys.BoolType
+func (s SeriesBoolMemOpt) Type() preludiometa.BaseType {
+	return preludiometa.BoolType
 }
 
 // Returns the type and cardinality of the series.
-func (s SeriesBoolMemOpt) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.BoolType, Card: s.Len()}
+func (s SeriesBoolMemOpt) TypeCard() preludiometa.BaseTypeCard {
+	return preludiometa.BaseTypeCard{Base: preludiometa.BoolType, Card: s.Len()}
 }
 
 // Returns if the series is grouped.
@@ -528,12 +528,12 @@ func (s SeriesBoolMemOpt) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
+func (s SeriesBoolMemOpt) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		return s
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		data := make([]int, s.size)
 		for i, v := range s.data {
 			for j := 0; j < 8 && i*8+j < s.size; j++ {
@@ -552,7 +552,7 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		data := make([]int64, s.size)
 		for i, v := range s.data {
 			for j := 0; j < 8 && i*8+j < s.size; j++ {
@@ -571,7 +571,7 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		data := make([]float64, s.size)
 		for i, v := range s.data {
 			for j := 0; j < 8 && i*8+j < s.size; j++ {
@@ -590,7 +590,7 @@ func (s SeriesBoolMemOpt) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		data := make([]*string, s.size)
 		if s.isNullable {
 			for i, v := range s.data {
@@ -1071,7 +1071,7 @@ func (s SeriesBoolMemOpt) SortRev() Series {
 // If one of the series is nullable, the result series will be nullable
 // If the other series is not a boolean series, the result will be an error
 func (s SeriesBoolMemOpt) And(other Series) Series {
-	if other.Type() != typesys.BoolType {
+	if other.Type() != preludiometa.BoolType {
 		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt: cannot perform AND operation between %T and %T", s, other)}
 	}
 
@@ -1123,7 +1123,7 @@ func (s SeriesBoolMemOpt) And(other Series) Series {
 // If one of the series is nullable, the result series will be nullable
 // If the other series is not a boolean series, the result will be nil
 func (s SeriesBoolMemOpt) Or(other Series) Series {
-	if other.Type() != typesys.BoolType {
+	if other.Type() != preludiometa.BoolType {
 		return SeriesError{fmt.Sprintf("SeriesBoolMemOpt: cannot perform OR operation between %T and %T", s, other)}
 	}
 

@@ -2,9 +2,9 @@ package gandalff
 
 import (
 	"os"
+	"preludiometa"
 	"strings"
 	"testing"
-	"typesys"
 )
 
 func Test_TypeGuesser(t *testing.T) {
@@ -13,101 +13,101 @@ func Test_TypeGuesser(t *testing.T) {
 	guesser := newTypeGuesser()
 
 	// Test the bool type.
-	if guesser.guessType("true") != typesys.BoolType {
+	if guesser.guessType("true") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("true").ToString())
 	}
 
-	if guesser.guessType("false") != typesys.BoolType {
+	if guesser.guessType("false") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("false").ToString())
 	}
 
-	if guesser.guessType("True") != typesys.BoolType {
+	if guesser.guessType("True") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("True").ToString())
 	}
 
-	if guesser.guessType("False") != typesys.BoolType {
+	if guesser.guessType("False") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("False").ToString())
 	}
 
-	if guesser.guessType("TRUE") != typesys.BoolType {
+	if guesser.guessType("TRUE") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("TRUE").ToString())
 	}
 
-	if guesser.guessType("FALSE") != typesys.BoolType {
+	if guesser.guessType("FALSE") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("FALSE").ToString())
 	}
 
-	if guesser.guessType("t") != typesys.BoolType {
+	if guesser.guessType("t") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("t").ToString())
 	}
 
-	if guesser.guessType("f") != typesys.BoolType {
+	if guesser.guessType("f") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("f").ToString())
 	}
 
-	if guesser.guessType("T") != typesys.BoolType {
+	if guesser.guessType("T") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("T").ToString())
 	}
 
-	if guesser.guessType("F") != typesys.BoolType {
+	if guesser.guessType("F") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("F").ToString())
 	}
 
-	if guesser.guessType("TrUe") != typesys.BoolType {
+	if guesser.guessType("TrUe") != preludiometa.BoolType {
 		t.Error("Expected Bool, got", guesser.guessType("TrUe").ToString())
 	}
 
 	// Test the int type.
-	if guesser.guessType("0") != typesys.Int64Type {
+	if guesser.guessType("0") != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", guesser.guessType("0").ToString())
 	}
 
-	if guesser.guessType("1") != typesys.Int64Type {
+	if guesser.guessType("1") != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", guesser.guessType("1").ToString())
 	}
 
-	if guesser.guessType("10000") != typesys.Int64Type {
+	if guesser.guessType("10000") != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", guesser.guessType("10000").ToString())
 	}
 
-	if guesser.guessType("-1") != typesys.Int64Type {
+	if guesser.guessType("-1") != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", guesser.guessType("-1").ToString())
 	}
 
-	if guesser.guessType("-10000") != typesys.Int64Type {
+	if guesser.guessType("-10000") != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", guesser.guessType("-10000").ToString())
 	}
 
 	// Test the float type.
-	if guesser.guessType("0.0") != typesys.Float64Type {
+	if guesser.guessType("0.0") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("0.0").ToString())
 	}
 
-	if guesser.guessType("1.0") != typesys.Float64Type {
+	if guesser.guessType("1.0") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("1.0").ToString())
 	}
 
-	if guesser.guessType("10000.0") != typesys.Float64Type {
+	if guesser.guessType("10000.0") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("10000.0").ToString())
 	}
 
-	if guesser.guessType("-1.0") != typesys.Float64Type {
+	if guesser.guessType("-1.0") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("-1.0").ToString())
 	}
 
-	if guesser.guessType("-1e3") != typesys.Float64Type {
+	if guesser.guessType("-1e3") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("-1e3").ToString())
 	}
 
-	if guesser.guessType("-1e-3") != typesys.Float64Type {
+	if guesser.guessType("-1e-3") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("-1e-3").ToString())
 	}
 
-	if guesser.guessType("2.0E4") != typesys.Float64Type {
+	if guesser.guessType("2.0E4") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("2.0E4").ToString())
 	}
 
-	if guesser.guessType("2.0e4") != typesys.Float64Type {
+	if guesser.guessType("2.0e4") != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", guesser.guessType("2.0e4").ToString())
 	}
 }
@@ -165,19 +165,19 @@ Charlie,33,95.0,t
 	}
 
 	// Check the column types.
-	if df.Types()[0] != typesys.StringType {
+	if df.Types()[0] != preludiometa.StringType {
 		t.Error("Expected String, got", df.Types()[0].ToString())
 	}
 
-	if df.Types()[1] != typesys.Int64Type {
+	if df.Types()[1] != preludiometa.Int64Type {
 		t.Error("Expected Int64, got", df.Types()[1].ToString())
 	}
 
-	if df.Types()[2] != typesys.Float64Type {
+	if df.Types()[2] != preludiometa.Float64Type {
 		t.Error("Expected Float64, got", df.Types()[2].ToString())
 	}
 
-	if df.Types()[3] != typesys.BoolType {
+	if df.Types()[3] != preludiometa.BoolType {
 		t.Error("Expected Bool, got", df.Types()[3].ToString())
 	}
 
@@ -294,39 +294,39 @@ func Benchmark_FromCSV_100000Rows(b *testing.B) {
 	}
 
 	// Check the column types.
-	if df.Types()[0] != typesys.Int64Type {
+	if df.Types()[0] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[0].ToString())
 	}
 
-	if df.Types()[1] != typesys.StringType {
+	if df.Types()[1] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[1].ToString())
 	}
 
-	if df.Types()[2] != typesys.StringType {
+	if df.Types()[2] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[2].ToString())
 	}
 
-	if df.Types()[3] != typesys.StringType {
+	if df.Types()[3] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[3].ToString())
 	}
 
-	if df.Types()[4] != typesys.StringType {
+	if df.Types()[4] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[4].ToString())
 	}
 
-	if df.Types()[5] != typesys.StringType {
+	if df.Types()[5] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
-	if df.Types()[6] != typesys.Int64Type {
+	if df.Types()[6] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[6].ToString())
 	}
 
-	if df.Types()[7] != typesys.StringType {
+	if df.Types()[7] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
-	if df.Types()[8] != typesys.Int64Type {
+	if df.Types()[8] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[8].ToString())
 	}
 }
@@ -377,39 +377,39 @@ func Benchmark_FromCSV_500000Rows(b *testing.B) {
 	}
 
 	// Check the column types.
-	if df.Types()[0] != typesys.Int64Type {
+	if df.Types()[0] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[0].ToString())
 	}
 
-	if df.Types()[1] != typesys.StringType {
+	if df.Types()[1] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[1].ToString())
 	}
 
-	if df.Types()[2] != typesys.StringType {
+	if df.Types()[2] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[2].ToString())
 	}
 
-	if df.Types()[3] != typesys.StringType {
+	if df.Types()[3] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[3].ToString())
 	}
 
-	if df.Types()[4] != typesys.StringType {
+	if df.Types()[4] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[4].ToString())
 	}
 
-	if df.Types()[5] != typesys.StringType {
+	if df.Types()[5] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[5].ToString())
 	}
 
-	if df.Types()[6] != typesys.Int64Type {
+	if df.Types()[6] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[6].ToString())
 	}
 
-	if df.Types()[7] != typesys.StringType {
+	if df.Types()[7] != preludiometa.StringType {
 		b.Error("Expected String, got", df.Types()[7].ToString())
 	}
 
-	if df.Types()[8] != typesys.Int64Type {
+	if df.Types()[8] != preludiometa.Int64Type {
 		b.Error("Expected Int64, got", df.Types()[8].ToString())
 	}
 }

@@ -3,7 +3,7 @@ package preludiocore
 import (
 	"fmt"
 	"math"
-	"typesys"
+	"preludiometa"
 )
 
 func truncate(s string, n int) string {
@@ -13,43 +13,43 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func operatorToString(op typesys.OPCODE) string {
+func operatorToString(op preludiometa.OPCODE) string {
 	switch op {
 
-	case typesys.OP_BINARY_MUL:
+	case preludiometa.OP_BINARY_MUL:
 		return "*"
-	case typesys.OP_BINARY_DIV:
+	case preludiometa.OP_BINARY_DIV:
 		return "/"
-	case typesys.OP_BINARY_MOD:
+	case preludiometa.OP_BINARY_MOD:
 		return "%"
-	case typesys.OP_BINARY_EXP:
+	case preludiometa.OP_BINARY_EXP:
 		return "^"
-	case typesys.OP_BINARY_ADD:
+	case preludiometa.OP_BINARY_ADD:
 		return "+"
-	case typesys.OP_BINARY_SUB:
+	case preludiometa.OP_BINARY_SUB:
 		return "-"
-	case typesys.OP_BINARY_AND:
+	case preludiometa.OP_BINARY_AND:
 		return "and"
-	case typesys.OP_BINARY_OR:
+	case preludiometa.OP_BINARY_OR:
 		return "or"
-	case typesys.OP_BINARY_EQ:
+	case preludiometa.OP_BINARY_EQ:
 		return "=="
-	case typesys.OP_BINARY_NE:
+	case preludiometa.OP_BINARY_NE:
 		return "!="
-	case typesys.OP_BINARY_LT:
+	case preludiometa.OP_BINARY_LT:
 		return "<"
-	case typesys.OP_BINARY_LE:
+	case preludiometa.OP_BINARY_LE:
 		return "<="
-	case typesys.OP_BINARY_GT:
+	case preludiometa.OP_BINARY_GT:
 		return ">"
-	case typesys.OP_BINARY_GE:
+	case preludiometa.OP_BINARY_GE:
 		return ">="
 
-	case typesys.OP_UNARY_ADD:
+	case preludiometa.OP_UNARY_ADD:
 		return "+"
-	case typesys.OP_UNARY_SUB:
+	case preludiometa.OP_UNARY_SUB:
 		return "-"
-	case typesys.OP_UNARY_NOT:
+	case preludiometa.OP_UNARY_NOT:
 		return "!"
 
 	default:
@@ -57,43 +57,43 @@ func operatorToString(op typesys.OPCODE) string {
 	}
 }
 
-func operatorToCode(op typesys.OPCODE) string {
+func operatorToCode(op preludiometa.OPCODE) string {
 	switch op {
 
-	case typesys.OP_BINARY_MUL:
+	case preludiometa.OP_BINARY_MUL:
 		return "  * <BINARY_MUL>"
-	case typesys.OP_BINARY_DIV:
+	case preludiometa.OP_BINARY_DIV:
 		return "  / <BINARY_DIV>"
-	case typesys.OP_BINARY_MOD:
+	case preludiometa.OP_BINARY_MOD:
 		return "  % <BINARY_MOD>"
-	case typesys.OP_BINARY_EXP:
+	case preludiometa.OP_BINARY_EXP:
 		return "  ^ <BINARY_EXP>"
-	case typesys.OP_BINARY_ADD:
+	case preludiometa.OP_BINARY_ADD:
 		return "  + <BINARY_ADD>"
-	case typesys.OP_BINARY_SUB:
+	case preludiometa.OP_BINARY_SUB:
 		return "  - <BINARY_SUB>"
-	case typesys.OP_BINARY_AND:
+	case preludiometa.OP_BINARY_AND:
 		return "and <BINARY_AND>"
-	case typesys.OP_BINARY_OR:
+	case preludiometa.OP_BINARY_OR:
 		return " or <BINARY_OR>"
-	case typesys.OP_BINARY_EQ:
+	case preludiometa.OP_BINARY_EQ:
 		return " == <BINARY_EQ>"
-	case typesys.OP_BINARY_NE:
+	case preludiometa.OP_BINARY_NE:
 		return " != <BINARY_NE>"
-	case typesys.OP_BINARY_LT:
+	case preludiometa.OP_BINARY_LT:
 		return "  < <BINARY_LT>"
-	case typesys.OP_BINARY_LE:
+	case preludiometa.OP_BINARY_LE:
 		return " <= <BINARY_LE>"
-	case typesys.OP_BINARY_GT:
+	case preludiometa.OP_BINARY_GT:
 		return "  > <BINARY_GT>"
-	case typesys.OP_BINARY_GE:
+	case preludiometa.OP_BINARY_GE:
 		return " >= <BINARY_GE>"
 
-	case typesys.OP_UNARY_ADD:
+	case preludiometa.OP_UNARY_ADD:
 		return "  + <UNARY_ADD>"
-	case typesys.OP_UNARY_SUB:
+	case preludiometa.OP_UNARY_SUB:
 		return "  - <UNARY_SUB>"
-	case typesys.OP_UNARY_NOT:
+	case preludiometa.OP_UNARY_NOT:
 		return "  ! <UNARY_NOT>"
 
 	default:

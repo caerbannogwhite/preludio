@@ -2,8 +2,8 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"time"
-	"typesys"
 )
 
 // SeriesNA represents a series with no data.
@@ -60,13 +60,13 @@ func (s SeriesNA) MakeNonNullable() Series {
 }
 
 // Returns the type of the series.
-func (s SeriesNA) Type() typesys.BaseType {
-	return typesys.NullType
+func (s SeriesNA) Type() preludiometa.BaseType {
+	return preludiometa.NullType
 }
 
 // Returns the type and cardinality of the series.
-func (s SeriesNA) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.NullType, Card: s.Len()}
+func (s SeriesNA) TypeCard() preludiometa.BaseTypeCard {
+	return preludiometa.BaseTypeCard{Base: preludiometa.NullType, Card: s.Len()}
 }
 
 // Returns if the series has null values.
@@ -404,12 +404,12 @@ func (s SeriesNA) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesNA) Cast(t typesys.BaseType) Series {
+func (s SeriesNA) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.NullType:
+	case preludiometa.NullType:
 		return s
 
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		return SeriesBool{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -419,7 +419,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		return SeriesInt{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -429,7 +429,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		return SeriesInt64{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -439,7 +439,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		return SeriesFloat64{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -449,7 +449,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		return SeriesString{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -459,7 +459,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.TimeType:
+	case preludiometa.TimeType:
 		return SeriesTime{
 			isNullable: true,
 			sorted:     SORTED_NONE,
@@ -469,7 +469,7 @@ func (s SeriesNA) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.DurationType:
+	case preludiometa.DurationType:
 		return SeriesDuration{
 			isNullable: true,
 			sorted:     SORTED_NONE,

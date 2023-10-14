@@ -1,9 +1,9 @@
 package gandalff
 
 import (
+	"preludiometa"
 	"testing"
 	"time"
-	"typesys"
 )
 
 func Test_SeriesTime_Append(t *testing.T) {
@@ -145,12 +145,12 @@ func Test_SeriesTime_Cast(t *testing.T) {
 	s := NewSeriesTime(data, nil, true, ctx)
 
 	// Cast to bool.
-	if s.Cast(typesys.BoolType).GetError() != "SeriesTime.Cast: cannot cast to Bool" {
-		t.Errorf("Expected an error, got %v", s.Cast(typesys.BoolType))
+	if s.Cast(preludiometa.BoolType).GetError() != "SeriesTime.Cast: cannot cast to Bool" {
+		t.Errorf("Expected an error, got %v", s.Cast(preludiometa.BoolType))
 	}
 
 	// Cast to int.
-	resInt := s.Cast(typesys.IntType).(SeriesInt)
+	resInt := s.Cast(preludiometa.IntType).(SeriesInt)
 	expectedInt := []int{1577836800000000000, 1577923200000000000, 1578009600000000000, 1578096000000000000, 1578182400000000000, 1578268800000000000, 1578355200000000000, 1578441600000000000, 1578528000000000000, 1578614400000000000}
 
 	if !checkEqSliceInt(resInt.Data().([]int), expectedInt, nil, "") {
@@ -158,7 +158,7 @@ func Test_SeriesTime_Cast(t *testing.T) {
 	}
 
 	// Cast to int64.
-	resInt64 := s.Cast(typesys.Int64Type).(SeriesInt64)
+	resInt64 := s.Cast(preludiometa.Int64Type).(SeriesInt64)
 	expectedInt64 := []int64{1577836800000000000, 1577923200000000000, 1578009600000000000, 1578096000000000000, 1578182400000000000, 1578268800000000000, 1578355200000000000, 1578441600000000000, 1578528000000000000, 1578614400000000000}
 
 	if !checkEqSliceInt64(resInt64.Data().([]int64), expectedInt64, nil, "") {
@@ -166,7 +166,7 @@ func Test_SeriesTime_Cast(t *testing.T) {
 	}
 
 	// Cast to float64.
-	resFloat64 := s.Cast(typesys.Float64Type).(SeriesFloat64)
+	resFloat64 := s.Cast(preludiometa.Float64Type).(SeriesFloat64)
 	expectedFloat64 := []float64{1577836800000000000, 1577923200000000000, 1578009600000000000, 1578096000000000000, 1578182400000000000, 1578268800000000000, 1578355200000000000, 1578441600000000000, 1578528000000000000, 1578614400000000000}
 
 	if !checkEqSliceFloat64(resFloat64.Data().([]float64), expectedFloat64, nil, "") {
@@ -174,14 +174,14 @@ func Test_SeriesTime_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	resString := s.Cast(typesys.StringType).(SeriesString)
+	resString := s.Cast(preludiometa.StringType).(SeriesString)
 
 	expectedString := []string{"2020-01-01 00:00:00", "2020-01-02 00:00:00", "2020-01-03 00:00:00", "2020-01-04 00:00:00", "2020-01-05 00:00:00", "2020-01-06 00:00:00", "2020-01-07 00:00:00", "2020-01-08 00:00:00", "2020-01-09 00:00:00", "2020-01-10 00:00:00"}
 	if !checkEqSliceString(resString.Data().([]string), expectedString, nil, "") {
 		t.Errorf("SeriesTime.Cast: expected %v, got %v", expectedString, resString.Data())
 	}
 
-	resString = s.SetTimeFormat("2006-01-02").Cast(typesys.StringType).(SeriesString)
+	resString = s.SetTimeFormat("2006-01-02").Cast(preludiometa.StringType).(SeriesString)
 
 	expectedString = []string{"2020-01-01", "2020-01-02", "2020-01-03", "2020-01-04", "2020-01-05", "2020-01-06", "2020-01-07", "2020-01-08", "2020-01-09", "2020-01-10"}
 	if !checkEqSliceString(resString.Data().([]string), expectedString, nil, "") {

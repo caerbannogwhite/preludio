@@ -1,8 +1,8 @@
 package gandalff
 
 import (
+	"preludiometa"
 	"time"
-	"typesys"
 )
 
 type DataFrameJoinType int8
@@ -24,7 +24,7 @@ type DataFrame interface {
 	// Names returns the names of the series in the dataframe.
 	Names() []string
 	// Types returns the types of the series in the dataframe.
-	Types() []typesys.BaseType
+	Types() []preludiometa.BaseType
 	// NCols returns the number of columns in the dataframe.
 	NCols() int
 	// NRows returns the number of rows in the dataframe.

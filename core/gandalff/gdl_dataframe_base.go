@@ -3,10 +3,10 @@ package gandalff
 import (
 	"fmt"
 	"math"
+	"preludiometa"
 	"sort"
 	"sync"
 	"time"
-	"typesys"
 )
 
 type BaseDataFramePartitionEntry struct {
@@ -49,8 +49,8 @@ func (df BaseDataFrame) Names() []string {
 }
 
 // Types returns the types of the series in the dataframe.
-func (df BaseDataFrame) Types() []typesys.BaseType {
-	types := make([]typesys.BaseType, len(df.series))
+func (df BaseDataFrame) Types() []preludiometa.BaseType {
+	types := make([]preludiometa.BaseType, len(df.series))
 	for i, series := range df.series {
 		types[i] = series.Type()
 	}
@@ -573,7 +573,7 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 
 	// CHECK: all the join columns must exist
 	// CHECK: all the join columns must have the same type
-	types := make([]typesys.BaseType, len(on))
+	types := make([]preludiometa.BaseType, len(on))
 	for _, name := range on {
 
 		// Series A
@@ -814,31 +814,31 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffB {
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
-			case typesys.BoolType:
+			case preludiometa.BoolType:
 				ser_ = NewSeriesBool(make([]bool, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.IntType:
+			case preludiometa.IntType:
 				ser_ = NewSeriesInt(make([]int, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.Int64Type:
+			case preludiometa.Int64Type:
 				ser_ = NewSeriesInt64(make([]int64, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.Float64Type:
+			case preludiometa.Float64Type:
 				ser_ = NewSeriesFloat64(make([]float64, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.StringType:
+			case preludiometa.StringType:
 				ser_ = NewSeriesString(make([]string, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.TimeType:
+			case preludiometa.TimeType:
 				ser_ = NewSeriesTime(make([]time.Time, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 
-			case typesys.DurationType:
+			case preludiometa.DurationType:
 				ser_ = NewSeriesDuration(make([]time.Duration, padBlen), nullMask, false, df.ctx).
 					Append(ser_)
 			}
@@ -882,25 +882,25 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffA {
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
-			case typesys.BoolType:
+			case preludiometa.BoolType:
 				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMask, false, df.ctx))
 
-			case typesys.IntType:
+			case preludiometa.IntType:
 				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMask, false, df.ctx))
 
-			case typesys.Int64Type:
+			case preludiometa.Int64Type:
 				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMask, false, df.ctx))
 
-			case typesys.Float64Type:
+			case preludiometa.Float64Type:
 				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(make([]float64, padAlen), nullMask, false, df.ctx))
 
-			case typesys.StringType:
+			case preludiometa.StringType:
 				ser_ = ser_.(SeriesString).Append(NewSeriesString(make([]string, padAlen), nullMask, false, df.ctx))
 
-			case typesys.TimeType:
+			case preludiometa.TimeType:
 				ser_ = ser_.(SeriesTime).Append(NewSeriesTime(make([]time.Time, padAlen), nullMask, false, df.ctx))
 
-			case typesys.DurationType:
+			case preludiometa.DurationType:
 				ser_ = ser_.(SeriesDuration).Append(NewSeriesDuration(make([]time.Duration, padAlen), nullMask, false, df.ctx))
 			}
 
@@ -972,25 +972,25 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffA {
 			ser_ = df.Series(name).Filter(indicesA)
 			switch ser_.Type() {
-			case typesys.BoolType:
+			case preludiometa.BoolType:
 				ser_ = ser_.(SeriesBool).Append(NewSeriesBool(make([]bool, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.IntType:
+			case preludiometa.IntType:
 				ser_ = ser_.(SeriesInt).Append(NewSeriesInt(make([]int, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.Int64Type:
+			case preludiometa.Int64Type:
 				ser_ = ser_.(SeriesInt64).Append(NewSeriesInt64(make([]int64, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.Float64Type:
+			case preludiometa.Float64Type:
 				ser_ = ser_.(SeriesFloat64).Append(NewSeriesFloat64(make([]float64, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.StringType:
+			case preludiometa.StringType:
 				ser_ = ser_.(SeriesString).Append(NewSeriesString(make([]string, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.TimeType:
+			case preludiometa.TimeType:
 				ser_ = ser_.(SeriesTime).Append(NewSeriesTime(make([]time.Time, padAlen), nullMaskA, false, df.ctx))
 
-			case typesys.DurationType:
+			case preludiometa.DurationType:
 				ser_ = ser_.(SeriesDuration).Append(NewSeriesDuration(make([]time.Duration, padAlen), nullMaskA, false, df.ctx))
 			}
 
@@ -1004,31 +1004,31 @@ func (df BaseDataFrame) Join(how DataFrameJoinType, other DataFrame, on ...strin
 		for _, name := range colsDiffB {
 			ser_ = other.Series(name).Filter(indicesB)
 			switch ser_.Type() {
-			case typesys.BoolType:
+			case preludiometa.BoolType:
 				ser_ = NewSeriesBool(make([]bool, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.IntType:
+			case preludiometa.IntType:
 				ser_ = NewSeriesInt(make([]int, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.Int64Type:
+			case preludiometa.Int64Type:
 				ser_ = NewSeriesInt64(make([]int64, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.Float64Type:
+			case preludiometa.Float64Type:
 				ser_ = NewSeriesFloat64(make([]float64, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.StringType:
+			case preludiometa.StringType:
 				ser_ = NewSeriesString(make([]string, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.TimeType:
+			case preludiometa.TimeType:
 				ser_ = NewSeriesTime(make([]time.Time, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 
-			case typesys.DurationType:
+			case preludiometa.DurationType:
 				ser_ = NewSeriesDuration(make([]time.Duration, padBlen), nullMaskB, false, df.ctx).
 					Append(ser_)
 			}

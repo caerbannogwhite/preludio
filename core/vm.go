@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"preludiometa"
 	"strconv"
 	"strings"
-	"typesys"
 
 	"gandalff"
 )
@@ -35,7 +35,7 @@ type ByteEater struct {
 	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
 	__listElementCounters   []int
-	__output                typesys.PreludioOutput
+	__output                preludiometa.PreludioOutput
 	__context               *gandalff.Context
 	__currentDataFrame      gandalff.DataFrame
 	__currentResult         *__p_intern__
@@ -128,7 +128,7 @@ const (
 )
 
 // Run Preludio source code.
-func (vm *ByteEater) RunSource(source string) *typesys.PreludioOutput {
+func (vm *ByteEater) RunSource(source string) *preludiometa.PreludioOutput {
 	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
 	if err == nil {
 		vm.RunBytecode(bytecode)
@@ -153,7 +153,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = typesys.PreludioOutput{Log: make([]typesys.LogEnty, 0)}
+	vm.__output = preludiometa.PreludioOutput{Log: make([]preludiometa.LogEnty, 0)}
 
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
@@ -208,7 +208,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = typesys.PreludioOutput{Log: make([]typesys.LogEnty, 0)}
+	vm.__output = preludiometa.PreludioOutput{Log: make([]preludiometa.LogEnty, 0)}
 
 	file, err = os.Open(vm.__param_inputPath)
 	if err != nil {
@@ -318,8 +318,8 @@ func (vm *ByteEater) endOfPipeline() {
 	vm.stackPush(vm.__currentResult)
 }
 
-func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
-	vm.__output.Data = make([][]typesys.Columnar, 0)
+func (vm *ByteEater) GetOutput() *preludiometa.PreludioOutput {
+	vm.__output.Data = make([][]preludiometa.Columnar, 0)
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -329,11 +329,11 @@ func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
 			}
 
 			for _, result := range list {
-				vm.__output.Data = append(vm.__output.Data, make([]typesys.Columnar, 0))
+				vm.__output.Data = append(vm.__output.Data, make([]preludiometa.Columnar, 0))
 				result.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
 			}
 		} else {
-			vm.__output.Data = append(vm.__output.Data, make([]typesys.Columnar, 0))
+			vm.__output.Data = append(vm.__output.Data, make([]preludiometa.Columnar, 0))
 			vm.__currentResult.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
 		}
 	}
@@ -343,8 +343,8 @@ func (vm *ByteEater) GetOutput() *typesys.PreludioOutput {
 
 func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
 
-	opCode := typesys.OPCODE(0)
-	param1 := typesys.PARAM1(0)
+	opCode := preludiometa.OPCODE(0)
+	param1 := preludiometa.PARAM1(0)
 	param2 := []byte{0, 0, 0, 0}
 
 	usize := uint32(len(bytes))
@@ -352,9 +352,9 @@ func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
 MAIN_LOOP:
 	for offset < usize {
 
-		opCode = typesys.OPCODE(bytes[offset])
+		opCode = preludiometa.OPCODE(bytes[offset])
 		offset++
-		param1 = typesys.PARAM1(bytes[offset])
+		param1 = preludiometa.PARAM1(bytes[offset])
 		offset++
 
 		param2[0] = bytes[offset]
@@ -368,13 +368,13 @@ MAIN_LOOP:
 
 		switch opCode {
 
-		case typesys.OP_START_STMT:
+		case preludiometa.OP_START_STMT:
 			vm.printDebug(10, "OP_START_STMT", "", "")
 
 			// Insert BEGIN FRAME
 			vm.stackPush(vm.newPInternBeginFrame())
 
-		case typesys.OP_END_STMT:
+		case preludiometa.OP_END_STMT:
 			vm.printDebug(10, "OP_END_STMT", "", "")
 
 			vm.endOfPipeline()
@@ -382,7 +382,7 @@ MAIN_LOOP:
 			// Estract BEGIN FRAME
 			// vm.stackPop()
 
-		case typesys.OP_VAR_DECL:
+		case preludiometa.OP_VAR_DECL:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_DECL", "", varName)
 
@@ -396,7 +396,7 @@ MAIN_LOOP:
 				}
 			}
 
-		case typesys.OP_VAR_ASSIGN:
+		case preludiometa.OP_VAR_ASSIGN:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
 
@@ -410,18 +410,18 @@ MAIN_LOOP:
 				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
 			}
 
-		case typesys.OP_START_FUNC_CALL:
+		case preludiometa.OP_START_FUNC_CALL:
 			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				PIPELINE OPERATIONS					///////////
-		case typesys.OP_START_PIPELINE:
+		case preludiometa.OP_START_PIPELINE:
 			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
 			vm.stackPush(vm.newPInternBeginFrame())
 
-		case typesys.OP_END_PIPELINE:
+		case preludiometa.OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
 
 			vm.endOfPipeline()
@@ -429,7 +429,7 @@ MAIN_LOOP:
 			// Extract BEGIN FRAME
 			// vm.stackPop()
 
-		case typesys.OP_MAKE_FUNC_CALL:
+		case preludiometa.OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_MAKE_FUNC_CALL", "", funcName)
 
@@ -471,13 +471,13 @@ MAIN_LOOP:
 
 			// Coerce functions
 			case "asBool":
-				preludioAsType("asBool", vm, typesys.BoolType)
+				preludioAsType("asBool", vm, preludiometa.BoolType)
 			case "asInt":
-				preludioAsType("asInt", vm, typesys.Int64Type)
+				preludioAsType("asInt", vm, preludiometa.Int64Type)
 			case "asFlt":
-				preludioAsType("asFlt", vm, typesys.Float64Type)
+				preludioAsType("asFlt", vm, preludiometa.Float64Type)
 			case "asStr":
-				preludioAsType("asStr", vm, typesys.StringType)
+				preludioAsType("asStr", vm, preludiometa.StringType)
 
 			// String functions
 			case "strReplace":
@@ -499,12 +499,12 @@ MAIN_LOOP:
 
 			vm.__funcNumParams = 0
 
-		case typesys.OP_START_LIST:
+		case preludiometa.OP_START_LIST:
 			vm.printDebug(10, "OP_START_LIST", "", "")
 
 			vm.__listElementCounters = append(vm.__listElementCounters, 0)
 
-		case typesys.OP_END_LIST:
+		case preludiometa.OP_END_LIST:
 			vm.printDebug(10, "OP_END_LIST", "", "")
 
 			stackLen := len(vm.__stack)
@@ -518,10 +518,10 @@ MAIN_LOOP:
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
-		case typesys.OP_ADD_FUNC_PARAM:
+		case preludiometa.OP_ADD_FUNC_PARAM:
 			vm.printDebug(10, "OP_ADD_FUNC_PARAM", "", "")
 
-		case typesys.OP_ADD_EXPR_TERM:
+		case preludiometa.OP_ADD_EXPR_TERM:
 			vm.printDebug(10, "OP_ADD_EXPR_TERM", "", "")
 
 		///////////////////////////////////////////////////////////////////////
@@ -529,7 +529,7 @@ MAIN_LOOP:
 		///////////
 		///////////	Set the last element on the stack as a named
 		///////////	parameter.
-		case typesys.OP_PUSH_NAMED_PARAM:
+		case preludiometa.OP_PUSH_NAMED_PARAM:
 			paramName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_NAMED_PARAM", "", paramName)
 
@@ -540,123 +540,123 @@ MAIN_LOOP:
 		///////////
 		///////////	Set the last element on the stack as an assigned
 		///////////	expression.
-		case typesys.OP_PUSH_ASSIGN_IDENT:
+		case preludiometa.OP_PUSH_ASSIGN_IDENT:
 			ident := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_ASSIGN_IDENT", "", ident)
 
 			vm.stackLast().setAssignment(ident)
 
-		case typesys.OP_PUSH_TERM:
+		case preludiometa.OP_PUSH_TERM:
 			termType := ""
 			termVal := ""
 
 			switch param1 {
-			case typesys.TERM_NULL:
+			case preludiometa.TERM_NULL:
 				termType = "NULL"
 
-			case typesys.TERM_BOOLEAN:
+			case preludiometa.TERM_BOOLEAN:
 				termType = "BOOL"
-				termVal = typesys.SYMBOL_TRUE
+				termVal = preludiometa.SYMBOL_TRUE
 				val := true
 				if binary.BigEndian.Uint32(param2) == 0 {
 					val = false
-					termVal = typesys.SYMBOL_FALSE
+					termVal = preludiometa.SYMBOL_FALSE
 				}
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_INTEGER:
+			case preludiometa.TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_RANGE:
+			case preludiometa.TERM_RANGE:
 				termType = "RANGE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				// TODO: check if the range is valid
-				// strings.Split(termVal, typesys.SYMBOL_RANGE)
+				// strings.Split(termVal, preludiometa.SYMBOL_RANGE)
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_FLOAT:
+			case preludiometa.TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_STRING:
+			case preludiometa.TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_STRING_RAW:
+			case preludiometa.TERM_STRING_RAW:
 				termType = "STRING_RAW"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_STRING_PATH:
+			case preludiometa.TERM_STRING_PATH:
 				termType = "STRING_PATH"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_REGEX:
+			case preludiometa.TERM_REGEX:
 				termType = "REGEX"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_DATE:
+			case preludiometa.TERM_DATE:
 				termType = "DATE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case typesys.TERM_DURATION_MICROSECOND:
+			case preludiometa.TERM_DURATION_MICROSECOND:
 				termType = "DURATION MICROSECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_MILLISECOND:
+			case preludiometa.TERM_DURATION_MILLISECOND:
 				termType = "DURATION MILLISECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_SECOND:
+			case preludiometa.TERM_DURATION_SECOND:
 				termType = "DURATION SECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_MINUTE:
+			case preludiometa.TERM_DURATION_MINUTE:
 				termType = "DURATION MINUTE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_HOUR:
+			case preludiometa.TERM_DURATION_HOUR:
 				termType = "DURATION HOUR"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_DAY:
+			case preludiometa.TERM_DURATION_DAY:
 				termType = "DURATION DAY"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_MONTH:
+			case preludiometa.TERM_DURATION_MONTH:
 				termType = "DURATION MONTH"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_DURATION_YEAR:
+			case preludiometa.TERM_DURATION_YEAR:
 				termType = "DURATION YEAR"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case typesys.TERM_SYMBOL:
+			case preludiometa.TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(__p_symbol__(termVal)))
@@ -667,7 +667,7 @@ MAIN_LOOP:
 
 			vm.printDebug(10, "OP_PUSH_TERM", termType, termVal)
 
-		case typesys.OP_END_CHUNCK:
+		case preludiometa.OP_END_CHUNCK:
 			vm.printDebug(10, "OP_END_CHUNCK", "", "")
 
 			vm.__funcNumParams += 1
@@ -675,129 +675,129 @@ MAIN_LOOP:
 				vm.__listElementCounters[len(vm.__listElementCounters)-1]++
 			}
 
-		case typesys.OP_GOTO:
+		case preludiometa.OP_GOTO:
 			vm.printDebug(10, "OP_GOTO", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				ARITHMETIC OPERATIONS
-		case typesys.OP_BINARY_MUL:
+		case preludiometa.OP_BINARY_MUL:
 			vm.printDebug(10, "OP_BINARY_MUL", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_MUL, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_MUL, op2)
 
-		case typesys.OP_BINARY_DIV:
+		case preludiometa.OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_DIV, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_DIV, op2)
 
-		case typesys.OP_BINARY_MOD:
+		case preludiometa.OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_MOD, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_MOD, op2)
 
-		case typesys.OP_BINARY_EXP:
+		case preludiometa.OP_BINARY_EXP:
 			vm.printDebug(10, "OP_BINARY_EXP", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EXP, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_EXP, op2)
 
-		case typesys.OP_BINARY_ADD:
+		case preludiometa.OP_BINARY_ADD:
 			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_ADD, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_ADD, op2)
 
-		case typesys.OP_BINARY_SUB:
+		case preludiometa.OP_BINARY_SUB:
 			vm.printDebug(10, "OP_BINARY_SUB", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_SUB, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_SUB, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
 
-		case typesys.OP_BINARY_EQ:
+		case preludiometa.OP_BINARY_EQ:
 			vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_EQ, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_EQ, op2)
 
-		case typesys.OP_BINARY_NE:
+		case preludiometa.OP_BINARY_NE:
 			vm.printDebug(10, "OP_BINARY_NE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_NE, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_NE, op2)
 
-		case typesys.OP_BINARY_GE:
+		case preludiometa.OP_BINARY_GE:
 			vm.printDebug(10, "OP_BINARY_GE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_GE, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_GE, op2)
 
-		case typesys.OP_BINARY_LE:
+		case preludiometa.OP_BINARY_LE:
 			vm.printDebug(10, "OP_BINARY_LE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_LE, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_LE, op2)
 
-		case typesys.OP_BINARY_GT:
+		case preludiometa.OP_BINARY_GT:
 			vm.printDebug(10, "OP_BINARY_GT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_GT, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_GT, op2)
 
-		case typesys.OP_BINARY_LT:
+		case preludiometa.OP_BINARY_LT:
 			vm.printDebug(10, "OP_BINARY_LT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_LT, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_LT, op2)
 
-		case typesys.OP_BINARY_AND:
+		case preludiometa.OP_BINARY_AND:
 			vm.printDebug(10, "OP_BINARY_AND", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_AND, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_AND, op2)
 
-		case typesys.OP_BINARY_OR:
+		case preludiometa.OP_BINARY_OR:
 			vm.printDebug(10, "OP_BINARY_OR", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(typesys.OP_BINARY_OR, op2)
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_OR, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				OTHER OPERATIONS
 
-		case typesys.OP_BINARY_COALESCE:
+		case preludiometa.OP_BINARY_COALESCE:
 			vm.printDebug(10, "OP_BINARY_COALESCE", "", "")
 
-		case typesys.OP_BINARY_MODEL:
+		case preludiometa.OP_BINARY_MODEL:
 			vm.printDebug(10, "OP_BINARY_MODEL", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				UNARY OPERATIONS
 
-		case typesys.OP_UNARY_SUB:
+		case preludiometa.OP_UNARY_SUB:
 			vm.printDebug(10, "OP_UNARY_SUB", "", "")
 
-			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_SUB)
+			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_SUB)
 
-		case typesys.OP_UNARY_ADD:
+		case preludiometa.OP_UNARY_ADD:
 			vm.printDebug(10, "OP_UNARY_ADD", "", "")
 
-			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_ADD)
+			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_ADD)
 
-		case typesys.OP_UNARY_NOT:
+		case preludiometa.OP_UNARY_NOT:
 			vm.printDebug(10, "OP_UNARY_NOT", "", "")
 
-			vm.stackLast().appendUnaryOperation(typesys.OP_UNARY_NOT)
+			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_NOT)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				NO OPERATION
 
-		case typesys.NO_OP:
+		case preludiometa.NO_OP:
 			vm.printDebug(10, "NO_OP", "", "")
 		}
 
@@ -921,28 +921,28 @@ func (vm *ByteEater) setCurrentDataFrame() {
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	msg := fmt.Sprintf("%-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
-	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_DEBUG, Level: level, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_DEBUG, Level: level, Message: msg})
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_INFO, Level: level, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_INFO, Level: level, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_WARNING, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_WARNING, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printError(msg string) {
-	vm.__output.Log = append(vm.__output.Log, typesys.LogEnty{LogType: typesys.LOG_ERROR, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_ERROR, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
@@ -951,7 +951,7 @@ func (vm *ByteEater) printError(msg string) {
 func (vm *ByteEater) getLastError() string {
 	if len(vm.__output.Log) > 0 {
 		for i := len(vm.__output.Log) - 1; i >= 0; i-- {
-			if vm.__output.Log[i].LogType == typesys.LOG_ERROR {
+			if vm.__output.Log[i].LogType == preludiometa.LOG_ERROR {
 				return vm.__output.Log[i].Message
 			}
 		}

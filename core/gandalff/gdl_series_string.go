@@ -2,11 +2,11 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"typesys"
 	"unsafe"
 )
 
@@ -107,9 +107,9 @@ func (s SeriesString) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesString) Cast(t typesys.BaseType) Series {
+func (s SeriesString) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		data := make([]bool, len(s.data))
 		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
@@ -146,7 +146,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		data := make([]int, len(s.data))
 		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
@@ -184,7 +184,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		data := make([]int64, len(s.data))
 		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
@@ -222,7 +222,7 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		data := make([]float64, len(s.data))
 		nullMask := __binVecInit(len(s.data), false)
 		if s.isNullable {
@@ -260,10 +260,10 @@ func (s SeriesString) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		return s
 
-	case typesys.TimeType:
+	case preludiometa.TimeType:
 		return SeriesError{"SeriesString.Cast: cannot cast to Time, use SeriesString.ParseTime(layout) instead"}
 
 	default:

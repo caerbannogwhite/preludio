@@ -6,7 +6,7 @@ replace preludiocore => ./core
 
 replace bytefeeder => ./core/bytefeeder
 
-replace typesys => ./core/typesys
+replace preludiometa => ./core/meta
 
 replace gandalff => ./core/gandalff
 
@@ -15,7 +15,7 @@ require (
 	github.com/alexflint/go-arg v1.4.3
 	github.com/charmbracelet/lipgloss v0.7.1
 	preludiocore v0.0.0-00010101000000-000000000000
-	typesys v0.0.0-00010101000000-000000000000
+	preludiometa v0.0.0-00010101000000-000000000000
 )
 
 require (

@@ -2,7 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
-	"typesys"
+	"preludiometa"
 
 	"gandalff"
 )
@@ -55,7 +55,7 @@ func (i *__p_intern__) setAssignment(name string) {
 	i.name = name
 }
 
-func (i *__p_intern__) toResult(res *[]typesys.Columnar, fullOutput bool, outputSnippetLength int) error {
+func (i *__p_intern__) toResult(res *[]preludiometa.Columnar, fullOutput bool, outputSnippetLength int) error {
 	switch i.tag {
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION, PRELUDIO_INTERNAL_TAG_NAMED_PARAM, PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 		switch v := i.expr[0].(type) {
@@ -354,25 +354,25 @@ func (i *__p_intern__) listToSeriesString() (gandalff.Series, error) {
 // used for special cases like orderBy
 func (i *__p_intern__) isNeg() bool {
 	if len(i.expr) == 2 {
-		if op, ok := i.expr[1].(typesys.OPCODE); ok && op == typesys.OP_UNARY_SUB {
+		if op, ok := i.expr[1].(preludiometa.OPCODE); ok && op == preludiometa.OP_UNARY_SUB {
 			return true
 		}
 	}
 	return false
 }
 
-func (lhs *__p_intern__) appendBinaryOperation(op typesys.OPCODE, rhs *__p_intern__) {
+func (lhs *__p_intern__) appendBinaryOperation(op preludiometa.OPCODE, rhs *__p_intern__) {
 	lhs.expr = append(lhs.expr, rhs.expr...)
 	lhs.expr = append(lhs.expr, op)
 }
 
-func (rhs *__p_intern__) appendUnaryOperation(op typesys.OPCODE) {
+func (rhs *__p_intern__) appendUnaryOperation(op preludiometa.OPCODE) {
 	rhs.expr = append(rhs.expr, op)
 }
 
-func isOperator(t interface{}) (typesys.OPCODE, bool) {
-	if v, ok := t.(typesys.OPCODE); ok {
+func isOperator(t interface{}) (preludiometa.OPCODE, bool) {
+	if v, ok := t.(preludiometa.OPCODE); ok {
 		return v, true
 	}
-	return typesys.NO_OP, false
+	return preludiometa.NO_OP, false
 }

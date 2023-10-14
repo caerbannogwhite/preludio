@@ -5,7 +5,7 @@ var TEMPLATE_BASIC_ACCESSORS = `package gandalff
 import (
 	"fmt"
 	"time"
-	"typesys"
+	"preludiometa"
 )
 
 func (s {{.SeriesName}}) printInfo() {
@@ -32,13 +32,13 @@ func (s {{.SeriesName}}) Len() int {
 }
 
 // Return the type of the series.
-func (s {{.SeriesName}}) Type() typesys.BaseType {
-	return typesys.{{.SeriesTypeStr}}
+func (s {{.SeriesName}}) Type() preludiometa.BaseType {
+	return preludiometa.{{.SeriesTypeStr}}
 }
 
 // Return the type and cardinality of the series.
-func (s {{.SeriesName}}) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.{{.SeriesTypeStr}}, Card: s.Len()}
+func (s {{.SeriesName}}) TypeCard() preludiometa.BaseTypeCard {
+	return preludiometa.BaseTypeCard{Base: preludiometa.{{.SeriesTypeStr}}, Card: s.Len()}
 }
 
 // Return if the series is grouped.

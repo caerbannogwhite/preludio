@@ -3,8 +3,8 @@ package gandalff
 import (
 	"math"
 	"math/rand"
+	"preludiometa"
 	"testing"
-	"typesys"
 )
 
 func Test_SeriesFloat64_Base(t *testing.T) {
@@ -21,7 +21,7 @@ func Test_SeriesFloat64_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != typesys.Float64Type {
+	if s.Type() != preludiometa.Float64Type {
 		t.Errorf("Expected type of Float64Type, got %s", s.Type().ToString())
 	}
 
@@ -276,7 +276,7 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	s := NewSeriesFloat64(data, mask, true, ctx)
 
 	// Cast to bool.
-	resBool := s.Cast(typesys.BoolType)
+	resBool := s.Cast(preludiometa.BoolType)
 
 	// Check the data.
 	for i, v := range resBool.Data().([]bool) {
@@ -295,7 +295,7 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	}
 
 	// Cast to int.
-	resInt := s.Cast(typesys.IntType)
+	resInt := s.Cast(preludiometa.IntType)
 
 	// Check the data.
 	for i, v := range resInt.Data().([]int) {
@@ -312,7 +312,7 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	}
 
 	// Cast to int64.
-	resInt64 := s.Cast(typesys.Int64Type)
+	resInt64 := s.Cast(preludiometa.Int64Type)
 
 	// Check the data.
 	for i, v := range resInt64.Data().([]int64) {
@@ -329,7 +329,7 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	resString := s.Cast(typesys.StringType)
+	resString := s.Cast(preludiometa.StringType)
 
 	// Check the data.
 	for i, v := range resString.Data().([]string) {
@@ -348,7 +348,7 @@ func Test_SeriesFloat64_Cast(t *testing.T) {
 	}
 
 	// Cast to error.
-	castError := s.Cast(typesys.ErrorType)
+	castError := s.Cast(preludiometa.ErrorType)
 
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesFloat64.Cast: invalid type Error" {

@@ -3,7 +3,7 @@ package preludiocore
 import (
 	"fmt"
 	"os"
-	"typesys"
+	"preludiometa"
 
 	"gandalff"
 )
@@ -781,7 +781,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 }
 
 // Coerce series to a given type
-func preludioAsType(funcName string, vm *ByteEater, coerceType typesys.BaseType) {
+func preludioAsType(funcName string, vm *ByteEater, coerceType preludiometa.BaseType) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var err error

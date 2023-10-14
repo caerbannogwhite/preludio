@@ -9,8 +9,8 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"preludiometa"
 	"text/template"
-	"typesys"
 )
 
 const (
@@ -22,18 +22,18 @@ const (
 )
 
 type BuildInfo struct {
-	OpCode        typesys.OPCODE
+	OpCode        preludiometa.OPCODE
 	Op1Nullable   bool
 	Op1Scalar     bool
 	Op2Nullable   bool
 	Op2Scalar     bool
 	Op1VarName    string
 	Op1SeriesType string
-	Op1InnerType  typesys.BaseType
+	Op1InnerType  preludiometa.BaseType
 	Op2VarName    string
 	Op2SeriesType string
-	Op2InnerType  typesys.BaseType
-	ResInnerType  typesys.BaseType
+	Op2InnerType  preludiometa.BaseType
+	ResInnerType  preludiometa.BaseType
 	MakeOperation MakeOperationType
 }
 
@@ -86,7 +86,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 	resultGoType := info.ResInnerType.ToGoType()
 
 	// Special case for the result type
-	if info.ResInnerType == typesys.StringType {
+	if info.ResInnerType == preludiometa.StringType {
 		resultGoType = "[]*string"
 	}
 
@@ -102,7 +102,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 	}}
 
 	// One of the operands is SeriesNA, take the null mask of the other operand
-	// if info.Op1InnerType == typesys.NullType || info.Op2InnerType == typesys.NullType {
+	// if info.Op1InnerType == preludiometa.NullType || info.Op2InnerType == preludiometa.NullType {
 	// 	stmts = append(stmts, &ast.AssignStmt{
 	// 		Lhs: []ast.Expr{
 	// 			&ast.Ident{Name: RESULT_NULL_MASK_VAR_NAME},
@@ -114,7 +114,7 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 	// 	})
 	// }
 
-	if info.ResInnerType != typesys.NullType {
+	if info.ResInnerType != preludiometa.NullType {
 		stmts = append(stmts,
 
 			// make the result array
@@ -137,11 +137,11 @@ func generateMakeResultStmt(info BuildInfo) []ast.Stmt {
 		// Make the result null mask
 
 		// Special case: one of the operands is SeriesNA
-		if info.Op1InnerType == typesys.NullType || info.Op2InnerType == typesys.NullType {
+		if info.Op1InnerType == preludiometa.NullType || info.Op2InnerType == preludiometa.NullType {
 
 			nonNullOperand := info.Op1VarName
 			nonNullOperandIsScalar := info.Op1Scalar
-			if info.Op1InnerType == typesys.NullType {
+			if info.Op1InnerType == preludiometa.NullType {
 				nonNullOperand = info.Op2VarName
 				nonNullOperandIsScalar = info.Op2Scalar
 			}
@@ -480,7 +480,7 @@ func generateNullabilityCheck(info BuildInfo) []ast.Stmt {
 
 	// If one of the operands is nullable, just generate the operation
 	// There is no need to check the nullability of the operands
-	if info.Op1InnerType == typesys.NullType || info.Op2InnerType == typesys.NullType {
+	if info.Op1InnerType == preludiometa.NullType || info.Op2InnerType == preludiometa.NullType {
 		return generateOperation(info)
 	} else {
 		return []ast.Stmt{
@@ -586,7 +586,7 @@ func generateSizeCheck(info BuildInfo, defaultReturn ast.Stmt) ast.Stmt {
 
 // Generate the switch statement to handle the different types of the second operand
 func generateSwitchType(
-	operation Operation, op1SeriesType string, op1InnerType typesys.BaseType,
+	operation Operation, op1SeriesType string, op1InnerType preludiometa.BaseType,
 	op1VarName, op2VarName string, defaultReturn ast.Stmt) []ast.Stmt {
 
 	// Generate the context check
@@ -647,32 +647,32 @@ func generateSwitchType(
 	return []ast.Stmt{contextCheck, bigSwitch}
 }
 
-func computeResSeriesType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) string {
+func computeResSeriesType(opCode preludiometa.OPCODE, op1, op2 preludiometa.BaseType) string {
 	switch ComputeResInnerType(opCode, op1, op2) {
-	case typesys.NullType:
+	case preludiometa.NullType:
 		return "SeriesNA"
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		return "SeriesBool"
-	case typesys.IntType:
+	case preludiometa.IntType:
 		return "SeriesInt"
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		return "SeriesInt64"
-	case typesys.Float32Type:
+	case preludiometa.Float32Type:
 		return "SeriesFloat32"
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		return "SeriesFloat64"
-	case typesys.StringType:
+	case preludiometa.StringType:
 		return "SeriesString"
-	case typesys.TimeType:
+	case preludiometa.TimeType:
 		return "SeriesTime"
-	case typesys.DurationType:
+	case preludiometa.DurationType:
 		return "SeriesDuration"
 	}
 	return "SeriesError"
 }
 
-func ComputeResInnerType(opCode typesys.OPCODE, op1, op2 typesys.BaseType) typesys.BaseType {
-	return opCode.GetBinaryOpResultType(typesys.Primitive{Base: op1}, typesys.Primitive{Base: op2}).Base
+func ComputeResInnerType(opCode preludiometa.OPCODE, op1, op2 preludiometa.BaseType) preludiometa.BaseType {
+	return opCode.GetBinaryOpResultType(preludiometa.Primitive{Base: op1}, preludiometa.Primitive{Base: op2}).Base
 }
 
 func generateOperations() {

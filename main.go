@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 	"preludiocore"
+	"preludiometa"
 	"strconv"
 	"strings"
-	"typesys"
 
 	"github.com/alexflint/go-arg"
 	"github.com/charmbracelet/lipgloss"
@@ -19,7 +19,7 @@ const VERSION = "0.4.0"
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
 const DEFAULT_SUSPENSION_STRING = "... "
-const DEFAULT_NULL_STRING = typesys.SYMBOL_NA
+const DEFAULT_NULL_STRING = preludiometa.SYMBOL_NA
 const DEFAULT_OUTPUT_COLUMN_SIZE = 12
 
 var JUST_RIGHT_TYPES = map[string]bool{
@@ -208,18 +208,18 @@ func LaunchRepl(args CliArgs) {
 			res := be.RunSource(code)
 			for _, log := range res.Log {
 				switch log.LogType {
-				case typesys.LOG_DEBUG:
+				case preludiometa.LOG_DEBUG:
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println("[🐛] " + log.Message)
 					}
 
-				case typesys.LOG_INFO:
+				case preludiometa.LOG_INFO:
 					fmt.Println("[ ℹ️ ] " + log.Message)
 
-				case typesys.LOG_WARNING:
+				case preludiometa.LOG_WARNING:
 					fmt.Println("[⚠️] " + log.Message)
 
-				case typesys.LOG_ERROR:
+				case preludiometa.LOG_ERROR:
 					fmt.Println("[❌] " + log.Message)
 				}
 			}
@@ -245,7 +245,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
+func prettyPrint(indent string, colSize int, columnar []preludiometa.Columnar) {
 	if len(columnar) == 0 {
 		return
 	}
@@ -295,7 +295,7 @@ func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
 		buffer += "┤\n"
 	}
 
-	// column typesys
+	// column preludiometa
 	buffer += indent
 	for _, c := range columnar {
 		buffer += "│" + STYLE_BOLD.Copy().

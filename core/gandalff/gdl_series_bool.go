@@ -2,8 +2,8 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"sort"
-	"typesys"
 )
 
 // SeriesBool represents a series of bools.
@@ -101,12 +101,12 @@ func (s SeriesBool) DataAsString() []string {
 }
 
 // Cast the series to a given type.
-func (s SeriesBool) Cast(t typesys.BaseType) Series {
+func (s SeriesBool) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		return s
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		data := make([]int, len(s.data))
 		for i, v := range s.data {
 			if v {
@@ -123,7 +123,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		data := make([]int64, len(s.data))
 		for i, v := range s.data {
 			if v {
@@ -140,7 +140,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		data := make([]float64, len(s.data))
 		for i, v := range s.data {
 			if v {
@@ -157,7 +157,7 @@ func (s SeriesBool) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		data := make([]*string, len(s.data))
 		if s.isNullable {
 			for i, v := range s.data {

@@ -2,9 +2,9 @@ package gandalff
 
 import (
 	"fmt"
+	"preludiometa"
 	"sort"
 	"time"
-	"typesys"
 )
 
 // SeriesTime represents a datetime series.
@@ -104,12 +104,12 @@ func (s SeriesTime) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesTime) Cast(t typesys.BaseType) Series {
+func (s SeriesTime) Cast(t preludiometa.BaseType) Series {
 	switch t {
-	case typesys.BoolType:
+	case preludiometa.BoolType:
 		return SeriesError{fmt.Sprintf("SeriesTime.Cast: cannot cast to %s", t.ToString())}
 
-	case typesys.IntType:
+	case preludiometa.IntType:
 		data := make([]int, len(s.data))
 		for i, v := range s.data {
 			data[i] = int(v.UnixNano())
@@ -124,7 +124,7 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Int64Type:
+	case preludiometa.Int64Type:
 		data := make([]int64, len(s.data))
 		for i, v := range s.data {
 			data[i] = v.UnixNano()
@@ -139,7 +139,7 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.Float64Type:
+	case preludiometa.Float64Type:
 		data := make([]float64, len(s.data))
 		for i, v := range s.data {
 			data[i] = float64(v.UnixNano())
@@ -154,7 +154,7 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.StringType:
+	case preludiometa.StringType:
 		data := make([]*string, len(s.data))
 		if s.isNullable {
 			for i, v := range s.data {
@@ -179,10 +179,10 @@ func (s SeriesTime) Cast(t typesys.BaseType) Series {
 			ctx:        s.ctx,
 		}
 
-	case typesys.TimeType:
+	case preludiometa.TimeType:
 		return s
 
-	case typesys.DurationType:
+	case preludiometa.DurationType:
 		data := make([]time.Duration, len(s.data))
 		for i, v := range s.data {
 			data[i] = v.Sub(time.Time{})

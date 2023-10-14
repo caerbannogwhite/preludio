@@ -1,7 +1,7 @@
 package gandalff
 
 import (
-	"typesys"
+	"preludiometa"
 )
 
 type Series interface {
@@ -15,9 +15,9 @@ type Series interface {
 	// Return the number of elements in the series.
 	Len() int
 	// Return the type of the series.
-	Type() typesys.BaseType
+	Type() preludiometa.BaseType
 	// Return the type and cardinality of the series.
-	TypeCard() typesys.BaseTypeCard
+	TypeCard() preludiometa.BaseTypeCard
 	// Return if the series is grouped.
 	IsGrouped() bool
 	// Return if the series admits null values.
@@ -70,7 +70,7 @@ type Series interface {
 	DataAsString() []string
 
 	// Cast the series to a given type.
-	Cast(t typesys.BaseType) Series
+	Cast(t preludiometa.BaseType) Series
 	// Copie the series.
 	Copy() Series
 

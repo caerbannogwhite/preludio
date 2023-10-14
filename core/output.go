@@ -2,11 +2,11 @@ package preludiocore
 
 import (
 	"gandalff"
-	"typesys"
+	"preludiometa"
 )
 
-func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series gandalff.Series) typesys.Columnar {
-	col := typesys.Columnar{}
+func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series gandalff.Series) preludiometa.Columnar {
+	col := preludiometa.Columnar{}
 	col.Name = name
 	col.Type = series.Type().ToString()
 	col.ActualLength = series.Len()
@@ -20,8 +20,8 @@ func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, ser
 	return col
 }
 
-func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) []typesys.Columnar {
-	columns := make([]typesys.Columnar, (*df).NCols())
+func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) []preludiometa.Columnar {
+	columns := make([]preludiometa.Columnar, (*df).NCols())
 	for i, name := range (*df).Names() {
 		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).Series(name))
 	}

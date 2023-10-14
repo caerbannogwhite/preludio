@@ -2,9 +2,9 @@ package gandalff
 
 import (
 	"math/rand"
+	"preludiometa"
 	"testing"
 	"time"
-	"typesys"
 )
 
 func Test_SeriesString_Base(t *testing.T) {
@@ -22,7 +22,7 @@ func Test_SeriesString_Base(t *testing.T) {
 	}
 
 	// Check the type.
-	if s.Type() != typesys.StringType {
+	if s.Type() != preludiometa.StringType {
 		t.Errorf("Expected type of StringType, got %s", s.Type().ToString())
 	}
 
@@ -259,7 +259,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	s := NewSeriesString(data, mask, true, ctx)
 
 	// Cast to bool.
-	resBool := s.Cast(typesys.BoolType)
+	resBool := s.Cast(preludiometa.BoolType)
 	expectedMask := []bool{false, false, true, true, true, true, true, true, true, true}
 
 	// Check the data.
@@ -273,7 +273,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	}
 
 	// Cast to int.
-	resInt := s.Cast(typesys.IntType)
+	resInt := s.Cast(preludiometa.IntType)
 	expectedInt := []int{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 	expectedMask = []bool{true, true, true, false, false, true, true, false, true, true}
 
@@ -288,7 +288,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	}
 
 	// Cast to int64.
-	resInt64 := s.Cast(typesys.Int64Type)
+	resInt64 := s.Cast(preludiometa.Int64Type)
 	expectedInt64 := []int64{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 
 	// Check the data.
@@ -302,7 +302,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	}
 
 	// Cast to float64.
-	resFloat64 := s.Cast(typesys.Float64Type)
+	resFloat64 := s.Cast(preludiometa.Float64Type)
 	expectedFloat64 := []float64{0, 0, 0, 3, 4, 0, 0, 7, 0, 0}
 
 	// Check the data.
@@ -316,7 +316,7 @@ func Test_SeriesString_Cast(t *testing.T) {
 	}
 
 	// Cast to string.
-	resString := s.Cast(typesys.StringType)
+	resString := s.Cast(preludiometa.StringType)
 	expectedString := []string{"true", "false", NULL_STRING, "3", "4", NULL_STRING, "hello", "7", NULL_STRING, "world"}
 
 	// Check the data.
@@ -330,12 +330,12 @@ func Test_SeriesString_Cast(t *testing.T) {
 	}
 
 	// Cast to time.
-	if s.Cast(typesys.TimeType).(SeriesError).GetError() != "SeriesString.Cast: cannot cast to Time, use SeriesString.ParseTime(layout) instead" {
-		t.Errorf("Expected error, got %v", s.Cast(typesys.TimeType))
+	if s.Cast(preludiometa.TimeType).(SeriesError).GetError() != "SeriesString.Cast: cannot cast to Time, use SeriesString.ParseTime(layout) instead" {
+		t.Errorf("Expected error, got %v", s.Cast(preludiometa.TimeType))
 	}
 
 	// Cast to error.
-	castError := s.Cast(typesys.ErrorType)
+	castError := s.Cast(preludiometa.ErrorType)
 
 	// Check the message.
 	if castError.(SeriesError).msg != "SeriesString.Cast: invalid type Error" {

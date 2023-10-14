@@ -3,7 +3,7 @@ package preludiocore
 import (
 	"fmt"
 	"gandalff"
-	"typesys"
+	"preludiometa"
 )
 
 func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
@@ -73,7 +73,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 	stack := make([]interface{}, 0)
 
-	var op typesys.OPCODE
+	var op preludiometa.OPCODE
 	var ok, errorMode bool
 	var exprIdx int
 	var result interface{}
@@ -82,7 +82,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 		// Load the stack until we find an operators
 		ok = false
-		for exprIdx = 0; !ok; op, ok = p.expr[exprIdx].(typesys.OPCODE) {
+		for exprIdx = 0; !ok; op, ok = p.expr[exprIdx].(preludiometa.OPCODE) {
 			exprIdx++
 		}
 		stack = append(stack, p.expr[0:exprIdx]...)
@@ -97,10 +97,10 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			stack = stack[0 : len(stack)-1]
 
 			switch op {
-			case typesys.OP_UNARY_ADD:
+			case preludiometa.OP_UNARY_ADD:
 				result = t1
 
-			case typesys.OP_UNARY_SUB:
+			case preludiometa.OP_UNARY_SUB:
 				switch s1 := t1.(type) {
 				case gandalff.SeriesInt:
 					result = s1.Neg()
@@ -112,7 +112,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 					errorMode = true
 				}
 
-			case typesys.OP_UNARY_NOT:
+			case preludiometa.OP_UNARY_NOT:
 				if s1, ok := t1.(gandalff.SeriesBool); ok {
 					result = s1.Not()
 				} else {
@@ -135,50 +135,50 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			stack = stack[0 : len(stack)-2]
 
 			switch op {
-			case typesys.OP_BINARY_MUL:
+			case preludiometa.OP_BINARY_MUL:
 				result = s1.Mul(s2)
 
-			case typesys.OP_BINARY_DIV:
+			case preludiometa.OP_BINARY_DIV:
 				result = s1.Div(s2)
 
-			case typesys.OP_BINARY_MOD:
+			case preludiometa.OP_BINARY_MOD:
 				result = s1.Mod(s2)
 
-			case typesys.OP_BINARY_EXP:
+			case preludiometa.OP_BINARY_EXP:
 				result = s1.Exp(s2)
 
-			case typesys.OP_BINARY_ADD:
+			case preludiometa.OP_BINARY_ADD:
 				result = s1.Add(s2)
 
-			case typesys.OP_BINARY_SUB:
+			case preludiometa.OP_BINARY_SUB:
 				result = s1.Sub(s2)
 
-			case typesys.OP_BINARY_EQ:
+			case preludiometa.OP_BINARY_EQ:
 				result = s1.Eq(s2)
 
-			case typesys.OP_BINARY_NE:
+			case preludiometa.OP_BINARY_NE:
 				result = s1.Ne(s2)
 
-			case typesys.OP_BINARY_LT:
+			case preludiometa.OP_BINARY_LT:
 				result = s1.Lt(s2)
 
-			case typesys.OP_BINARY_LE:
+			case preludiometa.OP_BINARY_LE:
 				result = s1.Le(s2)
 
-			case typesys.OP_BINARY_GT:
+			case preludiometa.OP_BINARY_GT:
 				result = s1.Gt(s2)
 
-			case typesys.OP_BINARY_GE:
+			case preludiometa.OP_BINARY_GE:
 				result = s1.Ge(s2)
 
-			case typesys.OP_BINARY_AND:
+			case preludiometa.OP_BINARY_AND:
 				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.And(s2)
 				} else {
 					errorMode = true
 				}
 
-			case typesys.OP_BINARY_OR:
+			case preludiometa.OP_BINARY_OR:
 				if s1, ok := s1.(gandalff.SeriesBool); ok {
 					result = s1.Or(s2)
 				} else {

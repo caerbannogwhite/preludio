@@ -2,6 +2,6 @@ module gandalff
 
 go 1.20
 
-replace typesys => ../typesys
+replace preludiometa => ../meta
 
-require typesys v0.0.0-00010101000000-000000000000
+require preludiometa v0.0.0-00010101000000-000000000000

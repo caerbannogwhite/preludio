@@ -1,6 +1,6 @@
 package gandalff
 
-import "typesys"
+import "preludiometa"
 
 // Dummy series for error handling.
 type SeriesError struct {
@@ -54,13 +54,13 @@ func (s SeriesError) MakeNonNullable() Series {
 }
 
 // Returns the type of the series.
-func (s SeriesError) Type() typesys.BaseType {
-	return typesys.ErrorType
+func (s SeriesError) Type() preludiometa.BaseType {
+	return preludiometa.ErrorType
 }
 
 // Returns the type and cardinality of the series.
-func (s SeriesError) TypeCard() typesys.BaseTypeCard {
-	return typesys.BaseTypeCard{Base: typesys.ErrorType, Card: s.Len()}
+func (s SeriesError) TypeCard() preludiometa.BaseTypeCard {
+	return preludiometa.BaseTypeCard{Base: preludiometa.ErrorType, Card: s.Len()}
 }
 
 // Returns if the series has null values.
@@ -130,7 +130,7 @@ func (s SeriesError) DataAsString() []string {
 }
 
 // Casts the series to a given type.
-func (s SeriesError) Cast(t typesys.BaseType) Series {
+func (s SeriesError) Cast(t preludiometa.BaseType) Series {
 	return s
 }
 
