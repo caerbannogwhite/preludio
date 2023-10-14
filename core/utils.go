@@ -3,7 +3,6 @@ package preludiocore
 import (
 	"fmt"
 	"math"
-	"preludiometa"
 )
 
 func truncate(s string, n int) string {
@@ -11,94 +10,6 @@ func truncate(s string, n int) string {
 		return s[:n-3] + "..."
 	}
 	return s
-}
-
-func operatorToString(op preludiometa.OPCODE) string {
-	switch op {
-
-	case preludiometa.OP_BINARY_MUL:
-		return "*"
-	case preludiometa.OP_BINARY_DIV:
-		return "/"
-	case preludiometa.OP_BINARY_MOD:
-		return "%"
-	case preludiometa.OP_BINARY_EXP:
-		return "^"
-	case preludiometa.OP_BINARY_ADD:
-		return "+"
-	case preludiometa.OP_BINARY_SUB:
-		return "-"
-	case preludiometa.OP_BINARY_AND:
-		return "and"
-	case preludiometa.OP_BINARY_OR:
-		return "or"
-	case preludiometa.OP_BINARY_EQ:
-		return "=="
-	case preludiometa.OP_BINARY_NE:
-		return "!="
-	case preludiometa.OP_BINARY_LT:
-		return "<"
-	case preludiometa.OP_BINARY_LE:
-		return "<="
-	case preludiometa.OP_BINARY_GT:
-		return ">"
-	case preludiometa.OP_BINARY_GE:
-		return ">="
-
-	case preludiometa.OP_UNARY_ADD:
-		return "+"
-	case preludiometa.OP_UNARY_SUB:
-		return "-"
-	case preludiometa.OP_UNARY_NOT:
-		return "!"
-
-	default:
-		return "UNKNOWN OPERATOR"
-	}
-}
-
-func operatorToCode(op preludiometa.OPCODE) string {
-	switch op {
-
-	case preludiometa.OP_BINARY_MUL:
-		return "  * <BINARY_MUL>"
-	case preludiometa.OP_BINARY_DIV:
-		return "  / <BINARY_DIV>"
-	case preludiometa.OP_BINARY_MOD:
-		return "  % <BINARY_MOD>"
-	case preludiometa.OP_BINARY_EXP:
-		return "  ^ <BINARY_EXP>"
-	case preludiometa.OP_BINARY_ADD:
-		return "  + <BINARY_ADD>"
-	case preludiometa.OP_BINARY_SUB:
-		return "  - <BINARY_SUB>"
-	case preludiometa.OP_BINARY_AND:
-		return "and <BINARY_AND>"
-	case preludiometa.OP_BINARY_OR:
-		return " or <BINARY_OR>"
-	case preludiometa.OP_BINARY_EQ:
-		return " == <BINARY_EQ>"
-	case preludiometa.OP_BINARY_NE:
-		return " != <BINARY_NE>"
-	case preludiometa.OP_BINARY_LT:
-		return "  < <BINARY_LT>"
-	case preludiometa.OP_BINARY_LE:
-		return " <= <BINARY_LE>"
-	case preludiometa.OP_BINARY_GT:
-		return "  > <BINARY_GT>"
-	case preludiometa.OP_BINARY_GE:
-		return " >= <BINARY_GE>"
-
-	case preludiometa.OP_UNARY_ADD:
-		return "  + <UNARY_ADD>"
-	case preludiometa.OP_UNARY_SUB:
-		return "  - <UNARY_SUB>"
-	case preludiometa.OP_UNARY_NOT:
-		return "  ! <UNARY_NOT>"
-
-	default:
-		return "UNKNOWN OPERATOR"
-	}
 }
 
 func boolSliceEqual(a, b []bool) bool {

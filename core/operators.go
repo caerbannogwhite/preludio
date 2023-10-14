@@ -123,7 +123,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			// Check for errors
 			if _, ok := result.(gandalff.SeriesError); ok || errorMode {
 				return fmt.Errorf("unary operator %s not supported for %s",
-					operatorToCode(op),
+					op.ToCodeString(),
 					t1.(gandalff.Series).TypeCard().ToString())
 			}
 		} else
@@ -189,7 +189,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			// Check for errors
 			if _, ok := result.(gandalff.SeriesError); ok || errorMode {
 				return fmt.Errorf("binary operator %s not supported between %s and %s",
-					operatorToString(op),
+					op.ToString(),
 					s1.TypeCard().ToString(),
 					s2.TypeCard().ToString())
 			}

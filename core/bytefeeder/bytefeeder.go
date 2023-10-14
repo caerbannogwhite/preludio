@@ -69,12 +69,13 @@ func (t *SymbolTable) IndexOf(symbol string) int {
 type ByteFeeder struct {
 	*BasepreludioParserListener
 
+	verbose         bool
+	err             error
+	lastInstruction preludiometa.OPCODE
+
 	symbolTable  SymbolTable
 	instructions []byte
-
-	verbose bool
-	err     error
-	logs    []preludiometa.LogEnty
+	logs         []preludiometa.LogEnty
 }
 
 func (bf *ByteFeeder) Init() *ByteFeeder {
@@ -91,9 +92,16 @@ func (bf *ByteFeeder) SetVerbose(flag bool) *ByteFeeder {
 }
 
 func (bf *ByteFeeder) AppendInstruction(opcode preludiometa.OPCODE, param1 preludiometa.PARAM1, param2 int) {
+	bf.lastInstruction = opcode
+
 	bf.instructions = append(bf.instructions, byte(opcode))
 	bf.instructions = append(bf.instructions, byte(param1))
 	bf.instructions = binary.BigEndian.AppendUint32(bf.instructions, uint32(param2))
+}
+
+func (bf *ByteFeeder) RemoveLastInstruction() {
+	bf.instructions = bf.instructions[:len(bf.instructions)-preludiometa.PRELUDIO_INSTRUCTION_SIZE]
+	bf.lastInstruction = preludiometa.OPCODE(bf.instructions[len(bf.instructions)-preludiometa.PRELUDIO_INSTRUCTION_SIZE])
 }
 
 func (bf *ByteFeeder) GetBytecode() ([]byte, []preludiometa.LogEnty, error) {
@@ -295,9 +303,16 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	case 2:
 		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
 		case preludiometa.SYMBOL_UNARY_SUB:
+			if bf.lastInstruction == preludiometa.OP_UNARY_SUB {
+				bf.RemoveLastInstruction()
+				return
+			}
 			bf.AppendInstruction(preludiometa.OP_UNARY_SUB, 0, 0)
 
 		case preludiometa.SYMBOL_UNARY_ADD:
+			if bf.lastInstruction == preludiometa.OP_UNARY_ADD {
+				return
+			}
 			bf.AppendInstruction(preludiometa.OP_UNARY_ADD, 0, 0)
 
 		case preludiometa.SYMBOL_UNARY_NOT:

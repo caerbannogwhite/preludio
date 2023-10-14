@@ -128,6 +128,8 @@ const (
 	SYMBOL_DURATION_YEAR              = "years"
 )
 
+const PRELUDIO_INSTRUCTION_SIZE = 6
+
 type LOG_TYPE uint8
 
 const (
