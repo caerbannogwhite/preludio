@@ -1,4 +1,4 @@
-package stats
+package gandalff
 
 import (
 	"fmt"
@@ -6,22 +6,7 @@ import (
 	"sort"
 )
 
-// This functions computes the t-tests.
-func TTest(a, b []float64) (t, p float64) {
-	// Compute the means.
-	meanA := Mean(a)
-	meanB := Mean(b)
-	// Compute the standard deviations.
-	sdA := StdDev(a)
-	sdB := StdDev(b)
-	// Compute the t-test.
-	t = (meanA - meanB) / math.Sqrt((sdA*sdA/float64(len(a)))+(sdB*sdB/float64(len(b))))
-	// Compute the p-value.
-	p = 2 * (1 - StudentT(float64(len(a)+len(b)-2), t))
-	return
-}
-
-func Mean(a []float64) float64 {
+func _Mean(a []float64) float64 {
 	var sum float64
 	for _, v := range a {
 		sum += v
@@ -30,12 +15,27 @@ func Mean(a []float64) float64 {
 }
 
 func StdDev(a []float64) float64 {
-	mean := Mean(a)
+	_mean := _Mean(a)
 	var sum float64
 	for _, v := range a {
-		sum += (v - mean) * (v - mean)
+		sum += (v - _mean) * (v - _mean)
 	}
 	return math.Sqrt(sum / float64(len(a)))
+}
+
+// This functions computes the t-tests.
+func TTest(a, b []float64) (t, p float64) {
+	// Compute the _means.
+	_meanA := _Mean(a)
+	_meanB := _Mean(b)
+	// Compute the standard deviations.
+	sdA := StdDev(a)
+	sdB := StdDev(b)
+	// Compute the t-test.
+	t = (_meanA - _meanB) / math.Sqrt((sdA*sdA/float64(len(a)))+(sdB*sdB/float64(len(b))))
+	// Compute the p-value.
+	p = 2 * (1 - StudentT(float64(len(a)+len(b)-2), t))
+	return
 }
 
 // This function computes the Student's t-distribution.
@@ -68,8 +68,8 @@ func InvStudentT(nu float64, p float64) float64 {
 
 // Compute the confidence interval.
 func ConfidenceInterval(a []float64, p float64) (float64, float64) {
-	// Compute the mean.
-	mean := Mean(a)
+	// Compute the _mean.
+	_mean := _Mean(a)
 	// Compute the standard deviation.
 	sd := StdDev(a)
 	// Compute the t-value.
@@ -77,7 +77,7 @@ func ConfidenceInterval(a []float64, p float64) (float64, float64) {
 	// Compute the confidence interval.
 	ci := t * (sd / math.Sqrt(float64(len(a))))
 	// Return the result.
-	return mean - ci, mean + ci
+	return _mean - ci, _mean + ci
 }
 
 // This function computes the p-value for the t-test.
@@ -90,12 +90,12 @@ func TTestPValue(a, b []float64) float64 {
 
 // Compute the z-score.
 func ZScore(a []float64) float64 {
-	// Compute the mean.
-	mean := Mean(a)
+	// Compute the _mean.
+	_mean := _Mean(a)
 	// Compute the standard deviation.
 	sd := StdDev(a)
 	// Compute the z-score.
-	return (mean - 0) / sd
+	return (_mean - 0) / sd
 }
 
 // This function computes the p-value for the z-test.
@@ -128,8 +128,8 @@ func InvNormal(p float64) float64 {
 
 // This function computes the confidence interval.
 func ZConfidenceInterval(a []float64, p float64) (float64, float64) {
-	// Compute the mean.
-	mean := Mean(a)
+	// Compute the _mean.
+	_mean := _Mean(a)
 	// Compute the standard deviation.
 	sd := StdDev(a)
 	// Compute the z-value.
@@ -137,14 +137,14 @@ func ZConfidenceInterval(a []float64, p float64) (float64, float64) {
 	// Compute the confidence interval.
 	ci := z * (sd / math.Sqrt(float64(len(a))))
 	// Return the result.
-	return mean - ci, mean + ci
+	return _mean - ci, _mean + ci
 }
 
 // Simple linear regression.
 func SimpleLinearRegression(x, y []float64) (float64, float64) {
-	// Compute the means.
-	meanX := Mean(x)
-	meanY := Mean(y)
+	// Compute the _means.
+	_meanX := _Mean(x)
+	_meanY := _Mean(y)
 	// Compute the standard deviations.
 	sdX := StdDev(x)
 	sdY := StdDev(y)
@@ -153,23 +153,23 @@ func SimpleLinearRegression(x, y []float64) (float64, float64) {
 	// Compute the slope.
 	slope := r * (sdY / sdX)
 	// Compute the intercept.
-	intercept := meanY - (slope * meanX)
+	intercept := _meanY - (slope * _meanX)
 	// Return the result.
 	return slope, intercept
 }
 
 // This function computes the correlation coefficient.
 func Correlation(x, y []float64) float64 {
-	// Compute the means.
-	meanX := Mean(x)
-	meanY := Mean(y)
+	// Compute the _means.
+	_meanX := _Mean(x)
+	_meanY := _Mean(y)
 	// Compute the standard deviations.
 	sdX := StdDev(x)
 	sdY := StdDev(y)
 	// Compute the correlation coefficient.
 	var sum float64
 	for i := 0; i < len(x); i++ {
-		sum += (x[i] - meanX) * (y[i] - meanY)
+		sum += (x[i] - _meanX) * (y[i] - _meanY)
 	}
 	return sum / (float64(len(x)) * sdX * sdY)
 }
@@ -344,7 +344,7 @@ func Anova(x [][]float64, y []float64) (float64, float64) {
 	tss := TotalSumOfSquares(y)
 	// Compute the residual sum of squares.
 	rss := ResidualSumOfSquares(x, y)
-	// Compute the mean sum of squares.
+	// Compute the _mean sum of squares.
 	mss := tss - rss
 	// Compute the degrees of freedom.
 	df1 := float64(len(x) - 1)
@@ -359,12 +359,12 @@ func Anova(x [][]float64, y []float64) (float64, float64) {
 
 // This function computes the total sum of squares.
 func TotalSumOfSquares(y []float64) float64 {
-	// Compute the mean of the data.
-	mean := Mean(y)
+	// Compute the _mean of the data.
+	_mean := _Mean(y)
 	// Compute the sum of squares.
 	var sum float64
 	for i := 0; i < len(y); i++ {
-		sum += math.Pow(y[i]-mean, 2)
+		sum += math.Pow(y[i]-_mean, 2)
 	}
 	// Return the result.
 	return sum
@@ -375,11 +375,11 @@ func ResidualSumOfSquares(x [][]float64, y []float64) float64 {
 	// Compute the sum of squares.
 	var sum float64
 	for i := 0; i < len(x); i++ {
-		// Compute the mean of the data.
-		mean := Mean(x[i])
+		// Compute the _mean of the data.
+		_mean := _Mean(x[i])
 		// Compute the sum of squares.
 		for j := 0; j < len(x[i]); j++ {
-			sum += math.Pow(x[i][j]-mean, 2)
+			sum += math.Pow(x[i][j]-_mean, 2)
 		}
 	}
 	// Return the result.
@@ -483,9 +483,9 @@ func Percentile(x []float64, p float64) float64 {
 	return x[int(index)]
 }
 
-// This function computes the median.
-func Median(x []float64) float64 {
-	// Compute the median.
+// This function computes the _median.
+func _Median(x []float64) float64 {
+	// Compute the _median.
 	return Percentile(x, 0.5)
 }
 
@@ -514,12 +514,12 @@ func Mode(x []float64) float64 {
 
 // This function computes the variance.
 func Variance(x []float64) float64 {
-	// Compute the mean.
-	mean := Mean(x)
+	// Compute the _mean.
+	_mean := _Mean(x)
 	// Compute the variance.
 	var sum float64
 	for i := 0; i < len(x); i++ {
-		sum += math.Pow(x[i]-mean, 2)
+		sum += math.Pow(x[i]-_mean, 2)
 	}
 	// Return the result.
 	return sum / float64(len(x))
@@ -536,7 +536,7 @@ func Covariance(x []float64, y []float64) float64 {
 	// Compute the covariance.
 	var sum float64
 	for i := 0; i < len(x); i++ {
-		sum += (x[i] - Mean(x)) * (y[i] - Mean(y))
+		sum += (x[i] - _Mean(x)) * (y[i] - _Mean(y))
 	}
 	// Return the result.
 	return sum / float64(len(x))
@@ -581,9 +581,9 @@ func KNearestNeighbors(x []float64, y []float64, k int) [][]float64 {
 	return neighbors
 }
 
-// This function computes the k-means clustering.
-func KMeansClustering(x []float64, y []float64, k int) [][]float64 {
-	// Compute the k-means clustering.
+// This function computes the k-_means clustering.
+func K_MeansClustering(x []float64, y []float64, k int) [][]float64 {
+	// Compute the k-_means clustering.
 	var clusters [][]float64
 	for i := 0; i < k; i++ {
 		// Compute the clusters.
@@ -597,17 +597,6 @@ func KMeansClustering(x []float64, y []float64, k int) [][]float64 {
 	}
 	// Return the result.
 	return clusters
-}
-
-// Compute the multivariate normal distribution.
-func MultivariateNormalDistribution(x []float64, mu []float64, sigma [][]float64) float64 {
-	// Compute the multivariate normal distribution.
-	// Compute the first part of the function.
-	a := 1 / math.Pow(math.Pow(2*math.Pi, float64(len(x))/2)*math.Sqrt(Determinant(sigma)), 2)
-	// Compute the second part of the function.
-	b := math.Exp(-0.5 * DotProduct(Subtract(x, mu), Multiply(Inverse(sigma), Subtract(x, mu))))
-	// Return the result.
-	return a * b
 }
 
 // This function computes the determinant.
