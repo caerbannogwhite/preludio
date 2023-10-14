@@ -118,15 +118,6 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	return vm
 }
 
-type LOG_TYPE uint8
-
-const (
-	LOG_INFO    LOG_TYPE = 0
-	LOG_WARNING LOG_TYPE = 1
-	LOG_ERROR   LOG_TYPE = 2
-	LOG_DEBUG   LOG_TYPE = 3
-)
-
 // Run Preludio source code.
 func (vm *ByteEater) RunSource(source string) *preludiometa.PreludioOutput {
 	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)

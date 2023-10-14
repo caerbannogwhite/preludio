@@ -691,32 +691,32 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 			}
 
 			// check names
-			if df.SeriesAt(0).Name() != "Car" {
-				t.Error("Expected Car, got", df.SeriesAt(0).Name())
+			if df.NameAt(0) != "Car" {
+				t.Error("Expected Car, got", df.NameAt(0))
 			}
-			if df.SeriesAt(1).Name() != "MPG" {
-				t.Error("Expected MPG, got", df.SeriesAt(1).Name())
+			if df.NameAt(1) != "MPG" {
+				t.Error("Expected MPG, got", df.NameAt(1))
 			}
-			if df.SeriesAt(2).Name() != "Cylinders" {
-				t.Error("Expected Cylinders, got", df.SeriesAt(2).Name())
+			if df.NameAt(2) != "Cylinders" {
+				t.Error("Expected Cylinders, got", df.NameAt(2))
 			}
-			if df.SeriesAt(3).Name() != "Displacement" {
-				t.Error("Expected Displacement, got", df.SeriesAt(3).Name())
+			if df.NameAt(3) != "Displacement" {
+				t.Error("Expected Displacement, got", df.NameAt(3))
 			}
-			if df.SeriesAt(4).Name() != "Horsepower" {
-				t.Error("Expected Horsepower, got", df.SeriesAt(4).Name())
+			if df.NameAt(4) != "Horsepower" {
+				t.Error("Expected Horsepower, got", df.NameAt(4))
 			}
-			if df.SeriesAt(5).Name() != "Weight" {
-				t.Error("Expected Weight, got", df.SeriesAt(5).Name())
+			if df.NameAt(5) != "Weight" {
+				t.Error("Expected Weight, got", df.NameAt(5))
 			}
-			if df.SeriesAt(6).Name() != "Acceleration" {
-				t.Error("Expected Acceleration, got", df.SeriesAt(6).Name())
+			if df.NameAt(6) != "Acceleration" {
+				t.Error("Expected Acceleration, got", df.NameAt(6))
 			}
-			if df.SeriesAt(7).Name() != "Model" {
-				t.Error("Expected Model, got", df.SeriesAt(7).Name())
+			if df.NameAt(7) != "Model" {
+				t.Error("Expected Model, got", df.NameAt(7))
 			}
-			if df.SeriesAt(8).Name() != "Origin" {
-				t.Error("Expected Origin, got", df.SeriesAt(8).Name())
+			if df.NameAt(8) != "Origin" {
+				t.Error("Expected Origin, got", df.NameAt(8))
 			}
 		}
 	} else {
@@ -767,32 +767,32 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 			}
 
 			// check names
-			if df.SeriesAt(0).Name() != "Car" {
-				t.Error("Expected Car, got", df.SeriesAt(0).Name())
+			if df.NameAt(0) != "Car" {
+				t.Error("Expected Car, got", df.NameAt(0))
 			}
-			if df.SeriesAt(1).Name() != "MPG" {
-				t.Error("Expected MPG, got", df.SeriesAt(1).Name())
+			if df.NameAt(1) != "MPG" {
+				t.Error("Expected MPG, got", df.NameAt(1))
 			}
-			if df.SeriesAt(2).Name() != "Cylinders" {
-				t.Error("Expected Cylinders, got", df.SeriesAt(2).Name())
+			if df.NameAt(2) != "Cylinders" {
+				t.Error("Expected Cylinders, got", df.NameAt(2))
 			}
-			if df.SeriesAt(3).Name() != "Displacement" {
-				t.Error("Expected Displacement, got", df.SeriesAt(3).Name())
+			if df.NameAt(3) != "Displacement" {
+				t.Error("Expected Displacement, got", df.NameAt(3))
 			}
-			if df.SeriesAt(4).Name() != "Horsepower" {
-				t.Error("Expected Horsepower, got", df.SeriesAt(4).Name())
+			if df.NameAt(4) != "Horsepower" {
+				t.Error("Expected Horsepower, got", df.NameAt(4))
 			}
-			if df.SeriesAt(5).Name() != "Weight" {
-				t.Error("Expected Weight, got", df.SeriesAt(5).Name())
+			if df.NameAt(5) != "Weight" {
+				t.Error("Expected Weight, got", df.NameAt(5))
 			}
-			if df.SeriesAt(6).Name() != "Acceleration" {
-				t.Error("Expected Acceleration, got", df.SeriesAt(6).Name())
+			if df.NameAt(6) != "Acceleration" {
+				t.Error("Expected Acceleration, got", df.NameAt(6))
 			}
-			if df.SeriesAt(7).Name() != "Model" {
-				t.Error("Expected Model, got", df.SeriesAt(7).Name())
+			if df.NameAt(7) != "Model" {
+				t.Error("Expected Model, got", df.NameAt(7))
 			}
-			if df.SeriesAt(8).Name() != "Origin" {
-				t.Error("Expected Origin, got", df.SeriesAt(8).Name())
+			if df.NameAt(8) != "Origin" {
+				t.Error("Expected Origin, got", df.NameAt(8))
 			}
 		}
 	} else {
