@@ -47,6 +47,10 @@ Charlie,33,60.0,t,Business,2
 }
 ```
 
+### Community
+
+You can join the [Gandalff community on Discord](https://discord.gg/vPv5bhXY).
+
 ### Supported data types
 
 The data types not checked are not yet supported, but might be in the future.

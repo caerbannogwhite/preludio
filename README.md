@@ -62,6 +62,10 @@ joined := (
 
 ![](media/repl_example.gif)
 
+### Community
+
+You can join the [Preludio community on Discord](https://discord.gg/FHJnhGyK).
+
 ### Data Types
 
 The language supports the following data types:
@@ -142,8 +146,6 @@ go run .
 
 ### Future Features
 
-- [x] Move to [Gandalff](https://github.com/caerbannogwhite/preludio/tree/main/core/gandalff) library
-- [ ] Add date/time data types
 - [ ] Add statistical functions
 - [ ] Add support for Excel files
 - [ ] Add support for XPT files
@@ -151,15 +153,6 @@ go run .
 - [ ] Add support for SAS7BDAT files
 - [ ] Add support for SPSS files
 - [ ] Database connections (SQL, MongoDB, etc.)
-
-In case the language becomes quite successful, I will consider adding:
-
-- [ ] Text editor/Ide (in browser and app)
-- [ ] Plots (https://github.com/gonum/plot)
-- [ ] Interactive plots and tables
-- [ ] Integration with other languages (Python, R, etc.)
-- [ ] Integration with other tools (Jupyter, etc.)
-- [ ] Integration with OpenAI (https://openai.com/blog/openai-api/), ie. image to table
 
 ### Contributing
 
@@ -177,11 +170,12 @@ make.ps1
 
 ### New Ideas
 
-- Add datetime series to Gandalff
 - List can be indexed with integers, ranges, strings and regex
+- Get help on functions or identifiers with `?`
 
 ### Log
 
+- **14 / 10 / 2023** Gandalff now supports datetime and duration data types.
 - **20 / 08 / 2023** After exactly one year from the first commit, Preludio is fairly stable and usable. The language is still missing a few core features (like `join` and aggregators, already supported by Gandalff), but it is already possible to perform many operations with it.
 - **02 / 08 / 2023** Preludio is now using the Gandalff library for managing data.
 - **21 / 03 / 2023** First publishing of the repository. Many things are still not working.
