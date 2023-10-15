@@ -13,7 +13,7 @@ programIntro: PRQL namedArg* nl;
 funcDef:
 	FUNC funcDefName funcDefParams ARROW (
 		exprCall
-		| LBRACE nl* (stmt nl*)* RBRACE
+		| nl* (stmt nl*)* END
 	);
 
 funcDefName: IDENT typeDef?;
@@ -23,9 +23,26 @@ funcDefParam: (namedArg | IDENT) typeDef?;
 typeDef: LANG typeTerm BAR typeTerm* RANG;
 typeTerm: IDENT typeDef?;
 
-stmt: varAssignStmt | varDeclStmt | retStmt | exprCall;
+stmt:
+	varAssignStmt
+	| varDeclStmt
+	| ifElseStmt
+	| forStmt
+	| helpStmt
+	| retStmt
+	| exprCall;
 varAssignStmt: IDENT ASSIGN exprCall;
 varDeclStmt: IDENT DECLARE exprCall;
+ifElseStmt:
+	IF exprCall DO (
+		stmt
+		| nl* (stmt nl*)* (
+			ELSE (stmt | nl* (stmt nl*)* END)
+			| END
+		)
+	);
+forStmt: FOR IDENT IN exprCall DO (stmt | nl* (stmt nl*)* END);
+helpStmt: HELP IDENT;
 retStmt: RET exprCall;
 
 exprCall: expr | funcCall;
@@ -34,6 +51,7 @@ expr:
 	literal
 	| expr INDEXING expr
 	| (MINUS | PLUS | NOT) expr
+	| REVERSE IDENT
 	| expr EXP expr
 	| expr (STAR | DIV | MOD) expr
 	| expr (MINUS | PLUS) expr
@@ -42,6 +60,7 @@ expr:
 	| expr COALESCE expr
 	| expr (AND | OR) expr
 	| LPAREN expr RPAREN
+	| expr IN expr
 	| list
 	| nestedPipeline;
 
