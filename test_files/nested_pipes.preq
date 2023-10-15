@@ -25,6 +25,7 @@ filter! A == B == C == D == E
 (
 cars
 filter! year >= 80 and Origin != na  
+sort! rev Horsepower Weight rev MPG
 )
 
 (

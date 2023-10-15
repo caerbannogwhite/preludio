@@ -1,0 +1,12 @@
+
+func function1 a b:2 c -> a + b + c
+
+func function2 foo:(1+2) bar:3 -> 
+    a := (from! bar | name!)
+    b := (
+        from! foo
+        sort! rev names
+        take! 1
+    )
+    ret a + foo
+end
