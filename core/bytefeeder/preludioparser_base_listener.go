@@ -92,6 +92,24 @@ func (s *BasepreludioParserListener) EnterVarDeclStmt(ctx *VarDeclStmtContext) {
 // ExitVarDeclStmt is called when production varDeclStmt is exited.
 func (s *BasepreludioParserListener) ExitVarDeclStmt(ctx *VarDeclStmtContext) {}
 
+// EnterIfElseStmt is called when production ifElseStmt is entered.
+func (s *BasepreludioParserListener) EnterIfElseStmt(ctx *IfElseStmtContext) {}
+
+// ExitIfElseStmt is called when production ifElseStmt is exited.
+func (s *BasepreludioParserListener) ExitIfElseStmt(ctx *IfElseStmtContext) {}
+
+// EnterForStmt is called when production forStmt is entered.
+func (s *BasepreludioParserListener) EnterForStmt(ctx *ForStmtContext) {}
+
+// ExitForStmt is called when production forStmt is exited.
+func (s *BasepreludioParserListener) ExitForStmt(ctx *ForStmtContext) {}
+
+// EnterHelpStmt is called when production helpStmt is entered.
+func (s *BasepreludioParserListener) EnterHelpStmt(ctx *HelpStmtContext) {}
+
+// ExitHelpStmt is called when production helpStmt is exited.
+func (s *BasepreludioParserListener) ExitHelpStmt(ctx *HelpStmtContext) {}
+
 // EnterRetStmt is called when production retStmt is entered.
 func (s *BasepreludioParserListener) EnterRetStmt(ctx *RetStmtContext) {}
 

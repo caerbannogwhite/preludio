@@ -43,6 +43,15 @@ type preludioParserListener interface {
 	// EnterVarDeclStmt is called when entering the varDeclStmt production.
 	EnterVarDeclStmt(c *VarDeclStmtContext)
 
+	// EnterIfElseStmt is called when entering the ifElseStmt production.
+	EnterIfElseStmt(c *IfElseStmtContext)
+
+	// EnterForStmt is called when entering the forStmt production.
+	EnterForStmt(c *ForStmtContext)
+
+	// EnterHelpStmt is called when entering the helpStmt production.
+	EnterHelpStmt(c *HelpStmtContext)
+
 	// EnterRetStmt is called when entering the retStmt production.
 	EnterRetStmt(c *RetStmtContext)
 
@@ -117,6 +126,15 @@ type preludioParserListener interface {
 
 	// ExitVarDeclStmt is called when exiting the varDeclStmt production.
 	ExitVarDeclStmt(c *VarDeclStmtContext)
+
+	// ExitIfElseStmt is called when exiting the ifElseStmt production.
+	ExitIfElseStmt(c *IfElseStmtContext)
+
+	// ExitForStmt is called when exiting the forStmt production.
+	ExitForStmt(c *ForStmtContext)
+
+	// ExitHelpStmt is called when exiting the helpStmt production.
+	ExitHelpStmt(c *HelpStmtContext)
 
 	// ExitRetStmt is called when exiting the retStmt production.
 	ExitRetStmt(c *RetStmtContext)

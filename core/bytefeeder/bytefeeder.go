@@ -225,6 +225,26 @@ func (bf *ByteFeeder) ExitVarDeclStmt(ctx *VarDeclStmtContext) {
 	bf.AppendInstruction(preludiometa.OP_VAR_DECL, 0, pos)
 }
 
+// EnterIfElseStmt is called when production ifElseStmt is entered.
+func (bf *ByteFeeder) EnterIfElseStmt(ctx *IfElseStmtContext) {}
+
+// ExitIfElseStmt is called when production ifElseStmt is exited.
+func (bf *ByteFeeder) ExitIfElseStmt(ctx *IfElseStmtContext) {}
+
+// EnterForStmt is called when production forStmt is entered.
+func (bf *ByteFeeder) EnterForStmt(ctx *ForStmtContext) {}
+
+// ExitForStmt is called when production forStmt is exited.
+func (bf *ByteFeeder) ExitForStmt(ctx *ForStmtContext) {}
+
+// EnterHelpStmt is called when production helpStmt is entered.
+func (bf *ByteFeeder) EnterHelpStmt(ctx *HelpStmtContext) {}
+
+// ExitHelpStmt is called when production helpStmt is exited.
+func (bf *ByteFeeder) ExitHelpStmt(ctx *HelpStmtContext) {
+	bf.AppendInstruction(preludiometa.OP_HELP, 0, 0)
+}
+
 // EnterPipeline is called when production pipeline is entered.
 func (bf *ByteFeeder) EnterPipeline(ctx *PipelineContext) {
 	bf.AppendInstruction(preludiometa.OP_START_PIPELINE, 0, 0)
@@ -302,6 +322,9 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 	// UNARY OPERATIONS
 	case 2:
 		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
+		case preludiometa.SYMBOL_REV:
+			bf.AppendInstruction(preludiometa.OP_UNARY_REV, 0, 0)
+
 		case preludiometa.SYMBOL_UNARY_SUB:
 			if bf.lastInstruction == preludiometa.OP_UNARY_SUB {
 				bf.RemoveLastInstruction()
@@ -324,6 +347,9 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 		switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
 		case preludiometa.SYMBOL_INDEXING:
 			bf.AppendInstruction(preludiometa.OP_INDEXING, 0, 0)
+
+		case preludiometa.SYMBOL_IN:
+			bf.AppendInstruction(preludiometa.OP_BINARY_IN, 0, 0)
 
 		case preludiometa.SYMBOL_BINARY_MUL:
 			bf.AppendInstruction(preludiometa.OP_BINARY_MUL, 0, 0)
