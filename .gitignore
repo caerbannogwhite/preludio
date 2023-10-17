@@ -9,7 +9,7 @@
 /coverage
 
 # big files
-/core/gandalff/testdata
+/src/gandalff/testdata
 
 # production
 /build
