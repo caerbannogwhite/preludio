@@ -2,13 +2,13 @@ module preludio
 
 go 1.20
 
-replace preludiocore => ./core
+replace preludiocore => ./src
 
-replace bytefeeder => ./core/bytefeeder
+replace bytefeeder => ./src/bytefeeder
 
-replace preludiometa => ./core/meta
+replace preludiometa => ../preludiometa
 
-replace gandalff => ./core/gandalff
+replace gandalff => ../gandalff
 
 require (
 	bytefeeder v0.0.0-00010101000000-000000000000

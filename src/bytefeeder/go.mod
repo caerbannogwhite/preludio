@@ -2,7 +2,7 @@ module bytefeeder
 
 go 1.20
 
-replace preludiometa => ../meta
+replace preludiometa => ../../../preludiometa
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df
