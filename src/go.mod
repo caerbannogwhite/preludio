@@ -1,6 +1,6 @@
 module preludiocore
 
-go 1.20
+go 1.21.3
 
 replace bytefeeder => ./bytefeeder
 
@@ -17,5 +17,6 @@ require (
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
+	github.com/caerbannogwhite/preludiometa v0.0.0-20231018224909-5ea6906bfec2 // indirect
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e // indirect
 )
