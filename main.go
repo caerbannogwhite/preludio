@@ -44,6 +44,7 @@ type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
+	SdtOut     bool   `arg:"-o, --stdout" help:"print output to stdout" default:"false"`
 	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
 	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
 }
@@ -58,7 +59,9 @@ func main() {
 		be := new(preludiocore.ByteEater).
 			InitVM().
 			SetParamPrintWarning(args.Warnings).
-			SetParamDebugLevel(args.DebugLevel)
+			SetParamDebugLevel(args.DebugLevel).
+			SetParamVerbose(args.Verbose).
+			SetParamPrintToStdout(args.SdtOut)
 
 		bytecode, logs, err := bytefeeder.CompileFile(args.InputPath)
 		if err != nil {
@@ -76,7 +79,9 @@ func main() {
 		be := new(preludiocore.ByteEater).
 			InitVM().
 			SetParamPrintWarning(args.Warnings).
-			SetParamDebugLevel(args.DebugLevel)
+			SetParamDebugLevel(args.DebugLevel).
+			SetParamVerbose(args.Verbose).
+			SetParamPrintToStdout(args.SdtOut)
 
 		bytecode, logs, err := bytefeeder.CompileSource(args.SourceCode)
 		if err != nil {

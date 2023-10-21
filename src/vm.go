@@ -767,8 +767,22 @@ MAIN_LOOP:
 		case preludiometa.OP_BINARY_MODEL:
 			vm.printDebug(10, "OP_BINARY_MODEL", "", "")
 
+		case preludiometa.OP_INDEXING:
+			vm.printDebug(10, "OP_INDEXING", "", "")
+
+			op2 := vm.stackPop()
+			vm.stackLast().appendBinaryOperation(preludiometa.OP_INDEXING, op2)
+
+		case preludiometa.OP_HELP:
+			vm.printDebug(10, "OP_HELP", "", "")
+
 		///////////////////////////////////////////////////////////////////////
 		///////////				UNARY OPERATIONS
+
+		case preludiometa.OP_UNARY_REV:
+			vm.printDebug(10, "OP_UNARY_REV", "", "")
+
+			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_REV)
 
 		case preludiometa.OP_UNARY_SUB:
 			vm.printDebug(10, "OP_UNARY_SUB", "", "")

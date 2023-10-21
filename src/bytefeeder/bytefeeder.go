@@ -242,7 +242,7 @@ func (bf *ByteFeeder) EnterHelpStmt(ctx *HelpStmtContext) {}
 
 // ExitHelpStmt is called when production helpStmt is exited.
 func (bf *ByteFeeder) ExitHelpStmt(ctx *HelpStmtContext) {
-	bf.AppendInstruction(preludiometa.OP_HELP, 0, 0)
+	bf.AppendInstruction(preludiometa.OP_HELP, 0, bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText()))
 }
 
 // EnterPipeline is called when production pipeline is entered.
@@ -273,8 +273,7 @@ func (bf *ByteFeeder) EnterFuncCall(ctx *FuncCallContext) {
 // ExitFuncCall is called when production funcCall is exited.
 func (bf *ByteFeeder) ExitFuncCall(ctx *FuncCallContext) {
 	// funcName := ctx.IDENT().GetSymbol().GetText()
-	pos := bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText())
-	bf.AppendInstruction(preludiometa.OP_MAKE_FUNC_CALL, 0, pos)
+	bf.AppendInstruction(preludiometa.OP_MAKE_FUNC_CALL, 0, bf.symbolTable.Add(ctx.IDENT().GetSymbol().GetText()))
 }
 
 // EnterFuncCallParam is called when production funcCallParam is entered.
