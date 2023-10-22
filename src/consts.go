@@ -2,18 +2,18 @@ package preludiocore
 
 type UserDefinedFunction func(*ByteEater)
 
-type __p_symbol__ string
+type pSymbol string
 
-type __p_list__ []__p_intern__
+type pList []pIntern
 
-type __p_intern_tag__ uint8
+type pInternTagType uint8
 
 const (
-	// PRELUDIO_INTERNAL_TAG_ERROR       __p_intern_tag__ = 0
-	PRELUDIO_INTERNAL_TAG_EXPRESSION  __p_intern_tag__ = 1
-	PRELUDIO_INTERNAL_TAG_NAMED_PARAM __p_intern_tag__ = 2
-	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  __p_intern_tag__ = 3
-	PRELUDIO_INTERNAL_TAG_BEGIN_FRAME __p_intern_tag__ = 4
+	// PRELUDIO_INTERNAL_TAG_ERROR       pInternTagType = 0
+	PRELUDIO_INTERNAL_TAG_EXPRESSION  pInternTagType = 1
+	PRELUDIO_INTERNAL_TAG_NAMED_PARAM pInternTagType = 2
+	PRELUDIO_INTERNAL_TAG_ASSIGNMENT  pInternTagType = 3
+	PRELUDIO_INTERNAL_TAG_BEGIN_FRAME pInternTagType = 4
 )
 
 // VM parameters

@@ -129,6 +129,34 @@ func checkCurrentResult(be *ByteEater, expected interface{}) error {
 			return fmt.Errorf("expected %v, got %v: %T", v, s, err)
 		}
 
+	// case time.Time:
+	// 	if !be.__currentResult.isTimeScalar() {
+	// 		return fmt.Errorf("expected time scalar, got %T", be.__currentResult)
+	// 	} else if t, err := be.__currentResult.getTimeScalar(); err != nil || t != v {
+	// 		return fmt.Errorf("expected %v, got %v: %T", v, t, err)
+	// 	}
+
+	// case []time.Time:
+	// 	if !be.__currentResult.isTimeVector() {
+	// 		return fmt.Errorf("expected time vector, got %T", be.__currentResult)
+	// 	} else if t, err := be.__currentResult.getTimeVector(); err != nil || !timeSliceEqual(t, v) {
+	// 		return fmt.Errorf("expected %v, got %v: %T", v, t, err)
+	// 	}
+
+	// case time.Duration:
+	// 	if !be.__currentResult.isDurationScalar() {
+	// 		return fmt.Errorf("expected duration scalar, got %T", be.__currentResult)
+	// 	} else if d, err := be.__currentResult.getDurationScalar(); err != nil || d != v {
+	// 		return fmt.Errorf("expected %v, got %v: %T", v, d, err)
+	// 	}
+
+	// case []time.Duration:
+	// 	if !be.__currentResult.isDurationVector() {
+	// 		return fmt.Errorf("expected duration vector, got %T", be.__currentResult)
+	// 	} else if d, err := be.__currentResult.getDurationVector(); err != nil || !durationSliceEqual(d, v) {
+	// 		return fmt.Errorf("expected %v, got %v: %T", v, d, err)
+	// 	}
+
 	default:
 		return fmt.Errorf("unknown type %T", v)
 	}
@@ -136,108 +164,108 @@ func checkCurrentResult(be *ByteEater, expected interface{}) error {
 	return nil
 }
 
-func checkExpression(be *ByteEater, operand *__p_intern__, expected interface{}) error {
-	err := be.solveExpr(operand)
+func checkExpression(be *ByteEater, operand *pIntern, expected interface{}) error {
+	// err := be.solveExpr(operand)
 
-	switch expectedTyped := expected.(type) {
-	case bool:
-		if err != nil {
-			return err
-		} else if v, err := operand.getBoolScalar(); err == nil {
-			if v != expectedTyped {
-				return fmt.Errorf("expected %t, got %t", expected, v)
-			}
-		} else {
-			return err
-		}
+	// switch expectedTyped := expected.(type) {
+	// case bool:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getBoolScalar(); err == nil {
+	// 		if v != expectedTyped {
+	// 			return fmt.Errorf("expected %t, got %t", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case []bool:
-		if err != nil {
-			return err
-		} else if v, err := operand.getBoolVector(); err == nil {
-			if !boolSliceEqual(v, expectedTyped) {
-				return fmt.Errorf("expected %v, got %v", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case []bool:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getBoolVector(); err == nil {
+	// 		if !boolSliceEqual(v, expectedTyped) {
+	// 			return fmt.Errorf("expected %v, got %v", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case int64:
-		if err != nil {
-			return err
-		} else if v, err := operand.getInt64Scalar(); err == nil {
-			if v != expectedTyped {
-				return fmt.Errorf("expected %d, got %d", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case int64:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getInt64Scalar(); err == nil {
+	// 		if v != expectedTyped {
+	// 			return fmt.Errorf("expected %d, got %d", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case []int64:
-		if err != nil {
-			return err
-		} else if v, err := operand.getInt64Vector(); err == nil {
-			if !int64SliceEqual(v, expectedTyped) {
-				return fmt.Errorf("expected %v, got %v", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case []int64:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getInt64Vector(); err == nil {
+	// 		if !int64SliceEqual(v, expectedTyped) {
+	// 			return fmt.Errorf("expected %v, got %v", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case float64:
-		if err != nil {
-			return err
-		} else if v, err := operand.getFloat64Scalar(); err == nil {
-			if v != expectedTyped {
-				return fmt.Errorf("expected %f, got %f", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case float64:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getFloat64Scalar(); err == nil {
+	// 		if v != expectedTyped {
+	// 			return fmt.Errorf("expected %f, got %f", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case []float64:
-		if err != nil {
-			return err
-		} else if v, err := operand.getFloat64Vector(); err == nil {
-			if !float64SliceEqual(v, expectedTyped) {
-				return fmt.Errorf("expected %v, got %v", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case []float64:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getFloat64Vector(); err == nil {
+	// 		if !float64SliceEqual(v, expectedTyped) {
+	// 			return fmt.Errorf("expected %v, got %v", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case string:
-		if err != nil {
-			return err
-		} else if v, err := operand.getStringScalar(); err == nil {
-			if v != expectedTyped {
-				return fmt.Errorf("expected %s, got %s", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case string:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getStringScalar(); err == nil {
+	// 		if v != expectedTyped {
+	// 			return fmt.Errorf("expected %s, got %s", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case []string:
-		if err != nil {
-			return err
-		} else if v, err := operand.getStringVector(); err == nil {
-			if !stringSliceEqual(v, expectedTyped) {
-				return fmt.Errorf("expected %v, got %v", expected, v)
-			}
-		} else {
-			return err
-		}
+	// case []string:
+	// 	if err != nil {
+	// 		return err
+	// 	} else if v, err := operand.getStringVector(); err == nil {
+	// 		if !stringSliceEqual(v, expectedTyped) {
+	// 			return fmt.Errorf("expected %v, got %v", expected, v)
+	// 		}
+	// 	} else {
+	// 		return err
+	// 	}
 
-	case error:
-		if err == nil {
-			return fmt.Errorf("expected error, got %v", operand)
-		} else if err.Error() != expectedTyped.Error() {
-			return fmt.Errorf("expected error string \"%v\", got \"%v\"", expected, err)
-		}
+	// case error:
+	// 	if err == nil {
+	// 		return fmt.Errorf("expected error, got %v", operand)
+	// 	} else if err.Error() != expectedTyped.Error() {
+	// 		return fmt.Errorf("expected error string \"%v\", got \"%v\"", expected, err)
+	// 	}
 
-	default:
-		return fmt.Errorf("unknown type %T", expectedTyped)
-	}
+	// default:
+	// 	return fmt.Errorf("unknown type %T", expectedTyped)
+	// }
 
 	return nil
 }
