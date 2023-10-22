@@ -338,6 +338,10 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 			bf.AppendInstruction(preludiometa.OP_UNARY_ADD, 0, 0)
 
 		case preludiometa.SYMBOL_UNARY_NOT:
+			if bf.lastInstruction == preludiometa.OP_UNARY_NOT {
+				bf.RemoveLastInstruction()
+				return
+			}
 			bf.AppendInstruction(preludiometa.OP_UNARY_NOT, 0, 0)
 		}
 
