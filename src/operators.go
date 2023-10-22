@@ -47,7 +47,10 @@ func (vm *ByteEater) processList(list *pList) (interface{}, error) {
 
 func (vm *ByteEater) handleOperator(op preludiometa.OPCODE) {
 
+	var ok bool
 	var operand1, operand2 *pIntern
+	var b1, b2 gandalff.SeriesBool
+	var s1, s2, res gandalff.Series
 
 	switch op {
 
@@ -61,12 +64,14 @@ func (vm *ByteEater) handleOperator(op preludiometa.OPCODE) {
 		operand1 = vm.stackPop()
 
 		// Check if the operands are series
-		if s1, ok := operand1.value.(gandalff.Series); ok {
-			if s2, ok := operand2.value.(gandalff.Series); ok {
-				operand1.value = s1.Mul(s2)
-				vm.stackPush(operand1)
-				return
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Mul(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot multiply %s with %v", s1.TypeCard().ToString(), operand2.value))
 			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot multiply %v with %v", operand1.value, operand2.value))
 		}
 
 	case preludiometa.OP_BINARY_DIV:
@@ -76,49 +81,219 @@ func (vm *ByteEater) handleOperator(op preludiometa.OPCODE) {
 		operand1 = vm.stackPop()
 
 		// Check if the operands are series
-		if s1, ok := operand1.value.(gandalff.Series); ok {
-			if s2, ok := operand2.value.(gandalff.Series); ok {
-				operand1.value = s1.Div(s2)
-				vm.stackPush(operand1)
-				return
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Div(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot divide %s with %v", s1.TypeCard().ToString(), operand2.value))
 			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot divide %v with %v", operand1.value, operand2.value))
 		}
 
 	case preludiometa.OP_BINARY_MOD:
 		vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Mod(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot use modulo on %s and %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot use modulo on %v and %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_EXP:
 		vm.printDebug(10, "OP_BINARY_EXP", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Exp(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot use exponentiation on %s and %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot use exponentiation on %v and %v", operand1.value, operand2.value))
+		}
 
 	case preludiometa.OP_BINARY_ADD:
 		vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Add(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot add %s to %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot add %v to %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_SUB:
 		vm.printDebug(10, "OP_BINARY_SUB", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Sub(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot subtract %s from %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot subtract %v from %v", operand1.value, operand2.value))
+		}
 
 	case preludiometa.OP_BINARY_EQ:
 		vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Eq(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_NE:
 		vm.printDebug(10, "OP_BINARY_NE", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Ne(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
 
 	case preludiometa.OP_BINARY_GE:
 		vm.printDebug(10, "OP_BINARY_GE", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Ge(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_LE:
 		vm.printDebug(10, "OP_BINARY_LE", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Le(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
 
 	case preludiometa.OP_BINARY_GT:
 		vm.printDebug(10, "OP_BINARY_GT", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Gt(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_LT:
 		vm.printDebug(10, "OP_BINARY_LT", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			if s2, ok = operand2.value.(gandalff.Series); ok {
+				res = s1.Lt(s2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot compare %s with %v", s1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot compare %v with %v", operand1.value, operand2.value))
+		}
 
 	case preludiometa.OP_BINARY_AND:
 		vm.printDebug(10, "OP_BINARY_AND", "", "")
 
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if b1, ok = operand1.value.(gandalff.SeriesBool); ok {
+			if b2, ok = operand2.value.(gandalff.SeriesBool); ok {
+				res = b1.Add(b2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot use AND on %s and %v", b1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot use AND on %v and %v", operand1.value, operand2.value))
+		}
+
 	case preludiometa.OP_BINARY_OR:
 		vm.printDebug(10, "OP_BINARY_OR", "", "")
+
+		operand2 = vm.stackPop()
+		operand1 = vm.stackPop()
+
+		// Check if the operands are series
+		if b1, ok = operand1.value.(gandalff.SeriesBool); ok {
+			if b2, ok = operand2.value.(gandalff.SeriesBool); ok {
+				res = b1.Or(b2)
+			} else {
+				vm.setPanicMode(fmt.Sprintf("cannot use OR on %s and %v", b1.TypeCard().ToString(), operand2.value))
+			}
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot use OR on %v and %v", operand1.value, operand2.value))
+		}
 
 	///////////////////////////////////////////////////////////////////////
 	///////////				OTHER OPERATIONS
@@ -140,16 +315,57 @@ func (vm *ByteEater) handleOperator(op preludiometa.OPCODE) {
 
 	case preludiometa.OP_UNARY_REV:
 		vm.printDebug(10, "OP_UNARY_REV", "", "")
+		// TODO: skip for now
 
 	case preludiometa.OP_UNARY_SUB:
 		vm.printDebug(10, "OP_UNARY_SUB", "", "")
 
+		operand1 = vm.stackPop()
+
+		// Check if the operand is a series
+		switch t := operand1.value.(type) {
+		case gandalff.SeriesInt:
+			res = t.Neg()
+		case gandalff.SeriesInt64:
+			res = t.Neg()
+		case gandalff.SeriesFloat64:
+			res = t.Neg()
+		default:
+			vm.setPanicMode(fmt.Sprintf("cannot negate %v", operand1.value))
+		}
+
 	case preludiometa.OP_UNARY_ADD:
 		vm.printDebug(10, "OP_UNARY_ADD", "", "")
+		// TODO: skip?
+
+		operand1 = vm.stackPop()
+
+		// Check if the operand is a series
+		if s1, ok = operand1.value.(gandalff.Series); ok {
+			res = s1
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot add %v", operand1.value))
+		}
 
 	case preludiometa.OP_UNARY_NOT:
 		vm.printDebug(10, "OP_UNARY_NOT", "", "")
 
+		operand1 = vm.stackPop()
+
+		// Check if the operand is a series
+		if b1, ok = operand1.value.(gandalff.SeriesBool); ok {
+			res = b1.Not()
+		} else {
+			vm.setPanicMode(fmt.Sprintf("cannot negate %v", operand1.value))
+		}
+
+	}
+
+	if res.IsError() {
+		vm.setPanicMode(res.GetError())
+	} else {
+		operand1.value = res
+		vm.stackPush(operand1)
 	}
 }
 
