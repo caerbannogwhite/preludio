@@ -343,6 +343,12 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 
 	// BINARY OPERATIONS
 	case 3:
+
+		// parenthesis
+		if ctx.RPAREN() != nil {
+			return
+		}
+
 		switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
 		case preludiometa.SYMBOL_INDEXING:
 			bf.AppendInstruction(preludiometa.OP_INDEXING, 0, 0)
