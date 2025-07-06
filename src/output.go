@@ -1,14 +1,15 @@
 package preludiocore
 
 import (
-	"gandalff"
-	"preludiometa"
+	"github.com/caerbannogwhite/aargh/dataframe"
+	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/aargh/series"
 )
 
-func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series gandalff.Series) preludiometa.Columnar {
-	col := preludiometa.Columnar{}
+func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series series.Series) meta.Columnar {
+	col := meta.Columnar{}
 	col.Name = name
-	col.Type = series.Type().ToString()
+	col.Type = series.Type().String()
 	col.ActualLength = series.Len()
 
 	if !fullOutput && series.Len() > outputSnippetLength {
@@ -20,10 +21,10 @@ func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, ser
 	return col
 }
 
-func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *gandalff.DataFrame) []preludiometa.Columnar {
-	columns := make([]preludiometa.Columnar, (*df).NCols())
+func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) []meta.Columnar {
+	columns := make([]meta.Columnar, (*df).NCols())
 	for i, name := range (*df).Names() {
-		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).Series(name))
+		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).C(name))
 	}
 	return columns
 }

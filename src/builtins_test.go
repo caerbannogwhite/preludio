@@ -1,10 +1,12 @@
 package preludiocore
 
 import (
-	"gandalff"
 	"os"
-	"preludiometa"
 	"testing"
+
+	"github.com/caerbannogwhite/aargh/dataframe"
+	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/aargh/series"
 )
 
 func init() {
@@ -13,7 +15,7 @@ func init() {
 
 func Test_Builtin_readCSV(t *testing.T) {
 	var err error
-	var df gandalff.DataFrame
+	var df dataframe.DataFrame
 
 	// CSV, comma delimiter, no header
 	content := `true,hello,.43403,0
@@ -132,7 +134,7 @@ false	"hello again"	0.000000000001	0`
 func Test_Builtin_New(t *testing.T) {
 	var err error
 	var source string
-	var df gandalff.DataFrame
+	var df dataframe.DataFrame
 
 	// basic test
 	source = `
@@ -155,38 +157,38 @@ func Test_Builtin_New(t *testing.T) {
 	} else if df, err = be.__currentResult.getDataframe(); err == nil {
 
 		// check types
-		if df.Series("A").Type() != preludiometa.BoolType {
-			t.Error("Expected bool type, got", df.Series("A").Type())
+		if df.C("A").Type() != meta.BoolType {
+			t.Error("Expected bool type, got", df.C("A").Type())
 		}
-		if df.Series("B").Type() != preludiometa.StringType {
-			t.Error("Expected string type, got", df.Series("B").Type())
+		if df.C("B").Type() != meta.StringType {
+			t.Error("Expected string type, got", df.C("B").Type())
 		}
-		if df.Series("C").Type() != preludiometa.Int64Type {
-			t.Error("Expected int type, got", df.Series("C").Type())
+		if df.C("C").Type() != meta.Int64Type {
+			t.Error("Expected int type, got", df.C("C").Type())
 		}
-		if df.Series("D").Type() != preludiometa.Float64Type {
-			t.Error("Expected float type, got", df.Series("D").Type())
+		if df.C("D").Type() != meta.Float64Type {
+			t.Error("Expected float type, got", df.C("D").Type())
 		}
 
 		// check values
 		bools := []bool{true, false, true, false, true}
-		if !boolSliceEqual(df.Series("A").(gandalff.SeriesBool).Bools(), bools) {
-			t.Error("Expected bool values", bools, "got", df.Series("A").(gandalff.SeriesBool).Bools())
+		if !boolSliceEqual(df.C("A").(series.Bools).Bools(), bools) {
+			t.Error("Expected bool values", bools, "got", df.C("A").(series.Bools).Bools())
 		}
 
 		strings := []string{"hello", "world", "this is a string", "this is another string", "this is a third string"}
-		if !stringSliceEqual(df.Series("B").(gandalff.SeriesString).Strings(), strings) {
-			t.Error("Expected string values", strings, "got", df.Series("B").(gandalff.SeriesString).Strings())
+		if !stringSliceEqual(df.C("B").(series.Strings).Strings(), strings) {
+			t.Error("Expected string values", strings, "got", df.C("B").(series.Strings).Strings())
 		}
 
 		ints := []int64{1, 2, 3, 4, 5}
-		if !int64SliceEqual(df.Series("C").(gandalff.SeriesInt64).Int64s(), ints) {
-			t.Error("Expected int values", ints, "got", df.Series("C").(gandalff.SeriesInt64).Int64s())
+		if !int64SliceEqual(df.C("C").(series.Int64s).Int64s(), ints) {
+			t.Error("Expected int values", ints, "got", df.C("C").(series.Int64s).Int64s())
 		}
 
 		floats := []float64{1.1, 2.2, 3.3, 4.4, 5.5}
-		if !float64SliceEqual(df.Series("D").(gandalff.SeriesFloat64).Float64s(), floats) {
-			t.Error("Expected float values", floats, "got", df.Series("D").(gandalff.SeriesFloat64).Float64s())
+		if !float64SliceEqual(df.C("D").(series.Float64s).Float64s(), floats) {
+			t.Error("Expected float values", floats, "got", df.C("D").(series.Float64s).Float64s())
 		}
 	} else {
 		t.Error("Expected no error, got", err)
@@ -216,38 +218,38 @@ func Test_Builtin_New(t *testing.T) {
 	} else if df, err = be.__currentResult.getDataframe(); err == nil {
 
 		// check types
-		if df.Series("A").Type() != preludiometa.BoolType {
-			t.Error("Expected bool type, got", df.Series("A").Type())
+		if df.C("A").Type() != meta.BoolType {
+			t.Error("Expected bool type, got", df.C("A").Type())
 		}
-		if df.Series("B").Type() != preludiometa.StringType {
-			t.Error("Expected string type, got", df.Series("B").Type())
+		if df.C("B").Type() != meta.StringType {
+			t.Error("Expected string type, got", df.C("B").Type())
 		}
-		if df.Series("C").Type() != preludiometa.Int64Type {
-			t.Error("Expected int type, got", df.Series("C").Type())
+		if df.C("C").Type() != meta.Int64Type {
+			t.Error("Expected int type, got", df.C("C").Type())
 		}
-		if df.Series("D").Type() != preludiometa.Float64Type {
-			t.Error("Expected float type, got", df.Series("D").Type())
+		if df.C("D").Type() != meta.Float64Type {
+			t.Error("Expected float type, got", df.C("D").Type())
 		}
 
 		// check values
 		bools := []bool{true, false, true, false, true}
-		if !boolSliceEqual(df.Series("A").(gandalff.SeriesBool).Bools(), bools) {
-			t.Error("Expected bool values", bools, "got", df.Series("A").(gandalff.SeriesBool).Bools())
+		if !boolSliceEqual(df.C("A").(series.Bools).Bools(), bools) {
+			t.Error("Expected bool values", bools, "got", df.C("A").(series.Bools).Bools())
 		}
 
 		strings := []string{"hello!", "world!", "this is a string!", "this is another string!", "this is a third string!"}
-		if !stringSliceEqual(df.Series("B").(gandalff.SeriesString).Strings(), strings) {
-			t.Error("Expected string values", strings, "got", df.Series("B").(gandalff.SeriesString).Strings())
+		if !stringSliceEqual(df.C("B").(series.Strings).Strings(), strings) {
+			t.Error("Expected string values", strings, "got", df.C("B").(series.Strings).Strings())
 		}
 
 		ints := []int64{2, 4, 6, 8, 10}
-		if !int64SliceEqual(df.Series("C").(gandalff.SeriesInt64).Int64s(), ints) {
-			t.Error("Expected int values", ints, "got", df.Series("C").(gandalff.SeriesInt64).Int64s())
+		if !int64SliceEqual(df.C("C").(series.Int64s).Int64s(), ints) {
+			t.Error("Expected int values", ints, "got", df.C("C").(series.Int64s).Int64s())
 		}
 
 		floats := []float64{0.55, 1.1, 1.65, 2.2, 2.75}
-		if !float64SliceEqual(df.Series("D").(gandalff.SeriesFloat64).Float64s(), floats) {
-			t.Error("Expected float values", floats, "got", df.Series("D").(gandalff.SeriesFloat64).Float64s())
+		if !float64SliceEqual(df.C("D").(series.Float64s).Float64s(), floats) {
+			t.Error("Expected float values", floats, "got", df.C("D").(series.Float64s).Float64s())
 		}
 	} else {
 		t.Error("Expected no error, got", err)
@@ -263,14 +265,14 @@ func Test_Builtin_New(t *testing.T) {
 	} else if df, err = be.__currentResult.getDataframe(); err == nil {
 
 		// check types
-		if df.Series("A").Type() != preludiometa.Int64Type {
-			t.Error("Expected int type, got", df.Series("A").Type())
+		if df.C("A").Type() != meta.Int64Type {
+			t.Error("Expected int type, got", df.C("A").Type())
 		}
 
 		// check values
 		ints := []int64{1, 2, 3, 4, 5}
-		if !int64SliceEqual(df.Series("A").(gandalff.SeriesInt64).Int64s(), ints) {
-			t.Error("Expected int values", ints, "got", df.Series("A").(gandalff.SeriesInt64).Int64s())
+		if !int64SliceEqual(df.C("A").(series.Int64s).Int64s(), ints) {
+			t.Error("Expected int values", ints, "got", df.C("A").(series.Int64s).Int64s())
 		}
 	} else {
 		t.Error("Expected no error, got", err)
@@ -296,7 +298,7 @@ func Test_Builtin_New(t *testing.T) {
 func Test_Builtin_Join(t *testing.T) {
 	var err error
 	var source string
-	var df gandalff.DataFrame
+	var df dataframe.DataFrame
 
 	// basic test
 	source = `
@@ -340,23 +342,23 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B_x").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			if df.C("B_x").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_x").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("B_y").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			if df.C("B_y").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_y").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -377,23 +379,23 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B_x").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			if df.C("B_x").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_x").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("B_y").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			if df.C("B_y").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_y").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -414,23 +416,23 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B_x").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			if df.C("B_x").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_x").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("B_y").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			if df.C("B_y").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_y").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -451,23 +453,23 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B_x").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_x").Type().ToString())
+			if df.C("B_x").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_x").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("B_y").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B_y").Type().ToString())
+			if df.C("B_y").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B_y").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -497,20 +499,20 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			if df.C("B").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -531,20 +533,20 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			if df.C("B").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -565,20 +567,20 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			if df.C("B").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -599,20 +601,20 @@ func Test_Builtin_Join(t *testing.T) {
 		} else if df, err = p.getDataframe(); err == nil {
 
 			// check types
-			if df.Series("A").Type() != preludiometa.BoolType {
-				t.Error("Expected bool type, got", df.Series("A").Type().ToString())
+			if df.C("A").Type() != meta.BoolType {
+				t.Error("Expected bool type, got", df.C("A").Type().String())
 			}
-			if df.Series("B").Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.Series("B").Type().ToString())
+			if df.C("B").Type() != meta.StringType {
+				t.Error("Expected string type, got", df.C("B").Type().String())
 			}
-			if df.Series("C_x").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_x").Type().ToString())
+			if df.C("C_x").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_x").Type().String())
 			}
-			if df.Series("D").Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.Series("D").Type().ToString())
+			if df.C("D").Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.C("D").Type().String())
 			}
-			if df.Series("C_y").Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.Series("C_y").Type().ToString())
+			if df.C("C_y").Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.C("C_y").Type().String())
 			}
 
 			// check number of rows
@@ -631,7 +633,7 @@ func Test_Builtin_Join(t *testing.T) {
 func Test_Builtin_Pipelines1(t *testing.T) {
 	var err error
 	var source string
-	var df gandalff.DataFrame
+	var df dataframe.DataFrame
 
 	// basic test
 	source = `
@@ -662,32 +664,32 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 			}
 
 			// check types
-			if df.SeriesAt(0).Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.SeriesAt(0).Type())
+			if df.At(0).Type() != meta.StringType {
+				t.Error("Expected string type, got", df.At(0).Type())
 			}
-			if df.SeriesAt(1).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(1).Type())
+			if df.At(1).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(1).Type())
 			}
-			if df.SeriesAt(2).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(2).Type())
+			if df.At(2).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(2).Type())
 			}
-			if df.SeriesAt(3).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(3).Type())
+			if df.At(3).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(3).Type())
 			}
-			if df.SeriesAt(4).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(4).Type())
+			if df.At(4).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(4).Type())
 			}
-			if df.SeriesAt(5).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(5).Type())
+			if df.At(5).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(5).Type())
 			}
-			if df.SeriesAt(6).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(6).Type())
+			if df.At(6).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(6).Type())
 			}
-			if df.SeriesAt(7).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(7).Type())
+			if df.At(7).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(7).Type())
 			}
-			if df.SeriesAt(8).Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.SeriesAt(8).Type())
+			if df.At(8).Type() != meta.StringType {
+				t.Error("Expected string type, got", df.At(8).Type())
 			}
 
 			// check names
@@ -738,32 +740,32 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 			}
 
 			// check types
-			if df.SeriesAt(0).Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.SeriesAt(0).Type())
+			if df.At(0).Type() != meta.StringType {
+				t.Error("Expected string type, got", df.At(0).Type())
 			}
-			if df.SeriesAt(1).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(1).Type())
+			if df.At(1).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(1).Type())
 			}
-			if df.SeriesAt(2).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(2).Type())
+			if df.At(2).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(2).Type())
 			}
-			if df.SeriesAt(3).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(3).Type())
+			if df.At(3).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(3).Type())
 			}
-			if df.SeriesAt(4).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(4).Type())
+			if df.At(4).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(4).Type())
 			}
-			if df.SeriesAt(5).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(5).Type())
+			if df.At(5).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(5).Type())
 			}
-			if df.SeriesAt(6).Type() != preludiometa.Float64Type {
-				t.Error("Expected float type, got", df.SeriesAt(6).Type())
+			if df.At(6).Type() != meta.Float64Type {
+				t.Error("Expected float type, got", df.At(6).Type())
 			}
-			if df.SeriesAt(7).Type() != preludiometa.Int64Type {
-				t.Error("Expected int type, got", df.SeriesAt(7).Type())
+			if df.At(7).Type() != meta.Int64Type {
+				t.Error("Expected int type, got", df.At(7).Type())
 			}
-			if df.SeriesAt(8).Type() != preludiometa.StringType {
-				t.Error("Expected string type, got", df.SeriesAt(8).Type())
+			if df.At(8).Type() != meta.StringType {
+				t.Error("Expected string type, got", df.At(8).Type())
 			}
 
 			// check names

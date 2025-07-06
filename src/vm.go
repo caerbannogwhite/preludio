@@ -7,11 +7,12 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"preludiometa"
 	"strconv"
 	"strings"
 
-	"gandalff"
+	"github.com/caerbannogwhite/aargh"
+	"github.com/caerbannogwhite/aargh/dataframe"
+	"github.com/caerbannogwhite/aargh/meta"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -35,9 +36,9 @@ type ByteEater struct {
 	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
 	__listElementCounters   []int
-	__output                preludiometa.PreludioOutput
-	__context               *gandalff.Context
-	__currentDataFrame      gandalff.DataFrame
+	__output                meta.PreludioOutput
+	__context               *aargh.Context
+	__currentDataFrame      dataframe.DataFrame
 	__currentResult         *__p_intern__
 }
 
@@ -113,13 +114,13 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
 
-	vm.__context = gandalff.NewContext()
+	vm.__context = aargh.NewContext()
 
 	return vm
 }
 
 // Run Preludio source code.
-func (vm *ByteEater) RunSource(source string) *preludiometa.PreludioOutput {
+func (vm *ByteEater) RunSource(source string) *meta.PreludioOutput {
 	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
 	if err == nil {
 		vm.RunBytecode(bytecode)
@@ -144,7 +145,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = preludiometa.PreludioOutput{Log: make([]preludiometa.LogEnty, 0)}
+	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
 
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
@@ -199,7 +200,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = preludiometa.PreludioOutput{Log: make([]preludiometa.LogEnty, 0)}
+	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
 
 	file, err = os.Open(vm.__param_inputPath)
 	if err != nil {
@@ -309,8 +310,8 @@ func (vm *ByteEater) endOfPipeline() {
 	vm.stackPush(vm.__currentResult)
 }
 
-func (vm *ByteEater) GetOutput() *preludiometa.PreludioOutput {
-	vm.__output.Data = make([][]preludiometa.Columnar, 0)
+func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
+	vm.__output.Data = make([][]meta.Columnar, 0)
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -320,11 +321,11 @@ func (vm *ByteEater) GetOutput() *preludiometa.PreludioOutput {
 			}
 
 			for _, result := range list {
-				vm.__output.Data = append(vm.__output.Data, make([]preludiometa.Columnar, 0))
+				vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
 				result.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
 			}
 		} else {
-			vm.__output.Data = append(vm.__output.Data, make([]preludiometa.Columnar, 0))
+			vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
 			vm.__currentResult.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
 		}
 	}
@@ -334,8 +335,8 @@ func (vm *ByteEater) GetOutput() *preludiometa.PreludioOutput {
 
 func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
 
-	opCode := preludiometa.OPCODE(0)
-	param1 := preludiometa.PARAM1(0)
+	opCode := meta.OPCODE(0)
+	param1 := meta.PARAM1(0)
 	param2 := []byte{0, 0, 0, 0}
 
 	usize := uint32(len(bytes))
@@ -343,9 +344,9 @@ func (vm *ByteEater) RunPrqlInstructions(bytes []byte, offset uint32) {
 MAIN_LOOP:
 	for offset < usize {
 
-		opCode = preludiometa.OPCODE(bytes[offset])
+		opCode = meta.OPCODE(bytes[offset])
 		offset++
-		param1 = preludiometa.PARAM1(bytes[offset])
+		param1 = meta.PARAM1(bytes[offset])
 		offset++
 
 		param2[0] = bytes[offset]
@@ -359,13 +360,13 @@ MAIN_LOOP:
 
 		switch opCode {
 
-		case preludiometa.OP_START_STMT:
+		case meta.OP_START_STMT:
 			vm.printDebug(10, "OP_START_STMT", "", "")
 
 			// Insert BEGIN FRAME
 			vm.stackPush(vm.newPInternBeginFrame())
 
-		case preludiometa.OP_END_STMT:
+		case meta.OP_END_STMT:
 			vm.printDebug(10, "OP_END_STMT", "", "")
 
 			vm.endOfPipeline()
@@ -373,7 +374,7 @@ MAIN_LOOP:
 			// Estract BEGIN FRAME
 			// vm.stackPop()
 
-		case preludiometa.OP_VAR_DECL:
+		case meta.OP_VAR_DECL:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_DECL", "", varName)
 
@@ -387,7 +388,7 @@ MAIN_LOOP:
 				}
 			}
 
-		case preludiometa.OP_VAR_ASSIGN:
+		case meta.OP_VAR_ASSIGN:
 			varName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_VAR_ASSIGN", "", varName)
 
@@ -401,18 +402,18 @@ MAIN_LOOP:
 				vm.setPanicMode(fmt.Sprintf("Variable \"%s\" is not declared", varName))
 			}
 
-		case preludiometa.OP_START_FUNC_CALL:
+		case meta.OP_START_FUNC_CALL:
 			vm.printDebug(10, "OP_START_FUNC_CALL", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				PIPELINE OPERATIONS					///////////
-		case preludiometa.OP_START_PIPELINE:
+		case meta.OP_START_PIPELINE:
 			vm.printDebug(10, "OP_START_PIPELINE", "", "")
 
 			// Insert BEGIN FRAME
 			vm.stackPush(vm.newPInternBeginFrame())
 
-		case preludiometa.OP_END_PIPELINE:
+		case meta.OP_END_PIPELINE:
 			vm.printDebug(10, "OP_END_PIPELINE", "", "")
 
 			vm.endOfPipeline()
@@ -420,7 +421,7 @@ MAIN_LOOP:
 			// Extract BEGIN FRAME
 			// vm.stackPop()
 
-		case preludiometa.OP_MAKE_FUNC_CALL:
+		case meta.OP_MAKE_FUNC_CALL:
 			funcName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_MAKE_FUNC_CALL", "", funcName)
 
@@ -462,13 +463,13 @@ MAIN_LOOP:
 
 			// Coerce functions
 			case "asBool":
-				preludioAsType("asBool", vm, preludiometa.BoolType)
+				preludioAsType("asBool", vm, meta.BoolType)
 			case "asInt":
-				preludioAsType("asInt", vm, preludiometa.Int64Type)
+				preludioAsType("asInt", vm, meta.Int64Type)
 			case "asFlt":
-				preludioAsType("asFlt", vm, preludiometa.Float64Type)
+				preludioAsType("asFlt", vm, meta.Float64Type)
 			case "asStr":
-				preludioAsType("asStr", vm, preludiometa.StringType)
+				preludioAsType("asStr", vm, meta.StringType)
 
 			// String functions
 			case "strReplace":
@@ -490,12 +491,12 @@ MAIN_LOOP:
 
 			vm.__funcNumParams = 0
 
-		case preludiometa.OP_START_LIST:
+		case meta.OP_START_LIST:
 			vm.printDebug(10, "OP_START_LIST", "", "")
 
 			vm.__listElementCounters = append(vm.__listElementCounters, 0)
 
-		case preludiometa.OP_END_LIST:
+		case meta.OP_END_LIST:
 			vm.printDebug(10, "OP_END_LIST", "", "")
 
 			stackLen := len(vm.__stack)
@@ -509,10 +510,10 @@ MAIN_LOOP:
 
 			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
-		case preludiometa.OP_ADD_FUNC_PARAM:
+		case meta.OP_ADD_FUNC_PARAM:
 			vm.printDebug(10, "OP_ADD_FUNC_PARAM", "", "")
 
-		case preludiometa.OP_ADD_EXPR_TERM:
+		case meta.OP_ADD_EXPR_TERM:
 			vm.printDebug(10, "OP_ADD_EXPR_TERM", "", "")
 
 		///////////////////////////////////////////////////////////////////////
@@ -520,7 +521,7 @@ MAIN_LOOP:
 		///////////
 		///////////	Set the last element on the stack as a named
 		///////////	parameter.
-		case preludiometa.OP_PUSH_NAMED_PARAM:
+		case meta.OP_PUSH_NAMED_PARAM:
 			paramName := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_NAMED_PARAM", "", paramName)
 
@@ -531,123 +532,123 @@ MAIN_LOOP:
 		///////////
 		///////////	Set the last element on the stack as an assigned
 		///////////	expression.
-		case preludiometa.OP_PUSH_ASSIGN_IDENT:
+		case meta.OP_PUSH_ASSIGN_IDENT:
 			ident := vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 			vm.printDebug(10, "OP_PUSH_ASSIGN_IDENT", "", ident)
 
 			vm.stackLast().setAssignment(ident)
 
-		case preludiometa.OP_PUSH_TERM:
+		case meta.OP_PUSH_TERM:
 			termType := ""
 			termVal := ""
 
 			switch param1 {
-			case preludiometa.TERM_NULL:
+			case meta.TERM_NULL:
 				termType = "NULL"
 
-			case preludiometa.TERM_BOOLEAN:
+			case meta.TERM_BOOLEAN:
 				termType = "BOOL"
-				termVal = preludiometa.SYMBOL_TRUE
+				termVal = meta.SYMBOL_TRUE
 				val := true
 				if binary.BigEndian.Uint32(param2) == 0 {
 					val = false
-					termVal = preludiometa.SYMBOL_FALSE
+					termVal = meta.SYMBOL_FALSE
 				}
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_INTEGER:
+			case meta.TERM_INTEGER:
 				termType = "INTEGER"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_RANGE:
+			case meta.TERM_RANGE:
 				termType = "RANGE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				// TODO: check if the range is valid
-				// strings.Split(termVal, preludiometa.SYMBOL_RANGE)
+				// strings.Split(termVal, meta.SYMBOL_RANGE)
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_FLOAT:
+			case meta.TERM_FLOAT:
 				termType = "FLOAT"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseFloat(termVal, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_STRING:
+			case meta.TERM_STRING:
 				termType = "STRING"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_STRING_RAW:
+			case meta.TERM_STRING_RAW:
 				termType = "STRING_RAW"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_STRING_PATH:
+			case meta.TERM_STRING_PATH:
 				termType = "STRING_PATH"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_REGEX:
+			case meta.TERM_REGEX:
 				termType = "REGEX"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_DATE:
+			case meta.TERM_DATE:
 				termType = "DATE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(termVal))
 
-			case preludiometa.TERM_DURATION_MICROSECOND:
+			case meta.TERM_DURATION_MICROSECOND:
 				termType = "DURATION MICROSECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_MILLISECOND:
+			case meta.TERM_DURATION_MILLISECOND:
 				termType = "DURATION MILLISECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_SECOND:
+			case meta.TERM_DURATION_SECOND:
 				termType = "DURATION SECOND"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_MINUTE:
+			case meta.TERM_DURATION_MINUTE:
 				termType = "DURATION MINUTE"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_HOUR:
+			case meta.TERM_DURATION_HOUR:
 				termType = "DURATION HOUR"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_DAY:
+			case meta.TERM_DURATION_DAY:
 				termType = "DURATION DAY"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_MONTH:
+			case meta.TERM_DURATION_MONTH:
 				termType = "DURATION MONTH"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_DURATION_YEAR:
+			case meta.TERM_DURATION_YEAR:
 				termType = "DURATION YEAR"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
-			case preludiometa.TERM_SYMBOL:
+			case meta.TERM_SYMBOL:
 				termType = "SYMBOL"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				vm.stackPush(vm.newPInternTerm(__p_symbol__(termVal)))
@@ -658,7 +659,7 @@ MAIN_LOOP:
 
 			vm.printDebug(10, "OP_PUSH_TERM", termType, termVal)
 
-		case preludiometa.OP_END_CHUNCK:
+		case meta.OP_END_CHUNCK:
 			vm.printDebug(10, "OP_END_CHUNCK", "", "")
 
 			vm.__funcNumParams += 1
@@ -666,143 +667,143 @@ MAIN_LOOP:
 				vm.__listElementCounters[len(vm.__listElementCounters)-1]++
 			}
 
-		case preludiometa.OP_GOTO:
+		case meta.OP_GOTO:
 			vm.printDebug(10, "OP_GOTO", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				ARITHMETIC OPERATIONS
-		case preludiometa.OP_BINARY_MUL:
+		case meta.OP_BINARY_MUL:
 			vm.printDebug(10, "OP_BINARY_MUL", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_MUL, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_MUL, op2)
 
-		case preludiometa.OP_BINARY_DIV:
+		case meta.OP_BINARY_DIV:
 			vm.printDebug(10, "OP_BINARY_DIV", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_DIV, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_DIV, op2)
 
-		case preludiometa.OP_BINARY_MOD:
+		case meta.OP_BINARY_MOD:
 			vm.printDebug(10, "OP_BINARY_MOD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_MOD, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_MOD, op2)
 
-		case preludiometa.OP_BINARY_EXP:
+		case meta.OP_BINARY_EXP:
 			vm.printDebug(10, "OP_BINARY_EXP", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_EXP, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_EXP, op2)
 
-		case preludiometa.OP_BINARY_ADD:
+		case meta.OP_BINARY_ADD:
 			vm.printDebug(10, "OP_BINARY_ADD", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_ADD, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_ADD, op2)
 
-		case preludiometa.OP_BINARY_SUB:
+		case meta.OP_BINARY_SUB:
 			vm.printDebug(10, "OP_BINARY_SUB", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_SUB, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_SUB, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				LOGICAL OPERATIONS
 
-		case preludiometa.OP_BINARY_EQ:
+		case meta.OP_BINARY_EQ:
 			vm.printDebug(10, "OP_BINARY_EQ", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_EQ, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_EQ, op2)
 
-		case preludiometa.OP_BINARY_NE:
+		case meta.OP_BINARY_NE:
 			vm.printDebug(10, "OP_BINARY_NE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_NE, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_NE, op2)
 
-		case preludiometa.OP_BINARY_GE:
+		case meta.OP_BINARY_GE:
 			vm.printDebug(10, "OP_BINARY_GE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_GE, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_GE, op2)
 
-		case preludiometa.OP_BINARY_LE:
+		case meta.OP_BINARY_LE:
 			vm.printDebug(10, "OP_BINARY_LE", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_LE, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_LE, op2)
 
-		case preludiometa.OP_BINARY_GT:
+		case meta.OP_BINARY_GT:
 			vm.printDebug(10, "OP_BINARY_GT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_GT, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_GT, op2)
 
-		case preludiometa.OP_BINARY_LT:
+		case meta.OP_BINARY_LT:
 			vm.printDebug(10, "OP_BINARY_LT", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_LT, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_LT, op2)
 
-		case preludiometa.OP_BINARY_AND:
+		case meta.OP_BINARY_AND:
 			vm.printDebug(10, "OP_BINARY_AND", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_AND, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_AND, op2)
 
-		case preludiometa.OP_BINARY_OR:
+		case meta.OP_BINARY_OR:
 			vm.printDebug(10, "OP_BINARY_OR", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_BINARY_OR, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_OR, op2)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				OTHER OPERATIONS
 
-		case preludiometa.OP_BINARY_COALESCE:
+		case meta.OP_BINARY_COALESCE:
 			vm.printDebug(10, "OP_BINARY_COALESCE", "", "")
 
-		case preludiometa.OP_BINARY_MODEL:
+		case meta.OP_BINARY_MODEL:
 			vm.printDebug(10, "OP_BINARY_MODEL", "", "")
 
-		case preludiometa.OP_INDEXING:
+		case meta.OP_INDEXING:
 			vm.printDebug(10, "OP_INDEXING", "", "")
 
 			op2 := vm.stackPop()
-			vm.stackLast().appendBinaryOperation(preludiometa.OP_INDEXING, op2)
+			vm.stackLast().appendBinaryOperation(meta.OP_INDEXING, op2)
 
-		case preludiometa.OP_HELP:
+		case meta.OP_HELP:
 			vm.printDebug(10, "OP_HELP", "", "")
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				UNARY OPERATIONS
 
-		case preludiometa.OP_UNARY_REV:
+		case meta.OP_UNARY_REV:
 			vm.printDebug(10, "OP_UNARY_REV", "", "")
 
-			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_REV)
+			vm.stackLast().appendUnaryOperation(meta.OP_UNARY_REV)
 
-		case preludiometa.OP_UNARY_SUB:
+		case meta.OP_UNARY_SUB:
 			vm.printDebug(10, "OP_UNARY_SUB", "", "")
 
-			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_SUB)
+			vm.stackLast().appendUnaryOperation(meta.OP_UNARY_SUB)
 
-		case preludiometa.OP_UNARY_ADD:
+		case meta.OP_UNARY_ADD:
 			vm.printDebug(10, "OP_UNARY_ADD", "", "")
 
-			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_ADD)
+			vm.stackLast().appendUnaryOperation(meta.OP_UNARY_ADD)
 
-		case preludiometa.OP_UNARY_NOT:
+		case meta.OP_UNARY_NOT:
 			vm.printDebug(10, "OP_UNARY_NOT", "", "")
 
-			vm.stackLast().appendUnaryOperation(preludiometa.OP_UNARY_NOT)
+			vm.stackLast().appendUnaryOperation(meta.OP_UNARY_NOT)
 
 		///////////////////////////////////////////////////////////////////////
 		///////////				NO OPERATION
 
-		case preludiometa.NO_OP:
+		case meta.NO_OP:
 			vm.printDebug(10, "NO_OP", "", "")
 		}
 
@@ -895,7 +896,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			return vm.__currentDataFrame.Series(string(symbol))
+			return vm.__currentDataFrame.C(string(symbol))
 		}
 	}
 
@@ -926,28 +927,28 @@ func (vm *ByteEater) setCurrentDataFrame() {
 
 func (vm *ByteEater) printDebug(level uint8, opname, param1, param2 string) {
 	msg := fmt.Sprintf("%-20s | %-20s | %-20s", truncate(opname, 20), truncate(param1, 20), param2)
-	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_DEBUG, Level: level, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, meta.LogEnty{LogType: meta.LOG_DEBUG, Level: level, Message: msg})
 	if vm.__param_printToStdout && vm.__param_debugLevel > int(level) {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printInfo(level uint8, msg string) {
-	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_INFO, Level: level, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, meta.LogEnty{LogType: meta.LOG_INFO, Level: level, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printWarning(msg string) {
-	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_WARNING, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, meta.LogEnty{LogType: meta.LOG_WARNING, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
 }
 
 func (vm *ByteEater) printError(msg string) {
-	vm.__output.Log = append(vm.__output.Log, preludiometa.LogEnty{LogType: preludiometa.LOG_ERROR, Message: msg})
+	vm.__output.Log = append(vm.__output.Log, meta.LogEnty{LogType: meta.LOG_ERROR, Message: msg})
 	if vm.__param_printToStdout {
 		fmt.Println(msg)
 	}
@@ -956,7 +957,7 @@ func (vm *ByteEater) printError(msg string) {
 func (vm *ByteEater) getLastError() string {
 	if len(vm.__output.Log) > 0 {
 		for i := len(vm.__output.Log) - 1; i >= 0; i-- {
-			if vm.__output.Log[i].LogType == preludiometa.LOG_ERROR {
+			if vm.__output.Log[i].LogType == meta.LOG_ERROR {
 				return vm.__output.Log[i].Message
 			}
 		}

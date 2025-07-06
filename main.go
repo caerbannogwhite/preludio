@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"os"
 	"preludiocore"
-	"preludiometa"
 	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
+	"github.com/caerbannogwhite/aargh/meta"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -19,7 +19,7 @@ const VERSION = "0.4.0"
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
 const DEFAULT_SUSPENSION_STRING = "... "
-const DEFAULT_NULL_STRING = preludiometa.SYMBOL_NA
+const DEFAULT_NULL_STRING = meta.SYMBOL_NA
 const DEFAULT_OUTPUT_COLUMN_SIZE = 12
 
 var JUST_RIGHT_TYPES = map[string]bool{
@@ -213,18 +213,18 @@ func LaunchRepl(args CliArgs) {
 			res := be.RunSource(code)
 			for _, log := range res.Log {
 				switch log.LogType {
-				case preludiometa.LOG_DEBUG:
+				case meta.LOG_DEBUG:
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println("[🐛] " + log.Message)
 					}
 
-				case preludiometa.LOG_INFO:
+				case meta.LOG_INFO:
 					fmt.Println("[ ℹ️ ] " + log.Message)
 
-				case preludiometa.LOG_WARNING:
+				case meta.LOG_WARNING:
 					fmt.Println("[⚠️] " + log.Message)
 
-				case preludiometa.LOG_ERROR:
+				case meta.LOG_ERROR:
 					fmt.Println("[❌] " + log.Message)
 				}
 			}
@@ -250,7 +250,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(indent string, colSize int, columnar []preludiometa.Columnar) {
+func prettyPrint(indent string, colSize int, columnar []meta.Columnar) {
 	if len(columnar) == 0 {
 		return
 	}
@@ -300,7 +300,7 @@ func prettyPrint(indent string, colSize int, columnar []preludiometa.Columnar) {
 		buffer += "┤\n"
 	}
 
-	// column preludiometa
+	// column meta
 	buffer += indent
 	for _, c := range columnar {
 		buffer += "│" + STYLE_BOLD.Copy().
