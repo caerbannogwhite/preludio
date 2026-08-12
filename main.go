@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
-	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/enchanter/meta"
 	"github.com/charmbracelet/lipgloss"
 )
 

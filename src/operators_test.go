@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/enchanter/meta"
 )
 
 var be *ByteEater

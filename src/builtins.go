@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/caerbannogwhite/aargh/dataframe"
-	"github.com/caerbannogwhite/aargh/meta"
-	"github.com/caerbannogwhite/aargh/series"
+	"github.com/caerbannogwhite/enchanter/dataframe"
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 type PreludioFunction func(funcName string, vm *ByteEater)
@@ -197,7 +197,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		SetWriter(outputFile).
 		Write()
 
-	if res.Error != nil {
+	if res != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Error()))
 		return
 	}

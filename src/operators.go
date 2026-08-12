@@ -3,8 +3,8 @@ package preludiocore
 import (
 	"fmt"
 
-	"github.com/caerbannogwhite/aargh/meta"
-	"github.com/caerbannogwhite/aargh/series"
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {

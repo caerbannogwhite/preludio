@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/caerbannogwhite/aargh"
-	"github.com/caerbannogwhite/aargh/dataframe"
-	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/enchanter"
+	"github.com/caerbannogwhite/enchanter/dataframe"
+	"github.com/caerbannogwhite/enchanter/meta"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -37,7 +37,7 @@ type ByteEater struct {
 	__funcNumParams         int
 	__listElementCounters   []int
 	__output                meta.PreludioOutput
-	__context               *aargh.Context
+	__context               *enchanter.Context
 	__currentDataFrame      dataframe.DataFrame
 	__currentResult         *__p_intern__
 }
@@ -114,7 +114,7 @@ func (vm *ByteEater) InitVM() *ByteEater {
 	vm.__globalNamespace = map[string]*__p_intern__{}
 	vm.__pipelineNameSpace = map[string]*__p_intern__{}
 
-	vm.__context = aargh.NewContext()
+	vm.__context = enchanter.NewContext()
 
 	return vm
 }

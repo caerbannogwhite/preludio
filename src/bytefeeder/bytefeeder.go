@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
-	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/enchanter/meta"
 )
 
 func CompileSource(source string) ([]byte, []meta.LogEnty, error) {
