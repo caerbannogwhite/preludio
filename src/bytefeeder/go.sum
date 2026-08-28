@@ -1,6 +1,6 @@
 github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df h1:7RFfzj4SSt6nnvCPbCqijJi1nWCd+TqAT3bYCStRC18=
 github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df/go.mod h1:pSwJ0fSY5KhvocuWSx4fz3BA8OrA1bQn+K1Eli3BRwM=
-github.com/caerbannogwhite/enchanter v0.3.0 h1:XYoJ11Qyz5imw+jFHl19i3/VxVgFAO8/ltME/xfR6TA=
-github.com/caerbannogwhite/enchanter v0.3.0/go.mod h1:xoJhWi6oYKE+LBS6asQP54MgO10gCyVRRs0G2BwKtOU=
+github.com/caerbannogwhite/enchanter v0.4.0 h1:eCcUElHNxiF8r7Wnhf+TC9IuJnP5FQP2eaSujQii4pI=
+github.com/caerbannogwhite/enchanter v0.4.0/go.mod h1:xoJhWi6oYKE+LBS6asQP54MgO10gCyVRRs0G2BwKtOU=
 golang.org/x/exp v0.0.0-20260112195511-716be5621a96 h1:Z/6YuSHTLOHfNFdb8zVZomZr7cqNgTJvA8+Qz75D8gU=
 golang.org/x/exp v0.0.0-20260112195511-716be5621a96/go.mod h1:nzimsREAkjBCIEFtHiYkrJyT+2uy9YZJB7H1k68CXZU=
