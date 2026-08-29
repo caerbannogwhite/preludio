@@ -35,7 +35,6 @@ type ByteEater struct {
 	__pipelineNameSpace     map[string]*__p_intern__
 	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
-	__listElementCounters   []int
 	__output                meta.PreludioOutput
 	__context               *enchanter.Context
 	__currentDataFrame      dataframe.DataFrame
@@ -306,8 +305,12 @@ func (vm *ByteEater) endOfPipeline() {
 		vm.__currentResult = &results[0]
 	}
 
-	// push the results back on the stack
-	vm.stackPush(vm.__currentResult)
+	// Push the results back on the stack. A statement that yielded no results
+	// (for example one whose expression failed to compile) leaves
+	// __currentResult nil, and stackPush dereferences its argument.
+	if vm.__currentResult != nil {
+		vm.stackPush(vm.__currentResult)
+	}
 }
 
 func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
@@ -494,21 +497,23 @@ MAIN_LOOP:
 		case meta.OP_START_LIST:
 			vm.printDebug(10, "OP_START_LIST", "", "")
 
-			vm.__listElementCounters = append(vm.__listElementCounters, 0)
-
 		case meta.OP_END_LIST:
 			vm.printDebug(10, "OP_END_LIST", "", "")
 
 			stackLen := len(vm.__stack)
-			listLen := vm.__listElementCounters[len(vm.__listElementCounters)-1]
+			// The element count is carried by the instruction itself (see
+			// ByteFeeder.ExitList): list elements never emit OP_END_CHUNCK,
+			// so they cannot be counted at run time.
+			listLen := int(binary.BigEndian.Uint32(param2))
+			if listLen > stackLen {
+				listLen = stackLen
+			}
 
 			listCopy := make([]__p_intern__, listLen)
 			copy(listCopy, vm.__stack[stackLen-listLen:])
 			vm.__stack = vm.__stack[:stackLen-listLen]
 
 			vm.stackPush(vm.newPInternTerm(__p_list__(listCopy)))
-
-			vm.__listElementCounters = vm.__listElementCounters[:len(vm.__listElementCounters)-1]
 
 		case meta.OP_ADD_FUNC_PARAM:
 			vm.printDebug(10, "OP_ADD_FUNC_PARAM", "", "")
@@ -663,9 +668,6 @@ MAIN_LOOP:
 			vm.printDebug(10, "OP_END_CHUNCK", "", "")
 
 			vm.__funcNumParams += 1
-			if len(vm.__listElementCounters) > 0 {
-				vm.__listElementCounters[len(vm.__listElementCounters)-1]++
-			}
 
 		case meta.OP_GOTO:
 			vm.printDebug(10, "OP_GOTO", "", "")
