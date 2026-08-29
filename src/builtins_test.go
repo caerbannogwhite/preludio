@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/caerbannogwhite/enchanter/dataframe"
@@ -30,7 +31,7 @@ false,"hello again",0.000000000001,0`
 	}
 	defer os.Remove("csvtest00_read_comma.csv")
 
-	be.RunSource(`rcsv "csvtest00_read_comma.csv" del: "," head: false`)
+	be.RunSource(`rcsv! "csvtest00_read_comma.csv" del: "," head: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -68,7 +69,7 @@ false;"hello again";0.000000000001;0`
 	}
 	defer os.Remove("csvtest01_read_semicolon.csv")
 
-	be.RunSource(`rcsv "csvtest01_read_semicolon.csv" del: ";" head: false`)
+	be.RunSource(`rcsv! "csvtest01_read_semicolon.csv" del: ";" head: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil", be.__output.Log)
 	} else if be.__currentResult.isDataframe() == false {
@@ -107,7 +108,7 @@ false	"hello again"	0.000000000001	0`
 	}
 	defer os.Remove("csvtest02_read_tab_header.csv")
 
-	be.RunSource(`rcsv "csvtest02_read_tab_header.csv" del: "\t" head: true`)
+	be.RunSource(`rcsv! "csvtest02_read_tab_header.csv" del: "\t" head: true`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -139,7 +140,7 @@ func Test_Builtin_New(t *testing.T) {
 	// basic test
 	source = `
 	(
-		new [
+		new! [
 			A = [true, false, true, false, true],
 			B = ["hello", "world", "this is a string", "this is another string", "this is a third string"],
 			C = [1, 2, 3, 4, 5],
@@ -196,11 +197,11 @@ func Test_Builtin_New(t *testing.T) {
 
 	// from lists
 	source = `
-	let listOfBools = [true, false, true, false, true]
-	let listOfStrings = ["hello", "world", "this is a string", "this is another string", "this is a third string"]
+	listOfBools := [true, false, true, false, true]
+	listOfStrings := ["hello", "world", "this is a string", "this is another string", "this is a third string"]
 
 	(
-		new [
+		new! [
 			A = listOfBools or false,
 			B = listOfStrings + "!",
 			C = [1, 2, 3, 4, 5] * 2,
@@ -256,7 +257,7 @@ func Test_Builtin_New(t *testing.T) {
 	}
 
 	// only one column
-	source = `(new [A = [1, 2, 3, 4, 5]])`
+	source = `(new! [A = [1, 2, 3, 4, 5]])`
 	be.RunSource(source)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
@@ -281,7 +282,7 @@ func Test_Builtin_New(t *testing.T) {
 	// different lengths
 	source = `
 	(
-		new [
+		new! [
 			A = [true, false, true, false],
 			B = ["hello", "world", "this is a string"],
 			C = [1, 2, 3, 4, 5],
@@ -302,8 +303,8 @@ func Test_Builtin_Join(t *testing.T) {
 
 	// basic test
 	source = `
-	let df1 = (
-		new [
+	df1 := (
+		new! [
 			A = [true, false, true, false, true],
 			B = ["one", "two", "three", "four", "five"],
 			C = [1, 2, 3, 4, 5],
@@ -311,16 +312,16 @@ func Test_Builtin_Join(t *testing.T) {
 		]
 	)
 
-	let df2 = (
-		new [
+	df2 := (
+		new! [
 			A = [true, true, false],
 			B = ["one", "four", "five"],
 			C = [1, 1, 1],
 		]
 	)
 
-	let df3 = (
-		new [
+	df3 := (
+		new! [
 			A = [true, false, true, false, true],
 			B = ["four", "five", "six", "seven", "eight"],
 			C = [1, 1, 2, 6, 7],
@@ -328,10 +329,10 @@ func Test_Builtin_Join(t *testing.T) {
 		]
 	)
 
-	let j1 = (from df1 | join left df2 on: [A])
-	let j2 = (from df1 | join right df2 on: [A])
-	let j3 = (from df1 | join inner df2 on: [A])
-	let j4 = (from df1 | join outer df2 on: [A])
+	j1 := (from! df1 | join! left df2 on: [A])
+	j2 := (from! df1 | join! right df2 on: [A])
+	j3 := (from! df1 | join! inner df2 on: [A])
+	j4 := (from! df1 | join! outer df2 on: [A])
 	`
 
 	be.RunSource(source)
@@ -485,10 +486,10 @@ func Test_Builtin_Join(t *testing.T) {
 	}
 
 	source = `
-	j1 = (from df1 | join left df2 on: [A, B])
-	j2 = (from df1 | join right df2 on: [A, B])
-	j3 = (from df1 | join inner df2 on: [A, B])
-	j4 = (from df1 | join outer df2 on: [A, B])
+	j1 = (from! df1 | join! left df2 on: [A, B])
+	j2 = (from! df1 | join! right df2 on: [A, B])
+	j3 = (from! df1 | join! inner df2 on: [A, B])
+	j4 = (from! df1 | join! outer df2 on: [A, B])
 	`
 
 	be.RunSource(source)
@@ -637,16 +638,16 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 
 	// basic test
 	source = `
-	let clean = (
-		rcsv "..\\test_files\\Cars.csv" del:";" head:true
-		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt [MPG, Displacement, Horsepower, Acceleration]
-		sort [-Origin, Cylinders, -MPG]
+	clean := (
+		rcsv! "..\\test_files\\Cars.csv" del:";" head:true
+		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		sort! [-Origin, Cylinders, -MPG]
 	)
 
-	let europe5Cylinders = (
-		from clean
-		filter Cylinders == 5 and Origin == "Europe"
+	europe5Cylinders := (
+		from! clean
+		filter! Cylinders == 5 and Origin == "Europe"
 	)
 	`
 
@@ -807,23 +808,23 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 
 	// basic test
 	source := `
-	let clean = (
-		rcsv "..\\test_files\\Cars.csv" del:";" head:true
-		strReplace [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt [MPG, Displacement, Horsepower, Acceleration]
-		sort [-Origin, Cylinders, -MPG]
+	clean := (
+		rcsv! "..\\test_files\\Cars.csv" del:";" head:true
+		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		sort! [-Origin, Cylinders, -MPG]
 	)
 
 	(
-		from clean
-		derive [
+		from! clean
+		derive! [
 			Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
 			CarOrigin = Car + " - " + Origin
 		]
-		filter Stat > 1.3
-		select [Car, Origin, Stat]
-		take 10
-		wcsv "..\\test_files\\CarsRes.csv" del:"\t"
+		filter! Stat > 1.3
+		select! [Car, Origin, Stat]
+		take! 10
+		wcsv! "..\\test_files\\CarsRes.csv" del:"\t"
 	)
 	`
 
@@ -847,7 +848,11 @@ Chevrolet Cavalier 2-door	US	1.3008920098690453
 Chevrolet Chevette	US	1.3142830188679246
 `
 
-	if string(b) != expected {
+	// The CSV writer uses the context's end-of-line, which is "\r\n" on
+	// Windows, while a Go raw string literal never contains "\r" (the scanner
+	// discards it). Compare with normalised line endings so the expectation
+	// holds on every platform.
+	if strings.ReplaceAll(string(b), "\r\n", "\n") != expected {
 		t.Error("Expected", expected, "got", string(b))
 	}
 
