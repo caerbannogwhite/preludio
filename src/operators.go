@@ -3,8 +3,8 @@ package preludiocore
 import (
 	"fmt"
 
-	"github.com/caerbannogwhite/aargh/meta"
-	"github.com/caerbannogwhite/aargh/series"
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
@@ -46,6 +46,22 @@ func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 	return *list, nil
 }
 
+// describeOperand names an expression operand for an error message. Operands
+// reaching the operator paths in solveExpr are not always series: a list of
+// lists keeps its __p_list__ form, and an unresolved symbol yields nil.
+func describeOperand(v interface{}) string {
+	if s, ok := v.(series.Series); ok {
+		return s.TypeCard().ToString()
+	}
+	if v == nil {
+		return "an undefined value"
+	}
+	if _, ok := v.(__p_list__); ok {
+		return "a list"
+	}
+	return fmt.Sprintf("%T", v)
+}
+
 func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 	// Preprocess the expression
 	// Check if elements in the expression are:
@@ -55,6 +71,15 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 	for i := range p.expr {
 		if symb, ok := p.expr[i].(__p_symbol__); ok {
 			p.expr[i] = vm.symbolResolution(symb)
+
+			// Keep the symbol as the term's name. Resolution replaces the
+			// symbol with the value it refers to (for a dataframe column, the
+			// series itself), which otherwise loses the column name that
+			// builtins such as asFlt / strReplace need to write the result
+			// back into the right column.
+			if p.name == "" {
+				p.name = string(symb)
+			}
 		}
 
 		if list, ok := p.expr[i].(__p_list__); ok {
@@ -68,6 +93,13 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 			p.expr[i], err = vm.processList(&list)
 			if err != nil {
 				return err
+			}
+
+			// A single-element list collapses to that element's series (see
+			// processList). Carry the element's name over, so a one-column
+			// list such as [A] identifies its column just like [A, B] does.
+			if len(list) == 1 && p.name == "" {
+				p.name = list[0].name
 			}
 		}
 	}
@@ -123,16 +155,26 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 
 			// Check for errors
 			if _, ok := result.(series.Errors); ok || errorMode {
+				// The operand is not necessarily a series: a list of lists
+				// (which has no series representation) reaches this path too,
+				// and asserting it would panic while reporting the error.
 				return fmt.Errorf("unary operator %s not supported for %s",
-					op.ToCodeString(),
-					t1.(series.Series).TypeCard().ToString())
+					op.ToCodeString(), describeOperand(t1))
 			}
 		} else
 
 		// BINARY
 		{
-			s2 := stack[len(stack)-1].(series.Series)
-			s1 := stack[len(stack)-2].(series.Series)
+			s2, isSeries2 := stack[len(stack)-1].(series.Series)
+			s1, isSeries1 := stack[len(stack)-2].(series.Series)
+			if !isSeries1 || !isSeries2 {
+				// Same reasoning as the unary path above: report the
+				// unsupported operand instead of panicking on the assertion.
+				return fmt.Errorf("binary operator %s not supported for %s and %s",
+					op.ToCodeString(),
+					describeOperand(stack[len(stack)-2]),
+					describeOperand(stack[len(stack)-1]))
+			}
 			stack = stack[0 : len(stack)-2]
 
 			switch op {

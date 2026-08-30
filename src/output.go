@@ -1,9 +1,9 @@
 package preludiocore
 
 import (
-	"github.com/caerbannogwhite/aargh/dataframe"
-	"github.com/caerbannogwhite/aargh/meta"
-	"github.com/caerbannogwhite/aargh/series"
+	"github.com/caerbannogwhite/enchanter/dataframe"
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, series series.Series) meta.Columnar {

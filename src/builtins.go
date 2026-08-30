@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/caerbannogwhite/aargh/dataframe"
-	"github.com/caerbannogwhite/aargh/meta"
-	"github.com/caerbannogwhite/aargh/series"
+	"github.com/caerbannogwhite/enchanter/dataframe"
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 type PreludioFunction func(funcName string, vm *ByteEater)
@@ -197,7 +197,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		SetWriter(outputFile).
 		Write()
 
-	if res.Error != nil {
+	if res != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Error()))
 		return
 	}
@@ -401,6 +401,21 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 	vm.setCurrentDataFrame()
 }
 
+// anchorSelectors anchors each column selector.
+//
+// enchanter's DataFrame.Select compiles every selector as a regular
+// expression and matches it unanchored, so a plain column name such as "Car"
+// would also select "CarOrigin". Anchoring keeps pattern selectors (an IDENT
+// may contain '*', e.g. "a.*") working exactly as before, while making a plain
+// name select only the column with that name.
+func anchorSelectors(selectors []string) []string {
+	anchored := make([]string, len(selectors))
+	for i, s := range selectors {
+		anchored[i] = "^(?:" + s + ")$"
+	}
+	return anchored
+}
+
 // Select a subset of the Dataframe's columns
 func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
@@ -421,7 +436,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	// The first value can be both a symbol or a list of symbols
 	switch v := positional[1].getValue().(type) {
 	case __p_symbol__:
-		vm.stackPush(vm.newPInternTerm(df.Select(string(v))))
+		vm.stackPush(vm.newPInternTerm(df.Select(anchorSelectors([]string{string(v)})...)))
 		vm.setCurrentDataFrame()
 
 	case __p_list__:
@@ -430,7 +445,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
-		vm.stackPush(vm.newPInternTerm(df.Select(list...)))
+		vm.stackPush(vm.newPInternTerm(df.Select(anchorSelectors(list)...)))
 		vm.setCurrentDataFrame()
 
 	default:

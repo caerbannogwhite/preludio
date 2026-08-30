@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	antlr "github.com/antlr/antlr4/runtime/Go/antlr/v4"
-	"github.com/caerbannogwhite/aargh/meta"
+	"github.com/caerbannogwhite/enchanter/meta"
 )
 
 func CompileSource(source string) ([]byte, []meta.LogEnty, error) {
@@ -320,7 +320,14 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 
 	// UNARY OPERATIONS
 	case 2:
-		switch ctx.GetChild(0).GetPayload().(*antlr.CommonToken).GetText() {
+		// Only a real operator token can start a 2-child expr. A nested rule
+		// context (or an error node produced by a failed parse) has no
+		// operation to emit, and must not be asserted to a token.
+		unaryOp, isTok := ctx.GetChild(0).GetPayload().(*antlr.CommonToken)
+		if !isTok {
+			return
+		}
+		switch unaryOp.GetText() {
 		case meta.SYMBOL_REV:
 			bf.AppendInstruction(meta.OP_UNARY_REV, 0, 0)
 
@@ -343,7 +350,14 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 
 	// BINARY OPERATIONS
 	case 3:
-		switch ctx.GetChild(1).GetPayload().(*antlr.CommonToken).GetText() {
+		// The middle child is the operator for every binary alternative, but
+		// not for 'LPAREN expr RPAREN', where it is the inner expression (whose
+		// own instructions have already been emitted) - and not for error nodes.
+		binaryOp, isTok := ctx.GetChild(1).GetPayload().(*antlr.CommonToken)
+		if !isTok {
+			return
+		}
+		switch binaryOp.GetText() {
 		case meta.SYMBOL_INDEXING:
 			bf.AppendInstruction(meta.OP_INDEXING, 0, 0)
 
@@ -576,7 +590,16 @@ func (bf *ByteFeeder) EnterList(ctx *ListContext) {
 
 // ExitList is called when production list is exited.
 func (bf *ByteFeeder) ExitList(ctx *ListContext) {
-	bf.AppendInstruction(meta.OP_END_LIST, 0, 0)
+	// The number of elements is taken from the parse tree and carried in the
+	// instruction itself. List elements are assign / multiAssign / exprCall
+	// children of the list rule; unlike function-call parameters they do not
+	// go through funcCallParam, so they emit no OP_END_CHUNCK of their own and
+	// cannot be counted at run time. Reading the count here is also immune to
+	// nesting: a function call inside a list emits OP_END_CHUNCK for each of
+	// its own parameters, which must not be mistaken for elements of the
+	// enclosing list.
+	nElements := len(ctx.AllAssign()) + len(ctx.AllMultiAssign()) + len(ctx.AllExprCall())
+	bf.AppendInstruction(meta.OP_END_LIST, 0, nElements)
 }
 
 // EnterNestedPipeline is called when production nestedPipeline is entered.
