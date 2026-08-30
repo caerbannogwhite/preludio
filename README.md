@@ -62,10 +62,6 @@ joined := (
 
 ![](media/repl_example.gif)
 
-### Community
-
-You can join the [Preludio community on Discord](https://discord.gg/FHJnhGyK).
-
 ### Data Types
 
 The language supports the following data types:
