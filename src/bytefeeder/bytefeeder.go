@@ -91,10 +91,6 @@ func (bf *ByteFeeder) SetVerbose(flag bool) *ByteFeeder {
 	return bf
 }
 
-// symbolBinaryAnd is the source text of the binary 'and' operator, as
-// produced by the lexer rule AND.
-const symbolBinaryAnd = "and"
-
 func (bf *ByteFeeder) AppendInstruction(opcode meta.OPCODE, param1 meta.PARAM1, param2 int) {
 	bf.lastInstruction = opcode
 
@@ -404,11 +400,7 @@ func (bf *ByteFeeder) ExitExpr(ctx *ExprContext) {
 		case meta.SYMBOL_BINARY_LT:
 			bf.AppendInstruction(meta.OP_BINARY_LT, 0, 0)
 
-		// NOTE: meta.SYMBOL_BINARY_AND is 'not' in enchanter up to v0.4.0 (an
-		// upstream copy-paste typo: every other SYMBOL_* maps to its own token
-		// text). Matching it would make binary 'and' emit no instruction at all,
-		// so the token text is matched directly here.
-		case symbolBinaryAnd:
+		case meta.SYMBOL_BINARY_AND:
 			bf.AppendInstruction(meta.OP_BINARY_AND, 0, 0)
 
 		case meta.SYMBOL_BINARY_OR:
