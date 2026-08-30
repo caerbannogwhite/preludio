@@ -156,18 +156,19 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	outputFile, err = os.OpenFile(path, os.O_CREATE, 0666)
+	// O_WRONLY is required: without an access mode os.OpenFile opens the file
+	// read-only (O_RDONLY is 0), and every write to it fails. That went
+	// unnoticed because it only fails on some platforms — on Windows Go's
+	// syscall.Open adds GENERIC_WRITE whenever O_CREAT is set, so the same
+	// call happened to be writable there — and because the CSV writer does not
+	// check its write errors, leaving an empty file behind and no error.
+	// O_TRUNC replaces the separate Truncate call.
+	outputFile, err = os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
 	}
 	defer outputFile.Close()
-
-	err = outputFile.Truncate(int64(0))
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
-	}
 
 	delimiter, err := named["del"].getStringScalar()
 	if err != nil {
