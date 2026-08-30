@@ -1,0 +1,245 @@
+package preludiocore
+
+import (
+	"fmt"
+
+	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
+)
+
+func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
+	convertToSeries := true
+
+	var series_ series.Series
+	for i := range *list {
+
+		if (*list)[i].tag == PRELUDIO_INTERNAL_TAG_ASSIGNMENT {
+			convertToSeries = false
+			break
+		}
+
+		switch v := (*list)[i].expr[0].(type) {
+		case __p_list__:
+			convertToSeries = false
+
+		case series.Series:
+			if series_ == nil {
+				series_ = v
+			} else if v.Len() > 1 {
+				convertToSeries = false
+				break
+			} else if series_.Type() == v.Type() {
+				series_ = series_.Append(v)
+			} else if series_.Type().CanCoerceTo(v.Type()) {
+				series_ = series_.Cast(v.Type()).Append(v)
+			} else if v.Type().CanCoerceTo(series_.Type()) {
+				series_ = series_.Append(v.Cast(series_.Type()))
+			} else {
+				return list, fmt.Errorf("cannot append %s to %s", v.Type().String(), series_.Type().String())
+			}
+		}
+	}
+
+	if convertToSeries {
+		return series_, nil
+	}
+	return *list, nil
+}
+
+// describeOperand names an expression operand for an error message. Operands
+// reaching the operator paths in solveExpr are not always series: a list of
+// lists keeps its __p_list__ form, and an unresolved symbol yields nil.
+func describeOperand(v interface{}) string {
+	if s, ok := v.(series.Series); ok {
+		return s.TypeCard().ToString()
+	}
+	if v == nil {
+		return "an undefined value"
+	}
+	if _, ok := v.(__p_list__); ok {
+		return "a list"
+	}
+	return fmt.Sprintf("%T", v)
+}
+
+func (vm *ByteEater) solveExpr(p *__p_intern__) error {
+	// Preprocess the expression
+	// Check if elements in the expression are:
+	//  - symbols: resolve them
+	//  - lists: recursively solve all the sub-expressions
+	var err error
+	for i := range p.expr {
+		if symb, ok := p.expr[i].(__p_symbol__); ok {
+			p.expr[i] = vm.symbolResolution(symb)
+
+			// Keep the symbol as the term's name. Resolution replaces the
+			// symbol with the value it refers to (for a dataframe column, the
+			// series itself), which otherwise loses the column name that
+			// builtins such as asFlt / strReplace need to write the result
+			// back into the right column.
+			if p.name == "" {
+				p.name = string(symb)
+			}
+		}
+
+		if list, ok := p.expr[i].(__p_list__); ok {
+			for j := range list {
+				err = vm.solveExpr(&list[j])
+				if err != nil {
+					return err
+				}
+			}
+
+			p.expr[i], err = vm.processList(&list)
+			if err != nil {
+				return err
+			}
+
+			// A single-element list collapses to that element's series (see
+			// processList). Carry the element's name over, so a one-column
+			// list such as [A] identifies its column just like [A, B] does.
+			if len(list) == 1 && p.name == "" {
+				p.name = list[0].name
+			}
+		}
+	}
+
+	stack := make([]interface{}, 0)
+
+	var op meta.OPCODE
+	var ok, errorMode bool
+	var exprIdx int
+	var result interface{}
+
+	for len(p.expr) > 1 {
+
+		// Load the stack until we find an operators
+		ok = false
+		for exprIdx = 0; !ok; op, ok = p.expr[exprIdx].(meta.OPCODE) {
+			exprIdx++
+		}
+		stack = append(stack, p.expr[0:exprIdx]...)
+		p.expr = p.expr[exprIdx+1 : len(p.expr)]
+
+		errorMode = false
+		result = series.Errors{}
+
+		// UNARY
+		if op.IsUnaryOp() {
+			t1 := stack[len(stack)-1]
+			stack = stack[0 : len(stack)-1]
+
+			switch op {
+			case meta.OP_UNARY_ADD:
+				result = t1
+
+			case meta.OP_UNARY_SUB:
+				switch s1 := t1.(type) {
+				case series.Ints:
+					result = s1.Neg()
+				case series.Int64s:
+					result = s1.Neg()
+				case series.Float64s:
+					result = s1.Neg()
+				default:
+					errorMode = true
+				}
+
+			case meta.OP_UNARY_NOT:
+				if s1, ok := t1.(series.Bools); ok {
+					result = s1.Not()
+				} else {
+					errorMode = true
+				}
+			}
+
+			// Check for errors
+			if _, ok := result.(series.Errors); ok || errorMode {
+				// The operand is not necessarily a series: a list of lists
+				// (which has no series representation) reaches this path too,
+				// and asserting it would panic while reporting the error.
+				return fmt.Errorf("unary operator %s not supported for %s",
+					op.ToCodeString(), describeOperand(t1))
+			}
+		} else
+
+		// BINARY
+		{
+			s2, isSeries2 := stack[len(stack)-1].(series.Series)
+			s1, isSeries1 := stack[len(stack)-2].(series.Series)
+			if !isSeries1 || !isSeries2 {
+				// Same reasoning as the unary path above: report the
+				// unsupported operand instead of panicking on the assertion.
+				return fmt.Errorf("binary operator %s not supported for %s and %s",
+					op.ToCodeString(),
+					describeOperand(stack[len(stack)-2]),
+					describeOperand(stack[len(stack)-1]))
+			}
+			stack = stack[0 : len(stack)-2]
+
+			switch op {
+			case meta.OP_BINARY_MUL:
+				result = s1.Mul(s2)
+
+			case meta.OP_BINARY_DIV:
+				result = s1.Div(s2)
+
+			case meta.OP_BINARY_MOD:
+				result = s1.Mod(s2)
+
+			case meta.OP_BINARY_EXP:
+				result = s1.Exp(s2)
+
+			case meta.OP_BINARY_ADD:
+				result = s1.Add(s2)
+
+			case meta.OP_BINARY_SUB:
+				result = s1.Sub(s2)
+
+			case meta.OP_BINARY_EQ:
+				result = s1.Eq(s2)
+
+			case meta.OP_BINARY_NE:
+				result = s1.Ne(s2)
+
+			case meta.OP_BINARY_LT:
+				result = s1.Lt(s2)
+
+			case meta.OP_BINARY_LE:
+				result = s1.Le(s2)
+
+			case meta.OP_BINARY_GT:
+				result = s1.Gt(s2)
+
+			case meta.OP_BINARY_GE:
+				result = s1.Ge(s2)
+
+			case meta.OP_BINARY_AND:
+				if s1, ok := s1.(series.Bools); ok {
+					result = s1.And(s2)
+				} else {
+					errorMode = true
+				}
+
+			case meta.OP_BINARY_OR:
+				if s1, ok := s1.(series.Bools); ok {
+					result = s1.Or(s2)
+				} else {
+					errorMode = true
+				}
+			}
+
+			// Check for errors
+			if _, ok := result.(series.Errors); ok || errorMode {
+				return fmt.Errorf("binary operator %s not supported between %s and %s",
+					op.ToString(),
+					s1.TypeCard().ToString(),
+					s2.TypeCard().ToString())
+			}
+		}
+
+		p.expr = append([]interface{}{result}, p.expr...)
+	}
+
+	return nil
+}

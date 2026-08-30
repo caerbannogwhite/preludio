@@ -1,0 +1,21 @@
+
+a := 1
+b := 2
+
+l := [a, b, 3, 4, 5] 
+
+if a < b or a in l then
+    print! "a < b or a in l"
+else
+    print! "a >= b and a not in l"
+end
+
+if "MPG" in (names! cars) then print! "MPG in cars"
+
+if (from! cars | agg! mean_mpg = mean! MPG) > 20 then print! "mean MPG > 20" else print! "mean MPG <= 20" end
+
+for i in l then print! i
+
+for i in l then
+    print! i
+end

@@ -1,17 +1,10 @@
-module preludio
+module preludiocore
 
 go 1.26.5
 
-replace preludiocore => ./src
+replace bytefeeder => ./bytefeeder
 
-replace bytefeeder => ./src/bytefeeder
-
-require (
-	bytefeeder v0.0.0-00010101000000-000000000000
-	github.com/alexflint/go-arg v1.4.3
-	github.com/charmbracelet/lipgloss v0.9.1
-	preludiocore v0.0.0-00010101000000-000000000000
-)
+require bytefeeder v0.0.0-00010101000000-000000000000
 
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
@@ -42,10 +35,10 @@ require (
 )
 
 require (
-	github.com/alexflint/go-scalar v1.1.0 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230305170008-8188dc5388df // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/caerbannogwhite/enchanter v0.4.1
+	github.com/charmbracelet/lipgloss v0.9.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect

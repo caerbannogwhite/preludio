@@ -8,18 +8,18 @@ import (
 	"preludiocore"
 	"strconv"
 	"strings"
-	"typesys"
 
 	"github.com/alexflint/go-arg"
+	"github.com/caerbannogwhite/enchanter/meta"
 	"github.com/charmbracelet/lipgloss"
 )
 
-const VERSION = "0.3.0"
+const VERSION = "0.4.0"
 
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
 const DEFAULT_SUSPENSION_STRING = "... "
-const DEFAULT_NULL_STRING = "NA"
+const DEFAULT_NULL_STRING = meta.SYMBOL_NA
 const DEFAULT_OUTPUT_COLUMN_SIZE = 12
 
 var JUST_RIGHT_TYPES = map[string]bool{
@@ -44,6 +44,7 @@ type CliArgs struct {
 	SourceCode string `arg:"-s, --source" help:"source code to execute" default:""`
 	InputPath  string `arg:"-i, --input" help:"source file input path" default:""`
 	DebugLevel int    `arg:"-d, --debug-level" help:"debug level" default:"0"`
+	SdtOut     bool   `arg:"-o, --stdout" help:"print output to stdout" default:"false"`
 	Verbose    bool   `arg:"-v, --verbose" help:"verbosity level" default:"false"`
 	Warnings   bool   `arg:"-w, --warnings" help:"print warnings" defaut:"true"`
 }
@@ -58,7 +59,9 @@ func main() {
 		be := new(preludiocore.ByteEater).
 			InitVM().
 			SetParamPrintWarning(args.Warnings).
-			SetParamDebugLevel(args.DebugLevel)
+			SetParamDebugLevel(args.DebugLevel).
+			SetParamVerbose(args.Verbose).
+			SetParamPrintToStdout(args.SdtOut)
 
 		bytecode, logs, err := bytefeeder.CompileFile(args.InputPath)
 		if err != nil {
@@ -76,7 +79,9 @@ func main() {
 		be := new(preludiocore.ByteEater).
 			InitVM().
 			SetParamPrintWarning(args.Warnings).
-			SetParamDebugLevel(args.DebugLevel)
+			SetParamDebugLevel(args.DebugLevel).
+			SetParamVerbose(args.Verbose).
+			SetParamPrintToStdout(args.SdtOut)
 
 		bytecode, logs, err := bytefeeder.CompileSource(args.SourceCode)
 		if err != nil {
@@ -208,18 +213,18 @@ func LaunchRepl(args CliArgs) {
 			res := be.RunSource(code)
 			for _, log := range res.Log {
 				switch log.LogType {
-				case typesys.LOG_DEBUG:
+				case meta.LOG_DEBUG:
 					if int(log.Level) < be.GetParamDebugLevel() {
 						fmt.Println("[🐛] " + log.Message)
 					}
 
-				case typesys.LOG_INFO:
+				case meta.LOG_INFO:
 					fmt.Println("[ ℹ️ ] " + log.Message)
 
-				case typesys.LOG_WARNING:
+				case meta.LOG_WARNING:
 					fmt.Println("[⚠️] " + log.Message)
 
-				case typesys.LOG_ERROR:
+				case meta.LOG_ERROR:
 					fmt.Println("[❌] " + log.Message)
 				}
 			}
@@ -245,7 +250,7 @@ func truncate(s string, n int) string {
 	return s
 }
 
-func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
+func prettyPrint(indent string, colSize int, columnar []meta.Columnar) {
 	if len(columnar) == 0 {
 		return
 	}
@@ -295,7 +300,7 @@ func prettyPrint(indent string, colSize int, columnar []typesys.Columnar) {
 		buffer += "┤\n"
 	}
 
-	// column typesys
+	// column meta
 	buffer += indent
 	for _, c := range columnar {
 		buffer += "│" + STYLE_BOLD.Copy().
