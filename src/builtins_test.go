@@ -639,7 +639,7 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 	clean := (
-		rcsv! "..\\test_files\\Cars.csv" del:";" head:true
+		rcsv! "../test_files/Cars.csv" del:";" head:true
 		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 		asFlt! [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
@@ -809,7 +809,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	// basic test
 	source := `
 	clean := (
-		rcsv! "..\\test_files\\Cars.csv" del:";" head:true
+		rcsv! "../test_files/Cars.csv" del:";" head:true
 		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
 		asFlt! [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
@@ -824,13 +824,13 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 		filter! Stat > 1.3
 		select! [Car, Origin, Stat]
 		take! 10
-		wcsv! "..\\test_files\\CarsRes.csv" del:"\t"
+		wcsv! "../test_files/CarsRes.csv" del:"\t"
 	)
 	`
 
 	new(ByteEater).InitVM().RunSource(source)
 
-	b, err := os.ReadFile("..\\test_files\\CarsRes.csv")
+	b, err := os.ReadFile("../test_files/CarsRes.csv")
 	if err != nil {
 		t.Error("Expected no error, got", err)
 	}
@@ -856,7 +856,7 @@ Chevrolet Chevette	US	1.3142830188679246
 		t.Error("Expected", expected, "got", string(b))
 	}
 
-	err = os.Remove("..\\test_files\\CarsRes.csv")
+	err = os.Remove("../test_files/CarsRes.csv")
 	if err != nil {
 		t.Error("Expected no error, got", err)
 	}
