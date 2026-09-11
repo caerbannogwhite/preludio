@@ -156,12 +156,12 @@ If you want to contribute to this project, you can do so by forking the reposito
 
 ### Developers
 
-If the grammar is changed, the parser must be regenerated. To do this, run the following command:
+If the grammar is changed, the parser must be regenerated. The files committed under `src/bytefeeder/` were generated with **ANTLR 4.11.1** (see the `Code generated ... by ANTLR 4.11.1` header in `src/bytefeeder/preludio_lexer.go`). Download that exact toolchain from https://www.antlr.org/download/antlr-4.11.1-complete.jar and put `antlr.bat` / `antlr` on `PATH`. `make.ps1` fails with an error if ANTLR is missing, instead of silently moving nothing.
 
 (on Windows)
 
 ```
-make.ps1
+.\make.ps1
 ```
 
 ### New Ideas
