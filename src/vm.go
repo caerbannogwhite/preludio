@@ -13,6 +13,7 @@ import (
 	"github.com/caerbannogwhite/enchanter"
 	"github.com/caerbannogwhite/enchanter/dataframe"
 	"github.com/caerbannogwhite/enchanter/meta"
+	"github.com/caerbannogwhite/enchanter/series"
 )
 
 // ByteEater is the name of the Preludio Virtual Machine
@@ -37,7 +38,7 @@ type ByteEater struct {
 	__funcNumParams         int
 	__output                meta.PreludioOutput
 	__context               *enchanter.Context
-	__currentDataFrame      dataframe.DataFrame
+	__currentDataFrame      *dataframe.DataFrame
 	__currentResult         *__p_intern__
 }
 
@@ -550,6 +551,7 @@ MAIN_LOOP:
 			switch param1 {
 			case meta.TERM_NULL:
 				termType = "NULL"
+				vm.stackPush(vm.newPInternTerm(series.NewSeriesNA(1, vm.__context)))
 
 			case meta.TERM_BOOLEAN:
 				termType = "BOOL"
@@ -761,11 +763,14 @@ MAIN_LOOP:
 			op2 := vm.stackPop()
 			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_OR, op2)
 
-		///////////////////////////////////////////////////////////////////////
-		///////////				OTHER OPERATIONS
-
 		case meta.OP_BINARY_COALESCE:
 			vm.printDebug(10, "OP_BINARY_COALESCE", "", "")
+
+			op2 := vm.stackPop()
+			vm.stackLast().appendBinaryOperation(meta.OP_BINARY_COALESCE, op2)
+
+		///////////////////////////////////////////////////////////////////////
+		///////////				OTHER OPERATIONS
 
 		case meta.OP_BINARY_MODEL:
 			vm.printDebug(10, "OP_BINARY_MODEL", "", "")
@@ -898,7 +903,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 	// 1 - Look at the current DataFrame
 	if vm.__currentDataFrame != nil {
 		if ok := vm.__currentDataFrameNames[string(symbol)]; ok {
-			return vm.__currentDataFrame.C(string(symbol))
+			return vm.__currentDataFrame.Col(string(symbol))
 		}
 	}
 
@@ -919,7 +924,7 @@ func (vm *ByteEater) symbolResolution(symbol __p_symbol__) interface{} {
 // the current DataFrame
 func (vm *ByteEater) setCurrentDataFrame() {
 	df, _ := vm.stackLast().getDataframe()
-	vm.__currentDataFrame = df
+	vm.__currentDataFrame = &df
 
 	vm.__currentDataFrameNames = map[string]bool{}
 	for _, name := range df.Names() {

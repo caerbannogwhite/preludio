@@ -237,7 +237,7 @@ func (i *__p_intern__) getDataframe() (dataframe.DataFrame, error) {
 	case dataframe.DataFrame:
 		return v, nil
 	default:
-		return nil, fmt.Errorf("expecting dataframe, got %T", v)
+		return dataframe.DataFrame{}, fmt.Errorf("expecting dataframe, got %T", v)
 	}
 }
 

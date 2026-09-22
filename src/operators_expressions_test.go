@@ -382,3 +382,35 @@ func Test_Not_List(t *testing.T) {
 	// operand used to panic on a series type assertion.
 	vm.RunSource(`not [[true, false], [false, true]]`)
 }
+
+func Test_Operator_Coalesce(t *testing.T) {
+	var err error
+
+	// The left side wins where it is not null.
+	be.RunSource(`1 ?? 2`)
+	if err = checkCurrentResult(be, int64(1)); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`1.5 ?? 0.0`)
+	if err = checkCurrentResult(be, 1.5); err != nil {
+		t.Error(err)
+	}
+
+	be.RunSource(`"a" ?? "b"`)
+	if err = checkCurrentResult(be, "a"); err != nil {
+		t.Error(err)
+	}
+
+	// A null left side takes the right side.
+	be.RunSource(`na ?? 5`)
+	if err = checkCurrentResult(be, int64(5)); err != nil {
+		t.Error(err)
+	}
+
+	// A null right side leaves the left side in place.
+	be.RunSource(`7 ?? na`)
+	if err = checkCurrentResult(be, int64(7)); err != nil {
+		t.Error(err)
+	}
+}

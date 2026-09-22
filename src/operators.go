@@ -227,6 +227,9 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				} else {
 					errorMode = true
 				}
+
+			case meta.OP_BINARY_COALESCE:
+				result = s1.Coalesce(s2)
 			}
 
 			// Check for errors

@@ -13,10 +13,10 @@ func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, ser
 	col.ActualLength = series.Len()
 
 	if !fullOutput && series.Len() > outputSnippetLength {
-		series = series.Take(outputSnippetLength)
+		series = series.Slice(0, outputSnippetLength)
 	}
 	col.Data = series.DataAsString()
-	col.Nulls = series.GetNullMask()
+	col.Nulls = series.NullMask()
 
 	return col
 }
@@ -24,7 +24,7 @@ func seriesToColumnar(fullOutput bool, outputSnippetLength int, name string, ser
 func dataFrameToColumnar(fullOutput bool, outputSnippetLength int, df *dataframe.DataFrame) []meta.Columnar {
 	columns := make([]meta.Columnar, (*df).NCols())
 	for i, name := range (*df).Names() {
-		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).C(name))
+		columns[i] = seriesToColumnar(fullOutput, outputSnippetLength, name, (*df).Col(name))
 	}
 	return columns
 }
