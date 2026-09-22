@@ -4,6 +4,12 @@
 
 ### A PRQL based data transformation language
 
+> **Project status: experiment.** Preludio is a personal test bed for
+> language and dataframe ideas, built on the
+> [enchanter](https://github.com/caerbannogwhite/enchanter) library. It is
+> not maintained for production use: features are missing, versions break
+> compatibility, and bugs are likely. Use it to explore, not to ship.
+
 Preludio is a data transformation language based on PRQL. It is a language that allows you to transform and
 manipulate data in a simple and intuitive way, batteries included.
 
@@ -77,6 +83,7 @@ The language supports the following data types:
 - `regex` ie: `x'he(l){2}o'`, `x"f(o){2} bar"`
 - `date` ie: `d'2021-08-20'`, `d"2021-08-20"`
 - `duration` ie: `1:h`, `2:milliseconds`, `3:us`
+- `na`, the null value
 
 In addition, the language supports the following data structures:
 
@@ -101,6 +108,7 @@ The language supports the following operators:
 - `>=` (greater than or equal to)
 - `<` (less than)
 - `<=` (less than or equal to)
+- `??` (coalesce: the left side, unless it is null)
 
 - string interpolation `f'I have {1 + 2} apples'`
 

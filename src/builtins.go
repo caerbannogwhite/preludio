@@ -192,7 +192,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	res := df.ToCsv().
+	res := df.WriteCsv().
 		SetDelimiter(del).
 		SetHeader(header).
 		SetWriter(outputFile).
@@ -312,15 +312,14 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := dataframe.NewBaseDataFrame(vm.__context).
-		FromCsv().
+	df := dataframe.ReadCsv(vm.__context).
 		SetReader(inputFile).
 		SetDelimiter(del).
 		SetHeader(header).
 		Read()
 
-	if df.IsErrored() {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.GetError()))
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
 		return
 	}
 
@@ -373,7 +372,7 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				return
 			}
 
-			df = dataframe.NewBaseDataFrame(vm.__context)
+			df = dataframe.NewDataFrame(vm.__context)
 			for _, p := range list {
 				switch v := p.expr[0].(type) {
 				case series.Series:
@@ -393,8 +392,8 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 		return
 	}
 
-	if df.IsErrored() {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.GetError()))
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
 		return
 	}
 
@@ -404,11 +403,10 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 
 // anchorSelectors anchors each column selector.
 //
-// enchanter's DataFrame.Select compiles every selector as a regular
-// expression and matches it unanchored, so a plain column name such as "Car"
-// would also select "CarOrigin". Anchoring keeps pattern selectors (an IDENT
-// may contain '*', e.g. "a.*") working exactly as before, while making a plain
-// name select only the column with that name.
+// A preludio selector may be a pattern (an IDENT may contain '*', e.g.
+// "a.*"), so selection goes through enchanter's SelectMatching, which
+// matches regular expressions unanchored. Anchoring keeps a plain name
+// selecting only the column with that name while patterns keep working.
 func anchorSelectors(selectors []string) []string {
 	anchored := make([]string, len(selectors))
 	for i, s := range selectors {
@@ -437,7 +435,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 	// The first value can be both a symbol or a list of symbols
 	switch v := positional[1].getValue().(type) {
 	case __p_symbol__:
-		vm.stackPush(vm.newPInternTerm(df.Select(anchorSelectors([]string{string(v)})...)))
+		vm.stackPush(vm.newPInternTerm(df.SelectMatching(anchorSelectors([]string{string(v)})...)))
 		vm.setCurrentDataFrame()
 
 	case __p_list__:
@@ -446,7 +444,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
-		vm.stackPush(vm.newPInternTerm(df.Select(anchorSelectors(list)...)))
+		vm.stackPush(vm.newPInternTerm(df.SelectMatching(anchorSelectors(list)...)))
 		vm.setCurrentDataFrame()
 
 	default:
@@ -573,20 +571,20 @@ func PreludioFunc_Join(funcName string, vm *ByteEater) {
 	var res dataframe.DataFrame
 	switch how {
 	case "inner":
-		res = df1.Join(dataframe.INNER_JOIN, df2, on...)
+		res = df1.Join(dataframe.JoinInner, df2, on...)
 	case "outer":
-		res = df1.Join(dataframe.OUTER_JOIN, df2, on...)
+		res = df1.Join(dataframe.JoinOuter, df2, on...)
 	case "left":
-		res = df1.Join(dataframe.LEFT_JOIN, df2, on...)
+		res = df1.Join(dataframe.JoinLeft, df2, on...)
 	case "right":
-		res = df1.Join(dataframe.RIGHT_JOIN, df2, on...)
+		res = df1.Join(dataframe.JoinRight, df2, on...)
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting one of 'inner', 'outer', 'left', 'right', got %s", funcName, how))
 		return
 	}
 
-	if res.IsErrored() {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.GetError()))
+	if res.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Err()))
 		return
 	}
 
@@ -667,6 +665,14 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 		return
 	}
 
+	// A negative bound counts from the end, as the old Take did.
+	norm := func(v int) int {
+		if v < 0 {
+			return df.NRows() + v
+		}
+		return v
+	}
+
 	switch len(positional) {
 	case 2:
 		a, err := positional[1].getInt64Scalar()
@@ -674,7 +680,7 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
-		df = df.Take(int(a))
+		df = df.Slice(0, norm(int(a)))
 
 	case 3:
 		a, err := positional[1].getInt64Scalar()
@@ -687,7 +693,7 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
-		df = df.Take(int(a), int(b))
+		df = df.Slice(norm(int(a)), norm(int(b)))
 
 	case 4:
 		a, err := positional[1].getInt64Scalar()
@@ -705,7 +711,19 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 			return
 		}
-		df = df.Take(int(a), int(b), int(c))
+		start, stop, step := norm(int(a)), norm(int(b)), int(c)
+		if step < 0 {
+			step = -step
+		}
+		if step == 0 {
+			vm.setPanicMode(fmt.Sprintf("%s: step cannot be zero", funcName))
+			return
+		}
+		indices := make([]int, 0, (stop-start+step-1)/step)
+		for x := start; x < stop; x += step {
+			indices = append(indices, x)
+		}
+		df = df.TakeIndices(indices)
 
 	default:
 		vm.setPanicMode(fmt.Sprintf("%s: expecting 2, 3 or 4 parameters, got %d", funcName, len(positional)))
@@ -949,7 +967,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 			vm.stackPush(vm.newPInternTerm(df))
 
 		case series.Errors:
-			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, v.GetError()))
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, v.Err()))
 			return
 
 		case __p_list__:
@@ -958,7 +976,7 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 				case series.Strings:
 					df = df.Replace(e.name, t.Replace(strOld, strNew, int(num)))
 				case series.Errors:
-					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, t.GetError()))
+					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, t.Err()))
 					return
 				default:
 					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
