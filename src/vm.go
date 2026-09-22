@@ -492,10 +492,14 @@ MAIN_LOOP:
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.setPanicMode(fmt.Sprintf("variable '%s' not callable.", funcName))
+						vm.setPanicMode(fmt.Sprintf("'%s' is not callable, it holds %s", funcName, describeValue(value)))
 					}
 				} else {
-					vm.setPanicMode(fmt.Sprintf("variable '%s' not defined.", funcName))
+					msg := fmt.Sprintf("'%s' is not a builtin function and no variable with this name is defined", funcName)
+					if hint := closestBuiltin(funcName); hint != "" {
+						msg += fmt.Sprintf(". Did you mean '%s'?", hint)
+					}
+					vm.setPanicMode(msg)
 				}
 			}
 
@@ -887,6 +891,11 @@ LOOP1:
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
+				// A nil entry is a required parameter the caller did not
+				// pass; the builtin reports it. Solving it would crash.
+				if p == nil {
+					continue
+				}
 				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
@@ -976,4 +985,61 @@ func (vm *ByteEater) getLastError() string {
 		}
 	}
 	return ""
+}
+
+// builtinNames lists every name the function-call dispatch above accepts,
+// for the did-you-mean hint on an unknown name.
+var builtinNames = []string{
+	"derive", "filter", "from", "wcsv", "rcsv", "rxlsx", "wxlsx", "rxpt",
+	"wxpt", "rsas", "cols", "new", "select", "group", "ungroup", "agg",
+	"join", "sort", "take", "as", "gsub",
+}
+
+// renamedBuiltins maps retired names to their replacements, so an old
+// script gets pointed at the new name instead of a generic error.
+var renamedBuiltins = map[string]string{
+	"strReplace": "gsub",
+	"strRepl":    "gsub",
+	"asBool":     "as",
+	"asInt":      "as",
+	"asFlt":      "as",
+	"asStr":      "as",
+	"names":      "cols",
+	"leftj":      "join",
+}
+
+// closestBuiltin returns the builtin whose name is within two edits of
+// name, a renamed builtin's replacement, or the empty string when
+// nothing is close enough.
+func closestBuiltin(name string) string {
+	if repl, ok := renamedBuiltins[name]; ok {
+		return repl
+	}
+	best, bestDist := "", 3
+	for _, b := range builtinNames {
+		if d := editDistance(name, b); d < bestDist {
+			best, bestDist = b, d
+		}
+	}
+	return best
+}
+
+func editDistance(a, b string) int {
+	prev := make([]int, len(b)+1)
+	curr := make([]int, len(b)+1)
+	for j := range prev {
+		prev[j] = j
+	}
+	for i := 1; i <= len(a); i++ {
+		curr[0] = i
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+			curr[j] = min(prev[j]+1, min(curr[j-1]+1, prev[j-1]+cost))
+		}
+		prev, curr = curr, prev
+	}
+	return prev[len(b)]
 }

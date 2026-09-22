@@ -243,6 +243,26 @@ func LaunchRepl(args CliArgs) {
 	}
 }
 
+// fitNumber fits a numeric cell into n characters. A value that does not
+// fit is reformatted with shrinking precision; anything unparsable falls
+// back to plain truncation.
+func fitNumber(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return truncate(s, n)
+	}
+	for prec := n - 2; prec >= 2; prec-- {
+		out := strconv.FormatFloat(v, 'g', prec, 64)
+		if len(out) <= n {
+			return out
+		}
+	}
+	return truncate(s, n)
+}
+
 func truncate(s string, n int) string {
 	if len(s) > n {
 		return s[:n-3] + "..."
@@ -336,7 +356,7 @@ func prettyPrint(indent string, colSize int, columnar []meta.Columnar) {
 				case "Bool":
 					buffer += "│" + STYLE_BOOL.Render(fmt.Sprintf(fmtString, c.Data[i]))
 				case "Int64", "Float64":
-					buffer += "│" + STYLE_NUMERIC.Render(fmt.Sprintf(fmtString, c.Data[i]))
+					buffer += "│" + STYLE_NUMERIC.Render(fmt.Sprintf(fmtString, fitNumber(c.Data[i], colSize)))
 				case "String":
 					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
 				default:

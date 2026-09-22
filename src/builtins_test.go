@@ -1006,3 +1006,25 @@ func Test_Builtin_WriteKeepsFrame(t *testing.T) {
 		t.Errorf("reused: expected 2 rows, got %d", df.NRows())
 	}
 }
+
+// Errors speak the language's words: unknown names get a hint, missing
+// required parameters are named, and no bad input crashes the VM.
+func Test_ErrorMessages(t *testing.T) {
+	be.RunSource(`strRepl! [A]`)
+	e := be.getLastError()
+	if !strings.Contains(e, "'strRepl' is not a builtin") || !strings.Contains(e, "Did you mean 'gsub'?") {
+		t.Errorf("unknown builtin: expected a did-you-mean hint, got %q", e)
+	}
+
+	be.RunSource(`x := (new! [A = ['a,b']] | gsub! [A])`)
+	e = be.getLastError()
+	if !strings.Contains(e, "old: is required") {
+		t.Errorf("gsub without old:: expected a clean error, got %q", e)
+	}
+
+	be.RunSource(`derive! [c = 1]`)
+	e = be.getLastError()
+	if strings.Contains(e, "__p_list__") || strings.Contains(e, "preludiocore.") {
+		t.Errorf("error leaks Go type names: %q", e)
+	}
+}

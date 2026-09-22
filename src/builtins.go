@@ -42,7 +42,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 			case series.Strings:
 				df = df.AddSeries(val.name, col)
 			default:
-				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %T", funcName, val))
+				vm.setPanicMode(fmt.Sprintf("%s: expecting a list of Series, got %s", funcName, describeValue(val)))
 				return
 			}
 		}
@@ -58,7 +58,7 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 		df = df.AddSeries(positional[1].name, v)
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting a Series, got %s", funcName, describeValue(v)))
 		return
 	}
 
@@ -233,7 +233,7 @@ func PreludioFunc_Filter(funcName string, vm *ByteEater) {
 		vm.stackPush(vm.newPInternTerm(df.Filter(v)))
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: invalid type %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: invalid type: %s", funcName, describeValue(v)))
 		return
 	}
 }
@@ -382,12 +382,12 @@ func PreludioFunc_New(funcName string, vm *ByteEater) {
 				case series.Series:
 					df = df.AddSeries(p.name, v)
 				default:
-					vm.setPanicMode(fmt.Sprintf("%s: exprecting list of assignments for building a new dataframe, got %T", funcName, p.expr[0]))
+					vm.setPanicMode(fmt.Sprintf("%s: expecting list of assignments for building a new dataframe, got %s", funcName, describeValue(p.expr[0])))
 					return
 				}
 			}
 		} else {
-			vm.setPanicMode(fmt.Sprintf("%s: expecting assignment for building a new dataframe, got %T", funcName, positional[0].getValue()))
+			vm.setPanicMode(fmt.Sprintf("%s: expecting assignment for building a new dataframe, got %s", funcName, describeValue(positional[0].getValue())))
 			return
 		}
 
@@ -452,7 +452,7 @@ func PreludioFunc_Select(funcName string, vm *ByteEater) {
 		vm.setCurrentDataFrame()
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %s", funcName, describeValue(v)))
 		return
 	}
 }
@@ -491,7 +491,7 @@ func PreludioFunc_GroupBy(funcName string, vm *ByteEater) {
 		vm.setCurrentDataFrame()
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %s", funcName, describeValue(v)))
 		return
 	}
 }
@@ -638,13 +638,13 @@ func PreludioFunc_OrderBy(funcName string, vm *ByteEater) {
 					sortParams = append(sortParams, dataframe.Asc(string(v2)))
 				}
 			default:
-				vm.setPanicMode(fmt.Sprintf("%s: expecting symbol, got %T", funcName, v))
+				vm.setPanicMode(fmt.Sprintf("%s: expecting symbol, got %s", funcName, describeValue(v)))
 				return
 			}
 		}
 
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %s", funcName, describeValue(v)))
 		return
 	}
 
@@ -781,7 +781,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 				case []string:
 					series_[e.name] = series.NewSeriesString(t, nil, false, vm.__context)
 				default:
-					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
+					vm.setPanicMode(fmt.Sprintf("%s: expecting a string, got %s", funcName, describeValue(t)))
 					return
 				}
 			}
@@ -792,7 +792,7 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 			// TODO
 
 		default:
-			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
+			vm.setPanicMode(fmt.Sprintf("%s: expecting a string, got %s", funcName, describeValue(v)))
 			return
 		}
 
@@ -843,7 +843,7 @@ func PreludioFunc_Gsub(funcName string, vm *ByteEater) {
 	// NAMED PARAMETERS
 	// GET old
 	if named["old"] == nil {
-		vm.setPanicMode(fmt.Sprintf("%s: nammed parameter 'old' is required since it has no default value.", funcName))
+		vm.setPanicMode(fmt.Sprintf("%s: the named parameter old: is required, e.g. gsub! [a] old:',' new:'.'", funcName))
 		return
 	}
 	strOld, err = named["old"].getStringScalar()
@@ -854,7 +854,7 @@ func PreludioFunc_Gsub(funcName string, vm *ByteEater) {
 
 	// GET new
 	if named["new"] == nil {
-		vm.setPanicMode(fmt.Sprintf("%s: nammed parameter 'new' is required since it has no default value.", funcName))
+		vm.setPanicMode(fmt.Sprintf("%s: the named parameter new: is required, e.g. gsub! [a] old:',' new:'.'", funcName))
 		return
 	}
 	strNew, err = named["new"].getStringScalar()
@@ -890,7 +890,7 @@ func PreludioFunc_Gsub(funcName string, vm *ByteEater) {
 			fmt.Println("TODO: StrReplace: dataframe")
 
 		default:
-			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
+			vm.setPanicMode(fmt.Sprintf("%s: expecting a string, got %s", funcName, describeValue(v)))
 			return
 		}
 
@@ -920,14 +920,14 @@ func PreludioFunc_Gsub(funcName string, vm *ByteEater) {
 					vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, t.Err()))
 					return
 				default:
-					vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, t))
+					vm.setPanicMode(fmt.Sprintf("%s: expecting a string, got %s", funcName, describeValue(t)))
 					return
 				}
 			}
 			vm.stackPush(vm.newPInternTerm(df))
 
 		default:
-			vm.setPanicMode(fmt.Sprintf("%s: expected string, got %T.", funcName, v))
+			vm.setPanicMode(fmt.Sprintf("%s: expecting a string, got %s", funcName, describeValue(v)))
 			return
 		}
 
@@ -1250,7 +1250,7 @@ func PreludioFunc_As(funcName string, vm *ByteEater) {
 			return
 		}
 	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %s", funcName, describeValue(v)))
 		return
 	}
 
