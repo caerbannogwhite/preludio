@@ -995,3 +995,264 @@ func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
 		return
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+///////						AGGREGATION
+
+// aggSlice builds a slice of enchanter aggregators. The aggregator type is
+// unexported in enchanter, so its slice type cannot be written out here;
+// type inference names it through this helper.
+func aggSlice[T any](xs ...T) []T {
+	return xs
+}
+
+// Aggregate a grouped Dataframe: agg! count:true mean:[MPG] sum:[Weight]
+func PreludioFunc_Agg(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	listAggs := []string{"sum", "mean", "min", "max", "std", "variance", "median", "any", "all"}
+
+	named := map[string]*__p_intern__{"count": nil}
+	for _, name := range listAggs {
+		named[name] = nil
+	}
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	aggs := aggSlice(dataframe.Count())[:0]
+
+	if named["count"] != nil {
+		count, err := named["count"].getBoolScalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: count: %s", funcName, err))
+			return
+		}
+		if count {
+			aggs = append(aggs, dataframe.Count())
+		}
+	}
+
+	for _, name := range listAggs {
+		if named[name] == nil {
+			continue
+		}
+		cols, err := named[name].listToStringSlice()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s expects a list of columns: %s", funcName, name, err))
+			return
+		}
+		for _, col := range cols {
+			switch name {
+			case "sum":
+				aggs = append(aggs, dataframe.Sum(col))
+			case "mean":
+				aggs = append(aggs, dataframe.Mean(col))
+			case "min":
+				aggs = append(aggs, dataframe.Min(col))
+			case "max":
+				aggs = append(aggs, dataframe.Max(col))
+			case "std":
+				aggs = append(aggs, dataframe.Std(col))
+			case "variance":
+				aggs = append(aggs, dataframe.Variance(col))
+			case "median":
+				aggs = append(aggs, dataframe.Median(col))
+			case "any":
+				aggs = append(aggs, dataframe.Any(col))
+			case "all":
+				aggs = append(aggs, dataframe.All(col))
+			}
+		}
+	}
+
+	if len(aggs) == 0 {
+		vm.setPanicMode(fmt.Sprintf("%s: expecting at least one aggregator, e.g. count:true or mean:[a]", funcName))
+		return
+	}
+
+	res := df.Agg(aggs...).Run()
+	if res.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(res))
+	vm.setCurrentDataFrame()
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///////						FILE FORMATS
+
+// Read an Excel file: rxlsx! p'file.xlsx' sheet:'Sheet1'
+func PreludioFunc_ReadXlsx(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	named := map[string]*__p_intern__{
+		"sheet": vm.newPInternTerm([]string{"Sheet1"}),
+	}
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	sheet, err := named["sheet"].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadXlsx(vm.__context).SetPath(path).SetSheet(sheet).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}
+
+// Write an Excel file: wxlsx! p'file.xlsx' sheet:'Sheet1'
+func PreludioFunc_WriteXlsx(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	named := map[string]*__p_intern__{
+		"sheet": vm.newPInternTerm([]string{"Sheet1"}),
+	}
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, &named, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	sheet, err := named["sheet"].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteXlsx().SetPath(path).SetSheet(sheet).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Read an XPT (SAS transport) file: rxpt! p'file.xpt'
+func PreludioFunc_ReadXpt(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadXpt(vm.__context).SetPath(path).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}
+
+// Write an XPT (SAS transport) file: wxpt! p'file.xpt'
+func PreludioFunc_WriteXpt(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteXpt().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Read a SAS7BDAT file (read-only, there is no writer): rsas! p'file.sas7bdat'
+func PreludioFunc_ReadSas(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadSas7bdat(vm.__context).SetPath(path).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}

@@ -22,7 +22,7 @@ Read and clean up a CSV file, then store the result in a variable called `clean`
 ```
 clean := (
   rcsv! p'test_files/Cars.csv' del:';' head:true
-  strRepl! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  strReplace! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
   asFlt! [MPG, Displacement, Horsepower, Acceleration]
   sort! [-Origin, Cylinders, -MPG]
 )
@@ -60,9 +60,19 @@ continents := (
 
 joined := (
   from! clean
-  leftj! continents on: [Origin]
+  join! left continents on: [Origin]
   select! [Car, Origin, Continent]
   sort! [Continent, Origin]
+)
+```
+
+Group rows and aggregate:
+
+```
+stats := (
+  from! clean
+  group! Origin
+  agg! count:true mean:[MPG] max:[Horsepower]
 )
 ```
 
@@ -116,14 +126,23 @@ The language supports the following operators:
 
 The language supports the following built-in functions:
 
-- `from` initializes a pipeline, ie: `from table`
-- `new` creates a new dataframe, ie: `new [a = [1, 2], b = [3, 4]]`
-- `rcsv` reads a CSV file, ie: `rcsv p'c:\temp\file.csv' del:',' head:true`
-- `wcsv` writes a CSV file ie: `wcsv p'c:\temp\file.csv' del:','`
-- `filter` filters rows, ie: `filter a > 1`
-- `select` selects columns, ie: `select [a, b]`
-- `sort` sorts rows, ie: `sort [a, -b]`
-- `derive` adds new columns from the existing ones, ie: `derive [c = a + b]`
+- `from` initializes a pipeline, ie: `from! table`
+- `new` creates a new dataframe, ie: `new! [a = [1, 2], b = [3, 4]]`
+- `rcsv` / `wcsv` read and write CSV files, ie: `rcsv! p'file.csv' del:',' head:true`
+- `rxlsx` / `wxlsx` read and write Excel files, ie: `rxlsx! p'file.xlsx' sheet:'Sheet1'`
+- `rxpt` / `wxpt` read and write XPT (SAS transport) files, ie: `rxpt! p'file.xpt'`
+- `rsas` reads a SAS7BDAT file (there is no writer), ie: `rsas! p'file.sas7bdat'`
+- `filter` filters rows, ie: `filter! a > 1`
+- `select` selects columns, ie: `select! [a, b]`
+- `sort` sorts rows, ie: `sort! [a, -b]`
+- `derive` adds new columns from the existing ones, ie: `derive! [c = a + b]`
+- `group` / `ungroup` group rows by columns, ie: `group! [a, b]`
+- `agg` aggregates a grouped dataframe, ie: `agg! count:true mean:[a] sum:[b]` (also `min`, `max`, `std`, `variance`, `median`, `any`, `all`)
+- `join` joins two dataframes, ie: `join! left other on: [a]` (also `right`, `inner`, `outer`)
+- `take` keeps a range of rows, ie: `take! 10` or `take! 5 10`
+- `names` lists the column names
+- `asBool` / `asInt` / `asFlt` / `asStr` coerce columns, ie: `asFlt! [a, b]`
+- `strReplace` replaces text in string columns, ie: `strReplace! [a] old:',' new:'.'`
 
 ### Features
 
@@ -134,7 +153,8 @@ The language supports the following built-in functions:
 - [x] Filter rows
 - [x] Sort rows
 - [x] Join tables
-- [ ] Group by and aggregate
+- [x] Group by and aggregate
+- [x] Read and write Excel and XPT files, read SAS7BDAT files
 
 ### Installation
 
@@ -151,16 +171,9 @@ go run .
 ### Future Features
 
 - [ ] Add statistical functions
-- [ ] Add support for Excel files
-- [ ] Add support for XPT files
 - [ ] VS Code extension
-- [ ] Add support for SAS7BDAT files
 - [ ] Add support for SPSS files
 - [ ] Database connections (SQL, MongoDB, etc.)
-
-### Contributing
-
-If you want to contribute to this project, you can do so by forking the repository and submitting a pull request.
 
 ### Developers
 
@@ -176,12 +189,3 @@ If the grammar is changed, the parser must be regenerated. The files committed u
 
 - List can be indexed with integers, ranges, strings and regex
 - Get help on functions or identifiers with `?`
-
-### Log
-
-- **14 / 10 / 2023** Gandalff now supports datetime and duration data types.
-- **20 / 08 / 2023** After exactly one year from the first commit, Preludio is fairly stable and usable. The language is still missing a few core features (like `join` and aggregators, already supported by Gandalff), but it is already possible to perform many operations with it.
-- **02 / 08 / 2023** Preludio is now using the Gandalff library for managing data.
-- **21 / 03 / 2023** First publishing of the repository. Many things are still not working.
-- **18 / 03 / 2023** Gandalff library: fist commit.
-- **20 / 08 / 2022** Preludio: fist commit.

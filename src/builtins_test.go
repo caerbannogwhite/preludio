@@ -1,6 +1,7 @@
 package preludiocore
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -859,5 +860,108 @@ Chevrolet Chevette	US	1.3142830188679246
 	err = os.Remove("../test_files/CarsRes.csv")
 	if err != nil {
 		t.Error("Expected no error, got", err)
+	}
+}
+
+func Test_Builtin_Agg(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	source := `
+	stats := (
+		new! [
+			A = ['a', 'a', 'b', 'b', 'b'],
+			C = [1, 2, 3, 4, 5]
+		]
+		group! A
+		agg! count:true sum:[C] mean:[C]
+	)
+	`
+	be.RunSource(source)
+
+	p, ok := be.__globalNamespace["stats"]
+	if !ok {
+		t.Fatal("stats not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Results are sorted by group key: a then b.
+	if df.NRows() != 2 {
+		t.Fatalf("rows: expected 2, got %d", df.NRows())
+	}
+	if df.Col("A").GetAsString(0) != "a" || df.Col("A").GetAsString(1) != "b" {
+		t.Errorf("keys: expected a, b - got %s, %s", df.Col("A").GetAsString(0), df.Col("A").GetAsString(1))
+	}
+	n := df.Col("n").(series.Int64s).Int64s()
+	if n[0] != 2 || n[1] != 3 {
+		t.Errorf("count: expected [2 3], got %v", n)
+	}
+	sum := df.Col("sum(C)").(series.Float64s).Float64s()
+	if sum[0] != 3 || sum[1] != 12 {
+		t.Errorf("sum: expected [3 12], got %v", sum)
+	}
+	mean := df.Col("mean(C)").(series.Float64s).Float64s()
+	if mean[0] != 1.5 || mean[1] != 4 {
+		t.Errorf("mean: expected [1.5 4], got %v", mean)
+	}
+
+	// No aggregator at all is an error.
+	be.RunSource(`(new! [A = [1]] | group! A | agg! count:false)`)
+	if be.getLastError() == "" {
+		t.Error("agg with no aggregators must set an error")
+	}
+}
+
+func Test_Builtin_FileFormats(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	src := (
+		new! [
+			A = [1, 2, 3],
+			B = ['x', 'y', 'z']
+		]
+		wxlsx! '%s/t.xlsx'
+		wxpt! '%s/t.xpt'
+	)
+	fromXlsx := (rxlsx! '%s/t.xlsx')
+	fromXpt := (rxpt! '%s/t.xpt')
+	fromSas := (rsas! '../test_files/sas7bdat_test1.sas7bdat')
+	`, tmp, tmp, tmp, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+
+	for _, name := range []string{"fromXlsx", "fromXpt"} {
+		p, ok := be.__globalNamespace[name]
+		if !ok {
+			t.Fatalf("%s not found", name)
+		}
+		if df, err = p.getDataframe(); err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		if df.NRows() != 3 || df.NCols() != 2 {
+			t.Errorf("%s: expected 3x2, got %dx%d", name, df.NRows(), df.NCols())
+		}
+		if got := df.Col("B").GetAsString(1); got != "y" {
+			t.Errorf("%s: B[1] expected y, got %q", name, got)
+		}
+	}
+
+	p, ok := be.__globalNamespace["fromSas"]
+	if !ok {
+		t.Fatal("fromSas not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() == 0 || df.NCols() == 0 {
+		t.Errorf("fromSas: expected a non-empty frame, got %dx%d", df.NRows(), df.NCols())
 	}
 }

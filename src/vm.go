@@ -460,6 +460,18 @@ MAIN_LOOP:
 				PreludioFunc_OrderBy("sort", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
+			case "agg":
+				PreludioFunc_Agg("agg", vm)
+			case "rxlsx":
+				PreludioFunc_ReadXlsx("rxlsx", vm)
+			case "wxlsx":
+				PreludioFunc_WriteXlsx("wxlsx", vm)
+			case "rxpt":
+				PreludioFunc_ReadXpt("rxpt", vm)
+			case "wxpt":
+				PreludioFunc_WriteXpt("wxpt", vm)
+			case "rsas":
+				PreludioFunc_ReadSas("rsas", vm)
 
 			// Environment functions
 			// case "toCurrent":

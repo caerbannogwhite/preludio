@@ -14,7 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const VERSION = "0.4.0"
+const VERSION = "0.6.0"
 
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
