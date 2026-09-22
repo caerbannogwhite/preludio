@@ -1028,3 +1028,22 @@ func Test_ErrorMessages(t *testing.T) {
 		t.Errorf("error leaks Go type names: %q", e)
 	}
 }
+
+// Test_ScriptFiles runs every runnable script in test_files, so the
+// committed examples cannot rot.
+func Test_ScriptFiles(t *testing.T) {
+	t.Chdir("..")
+
+	for _, name := range []string{"test_files/examples.preq", "test_files/literals.preq"} {
+		src, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		vm := new(ByteEater).InitVM()
+		vm.RunSource(string(src))
+		if e := vm.getLastError(); e != "" {
+			t.Errorf("%s: %s", name, e)
+		}
+	}
+	_ = os.Remove("test_files/Cars1.csv")
+}

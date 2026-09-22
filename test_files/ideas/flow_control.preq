@@ -1,3 +1,5 @@
+# NOT RUNNABLE. A design sketch for syntax the language does not have
+# yet (if/else, for, in, print). Kept as an idea, not as a test.
 
 a := 1
 b := 2

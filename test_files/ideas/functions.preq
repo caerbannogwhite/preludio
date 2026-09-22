@@ -1,3 +1,5 @@
+# NOT RUNNABLE. A design sketch for syntax the language does not have
+# yet (user-defined functions, issue #13). Kept as an idea, not as a test.
 
 func function1 a b:2 c -> a + b + c
 

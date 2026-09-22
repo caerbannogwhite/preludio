@@ -1,3 +1,5 @@
+# NOT RUNNABLE. A design sketch for syntax the language does not have
+# yet (@-indexing, plain reassignment). Kept as an idea, not as a test.
 
 cars := rcsv! p'cars.csv'
 year := cars@'year'
