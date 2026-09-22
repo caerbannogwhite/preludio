@@ -21,9 +21,9 @@ Read and clean up a CSV file, then store the result in a variable called `clean`
 
 ```
 clean := (
-  rcsv! p'test_files/Cars.csv' del:';' head:true
-  strReplace! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  asFlt! [MPG, Displacement, Horsepower, Acceleration]
+  rcsv! p'test_files/Cars.csv' sep:';' header:true
+  gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  as! flt [MPG, Displacement, Horsepower, Acceleration]
   sort! [-Origin, Cylinders, -MPG]
 )
 ```
@@ -45,7 +45,7 @@ derive! [
 ]
 filter! Stat > 1.3
 select! [Car, Origin, Stat]
-wcsv! p'test_files/Cars1.csv' del: '\t'
+wcsv! p'test_files/Cars1.csv' sep: '\t'
 ```
 
 Create a new table by joining two tables:
@@ -76,7 +76,7 @@ stats := (
 )
 ```
 
-![](media/repl_example.gif)
+<!-- ![](media/repl_example.gif) -->
 
 ### Data Types
 
@@ -128,7 +128,7 @@ The language supports the following built-in functions:
 
 - `from` initializes a pipeline, ie: `from! table`
 - `new` creates a new dataframe, ie: `new! [a = [1, 2], b = [3, 4]]`
-- `rcsv` / `wcsv` read and write CSV files, ie: `rcsv! p'file.csv' del:',' head:true`
+- `rcsv` / `wcsv` read and write CSV files, ie: `rcsv! p'file.csv' sep:',' header:true`
 - `rxlsx` / `wxlsx` read and write Excel files, ie: `rxlsx! p'file.xlsx' sheet:'Sheet1'`
 - `rxpt` / `wxpt` read and write XPT (SAS transport) files, ie: `rxpt! p'file.xpt'`
 - `rsas` reads a SAS7BDAT file (there is no writer), ie: `rsas! p'file.sas7bdat'`
@@ -140,9 +140,9 @@ The language supports the following built-in functions:
 - `agg` aggregates a grouped dataframe, ie: `agg! count:true mean:[a] sum:[b]` (also `min`, `max`, `std`, `variance`, `median`, `any`, `all`)
 - `join` joins two dataframes, ie: `join! left other on: [a]` (also `right`, `inner`, `outer`)
 - `take` keeps a range of rows, ie: `take! 10` or `take! 5 10`
-- `names` lists the column names
-- `asBool` / `asInt` / `asFlt` / `asStr` coerce columns, ie: `asFlt! [a, b]`
-- `strReplace` replaces text in string columns, ie: `strReplace! [a] old:',' new:'.'`
+- `cols` lists the column names
+- `as` coerces columns to a type (`bool`, `int`, `flt`, `str`), ie: `as! flt [a, b]`
+- `gsub` replaces text in string columns, ie: `gsub! [a] old:',' new:'.'`
 
 ### Features
 
@@ -168,13 +168,6 @@ go mod tidy
 go run .
 ```
 
-### Future Features
-
-- [ ] Add statistical functions
-- [ ] VS Code extension
-- [ ] Add support for SPSS files
-- [ ] Database connections (SQL, MongoDB, etc.)
-
 ### Developers
 
 If the grammar is changed, the parser must be regenerated. The files committed under `src/bytefeeder/` were generated with **ANTLR 4.11.1** (see the `Code generated ... by ANTLR 4.11.1` header in `src/bytefeeder/preludio_lexer.go`). Download that exact toolchain from https://www.antlr.org/download/antlr-4.11.1-complete.jar and put `antlr.bat` / `antlr` on `PATH`. `make.ps1` fails with an error if ANTLR is missing, instead of silently moving nothing.
@@ -189,3 +182,5 @@ If the grammar is changed, the parser must be regenerated. The files committed u
 
 - List can be indexed with integers, ranges, strings and regex
 - Get help on functions or identifiers with `?`
+- Namespaced builtins (`str.replace!`, `io.csv!`) if the flat name list grows
+  past what short names can carry

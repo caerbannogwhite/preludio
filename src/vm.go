@@ -444,8 +444,8 @@ MAIN_LOOP:
 				PreludioFunc_WriteCSV("wcsv", vm)
 			case "rcsv":
 				PreludioFunc_ReadCSV("rcsv", vm)
-			case "names":
-				PreludioFunc_Names("names", vm)
+			case "cols":
+				PreludioFunc_Cols("cols", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
@@ -478,18 +478,12 @@ MAIN_LOOP:
 			// 	PreludioFunc_ToCurrent("toCurrent", vm)
 
 			// Coerce functions
-			case "asBool":
-				preludioAsType("asBool", vm, meta.BoolType)
-			case "asInt":
-				preludioAsType("asInt", vm, meta.Int64Type)
-			case "asFlt":
-				preludioAsType("asFlt", vm, meta.Float64Type)
-			case "asStr":
-				preludioAsType("asStr", vm, meta.StringType)
+			case "as":
+				PreludioFunc_As("as", vm)
 
 			// String functions
-			case "strReplace":
-				PreludioFunc_StrReplace("strReplace", vm)
+			case "gsub":
+				PreludioFunc_Gsub("gsub", vm)
 
 			// User defined functions
 			default:

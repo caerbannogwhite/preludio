@@ -4,20 +4,20 @@ year := cars@'year'
 time := 34:s
 string_interpolation := f'The year is {cars@year} and the time is {time + 1}'
 
-names_ := (from! cars | names!)
-names_ = names! cars
-names_ = (cars | names!)
+names_ := (from! cars | cols!)
+names_ = cols! cars
+names_ = (cars | cols!)
 
-(from! cars | names!)
-(from! cars | names! | strRepl! old:' ' new:'')
+(from! cars | cols!)
+(from! cars | cols! | gsub! old:' ' new:'')
 
 (
 new! [
   A = names_,
-  B = (names_ | strRepl! old:' ' new:''),
-  C = (names! cars),
-  D = (from! cars | names!),
-  E = (from! cars | names! | strRepl! old:' ' new:''),
+  B = (names_ | gsub! old:' ' new:''),
+  C = (cols! cars),
+  D = (from! cars | cols!),
+  E = (from! cars | cols! | gsub! old:' ' new:''),
 ]
 filter! A == B == C == D == E
 )

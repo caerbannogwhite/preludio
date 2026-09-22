@@ -129,8 +129,8 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"del":  vm.newPInternTerm([]string{","}),
-		"head": vm.newPInternTerm([]bool{true}),
+		"sep":    vm.newPInternTerm([]string{","}),
+		"header": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -170,7 +170,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	}
 	defer outputFile.Close()
 
-	delimiter, err := named["del"].getStringScalar()
+	delimiter, err := named["sep"].getStringScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -186,7 +186,7 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err = named["head"].getBoolScalar()
+	header, err = named["header"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -263,8 +263,8 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
-		"del":  vm.newPInternTerm([]string{","}),
-		"head": vm.newPInternTerm([]bool{true}),
+		"sep":    vm.newPInternTerm([]string{","}),
+		"header": vm.newPInternTerm([]bool{true}),
 	}
 
 	var err error
@@ -290,7 +290,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	}
 	defer inputFile.Close()
 
-	delimiter, err = named["del"].getStringScalar()
+	delimiter, err = named["sep"].getStringScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -306,7 +306,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		}
 	}
 
-	header, err := named["head"].getBoolScalar()
+	header, err := named["header"].getBoolScalar()
 	if err != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
 		return
@@ -328,7 +328,7 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 }
 
 // Get the names of the columns of a Dataframe
-func PreludioFunc_Names(funcName string, vm *ByteEater) {
+func PreludioFunc_Cols(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	var df dataframe.DataFrame
@@ -815,73 +815,10 @@ func PreludioFunc_ToCurrent(funcName string, vm *ByteEater) {
 	vm.__currentDataFrame = df
 }
 
-// Coerce series to a given type
-func preludioAsType(funcName string, vm *ByteEater, coerceType meta.BaseType) {
-	vm.printDebug(5, "STARTING", funcName, "")
-
-	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
-	}
-
-	// POSITIONAL PARAMETERS
-	switch len(positional) {
-	case 1:
-
-	case 2:
-		switch v := positional[0].getValue().(type) {
-		case dataframe.DataFrame:
-
-			var names []string
-			var series_ []series.Series
-
-			switch t := positional[1].getValue().(type) {
-			case series.Series:
-				names = []string{positional[1].name}
-				series_ = []series.Series{t}
-			case __p_list__:
-				names = make([]string, len(t))
-				series_ = make([]series.Series, len(t))
-				for i, e := range t {
-					switch s := e.getValue().(type) {
-					case series.Series:
-						names[i] = e.name
-						series_[i] = s
-					default:
-						vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, s))
-						return
-					}
-				}
-			default:
-				vm.setPanicMode(fmt.Sprintf("%s: expecting series, got %T", funcName, t))
-				return
-			}
-
-			for i, s := range series_ {
-				v = v.Replace(names[i], s.Cast(coerceType))
-			}
-
-			vm.stackPush(vm.newPInternTerm(v))
-
-		case __p_list__:
-
-		default:
-			vm.setPanicMode(fmt.Sprintf("%s: expecting dataframe or list, got %T", funcName, v))
-			return
-		}
-
-	default:
-		vm.setPanicMode(fmt.Sprintf("%s: expecting 1 or 2 parameters, got %d", funcName, len(positional)))
-		return
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////						STRING FUNCTIONS
 
-func PreludioFunc_StrReplace(funcName string, vm *ByteEater) {
+func PreludioFunc_Gsub(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
 
 	named := map[string]*__p_intern__{
@@ -1255,4 +1192,76 @@ func PreludioFunc_ReadSas(funcName string, vm *ByteEater) {
 
 	vm.stackPush(vm.newPInternTerm(df))
 	vm.setCurrentDataFrame()
+}
+
+// Coerce columns to a type: as! flt [MPG, Horsepower]
+// The type is one of the symbols bool, int, flt, str.
+func PreludioFunc_As(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	coerceTypes := map[string]meta.BaseType{
+		"bool": meta.BoolType,
+		"int":  meta.Int64Type,
+		"flt":  meta.Float64Type,
+		"str":  meta.StringType,
+	}
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if len(positional) != 3 {
+		vm.setPanicMode(fmt.Sprintf("%s: expecting a type and a list of columns, e.g. as! flt [a, b]", funcName))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	typeSymbol, err := positional[1].getSymbol()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+	coerceType, ok := coerceTypes[string(typeSymbol)]
+	if !ok {
+		vm.setPanicMode(fmt.Sprintf("%s: unknown type '%s', expecting bool, int, flt or str", funcName, typeSymbol))
+		return
+	}
+
+	// The columns can be a single symbol or a list of symbols.
+	var cols []string
+	switch v := positional[2].getValue().(type) {
+	case __p_symbol__:
+		cols = []string{string(v)}
+	case __p_list__:
+		if cols, err = positional[2].listToStringSlice(); err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+			return
+		}
+	default:
+		vm.setPanicMode(fmt.Sprintf("%s: expecting symbol or list of symbols, got %T", funcName, v))
+		return
+	}
+
+	for _, name := range cols {
+		col := df.Col(name)
+		if col.Err() != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, col.Err()))
+			return
+		}
+		df = df.Replace(name, col.Cast(coerceType))
+		if df.Err() != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+			return
+		}
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
 }

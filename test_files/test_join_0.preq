@@ -1,7 +1,7 @@
 clean := (
-  rcsv! p'test_files/Cars.csv' del:';' head:true
-  strRepl! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  asFlt! [MPG, Displacement, Horsepower, Acceleration]
+  rcsv! p'test_files/Cars.csv' sep:';' header:true
+  gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  as! flt [MPG, Displacement, Horsepower, Acceleration]
   sort! [-Origin, Cylinders, -MPG]
 )
 

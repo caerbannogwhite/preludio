@@ -32,7 +32,7 @@ false,"hello again",0.000000000001,0`
 	}
 	defer os.Remove("csvtest00_read_comma.csv")
 
-	be.RunSource(`rcsv! "csvtest00_read_comma.csv" del: "," head: false`)
+	be.RunSource(`rcsv! "csvtest00_read_comma.csv" sep: "," header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -70,7 +70,7 @@ false;"hello again";0.000000000001;0`
 	}
 	defer os.Remove("csvtest01_read_semicolon.csv")
 
-	be.RunSource(`rcsv! "csvtest01_read_semicolon.csv" del: ";" head: false`)
+	be.RunSource(`rcsv! "csvtest01_read_semicolon.csv" sep: ";" header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil", be.__output.Log)
 	} else if be.__currentResult.isDataframe() == false {
@@ -109,7 +109,7 @@ false	"hello again"	0.000000000001	0`
 	}
 	defer os.Remove("csvtest02_read_tab_header.csv")
 
-	be.RunSource(`rcsv! "csvtest02_read_tab_header.csv" del: "\t" head: true`)
+	be.RunSource(`rcsv! "csvtest02_read_tab_header.csv" sep: "\t" header: true`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -640,9 +640,9 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 	clean := (
-		rcsv! "../test_files/Cars.csv" del:";" head:true
-		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		rcsv! "../test_files/Cars.csv" sep:";" header:true
+		gsub! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		as! flt [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
 	)
 
@@ -810,9 +810,9 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	// basic test
 	source := `
 	clean := (
-		rcsv! "../test_files/Cars.csv" del:";" head:true
-		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		rcsv! "../test_files/Cars.csv" sep:";" header:true
+		gsub! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		as! flt [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
 	)
 
@@ -825,7 +825,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 		filter! Stat > 1.3
 		select! [Car, Origin, Stat]
 		take! 10
-		wcsv! "../test_files/CarsRes.csv" del:"\t"
+		wcsv! "../test_files/CarsRes.csv" sep:"\t"
 	)
 	`
 
