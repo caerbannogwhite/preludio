@@ -28,6 +28,10 @@ clean := (
 )
 ```
 
+Steps chain only inside a parenthesised pipeline block: each line's result
+feeds the next line. On a single line, separate the steps with `|`. A bare
+statement outside a block stands alone.
+
 ```
 europe5Cylinders := (
   from! clean
@@ -38,14 +42,16 @@ europe5Cylinders := (
 Derive new columns and write the result to a CSV file:
 
 ```
-from! clean
-derive! [
-  Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
-  CarOrigin = Car + ' - ' + Origin
-]
-filter! Stat > 1.3
-select! [Car, Origin, Stat]
-wcsv! p'test_files/Cars1.csv' sep: '\t'
+result := (
+  from! clean
+  derive! [
+    Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
+    CarOrigin = Car + ' - ' + Origin
+  ]
+  filter! Stat > 1.3
+  select! [Car, Origin, Stat]
+  wcsv! p'test_files/Cars1.csv' sep: '\t'
+)
 ```
 
 Create a new table by joining two tables:
