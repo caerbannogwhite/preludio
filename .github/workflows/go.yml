@@ -5,9 +5,6 @@
 # src/bytefeeder/. The Go version is taken from the root go.mod so it cannot
 # drift from what the modules declare.
 #
-# src/prql2sas is deliberately left out: it is a standalone legacy module
-# (go 1.19) that nothing else depends on.
-
 name: Go
 
 on:
