@@ -965,3 +965,44 @@ func Test_Builtin_FileFormats(t *testing.T) {
 		t.Errorf("fromSas: expected a non-empty frame, got %dx%d", df.NRows(), df.NCols())
 	}
 }
+
+// A pipeline that ends in a writer still has a value: the frame flows
+// through the write stage.
+func Test_Builtin_WriteKeepsFrame(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	result := (
+		new! [A = [1, 2, 3]]
+		wcsv! '%s/out.csv'
+	)
+	reused := (from! result | take! 2)
+	`, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["result"]
+	if !ok {
+		t.Fatal("result not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 3 {
+		t.Errorf("result: expected 3 rows, got %d", df.NRows())
+	}
+	p, ok = be.__globalNamespace["reused"]
+	if !ok {
+		t.Fatal("reused not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 2 {
+		t.Errorf("reused: expected 2 rows, got %d", df.NRows())
+	}
+}

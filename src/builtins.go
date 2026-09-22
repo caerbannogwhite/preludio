@@ -202,6 +202,10 @@ func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Error()))
 		return
 	}
+
+	// The frame flows on, so a write can sit in the middle or at the end
+	// of a pipeline and the pipeline still has a value.
+	vm.stackPush(vm.newPInternTerm(df))
 }
 
 // Filter rows of a Dataframe
