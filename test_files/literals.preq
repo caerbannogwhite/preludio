@@ -18,12 +18,7 @@ floats := [
   2^4-1, 2^(4-1), na
 ] * -1.4 # comment
 
-# TODO: enable once enchanter ships the NAs.Cast fix
-# (https://github.com/caerbannogwhite/enchanter/pull/28): the na element
-# of a mixed string list is cast to Strings, and the cast filled nil
-# pointers up to enchanter 0.5.1.
-# strings := ['a', '\b', "c", "\d", na] + 'f'
-strings := ['a', '\b', "c", "\d"] + 'f'
+strings := ['a', '\b', "c", "\d", na] + 'f'
 
 raw_strings := [r'a', r'\b', "c", r"\d"] + 'f'
 
