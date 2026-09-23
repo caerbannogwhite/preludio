@@ -1018,26 +1018,9 @@ var builtinNames = []string{
 	"ungroup", "agg", "join", "sort", "take", "as", "gsub",
 }
 
-// renamedBuiltins maps retired names to their replacements, so an old
-// script gets pointed at the new name instead of a generic error.
-var renamedBuiltins = map[string]string{
-	"strReplace": "gsub",
-	"strRepl":    "gsub",
-	"asBool":     "as",
-	"asInt":      "as",
-	"asFlt":      "as",
-	"asStr":      "as",
-	"names":      "cols",
-	"leftj":      "join",
-}
-
 // closestBuiltin returns the builtin whose name is within two edits of
-// name, a renamed builtin's replacement, or the empty string when
-// nothing is close enough.
+// name, or the empty string when nothing is close enough.
 func closestBuiltin(name string) string {
-	if repl, ok := renamedBuiltins[name]; ok {
-		return repl
-	}
 	best, bestDist := "", 3
 	for _, b := range builtinNames {
 		if d := editDistance(name, b); d < bestDist {

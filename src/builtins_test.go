@@ -1011,10 +1011,10 @@ func Test_Builtin_WriteKeepsFrame(t *testing.T) {
 // Errors speak the language's words: unknown names get a hint, missing
 // required parameters are named, and no bad input crashes the VM.
 func Test_ErrorMessages(t *testing.T) {
-	be.RunSource(`strRepl! [A]`)
+	be.RunSource(`filtr! A > 1`)
 	e := be.getLastError()
-	if !strings.Contains(e, "'strRepl' is not a builtin") || !strings.Contains(e, "Did you mean 'gsub'?") {
-		t.Errorf("unknown builtin: expected a did-you-mean hint, got %q", e)
+	if !strings.Contains(e, "'filtr' is not a builtin") || !strings.Contains(e, "Did you mean 'filter'?") {
+		t.Errorf("typo: expected a did-you-mean hint, got %q", e)
 	}
 
 	be.RunSource(`x := (new! [A = ['a,b']] | gsub! [A])`)
