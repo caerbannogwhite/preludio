@@ -653,6 +653,12 @@ MAIN_LOOP:
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
 
+			case meta.TERM_DURATION_WEEK:
+				termType = "DURATION WEEK"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
 			case meta.TERM_DURATION_MONTH:
 				termType = "DURATION MONTH"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
