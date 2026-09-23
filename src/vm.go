@@ -434,8 +434,6 @@ MAIN_LOOP:
 			// Standard library build-ins
 			case "derive":
 				PreludioFunc_Derive("derive", vm)
-			// case "describe":
-			// 	PreludioFunc_Describe("describe", vm)
 			case "filter":
 				PreludioFunc_Filter("filter", vm)
 			case "from":
@@ -472,6 +470,24 @@ MAIN_LOOP:
 				PreludioFunc_WriteXpt("wxpt", vm)
 			case "rsas":
 				PreludioFunc_ReadSas("rsas", vm)
+			case "rjson":
+				PreludioFunc_ReadJson("rjson", vm)
+			case "wjson":
+				PreludioFunc_WriteJson("wjson", vm)
+			case "rparquet":
+				PreludioFunc_ReadParquet("rparquet", vm)
+			case "wparquet":
+				PreludioFunc_WriteParquet("wparquet", vm)
+			case "rarrow":
+				PreludioFunc_ReadArrow("rarrow", vm)
+			case "warrow":
+				PreludioFunc_WriteArrow("warrow", vm)
+			case "whtml":
+				PreludioFunc_WriteHtml("whtml", vm)
+			case "wmd":
+				PreludioFunc_WriteMd("wmd", vm)
+			case "describe":
+				PreludioFunc_Describe("describe", vm)
 
 			// Environment functions
 			// case "toCurrent":
@@ -997,8 +1013,9 @@ func (vm *ByteEater) getLastError() string {
 // for the did-you-mean hint on an unknown name.
 var builtinNames = []string{
 	"derive", "filter", "from", "wcsv", "rcsv", "rxlsx", "wxlsx", "rxpt",
-	"wxpt", "rsas", "cols", "new", "select", "group", "ungroup", "agg",
-	"join", "sort", "take", "as", "gsub",
+	"wxpt", "rsas", "rjson", "wjson", "rparquet", "wparquet", "rarrow",
+	"warrow", "whtml", "wmd", "describe", "cols", "new", "select", "group",
+	"ungroup", "agg", "join", "sort", "take", "as", "gsub",
 }
 
 // renamedBuiltins maps retired names to their replacements, so an old

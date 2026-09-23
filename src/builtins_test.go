@@ -2,6 +2,7 @@ package preludiocore
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -1046,4 +1047,128 @@ func Test_ScriptFiles(t *testing.T) {
 		}
 	}
 	_ = os.Remove("test_files/Cars1.csv")
+}
+
+// The JSON, Parquet and Arrow builtins round-trip a frame; the HTML and
+// Markdown writers produce non-empty files.
+func Test_Builtin_MoreFileFormats(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	srcmore := (
+		new! [
+			A = [1, 2, 3],
+			B = ['x', 'y', 'z']
+		]
+		wjson! '%s/t.json'
+		wparquet! '%s/t.parquet'
+		warrow! '%s/t.arrow'
+		whtml! '%s/t.html'
+		wmd! '%s/t.md'
+	)
+	fromJson := (rjson! '%s/t.json')
+	fromParquet := (rparquet! '%s/t.parquet')
+	fromArrow := (rarrow! '%s/t.arrow')
+	`, tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+
+	for _, name := range []string{"fromJson", "fromParquet", "fromArrow"} {
+		p, ok := be.__globalNamespace[name]
+		if !ok {
+			t.Fatalf("%s not found", name)
+		}
+		if df, err = p.getDataframe(); err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		if df.NRows() != 3 || df.NCols() != 2 {
+			t.Errorf("%s: expected 3x2, got %dx%d", name, df.NRows(), df.NCols())
+		}
+		if got := df.Col("B").GetAsString(1); got != "y" {
+			t.Errorf("%s: B[1] expected y, got %q", name, got)
+		}
+	}
+
+	for _, f := range []string{"t.html", "t.md"} {
+		info, err := os.Stat(tmp + "/" + f)
+		if err != nil {
+			t.Errorf("%s: %s", f, err)
+		} else if info.Size() == 0 {
+			t.Errorf("%s: written empty", f)
+		}
+	}
+}
+
+// take! with a list picks rows by index, repeats included.
+func Test_Builtin_TakeIndices(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`x := (new! [A = [10, 20, 30, 40, 50]] | take! [4, 0, 0])`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["x"]
+	if !ok {
+		t.Fatal("x not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	got := df.Col("A").(series.Int64s).Int64s()
+	want := []int64{50, 10, 10}
+	if len(got) != 3 || got[0] != want[0] || got[1] != want[1] || got[2] != want[2] {
+		t.Errorf("expected %v, got %v", want, got)
+	}
+}
+
+// dropna:false propagates a null into the group's result.
+func Test_Builtin_AggDropna(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`aggdrop := (new! [G = ['a', 'a', 'b'], V = [1, na, 3]] | group! G | agg! dropna:false mean:[V])`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["aggdrop"]
+	if !ok {
+		t.Fatal("aggdrop not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	means := df.Col("mean(V)").(series.Float64s).Float64s()
+	if !math.IsNaN(means[0]) {
+		t.Errorf("group a holds a null, its mean must be NA, got %v", means[0])
+	}
+	if means[1] != 3 {
+		t.Errorf("group b: expected 3, got %v", means[1])
+	}
+}
+
+// describe! prints the summary and the frame flows on.
+func Test_Builtin_Describe(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`descr := (new! [A = [1, 2, 3]] | describe! | take! 2)`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["descr"]
+	if !ok {
+		t.Fatal("descr not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 2 {
+		t.Errorf("the frame must flow through describe, expected 2 rows, got %d", df.NRows())
+	}
 }

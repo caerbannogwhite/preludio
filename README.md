@@ -138,14 +138,19 @@ The language supports the following built-in functions:
 - `rxlsx` / `wxlsx` read and write Excel files, ie: `rxlsx! p'file.xlsx' sheet:'Sheet1'`
 - `rxpt` / `wxpt` read and write XPT (SAS transport) files, ie: `rxpt! p'file.xpt'`
 - `rsas` reads a SAS7BDAT file (there is no writer), ie: `rsas! p'file.sas7bdat'`
+- `rjson` / `wjson` read and write record-oriented JSON files
+- `rparquet` / `wparquet` read and write Parquet files
+- `rarrow` / `warrow` read and write Arrow IPC (Feather) files
+- `whtml` / `wmd` write HTML and Markdown tables (no readers)
 - `filter` filters rows, ie: `filter! a > 1`
 - `select` selects columns, ie: `select! [a, b]`
 - `sort` sorts rows, ie: `sort! [a, -b]`
 - `derive` adds new columns from the existing ones, ie: `derive! [c = a + b]`
 - `group` / `ungroup` group rows by columns, ie: `group! [a, b]`
-- `agg` aggregates a grouped dataframe, ie: `agg! count:true mean:[a] sum:[b]` (also `min`, `max`, `std`, `variance`, `median`, `any`, `all`)
+- `agg` aggregates a grouped dataframe, ie: `agg! count:true mean:[a] sum:[b]` (also `min`, `max`, `std`, `variance`, `median`, `any`, `all`); nulls are skipped unless `dropna:false`, which turns a group with a null into NA
 - `join` joins two dataframes, ie: `join! left other on: [a]` (also `right`, `inner`, `outer`)
-- `take` keeps a range of rows, ie: `take! 10` or `take! 5 10`
+- `take` keeps a range of rows or picks rows by index, ie: `take! 10`, `take! 5 10` or `take! [4, 0, 0]`
+- `describe` summarizes a dataframe
 - `cols` lists the column names
 - `as` coerces columns to a type (`bool`, `int`, `flt`, `str`), ie: `as! flt [a, b]`
 - `gsub` replaces text in string columns, ie: `gsub! [a] old:',' new:'.'`

@@ -66,64 +66,6 @@ func PreludioFunc_Derive(funcName string, vm *ByteEater) {
 	vm.setCurrentDataFrame()
 }
 
-// Describe a Dataframe
-func PreludioFunc_Describe(funcName string, vm *ByteEater) {
-	vm.printDebug(5, "STARTING", funcName, "")
-
-	var err error
-	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
-	if err != nil {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
-		return
-	}
-
-	// expecting a Dataframe
-	if len(positional) == 0 {
-		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, "expecting at least one positional parameter."))
-	} else {
-		// var symbol __p_symbol__
-		// var list __p_list__
-		var df dataframe.DataFrame
-
-		// Describe all
-		if len(positional) == 1 {
-			switch v := positional[0].getValue().(type) {
-			case []bool:
-			case []int64:
-			case []float64:
-			case []string:
-			case __p_list__:
-			case dataframe.DataFrame:
-				df = v
-			}
-
-			vm.printInfo(0, fmt.Sprintln(df.Describe()))
-			vm.stackPush(vm.newPInternTerm(df))
-		} else
-
-		// Describe a subset
-		if len(positional) == 2 {
-			// names := make([]string, 0)
-			// switch v := positional[1].getValue().(type) {
-			// case __p_symbol__:
-			// case __p_list__:
-			// }
-
-			fmt.Println(positional[1])
-
-			// switch v := positional[0].getValue().(type) {
-			// case []bool:
-			// case []int:
-			// case []float64:
-			// case []string:
-			// case __p_list__:
-			// case dataframe.DataFrame:
-			// 	fmt.Println(v.Select().Describe())
-			// }
-		}
-	}
-}
-
 // Write a Dataframe into a CSV file
 func PreludioFunc_WriteCSV(funcName string, vm *ByteEater) {
 	vm.printDebug(5, "STARTING", funcName, "")
@@ -269,6 +211,8 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 	named := map[string]*__p_intern__{
 		"sep":    vm.newPInternTerm([]string{","}),
 		"header": vm.newPInternTerm([]bool{true}),
+		"nulls":  nil,
+		"rows":   nil,
 	}
 
 	var err error
@@ -316,11 +260,29 @@ func PreludioFunc_ReadCSV(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := dataframe.ReadCsv(vm.__context).
+	reader := dataframe.ReadCsv(vm.__context).
 		SetReader(inputFile).
 		SetDelimiter(del).
-		SetHeader(header).
-		Read()
+		SetHeader(header)
+
+	if named["nulls"] != nil {
+		nulls, err := named["nulls"].getBoolScalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: nulls: %s", funcName, err))
+			return
+		}
+		reader = reader.SetNullValues(nulls)
+	}
+	if named["rows"] != nil {
+		rows, err := named["rows"].getInt64Scalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: rows: %s", funcName, err))
+			return
+		}
+		reader = reader.SetRows(int(rows))
+	}
+
+	df := reader.Read()
 
 	if df.Err() != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
@@ -679,6 +641,15 @@ func PreludioFunc_Take(funcName string, vm *ByteEater) {
 
 	switch len(positional) {
 	case 2:
+		// A list picks rows by index; a number keeps the first n rows.
+		if idx, err := positional[1].getInt64Vector(); err == nil && len(idx) > 1 {
+			indices := make([]int, len(idx))
+			for i, v := range idx {
+				indices[i] = norm(int(v))
+			}
+			df = df.TakeIndices(indices)
+			break
+		}
 		a, err := positional[1].getInt64Scalar()
 		if err != nil {
 			vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
@@ -953,7 +924,7 @@ func PreludioFunc_Agg(funcName string, vm *ByteEater) {
 
 	listAggs := []string{"sum", "mean", "min", "max", "std", "variance", "median", "any", "all"}
 
-	named := map[string]*__p_intern__{"count": nil}
+	named := map[string]*__p_intern__{"count": nil, "dropna": nil}
 	for _, name := range listAggs {
 		named[name] = nil
 	}
@@ -1022,7 +993,17 @@ func PreludioFunc_Agg(funcName string, vm *ByteEater) {
 		return
 	}
 
-	res := df.Agg(aggs...).Run()
+	// Nulls are skipped by default; dropna:false makes a null in a group
+	// turn that group's result into NA.
+	removeNAs := true
+	if named["dropna"] != nil {
+		if removeNAs, err = named["dropna"].getBoolScalar(); err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: dropna: %s", funcName, err))
+			return
+		}
+	}
+
+	res := df.Agg(aggs...).RemoveNAs(removeNAs).Run()
 	if res.Err() != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, res.Err()))
 		return
@@ -1041,6 +1022,7 @@ func PreludioFunc_ReadXlsx(funcName string, vm *ByteEater) {
 
 	named := map[string]*__p_intern__{
 		"sheet": vm.newPInternTerm([]string{"Sheet1"}),
+		"nulls": nil,
 	}
 
 	var err error
@@ -1062,7 +1044,17 @@ func PreludioFunc_ReadXlsx(funcName string, vm *ByteEater) {
 		return
 	}
 
-	df := dataframe.ReadXlsx(vm.__context).SetPath(path).SetSheet(sheet).Read()
+	reader := dataframe.ReadXlsx(vm.__context).SetPath(path).SetSheet(sheet)
+	if named["nulls"] != nil {
+		nulls, err := named["nulls"].getBoolScalar()
+		if err != nil {
+			vm.setPanicMode(fmt.Sprintf("%s: nulls: %s", funcName, err))
+			return
+		}
+		reader = reader.SetNullValues(nulls)
+	}
+
+	df := reader.Read()
 	if df.Err() != nil {
 		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
 		return
@@ -1267,5 +1259,264 @@ func PreludioFunc_As(funcName string, vm *ByteEater) {
 		}
 	}
 
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Read a JSON file (record-oriented): rjson! p'file.json'
+func PreludioFunc_ReadJson(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadJson(vm.__context).SetPath(path).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}
+
+// Write a JSON file (record-oriented): wjson! p'file.json'
+func PreludioFunc_WriteJson(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteJson().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Read a Parquet file: rparquet! p'file.parquet'
+func PreludioFunc_ReadParquet(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadParquet(vm.__context).SetPath(path).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}
+
+// Write a Parquet file: wparquet! p'file.parquet'
+func PreludioFunc_WriteParquet(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteParquet().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Read an Arrow IPC (Feather) file: rarrow! p'file.arrow'
+func PreludioFunc_ReadArrow(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[0].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	df := dataframe.ReadArrowIPC(vm.__context).SetPath(path).Read()
+	if df.Err() != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, df.Err()))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+	vm.setCurrentDataFrame()
+}
+
+// Write an Arrow IPC (Feather) file: warrow! p'file.arrow'
+func PreludioFunc_WriteArrow(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteArrowIPC().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Write an HTML table: whtml! p'file.html'
+func PreludioFunc_WriteHtml(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteHtml().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Write a Markdown table: wmd! p'file.md'
+func PreludioFunc_WriteMd(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, true)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	path, err := positional[1].getStringScalar()
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if err = df.WriteMarkdown().SetPath(path).Write(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	vm.stackPush(vm.newPInternTerm(df))
+}
+
+// Describe a dataframe: describe! yields the summary as a string.
+func PreludioFunc_Describe(funcName string, vm *ByteEater) {
+	vm.printDebug(5, "STARTING", funcName, "")
+
+	var err error
+	var df dataframe.DataFrame
+	positional, _, err := vm.GetFunctionParams(funcName, nil, false, false)
+	if err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	if df, err = positional[0].getDataframe(); err != nil {
+		vm.setPanicMode(fmt.Sprintf("%s: %s", funcName, err))
+		return
+	}
+
+	// The summary goes to the output and the frame flows on, so describe
+	// can sit in the middle of a pipeline.
+	vm.printInfo(0, fmt.Sprintln(df.Describe()))
 	vm.stackPush(vm.newPInternTerm(df))
 }
