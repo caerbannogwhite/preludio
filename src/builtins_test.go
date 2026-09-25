@@ -1,6 +1,8 @@
 package preludiocore
 
 import (
+	"fmt"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -31,7 +33,7 @@ false,"hello again",0.000000000001,0`
 	}
 	defer os.Remove("csvtest00_read_comma.csv")
 
-	be.RunSource(`rcsv! "csvtest00_read_comma.csv" del: "," head: false`)
+	be.RunSource(`rcsv! "csvtest00_read_comma.csv" sep: "," header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -69,7 +71,7 @@ false;"hello again";0.000000000001;0`
 	}
 	defer os.Remove("csvtest01_read_semicolon.csv")
 
-	be.RunSource(`rcsv! "csvtest01_read_semicolon.csv" del: ";" head: false`)
+	be.RunSource(`rcsv! "csvtest01_read_semicolon.csv" sep: ";" header: false`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil", be.__output.Log)
 	} else if be.__currentResult.isDataframe() == false {
@@ -108,7 +110,7 @@ false	"hello again"	0.000000000001	0`
 	}
 	defer os.Remove("csvtest02_read_tab_header.csv")
 
-	be.RunSource(`rcsv! "csvtest02_read_tab_header.csv" del: "\t" head: true`)
+	be.RunSource(`rcsv! "csvtest02_read_tab_header.csv" sep: "\t" header: true`)
 	if be.__currentResult == nil {
 		t.Error("Expected result, got nil")
 	} else if be.__currentResult.isDataframe() == false {
@@ -639,9 +641,9 @@ func Test_Builtin_Pipelines1(t *testing.T) {
 	// basic test
 	source = `
 	clean := (
-		rcsv! "../test_files/Cars.csv" del:";" head:true
-		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		rcsv! "../test_files/Cars.csv" sep:";" header:true
+		gsub! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		as! flt [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
 	)
 
@@ -809,9 +811,9 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 	// basic test
 	source := `
 	clean := (
-		rcsv! "../test_files/Cars.csv" del:";" head:true
-		strReplace! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
-		asFlt! [MPG, Displacement, Horsepower, Acceleration]
+		rcsv! "../test_files/Cars.csv" sep:";" header:true
+		gsub! [MPG, Displacement, Horsepower, Acceleration] old:"," new:"."
+		as! flt [MPG, Displacement, Horsepower, Acceleration]
 		sort! [-Origin, Cylinders, -MPG]
 	)
 
@@ -824,7 +826,7 @@ func Test_Builtin_Pipelines2(t *testing.T) {
 		filter! Stat > 1.3
 		select! [Car, Origin, Stat]
 		take! 10
-		wcsv! "../test_files/CarsRes.csv" del:"\t"
+		wcsv! "../test_files/CarsRes.csv" sep:"\t"
 	)
 	`
 
@@ -859,5 +861,314 @@ Chevrolet Chevette	US	1.3142830188679246
 	err = os.Remove("../test_files/CarsRes.csv")
 	if err != nil {
 		t.Error("Expected no error, got", err)
+	}
+}
+
+func Test_Builtin_Agg(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	source := `
+	stats := (
+		new! [
+			A = ['a', 'a', 'b', 'b', 'b'],
+			C = [1, 2, 3, 4, 5]
+		]
+		group! A
+		agg! count:true sum:[C] mean:[C]
+	)
+	`
+	be.RunSource(source)
+
+	p, ok := be.__globalNamespace["stats"]
+	if !ok {
+		t.Fatal("stats not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+
+	// Results are sorted by group key: a then b.
+	if df.NRows() != 2 {
+		t.Fatalf("rows: expected 2, got %d", df.NRows())
+	}
+	if df.Col("A").GetAsString(0) != "a" || df.Col("A").GetAsString(1) != "b" {
+		t.Errorf("keys: expected a, b - got %s, %s", df.Col("A").GetAsString(0), df.Col("A").GetAsString(1))
+	}
+	n := df.Col("n").(series.Int64s).Int64s()
+	if n[0] != 2 || n[1] != 3 {
+		t.Errorf("count: expected [2 3], got %v", n)
+	}
+	sum := df.Col("sum(C)").(series.Float64s).Float64s()
+	if sum[0] != 3 || sum[1] != 12 {
+		t.Errorf("sum: expected [3 12], got %v", sum)
+	}
+	mean := df.Col("mean(C)").(series.Float64s).Float64s()
+	if mean[0] != 1.5 || mean[1] != 4 {
+		t.Errorf("mean: expected [1.5 4], got %v", mean)
+	}
+
+	// No aggregator at all is an error.
+	be.RunSource(`(new! [A = [1]] | group! A | agg! count:false)`)
+	if be.getLastError() == "" {
+		t.Error("agg with no aggregators must set an error")
+	}
+}
+
+func Test_Builtin_FileFormats(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	src := (
+		new! [
+			A = [1, 2, 3],
+			B = ['x', 'y', 'z']
+		]
+		wxlsx! '%s/t.xlsx'
+		wxpt! '%s/t.xpt'
+	)
+	fromXlsx := (rxlsx! '%s/t.xlsx')
+	fromXpt := (rxpt! '%s/t.xpt')
+	fromSas := (rsas! '../test_files/sas7bdat_test1.sas7bdat')
+	`, tmp, tmp, tmp, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+
+	for _, name := range []string{"fromXlsx", "fromXpt"} {
+		p, ok := be.__globalNamespace[name]
+		if !ok {
+			t.Fatalf("%s not found", name)
+		}
+		if df, err = p.getDataframe(); err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		if df.NRows() != 3 || df.NCols() != 2 {
+			t.Errorf("%s: expected 3x2, got %dx%d", name, df.NRows(), df.NCols())
+		}
+		if got := df.Col("B").GetAsString(1); got != "y" {
+			t.Errorf("%s: B[1] expected y, got %q", name, got)
+		}
+	}
+
+	p, ok := be.__globalNamespace["fromSas"]
+	if !ok {
+		t.Fatal("fromSas not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() == 0 || df.NCols() == 0 {
+		t.Errorf("fromSas: expected a non-empty frame, got %dx%d", df.NRows(), df.NCols())
+	}
+}
+
+// A pipeline that ends in a writer still has a value: the frame flows
+// through the write stage.
+func Test_Builtin_WriteKeepsFrame(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	result := (
+		new! [A = [1, 2, 3]]
+		wcsv! '%s/out.csv'
+	)
+	reused := (from! result | take! 2)
+	`, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["result"]
+	if !ok {
+		t.Fatal("result not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 3 {
+		t.Errorf("result: expected 3 rows, got %d", df.NRows())
+	}
+	p, ok = be.__globalNamespace["reused"]
+	if !ok {
+		t.Fatal("reused not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 2 {
+		t.Errorf("reused: expected 2 rows, got %d", df.NRows())
+	}
+}
+
+// Errors speak the language's words: unknown names get a hint, missing
+// required parameters are named, and no bad input crashes the VM.
+func Test_ErrorMessages(t *testing.T) {
+	be.RunSource(`filtr! A > 1`)
+	e := be.getLastError()
+	if !strings.Contains(e, "'filtr' is not a builtin") || !strings.Contains(e, "Did you mean 'filter'?") {
+		t.Errorf("typo: expected a did-you-mean hint, got %q", e)
+	}
+
+	be.RunSource(`x := (new! [A = ['a,b']] | gsub! [A])`)
+	e = be.getLastError()
+	if !strings.Contains(e, "old: is required") {
+		t.Errorf("gsub without old:: expected a clean error, got %q", e)
+	}
+
+	be.RunSource(`derive! [c = 1]`)
+	e = be.getLastError()
+	if strings.Contains(e, "__p_list__") || strings.Contains(e, "preludiocore.") {
+		t.Errorf("error leaks Go type names: %q", e)
+	}
+}
+
+// Test_ScriptFiles runs every runnable script in test_files, so the
+// committed examples cannot rot.
+func Test_ScriptFiles(t *testing.T) {
+	t.Chdir("..")
+
+	for _, name := range []string{"test_files/examples.preq", "test_files/literals.preq"} {
+		src, err := os.ReadFile(name)
+		if err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		vm := new(ByteEater).InitVM()
+		vm.RunSource(string(src))
+		if e := vm.getLastError(); e != "" {
+			t.Errorf("%s: %s", name, e)
+		}
+	}
+	_ = os.Remove("test_files/Cars1.csv")
+}
+
+// The JSON, Parquet and Arrow builtins round-trip a frame; the HTML and
+// Markdown writers produce non-empty files.
+func Test_Builtin_MoreFileFormats(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	tmp := strings.ReplaceAll(t.TempDir(), "\\", "/")
+	source := fmt.Sprintf(`
+	srcmore := (
+		new! [
+			A = [1, 2, 3],
+			B = ['x', 'y', 'z']
+		]
+		wjson! '%s/t.json'
+		wparquet! '%s/t.parquet'
+		warrow! '%s/t.arrow'
+		whtml! '%s/t.html'
+		wmd! '%s/t.md'
+	)
+	fromJson := (rjson! '%s/t.json')
+	fromParquet := (rparquet! '%s/t.parquet')
+	fromArrow := (rarrow! '%s/t.arrow')
+	`, tmp, tmp, tmp, tmp, tmp, tmp, tmp, tmp)
+	be.RunSource(source)
+
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+
+	for _, name := range []string{"fromJson", "fromParquet", "fromArrow"} {
+		p, ok := be.__globalNamespace[name]
+		if !ok {
+			t.Fatalf("%s not found", name)
+		}
+		if df, err = p.getDataframe(); err != nil {
+			t.Fatalf("%s: %s", name, err)
+		}
+		if df.NRows() != 3 || df.NCols() != 2 {
+			t.Errorf("%s: expected 3x2, got %dx%d", name, df.NRows(), df.NCols())
+		}
+		if got := df.Col("B").GetAsString(1); got != "y" {
+			t.Errorf("%s: B[1] expected y, got %q", name, got)
+		}
+	}
+
+	for _, f := range []string{"t.html", "t.md"} {
+		info, err := os.Stat(tmp + "/" + f)
+		if err != nil {
+			t.Errorf("%s: %s", f, err)
+		} else if info.Size() == 0 {
+			t.Errorf("%s: written empty", f)
+		}
+	}
+}
+
+// take! with a list picks rows by index, repeats included.
+func Test_Builtin_TakeIndices(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`x := (new! [A = [10, 20, 30, 40, 50]] | take! [4, 0, 0])`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["x"]
+	if !ok {
+		t.Fatal("x not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	got := df.Col("A").(series.Int64s).Int64s()
+	want := []int64{50, 10, 10}
+	if len(got) != 3 || got[0] != want[0] || got[1] != want[1] || got[2] != want[2] {
+		t.Errorf("expected %v, got %v", want, got)
+	}
+}
+
+// dropna:false propagates a null into the group's result.
+func Test_Builtin_AggDropna(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`aggdrop := (new! [G = ['a', 'a', 'b'], V = [1, na, 3]] | group! G | agg! dropna:false mean:[V])`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["aggdrop"]
+	if !ok {
+		t.Fatal("aggdrop not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	means := df.Col("mean(V)").(series.Float64s).Float64s()
+	if !math.IsNaN(means[0]) {
+		t.Errorf("group a holds a null, its mean must be NA, got %v", means[0])
+	}
+	if means[1] != 3 {
+		t.Errorf("group b: expected 3, got %v", means[1])
+	}
+}
+
+// describe! prints the summary and the frame flows on.
+func Test_Builtin_Describe(t *testing.T) {
+	var err error
+	var df dataframe.DataFrame
+
+	be.RunSource(`descr := (new! [A = [1, 2, 3]] | describe! | take! 2)`)
+	if e := be.getLastError(); e != "" {
+		t.Fatal(e)
+	}
+	p, ok := be.__globalNamespace["descr"]
+	if !ok {
+		t.Fatal("descr not found")
+	}
+	if df, err = p.getDataframe(); err != nil {
+		t.Fatal(err)
+	}
+	if df.NRows() != 2 {
+		t.Errorf("the frame must flow through describe, expected 2 rows, got %d", df.NRows())
 	}
 }

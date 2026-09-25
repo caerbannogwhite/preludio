@@ -1,7 +1,11 @@
+# Every example from the README, in order. The Test_ScriptFiles test in
+# src/builtins_test.go runs this file and fails if any step errors, so
+# the README examples cannot rot.
+
 clean := (
-  rcsv! p'test_files/Cars.csv' del:';' head:true
-  strRepl! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  asFlt! [MPG, Displacement, Horsepower, Acceleration]
+  rcsv! p'test_files/Cars.csv' sep:';' header:true
+  gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  as! flt [MPG, Displacement, Horsepower, Acceleration]
   sort! [-Origin, Cylinders, -MPG]
 )
 
@@ -10,7 +14,7 @@ europe5Cylinders := (
   filter! Cylinders == 5 and Origin == 'Europe'
 )
 
-(
+result := (
   from! clean
   derive! [
     Stat = ((MPG * Cylinders * Displacement) / Horsepower * Acceleration) / Weight,
@@ -18,7 +22,7 @@ europe5Cylinders := (
   ]
   filter! Stat > 1.3
   select! [Car, Origin, Stat]
-  wcsv! p'test_files/Cars1.csv' del: '\t'
+  wcsv! p'test_files/Cars1.csv' sep: '\t'
 )
 
 continents := (
@@ -30,7 +34,13 @@ continents := (
 
 joined := (
   from! clean
-  leftj! continents on: [Origin]
+  join! left continents on: [Origin]
   select! [Car, Origin, Continent]
   sort! [Continent, Origin]
+)
+
+stats := (
+  from! clean
+  group! Origin
+  agg! count:true mean:[MPG] max:[Horsepower]
 )

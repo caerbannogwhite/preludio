@@ -36,7 +36,7 @@ type ByteEater struct {
 	__pipelineNameSpace     map[string]*__p_intern__
 	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
-	__output                meta.PreludioOutput
+	__output                Output
 	__context               *enchanter.Context
 	__currentDataFrame      *dataframe.DataFrame
 	__currentResult         *__p_intern__
@@ -120,7 +120,7 @@ func (vm *ByteEater) InitVM() *ByteEater {
 }
 
 // Run Preludio source code.
-func (vm *ByteEater) RunSource(source string) *meta.PreludioOutput {
+func (vm *ByteEater) RunSource(source string) *Output {
 	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
 	if err == nil {
 		vm.RunBytecode(bytecode)
@@ -145,7 +145,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
+	vm.__output = Output{Log: make([]meta.LogEnty, 0)}
 
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
@@ -200,7 +200,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
+	vm.__output = Output{Log: make([]meta.LogEnty, 0)}
 
 	file, err = os.Open(vm.__param_inputPath)
 	if err != nil {
@@ -314,8 +314,8 @@ func (vm *ByteEater) endOfPipeline() {
 	}
 }
 
-func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
-	vm.__output.Data = make([][]meta.Columnar, 0)
+func (vm *ByteEater) GetOutput() *Output {
+	vm.__output.Data = make([]dataframe.DataFrame, 0)
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -325,12 +325,10 @@ func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
 			}
 
 			for _, result := range list {
-				vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
-				result.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+				result.toResult(&vm.__output.Data)
 			}
 		} else {
-			vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
-			vm.__currentResult.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+			vm.__currentResult.toResult(&vm.__output.Data)
 		}
 	}
 
@@ -434,8 +432,6 @@ MAIN_LOOP:
 			// Standard library build-ins
 			case "derive":
 				PreludioFunc_Derive("derive", vm)
-			// case "describe":
-			// 	PreludioFunc_Describe("describe", vm)
 			case "filter":
 				PreludioFunc_Filter("filter", vm)
 			case "from":
@@ -444,8 +440,8 @@ MAIN_LOOP:
 				PreludioFunc_WriteCSV("wcsv", vm)
 			case "rcsv":
 				PreludioFunc_ReadCSV("rcsv", vm)
-			case "names":
-				PreludioFunc_Names("names", vm)
+			case "cols":
+				PreludioFunc_Cols("cols", vm)
 			case "new":
 				PreludioFunc_New("new", vm)
 			case "select":
@@ -460,24 +456,48 @@ MAIN_LOOP:
 				PreludioFunc_OrderBy("sort", vm)
 			case "take":
 				PreludioFunc_Take("take", vm)
+			case "agg":
+				PreludioFunc_Agg("agg", vm)
+			case "rxlsx":
+				PreludioFunc_ReadXlsx("rxlsx", vm)
+			case "wxlsx":
+				PreludioFunc_WriteXlsx("wxlsx", vm)
+			case "rxpt":
+				PreludioFunc_ReadXpt("rxpt", vm)
+			case "wxpt":
+				PreludioFunc_WriteXpt("wxpt", vm)
+			case "rsas":
+				PreludioFunc_ReadSas("rsas", vm)
+			case "rjson":
+				PreludioFunc_ReadJson("rjson", vm)
+			case "wjson":
+				PreludioFunc_WriteJson("wjson", vm)
+			case "rparquet":
+				PreludioFunc_ReadParquet("rparquet", vm)
+			case "wparquet":
+				PreludioFunc_WriteParquet("wparquet", vm)
+			case "rarrow":
+				PreludioFunc_ReadArrow("rarrow", vm)
+			case "warrow":
+				PreludioFunc_WriteArrow("warrow", vm)
+			case "whtml":
+				PreludioFunc_WriteHtml("whtml", vm)
+			case "wmd":
+				PreludioFunc_WriteMd("wmd", vm)
+			case "describe":
+				PreludioFunc_Describe("describe", vm)
 
 			// Environment functions
 			// case "toCurrent":
 			// 	PreludioFunc_ToCurrent("toCurrent", vm)
 
 			// Coerce functions
-			case "asBool":
-				preludioAsType("asBool", vm, meta.BoolType)
-			case "asInt":
-				preludioAsType("asInt", vm, meta.Int64Type)
-			case "asFlt":
-				preludioAsType("asFlt", vm, meta.Float64Type)
-			case "asStr":
-				preludioAsType("asStr", vm, meta.StringType)
+			case "as":
+				PreludioFunc_As("as", vm)
 
 			// String functions
-			case "strReplace":
-				PreludioFunc_StrReplace("strReplace", vm)
+			case "gsub":
+				PreludioFunc_Gsub("gsub", vm)
 
 			// User defined functions
 			default:
@@ -486,10 +506,14 @@ MAIN_LOOP:
 					case UserDefinedFunction:
 						value(vm)
 					default:
-						vm.setPanicMode(fmt.Sprintf("variable '%s' not callable.", funcName))
+						vm.setPanicMode(fmt.Sprintf("'%s' is not callable, it holds %s", funcName, describeValue(value)))
 					}
 				} else {
-					vm.setPanicMode(fmt.Sprintf("variable '%s' not defined.", funcName))
+					msg := fmt.Sprintf("'%s' is not a builtin function and no variable with this name is defined", funcName)
+					if hint := closestBuiltin(funcName); hint != "" {
+						msg += fmt.Sprintf(". Did you mean '%s'?", hint)
+					}
+					vm.setPanicMode(msg)
 				}
 			}
 
@@ -639,6 +663,12 @@ MAIN_LOOP:
 
 			case meta.TERM_DURATION_DAY:
 				termType = "DURATION DAY"
+				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
+				val, _ := strconv.ParseInt(termVal, 10, 64)
+				vm.stackPush(vm.newPInternTerm(val))
+
+			case meta.TERM_DURATION_WEEK:
+				termType = "DURATION WEEK"
 				termVal = vm.__symbolTable[binary.BigEndian.Uint32(param2)]
 				val, _ := strconv.ParseInt(termVal, 10, 64)
 				vm.stackPush(vm.newPInternTerm(val))
@@ -881,6 +911,11 @@ LOOP1:
 
 		if namedParams != nil {
 			for _, p := range *namedParams {
+				// A nil entry is a required parameter the caller did not
+				// pass; the builtin reports it. Solving it would crash.
+				if p == nil {
+					continue
+				}
 				if err := vm.solveExpr(p); err != nil {
 					return positionalParams, assignments, err
 				}
@@ -970,4 +1005,45 @@ func (vm *ByteEater) getLastError() string {
 		}
 	}
 	return ""
+}
+
+// builtinNames lists every name the function-call dispatch above accepts,
+// for the did-you-mean hint on an unknown name.
+var builtinNames = []string{
+	"derive", "filter", "from", "wcsv", "rcsv", "rxlsx", "wxlsx", "rxpt",
+	"wxpt", "rsas", "rjson", "wjson", "rparquet", "wparquet", "rarrow",
+	"warrow", "whtml", "wmd", "describe", "cols", "new", "select", "group",
+	"ungroup", "agg", "join", "sort", "take", "as", "gsub",
+}
+
+// closestBuiltin returns the builtin whose name is within two edits of
+// name, or the empty string when nothing is close enough.
+func closestBuiltin(name string) string {
+	best, bestDist := "", 3
+	for _, b := range builtinNames {
+		if d := editDistance(name, b); d < bestDist {
+			best, bestDist = b, d
+		}
+	}
+	return best
+}
+
+func editDistance(a, b string) int {
+	prev := make([]int, len(b)+1)
+	curr := make([]int, len(b)+1)
+	for j := range prev {
+		prev[j] = j
+	}
+	for i := 1; i <= len(a); i++ {
+		curr[0] = i
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+			curr[j] = min(prev[j]+1, min(curr[j-1]+1, prev[j-1]+cost))
+		}
+		prev, curr = curr, prev
+	}
+	return prev[len(b)]
 }

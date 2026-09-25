@@ -2,7 +2,9 @@ package preludiocore
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/caerbannogwhite/enchanter/dataframe"
 	"github.com/caerbannogwhite/enchanter/meta"
 	"github.com/caerbannogwhite/enchanter/series"
 )
@@ -46,20 +48,29 @@ func (vm *ByteEater) processList(list *__p_list__) (interface{}, error) {
 	return *list, nil
 }
 
-// describeOperand names an expression operand for an error message. Operands
-// reaching the operator paths in solveExpr are not always series: a list of
-// lists keeps its __p_list__ form, and an unresolved symbol yields nil.
-func describeOperand(v interface{}) string {
-	if s, ok := v.(series.Series); ok {
-		return s.TypeCard().ToString()
-	}
-	if v == nil {
+// describeValue names a value in the language's own words for an error
+// message, instead of leaking a Go type name.
+func describeValue(v interface{}) string {
+	switch t := v.(type) {
+	case nil:
 		return "an undefined value"
-	}
-	if _, ok := v.(__p_list__); ok {
+	case series.Errors:
+		return fmt.Sprintf("an error (%s)", t.Err())
+	case series.Series:
+		return fmt.Sprintf("a %s series of length %d", t.Type().String(), t.Len())
+	case dataframe.DataFrame:
+		return "a dataframe"
+	case __p_list__:
 		return "a list"
+	case __p_symbol__:
+		return fmt.Sprintf("the symbol '%s'", string(t))
+	case UserDefinedFunction:
+		return "a function"
+	case bool, int64, float64, string:
+		return fmt.Sprintf("the value %v", t)
+	default:
+		return strings.TrimPrefix(fmt.Sprintf("%T", v), "preludiocore.")
 	}
-	return fmt.Sprintf("%T", v)
 }
 
 func (vm *ByteEater) solveExpr(p *__p_intern__) error {
@@ -159,7 +170,7 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				// (which has no series representation) reaches this path too,
 				// and asserting it would panic while reporting the error.
 				return fmt.Errorf("unary operator %s not supported for %s",
-					op.ToCodeString(), describeOperand(t1))
+					op.ToCodeString(), describeValue(t1))
 			}
 		} else
 
@@ -172,8 +183,8 @@ func (vm *ByteEater) solveExpr(p *__p_intern__) error {
 				// unsupported operand instead of panicking on the assertion.
 				return fmt.Errorf("binary operator %s not supported for %s and %s",
 					op.ToCodeString(),
-					describeOperand(stack[len(stack)-2]),
-					describeOperand(stack[len(stack)-1]))
+					describeValue(stack[len(stack)-2]),
+					describeValue(stack[len(stack)-1]))
 			}
 			stack = stack[0 : len(stack)-2]
 

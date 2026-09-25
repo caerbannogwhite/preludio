@@ -572,6 +572,10 @@ func (bf *ByteFeeder) ExitLiteral(ctx *LiteralContext) {
 			bf.AppendInstruction(meta.OP_PUSH_TERM, meta.TERM_DURATION_DAY,
 				bf.symbolTable.Add(val[0]))
 
+		case meta.SYMBOL_DURATION_WEEK, meta.SYMBOL_DURATION_WEEK_SHORT:
+			bf.AppendInstruction(meta.OP_PUSH_TERM, meta.TERM_DURATION_WEEK,
+				bf.symbolTable.Add(val[0]))
+
 		case meta.SYMBOL_DURATION_MONTH, meta.SYMBOL_DURATION_MONTH_SHORT:
 			bf.AppendInstruction(meta.OP_PUSH_TERM, meta.TERM_DURATION_MONTH,
 				bf.symbolTable.Add(val[0]))

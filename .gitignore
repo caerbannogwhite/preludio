@@ -31,3 +31,5 @@ yarn-error.log*
 # project
 .antlr
 *.exe
+*~
+test_files/Cars1.csv

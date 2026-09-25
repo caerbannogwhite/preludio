@@ -10,34 +10,22 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
+	"github.com/caerbannogwhite/enchanter/dataframe"
 	"github.com/caerbannogwhite/enchanter/meta"
 	"github.com/charmbracelet/lipgloss"
 )
 
-const VERSION = "0.4.0"
+const VERSION = "0.6.0"
 
 const DEFAULT_PROMPT = ">>> "
 const DEFAULT_INDENTAION = "    "
 const DEFAULT_SUSPENSION_STRING = "... "
-const DEFAULT_NULL_STRING = meta.SYMBOL_NA
-const DEFAULT_OUTPUT_COLUMN_SIZE = 12
-
-var JUST_RIGHT_TYPES = map[string]bool{
-	"Bool":    true,
-	"Int64":   true,
-	"Float64": true,
-	"String":  false,
-}
+const DEFAULT_TABLE_WIDTH = 150
 
 var (
 	STYLE_BOLD    = lipgloss.NewStyle().Bold(true)
-	STYLE_ITALIC  = lipgloss.NewStyle().Italic(true)
 	STYLE_PROMPT  = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#F87217"))
-	STYLE_NA      = STYLE_BOLD.Copy().Foreground(lipgloss.Color("#C04000"))
-	STYLE_BOOL    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
 	STYLE_NUMERIC = lipgloss.NewStyle().Foreground(lipgloss.Color("#00BFFF"))
-	STYLE_STRING  = STYLE_ITALIC.Copy().Foreground(lipgloss.Color("#98AFC7"))
-	NO_STYLE      = lipgloss.NewStyle()
 )
 
 type CliArgs struct {
@@ -101,7 +89,7 @@ func main() {
 
 func LaunchRepl(args CliArgs) {
 
-	outputColumnSize := DEFAULT_OUTPUT_COLUMN_SIZE
+	tableWidth := DEFAULT_TABLE_WIDTH
 
 	fmt.Println("Welcome to the " + STYLE_PROMPT.Copy().Italic(true).Render("Preludio REPL") + "!")
 	fmt.Println("Version:", STYLE_NUMERIC.Render(VERSION))
@@ -182,14 +170,14 @@ func LaunchRepl(args CliArgs) {
 						be.SetParamFullOutput(false)
 					}
 					fmt.Printf("Full output set to \"%t\"", be.GetParamFullOutput())
-				case "ENV_OUTPUT_COLUMN_SIZE":
+				case "ENV_OUTPUT_WIDTH":
 					l, err := strconv.Atoi(spt[2])
 					if err != nil {
-						fmt.Println("Error parsing output column size:", err)
+						fmt.Println("Error parsing output width:", err)
 						continue
 					}
-					outputColumnSize = l
-					fmt.Println("Output column size set to", outputColumnSize)
+					tableWidth = l
+					fmt.Println("Output width set to", tableWidth)
 				default:
 					fmt.Println("Unknown environment variable:", spt[1])
 				}
@@ -229,8 +217,23 @@ func LaunchRepl(args CliArgs) {
 				}
 			}
 
-			for _, c := range res.Data {
-				prettyPrint(DEFAULT_INDENTAION, outputColumnSize, c)
+			params := dataframe.NewPPrintParams().
+				SetIndent(DEFAULT_INDENTAION).
+				SetUseLipGloss(true).
+				SetWidth(tableWidth).
+				SetNRows(be.GetParamOutputSnippetLength())
+
+			for _, df := range res.Data {
+				p := params
+				if be.GetParamFullOutput() {
+					p = p.SetNRows(df.NRows())
+				}
+
+				out := df.Table(p)
+				if !strings.HasSuffix(out, "\n") {
+					out += "\n"
+				}
+				fmt.Print(out)
 			}
 
 			code = ""
@@ -241,134 +244,4 @@ func LaunchRepl(args CliArgs) {
 
 		code += line + "\n"
 	}
-}
-
-func truncate(s string, n int) string {
-	if len(s) > n {
-		return s[:n-3] + "..."
-	}
-	return s
-}
-
-func prettyPrint(indent string, colSize int, columnar []meta.Columnar) {
-	if len(columnar) == 0 {
-		return
-	}
-
-	actualColSize := colSize + 3
-	fmtStringLeft := fmt.Sprintf(" %%-%ds ", colSize)
-	fmtStringRight := fmt.Sprintf(" %%%ds ", colSize)
-
-	// header
-	buffer := indent + "╭"
-	for i := 1; i < len(columnar)*actualColSize; i++ {
-		if i%actualColSize == 0 {
-			buffer += "┬"
-		} else {
-			buffer += "─"
-		}
-	}
-	buffer += "╮\n"
-
-	// column names
-	// check if there are any column names
-	colNames := false
-	for _, c := range columnar {
-		if c.Name != "" {
-			colNames = true
-			break
-		}
-	}
-
-	// only print column names if there are any
-	if colNames {
-		buffer += indent
-		for _, c := range columnar {
-			buffer += "│" + STYLE_BOLD.Render(fmt.Sprintf(fmtStringLeft, truncate(c.Name, colSize)))
-		}
-		buffer += "│\n"
-
-		// separator
-		buffer += indent + "├"
-		for i := 1; i < len(columnar)*actualColSize; i++ {
-			if i%actualColSize == 0 {
-				buffer += "┼"
-			} else {
-				buffer += "─"
-			}
-		}
-		buffer += "┤\n"
-	}
-
-	// column meta
-	buffer += indent
-	for _, c := range columnar {
-		buffer += "│" + STYLE_BOLD.Copy().
-			Italic(true).
-			Render(fmt.Sprintf(fmtStringLeft, truncate(c.Type, colSize)))
-	}
-	buffer += "│\n"
-
-	// separator
-	buffer += indent + "├"
-	for i := 1; i < len(columnar)*actualColSize; i++ {
-		if i%actualColSize == 0 {
-			buffer += "┼"
-		} else {
-			buffer += "─"
-		}
-	}
-	buffer += "┤\n"
-
-	// data
-	for i := 0; i < len(columnar[0].Data); i++ {
-		buffer += indent
-		for _, c := range columnar {
-			fmtString := fmtStringLeft
-			if JUST_RIGHT_TYPES[c.Type] {
-				fmtString = fmtStringRight
-			}
-
-			if c.Nulls[i] {
-				buffer += "│" + STYLE_NA.Render(fmt.Sprintf(fmtString, DEFAULT_NULL_STRING))
-			} else {
-				switch c.Type {
-				case "Bool":
-					buffer += "│" + STYLE_BOOL.Render(fmt.Sprintf(fmtString, c.Data[i]))
-				case "Int64", "Float64":
-					buffer += "│" + STYLE_NUMERIC.Render(fmt.Sprintf(fmtString, c.Data[i]))
-				case "String":
-					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
-				default:
-					buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, truncate(c.Data[i], colSize)))
-				}
-			}
-		}
-		buffer += "│\n"
-	}
-
-	if len(columnar[0].Data) < columnar[0].ActualLength {
-		buffer += indent
-		for _, c := range columnar {
-			fmtString := fmtStringLeft
-			if JUST_RIGHT_TYPES[c.Type] {
-				fmtString = fmtStringRight
-			}
-			buffer += "│" + STYLE_STRING.Render(fmt.Sprintf(fmtString, "..."))
-		}
-		buffer += "│\n"
-	}
-
-	// separator
-	buffer += indent + "╰"
-	for i := 1; i < len(columnar)*actualColSize; i++ {
-		if i%actualColSize == 0 {
-			buffer += "┴"
-		} else {
-			buffer += "─"
-		}
-	}
-	buffer += "╯\n"
-
-	fmt.Print(buffer)
 }
