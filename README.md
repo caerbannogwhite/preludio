@@ -20,30 +20,35 @@ No libraries or external dependencies are required to run the language.
 Read and clean up a CSV file, then store the result in a variable called `clean`:
 
 ```
->>> clean := (
-...   rcsv! p'test_files/Cars.csv' sep:';' header:true
-...   gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-...   as! flt [MPG, Displacement, Horsepower, Acceleration]
-...   sort! [-Origin, Cylinders, -MPG]
-... )
-...
-    ╭──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────╮
-    │ Car          │ MPG          │ Cylinders    │ Displacement │ Horsepower   │ Weight       │ Acceleration │ Model        │ Origin       │
-    ├──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
-    │ String       │ Float64      │ Int64        │ Float64      │ Float64      │ Int64        │ Float64      │ Int64        │ String       │
-    ├──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
-    │ Plymouth ... │           39 │            4 │           86 │           64 │         1875 │         16.4 │           81 │ US           │
-    │ Plymouth ... │           38 │            4 │          105 │           63 │         2125 │         14.7 │           82 │ US           │
-    │ Ford Fiesta  │         36.1 │            4 │           98 │           66 │         1800 │         14.4 │           78 │ US           │
-    │ Dodge Cha... │           36 │            4 │          135 │           84 │         2370 │           13 │           82 │ US           │
-    │ Mercury L... │           36 │            4 │           98 │           70 │         2125 │         17.3 │           82 │ US           │
-    │ Dodge Col... │         35.7 │            4 │           98 │           80 │         1915 │         14.4 │           79 │ US           │
-    │ Plymouth ... │         34.7 │            4 │          105 │           63 │         2215 │         14.9 │           81 │ US           │
-    │ Plymouth ... │         34.5 │            4 │          105 │           70 │         2150 │         14.9 │           79 │ US           │
-    │ Ford Esco... │         34.4 │            4 │           98 │           65 │         2045 │         16.2 │           81 │ US           │
-    │ Plymouth ... │         34.2 │            4 │          105 │           70 │         2200 │         13.2 │           79 │ US           │
-    │ ...          │          ... │          ... │          ... │          ... │          ... │          ... │          ... │ ...          │
-    ╰──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────╯
+clean := (
+  rcsv! p'test_files/Cars.csv' sep:';' header:true
+  gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+  as! flt [MPG, Displacement, Horsepower, Acceleration]
+  sort! [-Origin, Cylinders, -MPG]
+)
+```
+
+Which should print:
+
+```
+      DataFrame: 406 rows, 9 columns
+    ╭────────────────────┬─────────┬───────────┬──────────────┬────────────┬────────┬──────────────┬───────┬────────╮
+    │ Car                │ MPG     │ Cylinders │ Displacement │ Horsepower │ Weight │ Acceleration │ Model │ Origin │
+    ├────────────────────┼─────────┼───────────┼──────────────┼────────────┼────────┼──────────────┼───────┼────────┤
+    │ String             │ Float64 │ Int64     │ Float64      │ Float64    │ Int64  │ Float64      │ Int64 │ String │
+    ├────────────────────┼─────────┼───────────┼──────────────┼────────────┼────────┼──────────────┼───────┼────────┤
+    │ Plymouth Champ     │   39.00 │         4 │         86.0 │       64.0 │   1875 │        16.40 │    81 │ US     │
+    │ Plymouth Horizo... │   38.00 │         4 │        105.0 │       63.0 │   2125 │        14.70 │    82 │ US     │
+    │ Ford Fiesta        │   36.10 │         4 │         98.0 │       66.0 │   1800 │        14.40 │    78 │ US     │
+    │ Dodge Charger 2.2  │   36.00 │         4 │        135.0 │       84.0 │   2370 │        13.00 │    82 │ US     │
+    │ Mercury Lynx l     │   36.00 │         4 │         98.0 │       70.0 │   2125 │        17.30 │    82 │ US     │
+    │ Dodge Colt Hatc... │   35.70 │         4 │         98.0 │       80.0 │   1915 │        14.40 │    79 │ US     │
+    │ Plymouth Horizon 4 │   34.70 │         4 │        105.0 │       63.0 │   2215 │        14.90 │    81 │ US     │
+    ┊          ⋮         ┊     ⋮   ┊      ⋮    ┊       ⋮      ┊      ⋮     ┊    ⋮   ┊       ⋮      ┊    ⋮  ┊    ⋮   ┊
+    │ Volvo 264gl        │   17.00 │         6 │        163.0 │      125.0 │   3140 │        13.60 │    78 │ Europe │
+    │ Mercedes-Benz 280s │   16.50 │         6 │        168.0 │      120.0 │   3820 │        16.70 │    76 │ Europe │
+    │ Peugeot 604sl      │   16.20 │         6 │        163.0 │      133.0 │   3410 │        15.80 │    78 │ Europe │
+    ╰────────────────────┴─────────┴───────────┴──────────────┴────────────┴────────┴──────────────┴───────┴────────╯
 ```
 
 Steps chain only inside a parenthesised pipeline block: each line's result
@@ -93,24 +98,41 @@ joined := (
 Group rows and aggregate:
 
 ```
->>> stats := (
-...   from! clean
-...   group! Origin
-...   agg! count:true mean:[MPG] max:[Horsepower]
-... )
-...
-    ╭──────────────┬──────────────┬──────────────┬──────────────╮
-    │ Origin       │ n            │ mean(MPG)    │ max(Horse... │
-    ├──────────────┼──────────────┼──────────────┼──────────────┤
-    │ String       │ Int64        │ Float64      │ Float64      │
-    ├──────────────┼──────────────┼──────────────┼──────────────┤
-    │ Europe       │           73 │  26.74520548 │          133 │
-    │ Japan        │           79 │  30.45063291 │          132 │
-    │ US           │          254 │  19.68818898 │          230 │
-    ╰──────────────┴──────────────┴──────────────┴──────────────╯
+stats := (
+  from! clean
+  group! Origin
+  agg! count:true mean:[MPG] max:[Horsepower]
+)
+```
+
+Which should print:
+
+```
+      DataFrame: 3 rows, 4 columns
+    ╭────────┬───────┬───────────┬─────────────────╮
+    │ Origin │ n     │ mean(MPG) │ max(Horsepower) │
+    ├────────┼───────┼───────────┼─────────────────┤
+    │ String │ Int64 │ Float64   │ Float64         │
+    ├────────┼───────┼───────────┼─────────────────┤
+    │ Europe │    73 │     26.75 │           133.0 │
+    │ Japan  │    79 │     30.45 │           132.0 │
+    │ US     │   254 │     19.69 │           230.0 │
+    ╰────────┴───────┴───────────┴─────────────────╯
 ```
 
 <!-- ![](media/repl_example.gif) -->
+
+### The REPL
+
+Running the program with no arguments starts the REPL. A statement runs
+when you enter an empty line. `%setenv <key> <value>` changes a session
+setting:
+
+- `ENV_WARNINGS` (`true`/`false`): print warnings
+- `ENV_VERBOSE` (`true`/`false`): verbose mode
+- `ENV_DEBUG_LEVEL` (integer): print debug messages below this level
+- `ENV_FULL_OUTPUT` (`true`/`false`): print every row of a result instead of the ten-row head and three-row tail
+- `ENV_OUTPUT_WIDTH` (integer): total table width in characters, 150 by default
 
 ### Data Types
 
@@ -128,6 +150,11 @@ The language supports the following data types:
 - `date` ie: `d'2021-08-20'`, `d"2021-08-20"`
 - `duration` ie: `1:h`, `2:milliseconds`, `3:us`
 - `na`, the null value
+
+> Known limitation: `duration`, `date` and `range` literals parse but lose
+> their type when evaluated. `1:h` becomes the integer 1 and a date stays a
+> plain string. See
+> [issue #22](https://github.com/caerbannogwhite/preludio/issues/22).
 
 In addition, the language supports the following data structures:
 
