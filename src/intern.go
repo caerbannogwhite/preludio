@@ -56,16 +56,17 @@ func (i *__p_intern__) setAssignment(name string) {
 	i.name = name
 }
 
-func (i *__p_intern__) toResult(res *[]meta.Columnar, fullOutput bool, outputSnippetLength int) error {
+// toResult appends the value as a dataframe: a frame as itself, a bare
+// series wrapped into a one-column frame. Other values render nothing.
+func (i *__p_intern__) toResult(res *[]dataframe.DataFrame) error {
 	switch i.tag {
 	case PRELUDIO_INTERNAL_TAG_EXPRESSION, PRELUDIO_INTERNAL_TAG_NAMED_PARAM, PRELUDIO_INTERNAL_TAG_ASSIGNMENT:
 		switch v := i.expr[0].(type) {
 		case series.Series:
-			*res = append(*res, seriesToColumnar(fullOutput, outputSnippetLength, i.name, v))
+			*res = append(*res, dataframe.NewDataFrame(i.vm.__context).AddSeries(i.name, v))
 
 		case dataframe.DataFrame:
-			df := dataFrameToColumnar(fullOutput, outputSnippetLength, &v)
-			*res = append(*res, df...)
+			*res = append(*res, v)
 		}
 	}
 	return nil

@@ -36,7 +36,7 @@ type ByteEater struct {
 	__pipelineNameSpace     map[string]*__p_intern__
 	__currentDataFrameNames map[string]bool
 	__funcNumParams         int
-	__output                meta.PreludioOutput
+	__output                Output
 	__context               *enchanter.Context
 	__currentDataFrame      *dataframe.DataFrame
 	__currentResult         *__p_intern__
@@ -120,7 +120,7 @@ func (vm *ByteEater) InitVM() *ByteEater {
 }
 
 // Run Preludio source code.
-func (vm *ByteEater) RunSource(source string) *meta.PreludioOutput {
+func (vm *ByteEater) RunSource(source string) *Output {
 	bytecode, compilerLogs, err := bytefeeder.CompileSource(source)
 	if err == nil {
 		vm.RunBytecode(bytecode)
@@ -145,7 +145,7 @@ func (vm *ByteEater) RunBytecode(bytecode []byte) {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
+	vm.__output = Output{Log: make([]meta.LogEnty, 0)}
 
 	bytemark := bytecode[0:4]
 	__symbolTableSize := binary.BigEndian.Uint32(bytecode[4:8])
@@ -200,7 +200,7 @@ func (vm *ByteEater) RunFileBytecode() {
 	vm.__currentResult = nil
 
 	// set a new output for the new computation
-	vm.__output = meta.PreludioOutput{Log: make([]meta.LogEnty, 0)}
+	vm.__output = Output{Log: make([]meta.LogEnty, 0)}
 
 	file, err = os.Open(vm.__param_inputPath)
 	if err != nil {
@@ -314,8 +314,8 @@ func (vm *ByteEater) endOfPipeline() {
 	}
 }
 
-func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
-	vm.__output.Data = make([][]meta.Columnar, 0)
+func (vm *ByteEater) GetOutput() *Output {
+	vm.__output.Data = make([]dataframe.DataFrame, 0)
 	if vm.__currentResult != nil {
 		if vm.__currentResult.isList() {
 			list, err := vm.__currentResult.getList()
@@ -325,12 +325,10 @@ func (vm *ByteEater) GetOutput() *meta.PreludioOutput {
 			}
 
 			for _, result := range list {
-				vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
-				result.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+				result.toResult(&vm.__output.Data)
 			}
 		} else {
-			vm.__output.Data = append(vm.__output.Data, make([]meta.Columnar, 0))
-			vm.__currentResult.toResult(&vm.__output.Data[len(vm.__output.Data)-1], vm.__param_fullOutput, vm.__param_outputSnippetLength)
+			vm.__currentResult.toResult(&vm.__output.Data)
 		}
 	}
 
