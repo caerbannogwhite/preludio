@@ -20,12 +20,30 @@ No libraries or external dependencies are required to run the language.
 Read and clean up a CSV file, then store the result in a variable called `clean`:
 
 ```
-clean := (
-  rcsv! p'test_files/Cars.csv' sep:';' header:true
-  gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
-  as! flt [MPG, Displacement, Horsepower, Acceleration]
-  sort! [-Origin, Cylinders, -MPG]
-)
+>>> clean := (
+...   rcsv! p'test_files/Cars.csv' sep:';' header:true
+...   gsub! [MPG, Displacement, Horsepower, Acceleration] old:',' new:'.'
+...   as! flt [MPG, Displacement, Horsepower, Acceleration]
+...   sort! [-Origin, Cylinders, -MPG]
+... )
+...
+    ╭──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────┬──────────────╮
+    │ Car          │ MPG          │ Cylinders    │ Displacement │ Horsepower   │ Weight       │ Acceleration │ Model        │ Origin       │
+    ├──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
+    │ String       │ Float64      │ Int64        │ Float64      │ Float64      │ Int64        │ Float64      │ Int64        │ String       │
+    ├──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┼──────────────┤
+    │ Plymouth ... │           39 │            4 │           86 │           64 │         1875 │         16.4 │           81 │ US           │
+    │ Plymouth ... │           38 │            4 │          105 │           63 │         2125 │         14.7 │           82 │ US           │
+    │ Ford Fiesta  │         36.1 │            4 │           98 │           66 │         1800 │         14.4 │           78 │ US           │
+    │ Dodge Cha... │           36 │            4 │          135 │           84 │         2370 │           13 │           82 │ US           │
+    │ Mercury L... │           36 │            4 │           98 │           70 │         2125 │         17.3 │           82 │ US           │
+    │ Dodge Col... │         35.7 │            4 │           98 │           80 │         1915 │         14.4 │           79 │ US           │
+    │ Plymouth ... │         34.7 │            4 │          105 │           63 │         2215 │         14.9 │           81 │ US           │
+    │ Plymouth ... │         34.5 │            4 │          105 │           70 │         2150 │         14.9 │           79 │ US           │
+    │ Ford Esco... │         34.4 │            4 │           98 │           65 │         2045 │         16.2 │           81 │ US           │
+    │ Plymouth ... │         34.2 │            4 │          105 │           70 │         2200 │         13.2 │           79 │ US           │
+    │ ...          │          ... │          ... │          ... │          ... │          ... │          ... │          ... │ ...          │
+    ╰──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────┴──────────────╯
 ```
 
 Steps chain only inside a parenthesised pipeline block: each line's result
@@ -75,11 +93,21 @@ joined := (
 Group rows and aggregate:
 
 ```
-stats := (
-  from! clean
-  group! Origin
-  agg! count:true mean:[MPG] max:[Horsepower]
-)
+>>> stats := (
+...   from! clean
+...   group! Origin
+...   agg! count:true mean:[MPG] max:[Horsepower]
+... )
+...
+    ╭──────────────┬──────────────┬──────────────┬──────────────╮
+    │ Origin       │ n            │ mean(MPG)    │ max(Horse... │
+    ├──────────────┼──────────────┼──────────────┼──────────────┤
+    │ String       │ Int64        │ Float64      │ Float64      │
+    ├──────────────┼──────────────┼──────────────┼──────────────┤
+    │ Europe       │           73 │  26.74520548 │          133 │
+    │ Japan        │           79 │  30.45063291 │          132 │
+    │ US           │          254 │  19.68818898 │          230 │
+    ╰──────────────┴──────────────┴──────────────┴──────────────╯
 ```
 
 <!-- ![](media/repl_example.gif) -->
